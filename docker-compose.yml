@@ -1,0 +1,41 @@
+version: "3.3"
+services:
+    lobster_db:
+        image: postgres:12-alpine
+        container_name: lobster-postgres
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./db/postgres/postgres-data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        networks:
+            - lobster
+        restart: "on-failure"
+
+    lobster_core:
+        build: core/.
+        image: lobster/core:latest
+        container_name: lobster-core
+        env_file: core/env_var
+        environment:
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            - AWS_DEFAULT_REGION=ap-south-1
+            - secret='b9c8e5acc65e88f817ec58d94b9664cba1385a77a1a63c1e8fa8cd5e5c5852c2'
+            - algorithm=HS256
+        volumes:
+            - ./core:/app
+            - ./logs:/core/logs
+        ports:
+            - 8000:8000
+        depends_on:
+            - lobster_db
+        networks:
+            - lobster
+        restart: "on-failure"
+
+networks:
+    lobster:
+        name: lobster-network
