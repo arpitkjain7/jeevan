@@ -47,7 +47,7 @@ class CRUDAppointments:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.doc_id == doc_id)
-                    .order_by(Appointments.date_of_appointment.desc())
+                    .order_by(Appointments.appointment_date.desc())
                     .all()
                 )
             if obj is not None:
@@ -75,7 +75,7 @@ class CRUDAppointments:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.patient_id == patient_id)
-                    .order_by(Appointments.date_of_appointment.desc())
+                    .order_by(Appointments.appointment_date.desc())
                     .all()
                 )
             if obj is not None:
