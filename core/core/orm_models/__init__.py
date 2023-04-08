@@ -14,3 +14,4 @@ from core.orm_models.hims_precautions import *
 from core.orm_models.hims_patientMedicalRecord import *
 from core.orm_models.hims_patientVaccinationRecords import *
 from core.orm_models.hims_medicines import *
+from core.orm_models.hims_users import *
