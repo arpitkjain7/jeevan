@@ -25,6 +25,7 @@ class CRUDListOfComplaints:
                 transaction_session.add(list_of_complaints)
                 transaction_session.commit()
                 transaction_session.refresh(list_of_complaints)
+            return list_of_complaints.id
         except Exception as error:
             logging.error(f"Error in CRUDListOfComplaints create function : {error}")
             raise error
@@ -46,6 +47,26 @@ class CRUDListOfComplaints:
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
+        except Exception as error:
+            logging.error(f"Error in CRUDListOfComplaints read_all function : {error}")
+            raise error
+
+    def read(self,complaint: str):
+        """[CRUD function to read_all Complaint record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all Complaint records]
+        """
+        try:
+            logging.info("CRUDListOfComplaints read request")
+            with session() as transaction_session:
+                obj: ListOfComplaints = transaction_session.query(ListOfComplaints).filter(ListOfComplaints.complaint == complaint).first()
+            if obj is not None:
+                return obj.__dict__
+            return None
         except Exception as error:
             logging.error(f"Error in CRUDListOfComplaints read_all function : {error}")
             raise error
