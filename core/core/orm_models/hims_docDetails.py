@@ -22,5 +22,6 @@ class DocDetails(Base):
     doc_department = Column(String)
     doc_working_days = Column(String)
     doc_reg_id = Column(String)
+    avg_consultation_time = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

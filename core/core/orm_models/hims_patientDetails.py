@@ -12,5 +12,6 @@ class PatientDetails(Base):
     name = Column(String)
     gender = Column(String)
     DOB = Column(String)
+    linking_token = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
