@@ -95,7 +95,9 @@ def delete_complaint(complaint_id: int, token: str = Depends(oauth2_scheme)):
         logging.debug(f"Request: {complaint_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfComplaintsController().delete_complaint_controller(complaint_id)
+            return ListOfComplaintsController().delete_complaint_controller(
+                complaint_id
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
