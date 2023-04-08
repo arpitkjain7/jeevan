@@ -7,34 +7,26 @@ class RegisterResponse(BaseModel):
     access_token: str
     token_type: str
     user_role: str
+    status: str
 
 
 class LoginResponse(BaseModel):
-    email: str
+    id: int
+    username: str
     name: str
-    user_id: str
+    hip_name: str
+    hip_id: str
+    user_role: str
+    department: str
     access_token: str
     token_type: str
-    user_role: str
 
 
-class UpdateUserResponse(BaseModel):
-    user_name: str
-    license_type: str
-    user_role: str
-    user_role_id: str
-
-
-class UserDetails(BaseModel):
+class UserResponse(BaseModel):
     id: int
+    username: str
     name: str
-    email_id: str
-    password: str
-    company_name: str
-    sub_category_code: int
-    location: str
-    phone_number: int
-    sub_category_name: str
-    industry_name: str
-    created_at: datetime.datetime = None
-    updated_at: datetime.datetime = None
+    hip_name: str
+    hip_id: str
+    user_role: str
+    department: str
