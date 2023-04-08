@@ -20,11 +20,12 @@ class CRUDPatientMedicalRecord:
                     "updated_at": datetime.now(),
                 }
             )
-            doc_details = PatientMedicalRecord(**kwargs)
+            pmr_record = PatientMedicalRecord(**kwargs)
             with session() as transaction_session:
-                transaction_session.add(doc_details)
+                transaction_session.add(pmr_record)
                 transaction_session.commit()
-                transaction_session.refresh(doc_details)
+                transaction_session.refresh(pmr_record)
+            return pmr_record.id
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord create function : {error}"
