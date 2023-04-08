@@ -1,6 +1,2 @@
-core_url=http://fmf_core:8000
-db_url="postgresql://postgres:postgres@fmf_db:5432/postgres"
-albumdekho_s3="albumdekho-v1"
-thumbnail_creation_lambda = "albumDekho-thumbnail-creation-v1"
-base_url="https://albumdekhov2.bubbleapps.io/version-test/guest_signup_page?event_uuid="
-default_cover="admin_data/default-cover.jpg"
+core_url=http://lobster_core:8000
+db_url="postgresql://postgres:postgres@lobster_db:5432/postgres"

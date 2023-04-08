@@ -16,7 +16,7 @@ class DatabaseManager:
         event.listen(
             self.Base.metadata,
             "before_create",
-            DDL("CREATE SCHEMA IF NOT EXISTS fmf_schema"),
+            DDL("CREATE SCHEMA IF NOT EXISTS lobster"),
         )
 
     @staticmethod
@@ -37,7 +37,7 @@ class DatabaseManager:
         else:
             self.db_url = os.environ.get("db_url")
             # self.db_url = "postgresql://postgres:postgres@localhost:5432/postgres"
-            self.metadata = MetaData(schema="fmf_schema")
+            self.metadata = MetaData(schema="lobster")
             self.engine = create_engine(self.db_url, pool_pre_ping=True)
             self.Base = declarative_base(metadata=self.metadata)
             self.SessionMaker = sessionmaker(bind=self.engine)
