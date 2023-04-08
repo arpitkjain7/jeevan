@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
-# from core.apis.routes.user_router import user_router
+from core.apis.routes.users_router import user_router
+
 # from core.apis.routes.event_router import event_router
 # from core.apis.routes.annotation_router import annotation_router
 
@@ -24,7 +25,7 @@ app.add_middleware(
 )
 
 
-# app.include_router(user_router, tags=["authentication"])
+app.include_router(user_router, tags=["authentication"])
 # app.include_router(event_router, tags=["event_management"])
 # app.include_router(annotation_router, tags=["annotation_management"])
 

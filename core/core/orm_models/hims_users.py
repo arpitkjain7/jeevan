@@ -7,7 +7,7 @@ class Users(Base):
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
-    username = Column(String)
+    username = Column(String, unique=True)
     password = Column(String)
     hip_name = Column(String)
     hip_id = Column(String)
