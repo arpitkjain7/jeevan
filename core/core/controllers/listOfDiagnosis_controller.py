@@ -9,7 +9,7 @@ class ListOfDiagnosisController:
     def __init__(self):
         self.CRUDListOfDiagnosis = CRUDListOfDiagosis()
 
-    def add_complaint_controller(self, complaint):
+    def add_disease_controller(self, disease):
         """[Controller to register new user]
 
         Args:
@@ -23,24 +23,22 @@ class ListOfDiagnosisController:
         """
         try:
             logging.info("executing add new complaint function")
-            complaint_lower = complaint.lower()
-            complaint_obj = self.CRUDListOfComplaints.read(complaint=complaint_lower)
-            if complaint_obj:
-                complaint_obj.update({"status": "Complaint already exist"})
-                return complaint_obj
-            complaint_id = self.CRUDListOfComplaints.create(
-                **{"complaint": complaint_lower}
-            )
+            disease_upper = disease.upper()
+            disease_obj = self.CRUDListOfDiagnosis.read(disease=disease_upper)
+            if disease_obj:
+                disease_obj.update({"status": "Disease already exist"})
+                return disease_obj
+            disease_id = self.CRUDListOfDiagnosis.create(**{"disease": disease_upper})
             return {
-                "complaint_id": complaint_id,
-                "complaint": complaint_lower,
-                "status": "Complaint added successfully",
+                "disease_id": disease_id,
+                "disease": disease_upper,
+                "status": "Disease added successfully",
             }
         except Exception as error:
             logging.error(f"Error in create_complaint_controller function: {error}")
             raise error
 
-    def get_all_complaints_controller(self):
+    def get_all_diseases_controller(self):
         """[Controller to get all users]
 
         Raises:
@@ -50,13 +48,13 @@ class ListOfDiagnosisController:
             [list]: [list of all the users in the system]
         """
         try:
-            logging.info("executing get_all_complaints_controller function")
-            complaint_list = self.CRUDListOfComplaints.read_all()
-            return complaint_list
+            logging.info("executing get_all_diseases_controller function")
+            diseases_list = self.CRUDListOfDiagnosis.read_all()
+            return diseases_list
         except Exception as error:
             logging.error(f"Error in get_all_complaint_controller function: {error}")
 
-    def delete_complaint_controller(self, complaint_id):
+    def delete_disease_controller(self, disease_id):
         """[Controller to delete a user]
 
         Raises:
@@ -66,12 +64,12 @@ class ListOfDiagnosisController:
             [dict]: [deleted user details]
         """
         try:
-            logging.info("executing delete_complaint_controller function")
-            response = self.CRUDListOfComplaints.delete(complaint_id=complaint_id)
-            response.update({"status": "Complaint Deleted Successfully"})
+            logging.info("executing delete_disease_controller function")
+            response = self.CRUDListOfDiagnosis.delete(disease_id=disease_id)
+            response.update({"status": "Disease Deleted Successfully"})
             return response
         except Exception as error:
-            logging.error(f"Error in delete_complaint_controller function: {error}")
+            logging.error(f"Error in delete_diseases_controller function: {error}")
             raise {"error": "Invalid username or password"}
 
 
