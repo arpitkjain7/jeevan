@@ -30,7 +30,6 @@ class CRUDListOfComplaints:
             logging.error(f"Error in CRUDListOfComplaints create function : {error}")
             raise error
 
-
     def read_all(self):
         """[CRUD function to read_all Complaint record]
 
@@ -43,7 +42,9 @@ class CRUDListOfComplaints:
         try:
             logging.info("CRUDListOfComplaints read_all request")
             with session() as transaction_session:
-                obj: ListOfComplaints = transaction_session.query(ListOfComplaints).all()
+                obj: ListOfComplaints = transaction_session.query(
+                    ListOfComplaints
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
@@ -51,7 +52,7 @@ class CRUDListOfComplaints:
             logging.error(f"Error in CRUDListOfComplaints read_all function : {error}")
             raise error
 
-    def read(self,complaint: str):
+    def read(self, complaint: str):
         """[CRUD function to read_all Complaint record]
 
         Raises:
@@ -63,12 +64,16 @@ class CRUDListOfComplaints:
         try:
             logging.info("CRUDListOfComplaints read request")
             with session() as transaction_session:
-                obj: ListOfComplaints = transaction_session.query(ListOfComplaints).filter(ListOfComplaints.complaint == complaint).first()
+                obj: ListOfComplaints = (
+                    transaction_session.query(ListOfComplaints)
+                    .filter(ListOfComplaints.complaint == complaint)
+                    .first()
+                )
             if obj is not None:
                 return obj.__dict__
             return None
         except Exception as error:
-            logging.error(f"Error in CRUDListOfComplaints read_all function : {error}")
+            logging.error(f"Error in CRUDListOfComplaints read function : {error}")
             raise error
 
     def delete(self, complaint_id: int):
