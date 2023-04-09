@@ -18,7 +18,7 @@ class PMRController:
         self.CRUDMedicines = CRUDMedicines()
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
 
-    def create_pmr_controller(self, request):
+    def create_pmr(self, request):
         """[Controller to create new pmr record]
 
         Args:
@@ -60,5 +60,64 @@ class PMRController:
         except Exception as error:
             logging.error(
                 f"Error in PMRController.create_pmr_controller function: {error}"
+            )
+            raise error
+
+    def get_pmr_with_patientId(self, patient_id: int):
+        """[Controller to create new pmr record]
+
+        Args:
+            patient_id ([int]): [patient id for getting pmr records]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing get pmr function")
+            logging.info(f"Getting the PMR record for {patient_id=}")
+            return self.CRUDPatientMedicalRecord.read_by_patientId(
+                patient_id=patient_id
+            )
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.get_pmr_controller function: {error}"
+            )
+            raise error
+
+    def get_pmr(self, pmr_id: int):
+        """[Controller to create new pmr record]
+
+        Args:
+            patient_id ([int]): [patient id for getting pmr records]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing get pmr function")
+            logging.info(f"Getting the PMR record for {pmr_id=}")
+            pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            complaint_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            diagnosis_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
+            medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
+            pmr_metadata.update(
+                {
+                    "complaints": complaint_data,
+                    "diagnosis": diagnosis_data,
+                    "medicines": medicine_data,
+                    "medicalTests": medicalTest_data,
+                }
+            )
+            return pmr_metadata
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.get_pmr_controller function: {error}"
             )
             raise error

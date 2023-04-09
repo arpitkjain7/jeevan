@@ -1,5 +1,10 @@
 from core import session, logger
 from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
+from core.orm_models.hims_complaint import Complaint
+from core.orm_models.hims_diagnosis import Diagnosis
+from core.orm_models.hims_medicines import Medicines
+from core.orm_models.hims_medicalTest import MedicalTest
+from core.orm_models.hims_precautions import Precautions
 from datetime import datetime
 
 logging = logger(__name__)
@@ -30,6 +35,84 @@ class CRUDPatientMedicalRecord:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord create function : {error}"
             )
+            raise error
+
+    def read_new(self, pmr_id: int):
+        """[CRUD function to read a PatientMedicalRecord record]
+
+        Args:
+            pmr_id (str): [PMR Id to filter PatientMedicalRecord]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientMedicalRecord record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientMedicalRecord read request")
+            with session() as transaction_session:
+                joined_result = []
+                for (
+                    complaint_obj,
+                    medicine_obj,
+                    diagnosis_obj,
+                    pmr_obj,
+                    medicalTest_obj,
+                ) in (
+                    transaction_session.query(
+                        Complaint,
+                        Medicines,
+                        Diagnosis,
+                        PatientMedicalRecord,
+                        MedicalTest,
+                    )
+                    .filter(Complaint.pmr_id == pmr_id)
+                    .filter(MedicalTest.pmr_id == pmr_id)
+                    .filter(Diagnosis.pmr_id == pmr_id)
+                    .filter(Medicines.pmr_id == pmr_id)
+                    .filter(PatientMedicalRecord.id == pmr_id)
+                    .all()
+                ):
+                    pmr_obj.__dict__.update(
+                        {
+                            "complaints": complaint_obj,
+                            "diagnosis": diagnosis_obj,
+                            "medicines": medicine_obj,
+                            "medicalTests": medicalTest_obj,
+                        }
+                    )
+                    joined_result.append(pmr_obj)
+            return joined_result
+        except Exception as error:
+            logging.error(f"Error in CRUDPatientMedicalRecord read function : {error}")
+            raise error
+
+    def read(self, pmr_id: int):
+        """[CRUD function to read a PatientMedicalRecord record]
+
+        Args:
+            doc_id (str): [Doctor Id to filter PatientMedicalRecord]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientMedicalRecord record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientMedicalRecord read request")
+            with session() as transaction_session:
+                obj: PatientMedicalRecord = (
+                    transaction_session.query(PatientMedicalRecord)
+                    .filter(PatientMedicalRecord.id == pmr_id)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDPatientMedicalRecord read function : {error}")
             raise error
 
     def read_by_docId(self, doc_id: int):
