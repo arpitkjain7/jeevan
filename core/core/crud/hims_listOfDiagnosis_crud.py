@@ -73,7 +73,7 @@ class CRUDListOfDiagosis:
             logging.error(f"Error in CRUDListOfDiagnosis read function : {error}")
             raise error
 
-    def delete(self, diagnosis_id: int):
+    def delete(self, disease_id: int):
         """[CRUD function to delete a Diagnosis record]
 
         Raises:
@@ -84,7 +84,7 @@ class CRUDListOfDiagosis:
             with session() as transaction_session:
                 obj: ListOfDiagnosis = (
                     transaction_session.query(ListOfDiagnosis)
-                    .filter(ListOfDiagnosis.id == diagnosis_id)
+                    .filter(ListOfDiagnosis.id == disease_id)
                     .first()
                 )
                 transaction_session.delete(obj)

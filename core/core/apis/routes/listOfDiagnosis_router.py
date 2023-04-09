@@ -8,13 +8,13 @@ from core import logger
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
-listOfComplaint_router = APIRouter()
+listOfDiagnosis_router = APIRouter()
 
 
-@listOfComplaint_router.post(
-    "/v1/listOfComplaints/create",
+@listOfDiagnosis_router.post(
+    "/v1/listOfDiagnosis/addDisease",
 )
-def add_complaint(complaint: str, token: str = Depends(oauth2_scheme)):
+def add_disease(disease: str, token: str = Depends(oauth2_scheme)):
     """[API router to register new user into the system]
     Args:
         register_user_request (Register): [New user details]
@@ -26,10 +26,10 @@ def add_complaint(complaint: str, token: str = Depends(oauth2_scheme)):
     """
     try:
         logging.info("Calling /v1/listOfComplaints/create")
-        logging.debug(f"Request: {complaint}")
+        logging.debug(f"Request: {disease}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfComplaintsController().add_complaint_controller(complaint)
+            return ListOfDiagnosisController().add_disease_controller(disease)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -37,10 +37,10 @@ def add_complaint(complaint: str, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/listOfComplaints/create endpoint: {httperror}")
+        logging.error(f"Error in /v1/listOfDiagnosis/create endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfComplaints/create endpoint: {error}")
+        logging.error(f"Error in /v1/listOfDiagnosis/create endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -48,8 +48,8 @@ def add_complaint(complaint: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@listOfComplaint_router.get("/v1/listOfComplaints/getAll")
-def get_all_complaint(token: str = Depends(oauth2_scheme)):
+@listOfDiagnosis_router.get("/v1/listOfDiagnosis/getAllDiseases")
+def get_all_diseases(token: str = Depends(oauth2_scheme)):
     """[Get List of all Users]
     Raises:
         error: [Error details]
@@ -57,10 +57,10 @@ def get_all_complaint(token: str = Depends(oauth2_scheme)):
         [list]: [List of Users]
     """
     try:
-        logging.info("Calling /v1/listOfComplaints/getAll endpoint")
+        logging.info("Calling /v1/listOfDiagnosis/getAllDiseases endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfComplaintsController().get_all_complaints_controller()
+            return ListOfDiagnosisController().get_all_diseases_controller()
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -68,10 +68,12 @@ def get_all_complaint(token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/listOfComplaints/getAll endpoint: {httperror}")
+        logging.error(
+            f"Error in /v1/listOfDiagnosis/getAllDiseases endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfComplaints/getAll endpoint: {error}")
+        logging.error(f"Error in /v1/listOfDiagnosis/getAllDiseases endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -79,8 +81,8 @@ def get_all_complaint(token: str = Depends(oauth2_scheme)):
         )
 
 
-@listOfComplaint_router.post("/v1/listOfComplaints/delete")
-def delete_complaint(complaint_id: int, token: str = Depends(oauth2_scheme)):
+@listOfDiagnosis_router.post("/v1/listOfDiagnosis/deleteDisease")
+def delete_disease(disease_id: int, token: str = Depends(oauth2_scheme)):
     """[API router to register new user into the system]
     Args:
         register_user_request (Register): [New user details]
@@ -91,13 +93,11 @@ def delete_complaint(complaint_id: int, token: str = Depends(oauth2_scheme)):
         [RegisterResponse]: [Register new user response]
     """
     try:
-        logging.info("Calling /v1/listOfComplaints/delete")
-        logging.debug(f"Request: {complaint_id}")
+        logging.info("Calling /v1/listOfDiagnosis/deleteDisease")
+        logging.debug(f"Request: {disease_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfComplaintsController().delete_complaint_controller(
-                complaint_id
-            )
+            return ListOfDiagnosisController().delete_disease_controller(disease_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,10 +105,12 @@ def delete_complaint(complaint_id: int, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/listOfComplaints/delete endpoint: {httperror}")
+        logging.error(
+            f"Error in /v1/listOfDiagnosis/deleteDisease endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfComplaints/delete endpoint: {error}")
+        logging.error(f"Error in /v1/listOfDiagnosis/deleteDisease endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
