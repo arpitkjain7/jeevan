@@ -29,7 +29,6 @@ class CRUDListOfDiagosis:
             logging.error(f"Error in CRUDListOfDiagosis create function : {error}")
             raise error
 
-
     def read_all(self):
         """[CRUD function to read_all Diagnosis record]
 
@@ -48,6 +47,30 @@ class CRUDListOfDiagosis:
             return []
         except Exception as error:
             logging.error(f"Error in CRUDListOfDiagosis read_all function : {error}")
+            raise error
+
+    def read(self, disease: str):
+        """[CRUD function to read Diagnosis record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all Diagnosis records]
+        """
+        try:
+            logging.info("CRUDListOfDiagnosis read request")
+            with session() as transaction_session:
+                obj: ListOfDiagnosis = (
+                    transaction_session.query(ListOfDiagnosis)
+                    .filter(ListOfDiagnosis.disease == disease)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDListOfDiagnosis read function : {error}")
             raise error
 
     def delete(self, diagnosis_id: int):
