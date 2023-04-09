@@ -29,7 +29,6 @@ class CRUDListOfMedicalTests:
             logging.error(f"Error in CRUDListOfMedicalTests create function : {error}")
             raise error
 
-
     def read_all(self):
         """[CRUD function to read_all Medical Tests record]
 
@@ -42,12 +41,40 @@ class CRUDListOfMedicalTests:
         try:
             logging.info("CRUDListOfMedicalTests read_all request")
             with session() as transaction_session:
-                obj: ListOfMedicalTests = transaction_session.query(ListOfMedicalTests).all()
+                obj: ListOfMedicalTests = transaction_session.query(
+                    ListOfMedicalTests
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDListOfMedicalTests read_all function : {error}")
+            logging.error(
+                f"Error in CRUDListOfMedicalTests read_all function : {error}"
+            )
+            raise error
+
+    def read(self, medical_test_name: str):
+        """[CRUD function to read Diagnosis record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all Diagnosis records]
+        """
+        try:
+            logging.info("CRUDListOfMedicalTests read request")
+            with session() as transaction_session:
+                obj: ListOfMedicalTests = (
+                    transaction_session.query(ListOfMedicalTests)
+                    .filter(ListOfMedicalTests.name == medical_test_name)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDListOfMedicalTests read function : {error}")
             raise error
 
     def delete(self, medical_test_id: int):
