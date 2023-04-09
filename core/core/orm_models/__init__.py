@@ -15,3 +15,6 @@ from core.orm_models.hims_patientMedicalRecord import *
 from core.orm_models.hims_patientVaccinationRecords import *
 from core.orm_models.hims_medicines import *
 from core.orm_models.hims_users import *
+from core.orm_models.hims_hipDetails import *
+from core.orm_models.hrp_session import *
+from core.orm_models.hrp_gatewayInteraction import *

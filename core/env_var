@@ -1,2 +1,3 @@
 core_url=http://lobster_core:8000
 db_url="postgresql://postgres:postgres@lobster_db:5432/postgres"
+gateway_url=https://dev.abdm.gov.in/gateway

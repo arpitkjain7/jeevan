@@ -1,23 +1,23 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from core.apis.schemas.requests.pmr_request import PMR
-from core.controllers.pmr_controller import PMRController
+from core.apis.schemas.requests.hip_request import CreateHIP
+from core.controllers.hip_controller import HIPController
 from core import logger
 from commons.auth import decodeJWT
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
-pmr_router = APIRouter()
+hip_router = APIRouter()
 
 
-@pmr_router.post("/v1/PMR/create")
-def create_pmr(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+@hip_router.post("/v1/HIP/create")
+def create_hip(hip_request: CreateHIP, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info("Calling /v1/pmr/create endpoint")
-        logging.debug(f"Request: {pmr_request}")
+        logging.info("Calling /v1/HIP/create endpoint")
+        logging.debug(f"Request: {hip_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_pmr(request=pmr_request)
+            return HIPController().create_hip(request=hip_request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -25,10 +25,10 @@ def create_pmr(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/create endpoint: {httperror}")
+        logging.error(f"Error in /v1/HIP/create endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/create endpoint: {error}")
+        logging.error(f"Error in /v1/HIP/create endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -36,14 +36,13 @@ def create_pmr(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.get("/v1/PMR/list/{patient_id}")
-def get_pmr_by_patientId(patient_id: int, token: str = Depends(oauth2_scheme)):
+@hip_router.get("/v1/HIP/listAll")
+def get_all_HIPs(token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/PMR/list/{patient_id} endpoint")
-        logging.debug(f"Request: {patient_id=}")
+        logging.info(f"Calling /v1/HIP/listAll endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().get_pmr_with_patientId(patient_id=patient_id)
+            return HIPController().get_all_hip()
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,10 +50,10 @@ def get_pmr_by_patientId(patient_id: int, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/create endpoint: {httperror}")
+        logging.error(f"Error in /v1/HIP/listAll endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/create endpoint: {error}")
+        logging.error(f"Error in /v1/HIP/listAll endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -62,14 +61,14 @@ def get_pmr_by_patientId(patient_id: int, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.get("/v1/PMR/{pmr_id}")
-def get_pmr(pmr_id: int, token: str = Depends(oauth2_scheme)):
+@hip_router.get("/v1/HIP/{hip_id}")
+def get_hip(hip_id: str, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/pmr/{pmr_id} endpoint")
-        logging.debug(f"Request: {pmr_id=}")
+        logging.info(f"Calling /v1/HIP/{hip_id} endpoint")
+        logging.debug(f"Request: {hip_id=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().get_pmr(pmr_id=pmr_id)
+            return HIPController().get_hip(hip_id=hip_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -77,10 +76,10 @@ def get_pmr(pmr_id: int, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/create endpoint: {httperror}")
+        logging.error(f"Error in /v1/HIP/{hip_id} endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/create endpoint: {error}")
+        logging.error(f"Error in /v1/HIP/{hip_id} endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
