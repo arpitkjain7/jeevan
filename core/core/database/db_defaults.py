@@ -2,6 +2,7 @@ from core.crud.hims_users_crud import CRUDUser
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_appointments_crud import CRUDAppointments
+from core.crud.hims_hip_crud import CRUDHIP
 from core.apis.schemas.requests.user_request import Register
 from core.controllers.users_controller import UserManagementController
 
@@ -34,6 +35,12 @@ def create_sample_appointment(appointment_request):
     existing_appointment_record = CRUDAppointments().read_by_patientId(patient_id=1)
     if not existing_appointment_record:
         CRUDAppointments().create(**appointment_request)
+
+
+def create_sample_hip(hip_request):
+    existing_hip_record = CRUDHIP().read(hip_ip=hip_request["hip_id"])
+    if not existing_hip_record:
+        CRUDHIP().create(**hip_request)
 
 
 def main():
@@ -72,5 +79,12 @@ def main():
             "appointment_time": "12:00",
             "doc_id": 1,
             "patient_id": 1,
+        }
+    )
+    create_sample_hip(
+        hip_request={
+            "hip_id": "123123",
+            "name": "ABC Healthcare",
+            "hip_address": "DUMMY",
         }
     )
