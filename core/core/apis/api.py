@@ -11,6 +11,7 @@ from core.apis.routes.gatewayInteraction_router import gateway_router
 from core.apis.routes.listOfDiagnosis_router import listOfDiagnosis_router
 from core.apis.routes.listOfMedicalTests_router import listOfMedicalTests_router
 from core.apis.routes.callback_router import callback_router
+from core.apis.routes.hid_router import hid_router
 
 # from core.apis.routes.event_router import event_router
 # from core.apis.routes.annotation_router import annotation_router
@@ -34,6 +35,7 @@ app.add_middleware(
 
 
 app.include_router(user_router, tags=["Authentication"])
+app.include_router(hid_router, tags=["ABHA Registration"])
 app.include_router(pmr_router, tags=["Patient Medical Record"])
 app.include_router(patient_router, tags=["Patient Registeration"])
 app.include_router(hip_router, tags=["HIP Records"])

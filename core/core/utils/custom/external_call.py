@@ -13,11 +13,11 @@ class APIInterface:
             logging.info("POST request sent")
             logging.debug(f"url = {url}, data = {data}")
             response = requests.post(url, json=data, headers=headers)
-            if response.status_code >= 400:
-                raise Exception(
-                    f"Call to {route} failed with {response.status_code} and response {response.text}"
-                )
-            logging.debug(f"response = {response}")
+            # if response.status_code >= 400:
+            #     raise Exception(
+            #         f"Call to {route} failed with {response.status_code} and response {response.text}"
+            #     )
+            # logging.debug(f"response = {response}")
             if response.text:
                 return json.loads(response.text), response.status_code
             return None, response.status_code
