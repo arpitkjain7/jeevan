@@ -97,7 +97,7 @@ def delete_medicine(medicine_id: int, token: str = Depends(oauth2_scheme)):
     """
     try:
         logging.info("Calling /v1/listOfMedicines/deleteMedicine")
-        logging.debug(f"Request: {test_id}")
+        logging.debug(f"Request: {medicine_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return ListOfMedicinesController().delete_medicine_controller(medicine_id)

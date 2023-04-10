@@ -25,7 +25,7 @@ class ListOfMedicinesController:
             logging.info("executing add new medicine function")
             name_upper = name.upper()
             company_upper = company.upper()
-            medicine_obj = self.CRUDListOfMedicines.read(name=name_upper)
+            medicine_obj = self.CRUDListOfMedicines.read(medicine=name_upper)
             if medicine_obj:
                 medicine_obj.update({"status": "Medicine already exist"})
                 return medicine_obj
