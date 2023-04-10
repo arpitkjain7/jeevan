@@ -40,6 +40,7 @@ class UserManagementController:
                     email=request_json.get("username"),
                     user_role=request_json.get("user_role"),
                     department=request_json.get("department"),
+                    hip_id=request_json.get("hip_id"),
                 )
                 return {
                     "access_token": access_token,
@@ -75,6 +76,7 @@ class UserManagementController:
                         email=request.username,
                         user_role=user_obj.get("user_role"),
                         department=user_obj.get("department"),
+                        hip_id=user_obj.get("hip_id"),
                     )
                     logging.info(f"{user_obj=}")
                     del user_obj["password"]

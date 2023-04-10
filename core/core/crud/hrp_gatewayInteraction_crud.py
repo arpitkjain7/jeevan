@@ -1,11 +1,11 @@
 from core import session, logger
-from core.orm_models.hrp_gatewayInteraction import GatewayInteration
+from core.orm_models.hrp_gatewayInteraction import GatewayInteraction
 from datetime import datetime
 
 logging = logger(__name__)
 
 
-class CRUDGatewayInteration:
+class CRUDGatewayInteraction:
     def create(self, **kwargs):
         """[CRUD function to create a new User record]
 
@@ -20,7 +20,7 @@ class CRUDGatewayInteration:
                     "updated_at": datetime.now(),
                 }
             )
-            gatway_obj = GatewayInteration(**kwargs)
+            gatway_obj = GatewayInteraction(**kwargs)
             with session() as transaction_session:
                 transaction_session.add(gatway_obj)
                 transaction_session.commit()
@@ -44,9 +44,9 @@ class CRUDGatewayInteration:
         try:
             logging.info("CRUDUser read request")
             with session() as transaction_session:
-                obj: GatewayInteration = (
-                    transaction_session.query(GatewayInteration)
-                    .filter(GatewayInteration.request_id == request_id)
+                obj: GatewayInteraction = (
+                    transaction_session.query(GatewayInteraction)
+                    .filter(GatewayInteraction.request_id == request_id)
                     .first()
                 )
             if obj is not None:
@@ -67,9 +67,9 @@ class CRUDGatewayInteration:
             logging.info("CRUDUser update function")
             kwargs.update({"updated_at": datetime.now()})
             with session() as transaction_session:
-                obj: GatewayInteration = (
-                    transaction_session.query(GatewayInteration)
-                    .filter(GatewayInteration.request_id == kwargs.get("request_id"))
+                obj: GatewayInteraction = (
+                    transaction_session.query(GatewayInteraction)
+                    .filter(GatewayInteraction.request_id == kwargs.get("request_id"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

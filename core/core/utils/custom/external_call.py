@@ -17,7 +17,10 @@ class APIInterface:
                 raise Exception(
                     f"Call to {route} failed with {response.status_code} and response {response.text}"
                 )
-            return json.loads(response.text), response.status_code
+            logging.debug(f"response = {response}")
+            if response.text:
+                return json.loads(response.text), response.status_code
+            return None, response.status_code
         except Exception as error:
             logging.error(f"Error in POST API request: {error}")
 
