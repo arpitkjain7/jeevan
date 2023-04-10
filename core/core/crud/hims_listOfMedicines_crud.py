@@ -50,6 +50,30 @@ class CRUDListOfMedicines:
             logging.error(f"Error in CRUDListOfMedicines read_all function : {error}")
             raise error
 
+    def read(self, medicine: str):
+        """[CRUD function to read Diagnosis record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all Diagnosis records]
+        """
+        try:
+            logging.info("CRUDListOfMedicines read request")
+            with session() as transaction_session:
+                obj: ListOfMedicines = (
+                    transaction_session.query(ListOfMedicines)
+                    .filter(ListOfMedicines.name == medicine)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDListOfMedicines read function : {error}")
+            raise error
+
     def delete(self, medicine_id: int):
         """[CRUD function to delete a Medicine record]
 
