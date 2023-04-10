@@ -1,4 +1,4 @@
-from core.commons.external_call import APIInterface
+from core.utils.custom.external_call import APIInterface
 from core.crud.hrp_session_crud import CRUDSession
 import os
 from datetime import datetime, timedelta
@@ -21,46 +21,46 @@ def get_session_token(session_parameter: str):
             valid_till = session_obj.get("valid_till")
             if time_now > valid_till:
                 logging.info(f"Token expired, generating new access Token")
-                session_data = APIInterface().post(
+                resp_json, _ = APIInterface().post(
                     route=session_url,
                     data={"clientId": client_id, "clientSecret": client_secret},
                 )
                 new_valid_till = time_now + timedelta(
-                    seconds=session_data.get("expiresIn")
+                    seconds=resp_json.get("expiresIn")
                 )
                 logging.info(f"Updating database with new generated token")
                 CRUDSession().update(
                     **{
                         "parameter": session_parameter,
-                        "value": session_data.get("accessToken"),
-                        "expires_in": session_data.get("expiresIn"),
+                        "value": resp_json.get("accessToken"),
+                        "expires_in": resp_json.get("expiresIn"),
                         "valid_till": new_valid_till,
                     }
                 )
                 logging.info("Returning generated accessToken")
-                return {"accessToken": session_data.get("accessToken")}
+                return {"accessToken": resp_json.get("accessToken")}
             else:
                 logging.info("Returning existing accessToken")
                 return {"accessToken": session_obj.get("value")}
         else:
             logging.info("No session data available, generating access Token")
-            session_data = APIInterface().post(
+            resp_json, _ = APIInterface().post(
                 route=session_url,
                 data={"clientId": client_id, "clientSecret": client_secret},
             )
-            new_valid_till = time_now + timedelta(seconds=session_data.get("expiresIn"))
+            new_valid_till = time_now + timedelta(seconds=resp_json.get("expiresIn"))
             logging.info(f"Creating new database record for generated token")
             CRUDSession().create(
                 **{
                     "parameter": session_parameter,
-                    "type": session_data.get("tokenType"),
-                    "value": session_data.get("accessToken"),
-                    "expires_in": session_data.get("expiresIn"),
+                    "type": resp_json.get("tokenType"),
+                    "value": resp_json.get("accessToken"),
+                    "expires_in": resp_json.get("expiresIn"),
                     "valid_till": new_valid_till,
                 }
             )
             logging.info("Returning generated accessToken")
-            return {"accessToken": session_data.get("accessToken")}
+            return {"accessToken": resp_json.get("accessToken")}
     except Exception as error:
         logging.error(f"Error in get_session_token function: {error}")
         raise error

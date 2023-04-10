@@ -10,6 +10,7 @@ from core.apis.routes.hip_router import hip_router
 from core.apis.routes.gatewayInteraction_router import gateway_router
 from core.apis.routes.listOfDiagnosis_router import listOfDiagnosis_router
 from core.apis.routes.listOfMedicalTests_router import listOfMedicalTests_router
+from core.apis.routes.callback_router import callback_router
 
 # from core.apis.routes.event_router import event_router
 # from core.apis.routes.annotation_router import annotation_router
@@ -37,6 +38,7 @@ app.include_router(pmr_router, tags=["Patient Medical Record"])
 app.include_router(patient_router, tags=["Patient Registeration"])
 app.include_router(hip_router, tags=["HIP Records"])
 app.include_router(gateway_router, tags=["Gateway Interactions"])
+app.include_router(callback_router, tags=["Callback"])
 app.include_router(listOfComplaint_router, tags=["Common"])
 app.include_router(listOfDiagnosis_router, tags=["Common"])
 app.include_router(listOfMedicalTests_router, tags=["Common"])
