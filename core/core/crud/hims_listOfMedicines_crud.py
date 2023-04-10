@@ -25,10 +25,10 @@ class CRUDListOfMedicines:
                 transaction_session.add(list_of_medicines)
                 transaction_session.commit()
                 transaction_session.refresh(list_of_medicines)
+            return list_of_medicines.id
         except Exception as error:
             logging.error(f"Error in CRUDListOfMedicines create function : {error}")
             raise error
-
 
     def read_all(self):
         """[CRUD function to read_all Medicine record]
