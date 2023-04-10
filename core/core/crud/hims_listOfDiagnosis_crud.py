@@ -25,6 +25,7 @@ class CRUDListOfDiagosis:
                 transaction_session.add(list_of_diagnosis)
                 transaction_session.commit()
                 transaction_session.refresh(list_of_diagnosis)
+            return list_of_diagnosis.id
         except Exception as error:
             logging.error(f"Error in CRUDListOfDiagosis create function : {error}")
             raise error

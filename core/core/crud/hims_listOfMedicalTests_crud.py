@@ -25,6 +25,7 @@ class CRUDListOfMedicalTests:
                 transaction_session.add(list_of_medical_tests)
                 transaction_session.commit()
                 transaction_session.refresh(list_of_medical_tests)
+            return list_of_medical_tests.id
         except Exception as error:
             logging.error(f"Error in CRUDListOfMedicalTests create function : {error}")
             raise error
