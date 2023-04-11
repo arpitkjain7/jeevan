@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from core.controllers.listOfComplaint_controller import ListOfComplaintsController
-from core.controllers.listOfDiagnosis_controller import ListOfDiagnosisController
-from core.controllers.listOfMedicalTests_controller import ListOfMedicalTestsController
-from core.controllers.listOfMedicines_controller import ListOfMedicinesController
+from core.controllers.listOfData_controller import ListOfComplaintsController
+from core.controllers.listOfData_controller import ListOfDiagnosisController
+from core.controllers.listOfData_controller import ListOfMedicalTestsController
+from core.controllers.listOfData_controller import ListOfMedicinesController
 from commons.auth import decodeJWT
 from fastapi.security import OAuth2PasswordRequestForm
 from core import logger
