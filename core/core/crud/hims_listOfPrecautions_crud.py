@@ -49,8 +49,32 @@ class CRUDListOfPrecautions:
         except Exception as error:
             logging.error(f"Error in CRUDListOfPrecautions read_all function : {error}")
             raise error
+        
+    def read(self, instruction_name: str):
+        """[CRUD function to read Diagnosis record]
 
-    def delete(self, precaution_id: int):
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all Diagnosis records]
+        """
+        try:
+            logging.info("CRUDListOfPrecautionsTests read request")
+            with session() as transaction_session:
+                obj: ListOfPrecautions = (
+                    transaction_session.query(ListOfPrecautions)
+                    .filter(ListOfPrecautions.instructions == instruction_name)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDListOfPrecautionsTests read function : {error}")
+            raise error
+
+    def delete(self, instruction_id: int):
         """[CRUD function to delete a Precaution record]
 
         Raises:
@@ -61,7 +85,7 @@ class CRUDListOfPrecautions:
             with session() as transaction_session:
                 obj: ListOfPrecautions = (
                     transaction_session.query(ListOfPrecautions)
-                    .filter(ListOfPrecautions.id == precaution_id)
+                    .filter(ListOfPrecautions.id == instruction_id)
                     .first()
                 )
                 transaction_session.delete(obj)
