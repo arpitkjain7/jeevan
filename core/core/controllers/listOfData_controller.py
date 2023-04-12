@@ -2,6 +2,7 @@ from core.crud.hims_listOfComplaints_crud import CRUDListOfComplaints
 from core.crud.hims_listOfDiagnosis_crud import CRUDListOfDiagosis
 from core.crud.hims_listOfMedicalTests_crud import CRUDListOfMedicalTests
 from core.crud.hims_listOfMedicines_crud import CRUDListOfMedicines
+from core.crud.hims_listOfPrecautions_crud import CRUDListOfPrecautions
 from commons.auth import encrypt_password, verify_hash_password, signJWT
 from core import logger
 
@@ -287,4 +288,74 @@ class ListOfMedicinesController:
             return response
         except Exception as error:
             logging.error(f"Error in delete_medicine_controller function: {error}")
+            raise {"error": "Invalid username or password"}
+
+
+class ListOfPrecautionsController:
+    def __init__(self):
+        self.CRUDListOfPrecautions = CRUDListOfPrecautions()
+
+    def add_instruction_controller(self, instruction):
+        """[Controller to register new user]
+
+        Args:
+            request ([dict]): [create new user request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing add new instruction function")
+            instruction_upper = instruction.upper()
+            instruction_obj = self.CRUDListOfPrecautions.read(instruction_name=instruction_upper)
+            if instruction_obj:
+                instruction_obj.update({"status": "Instruction already exist"})
+                return instruction_obj
+            instruction_id = self.CRUDListOfPrecautions.create(
+                **{"instructions": instruction_upper}
+            )
+            return {
+                "instruction_id": instruction_id,
+                "instruction_name": instruction_upper,
+                "status": "Instruction added successfully",
+            }
+        except Exception as error:
+            logging.error(f"Error in create_instruction_controller function: {error}")
+            raise error
+
+    def get_all_instructions_controller(self):
+        """[Controller to get all users]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [list]: [list of all the users in the system]
+        """
+        try:
+            logging.info("executing get_all_instructions_controller function")
+            instructions_list = self.CRUDListOfPrecautions.read_all()
+            return instructions_list
+        except Exception as error:
+            logging.error(f"Error in get_all_instructions_controller function: {error}")
+
+    def delete_instruction_controller(self, instruction_id):
+        """[Controller to delete a user]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [deleted user details]
+        """
+        try:
+            logging.info("executing delete_instruction_controller function")
+            response = self.CRUDListOfPrecautions.delete(instruction_id=instruction_id)
+            response.update({"status": "Instruction Deleted Successfully"})
+            return response
+        except Exception as error:
+            logging.error(f"Error in delete_instruction_controller function: {error}")
             raise {"error": "Invalid username or password"}

@@ -5,6 +5,7 @@ from core.controllers.listOfData_controller import ListOfComplaintsController
 from core.controllers.listOfData_controller import ListOfDiagnosisController
 from core.controllers.listOfData_controller import ListOfMedicalTestsController
 from core.controllers.listOfData_controller import ListOfMedicinesController
+from core.controllers.listOfData_controller import ListOfPrecautionsController
 from commons.auth import decodeJWT
 from fastapi.security import OAuth2PasswordRequestForm
 from core import logger
@@ -440,6 +441,113 @@ def delete_medicine(medicine_id: int, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/listOfMedicines/deleteMedicine endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@listOfData_router.post("/v1/listOfPrecautions/addInstruction")
+def add_instruction(instruction: str, token: str = Depends(oauth2_scheme)):
+    """[API router to register new user into the system]
+    Args:
+        register_user_request (Register): [New user details]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v1/listOfPrecautions/addInstruction")
+        logging.debug(f"Request: {instruction}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return ListOfPrecautionsController().add_instruction_controller(
+                instruction
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/listOfPrecautions/addInstruction endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/listOfPrecautions/addInstruction endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@listOfData_router.get("/v1/listOfPrecautions/getAllInstructions")
+def get_all_instructions(token: str = Depends(oauth2_scheme)):
+    """[Get List of all Users]
+    Raises:
+        error: [Error details]
+    Returns:
+        [list]: [List of Users]
+    """
+    try:
+        logging.info("Calling /v1/listOfPrecautions/getAllInstructions endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return ListOfPrecautionsController().get_all_instructions_controller()
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/listOfPrecautions/getAllInstructions endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/listOfPrecautions/getAllInstructions endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+#Changes made till here, need to update below function .
+
+@listOfData_router.post("/v1/listOfPrecautions/deleteInstruction")
+def delete_instruction(instruction_id: int, token: str = Depends(oauth2_scheme)):
+    """[API router to register new user into the system]
+    Args:
+        register_user_request (Register): [New user details]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v1/listOfPrecautions/deleteInstruction")
+        logging.debug(f"Request: {instruction_id}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return ListOfPrecautionsController().delete_instruction_controller(instruction_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/listOfPrecautions/deleteInstruction endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/listOfPrecautions/deleteInstruction endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
