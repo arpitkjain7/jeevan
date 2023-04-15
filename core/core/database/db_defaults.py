@@ -5,10 +5,11 @@ from core.crud.hims_appointments_crud import CRUDAppointments
 from core.crud.hims_hip_crud import CRUDHIP
 from core.apis.schemas.requests.user_request import Register
 from core.controllers.users_controller import UserManagementController
-
+import uuid
 from core import logger
 
 logging = logger(__name__)
+patient_id = str(uuid.uuid1())
 
 
 def create_admin_user(admin_user_request):
@@ -26,13 +27,17 @@ def create_sample_doc_record(doc_request):
 
 
 def create_sample_patient_record(patient_request):
-    existing_patient_record = CRUDPatientDetails().read_by_patientId(patient_id=1)
+    existing_patient_record = CRUDPatientDetails().read_by_patientId(
+        patient_id=patient_id
+    )
     if not existing_patient_record:
         CRUDPatientDetails().create(**patient_request)
 
 
 def create_sample_appointment(appointment_request):
-    existing_appointment_record = CRUDAppointments().read_by_patientId(patient_id=1)
+    existing_appointment_record = CRUDAppointments().read_by_patientId(
+        patient_id=patient_id
+    )
     if not existing_appointment_record:
         CRUDAppointments().create(**appointment_request)
 
@@ -65,9 +70,10 @@ def main():
     )
     create_sample_patient_record(
         patient_request={
-            "abha_number": "91126527173630",
-            "abha_address": "arpitjain@sbx",
-            "mobile_number": "8552012549",
+            "id": patient_id,
+            "abha_number": "DUMMY",
+            "abha_address": "DUMMY@sbx",
+            "mobile_number": "1111111111",
             "name": "DUMMY",
             "gender": "Male",
             "DOB": "10/12/1992",
@@ -78,7 +84,7 @@ def main():
             "appointment_date": "2023-09-08",
             "appointment_time": "12:00",
             "doc_id": 1,
-            "patient_id": 1,
+            "patient_id": patient_id,
         }
     )
     create_sample_hip(
