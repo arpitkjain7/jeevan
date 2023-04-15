@@ -3,9 +3,11 @@ from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.hid_request import (
     AbhaRegistration,
     OTPVerification,
-    MobileOTP,
+    MobileNumber,
     AadhaarNumber,
     HealthNumber,
+    AbhaRegistration_MobileOTP,
+    MobileOTP,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -17,14 +19,14 @@ hid_router = APIRouter()
 
 
 @hid_router.post("/v1/HID/registration/aadhaar/generateOTP")
-def create_health_id(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
+def aadhaar_generateOTP(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/generateOTP endpoint")
-        logging.debug(f"Request: {request.aadhaar_number=}")
+        logging.debug(f"Request: {request.aadhaarNumber=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().aadhaar_generateOTP(
-                aadhaar_number=request.aadhaar_number
+                aadhaar_number=request.aadhaarNumber
             )
         else:
             raise HTTPException(
@@ -45,15 +47,15 @@ def create_health_id(request: AadhaarNumber, token: str = Depends(oauth2_scheme)
 
 
 @hid_router.post("/v1/HID/registration/aadhaar/verifyOTP")
-def create_health_id(request: OTPVerification, token: str = Depends(oauth2_scheme)):
+def aadhaar_verifyOTP(request: OTPVerification, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/verifyOTP endpoint")
         logging.debug(f"Request: {request.otp=}")
-        logging.debug(f"Request: {request.txn_id=}")
+        logging.debug(f"Request: {request.txnId=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().aadhaar_verifyOTP(
-                otp=request.otp, txn_id=request.txn_id
+                otp=request.otp, txn_id=request.txnId
             )
         else:
             raise HTTPException(
@@ -74,15 +76,15 @@ def create_health_id(request: OTPVerification, token: str = Depends(oauth2_schem
 
 
 @hid_router.post("/v1/HID/registration/aadhaar/generateMobileOTP")
-def create_health_id(request: MobileOTP, token: str = Depends(oauth2_scheme)):
+def aadhaar_generateMobileOTP(request: MobileOTP, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/generateMobileOTP endpoint")
-        logging.debug(f"Request: {request.mobile_number=}")
-        logging.debug(f"Request: {request.txn_id=}")
+        logging.debug(f"Request: {request.mobileNumber=}")
+        logging.debug(f"Request: {request.txnId=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().aadhaar_generateMobileOTP(
-                mobile_number=request.mobile_number, txn_id=request.txn_id
+                mobile_number=request.mobileNumber, txn_id=request.txnId
             )
         else:
             raise HTTPException(
@@ -105,15 +107,17 @@ def create_health_id(request: MobileOTP, token: str = Depends(oauth2_scheme)):
 
 
 @hid_router.post("/v1/HID/registration/aadhaar/verifyMobileOTP")
-def create_health_id(request: OTPVerification, token: str = Depends(oauth2_scheme)):
+def aadhaar_verifyMobileOTP(
+    request: OTPVerification, token: str = Depends(oauth2_scheme)
+):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/verifyMobileOTP endpoint")
         logging.debug(f"Request: {request.otp=}")
-        logging.debug(f"Request: {request.txn_id=}")
+        logging.debug(f"Request: {request.txnId=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().aadhaar_verifyMobileOTP(
-                otp=request.otp, txn_id=request.txn_id
+                otp=request.otp, txn_id=request.txnId
             )
         else:
             raise HTTPException(
@@ -134,7 +138,9 @@ def create_health_id(request: OTPVerification, token: str = Depends(oauth2_schem
 
 
 @hid_router.post("/v1/HID/registration/aadhaar/abhaRegistration")
-def create_health_id(request: AbhaRegistration, token: str = Depends(oauth2_scheme)):
+def aadhaar_abhaRegistration(
+    request: AbhaRegistration, token: str = Depends(oauth2_scheme)
+):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/abhaRegistration endpoint")
         logging.debug(f"Request: {request=}")
@@ -169,10 +175,10 @@ def check_available_health_id(
         logging.info(
             f"Calling /v1/HID/aadhaar/registration/checkAbhaAvailability endpoint"
         )
-        logging.debug(f"Request: {request.health_number=}")
+        logging.debug(f"Request: {request.healthNumber=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return HIDController().abha_verification(health_id=request.health_number)
+            return HIDController().abha_verification(health_id=request.healthNumber)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -197,11 +203,11 @@ def check_available_health_id(
 def generate_aadhaar_otp(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/HID/forgot/aadhaar/generateOtp endpoint")
-        logging.debug(f"Request: {request.aadhaar_number=}")
+        logging.debug(f"Request: {request.aadhaarNumber=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().forgot_generateOtp(
-                aadhaar_number=request.aadhaar_number
+                aadhaar_number=request.aadhaarNumber
             )
         else:
             raise HTTPException(
@@ -228,11 +234,11 @@ def verify_aadhaar_otp(request: OTPVerification, token: str = Depends(oauth2_sch
     try:
         logging.info(f"Calling /v1/HID/forgot/aadhaar/generateOtp endpoint")
         logging.debug(f"Request: {request.otp=}")
-        logging.debug(f"Request: {request.txn_id=}")
+        logging.debug(f"Request: {request.txnId=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().forgot_verifyOtp(
-                otp=request.otp, txn_id=request.txn_id
+                otp=request.otp, txn_id=request.txnId
             )
         else:
             raise HTTPException(
@@ -247,6 +253,95 @@ def verify_aadhaar_otp(request: OTPVerification, token: str = Depends(oauth2_sch
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/HID/aadhaar/abhaRegistration endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/registration/mobile/generateOtp")
+def mobile_generateOTP(request: MobileNumber, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/registration/mobile/generateOtp endpoint")
+        logging.debug(f"Request: {request.mobileNumber=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().generateMobileOTP(mobile_number=request.mobileNumber)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/registration/mobile/generateOtp endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/registration/mobile/generateOtp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/registration/mobile/verifyOtp")
+def mobile_verifyOTP(request: OTPVerification, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/registration/mobile/verifyOtp")
+        logging.debug(f"Request: {request.otp=}")
+        logging.debug(f"Request: {request.txnId=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().verifyMobileOTP(
+                otp=request.otp, txn_id=request.txnId
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/registration/mobile/verifyOtp: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/registration/mobile/verifyOtp: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/registration/mobile/createHealthId")
+def mobile_abhaRegistration(
+    request: AbhaRegistration_MobileOTP, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v1/registration/mobile/createHealthId endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().mobile_abha_registration(request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/registration/mobile/createHealthId endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v1/registration/mobile/createHealthId endpoint: {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
