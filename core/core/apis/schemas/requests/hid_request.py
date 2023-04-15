@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 
 
@@ -14,18 +14,18 @@ class AbhaRegistration(BaseModel):
 
 
 class OTPVerification(BaseModel):
-    otp: str
-    txn_id: str
+    otp: str = Field(..., description="OTP received")
+    txn_id: str = Field(..., description="Txn Id")
 
 
 class MobileOTP(BaseModel):
-    mobile_number: str
-    txn_id: str
+    mobile_number: str = Field(..., description="User Mobile Number")
+    txn_id: str = Field(..., description="Txn Id")
 
 
 class AadhaarNumber(BaseModel):
-    aadhaar_number: str
+    aadhaar_number: str = Field(..., description="User Aadhaar Number")
 
 
 class HealthNumber(BaseModel):
-    health_number: str
+    health_number: str = Field(..., description="User Abha Address")
