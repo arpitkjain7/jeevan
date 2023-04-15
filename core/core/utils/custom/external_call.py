@@ -25,12 +25,12 @@ class APIInterface:
             logging.error(f"Error in POST API request: {error}")
 
     @staticmethod
-    def get(route, params=None, headers=None):
+    def get(route, params=None, data=None, headers=None):
         try:
             url = route
             logging.info("GET request sent")
-            logging.debug(f"url = {url}, params = {params}")
-            response = requests.get(url, params=params, headers=headers)
+            logging.debug(f"{url=}, {params=},{data=}")
+            response = requests.get(url, params=params, data=data, headers=headers)
             if response.status_code >= 400:
                 raise Exception(
                     f"Call to {route} failed with {response.status_code} and response {response.text}"
