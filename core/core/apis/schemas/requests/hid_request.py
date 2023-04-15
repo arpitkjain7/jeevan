@@ -14,18 +14,33 @@ class AbhaRegistration(BaseModel):
 
 
 class OTPVerification(BaseModel):
-    otp: str = Field(..., description="OTP received")
-    txn_id: str = Field(..., description="Txn Id")
+    otp: str
+    txnId: str
 
 
 class MobileOTP(BaseModel):
-    mobile_number: str = Field(..., description="User Mobile Number")
-    txn_id: str = Field(..., description="Txn Id")
+    mobileNumber: str
+    txnId: str
 
 
 class AadhaarNumber(BaseModel):
-    aadhaar_number: str = Field(..., description="User Aadhaar Number")
+    aadhaarNumber: str
 
 
 class HealthNumber(BaseModel):
-    health_number: str = Field(..., description="User Abha Address")
+    healthNumber: str
+
+
+class AbhaRegistration_MobileOTP(BaseModel):
+    firstName: str
+    lastName: str
+    email: str
+    healthId: str
+    gender: str
+    token: str
+    txnId: str
+    dob: str
+
+
+class MobileNumber(BaseModel):
+    mobileNumber: str

@@ -432,3 +432,171 @@ class HIDController:
         except Exception as error:
             logging.error(f"Error in HIDController.abha_verification function: {error}")
             raise error
+
+    def generateMobileOTP(self, mobile_number: str):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing generateMobileOTP function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_mobile_otp_url = (
+                f"{self.abha_url}/v1/registration/mobile/generateOtp"
+            )
+            resp, resp_code = APIInterface().post(
+                route=generate_mobile_otp_url,
+                data={"mobile": mobile_number},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                txn_id = resp.get("txnId")
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "MOBILE_OTP_GENERATION",
+                    "request_status": "INIT",
+                }
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                return gateway_request
+            else:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "MOBILE_OTP_GENERATION",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.generateMobileOTP function: {error}")
+            raise error
+
+    def verifyMobileOTP(self, otp: str, txn_id: str):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  verifyMobileOTP function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_mobile_otp_url = (
+                f"{self.abha_url}/v1/registration/mobile/verifyOtp"
+            )
+            resp, resp_code = APIInterface().post(
+                route=generate_mobile_otp_url,
+                data={"otp": otp, "txnId": txn_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                token = resp.get("token")
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "MOBILE_OTP_VERIFICATION",
+                    "request_status": "IN-PROGRESS",
+                    "token": token,
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                return gateway_request
+            else:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "MOBILE_OTP_VERIFICATION",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.verifyMobileOTP function: {error}")
+            raise error
+
+    def mobile_abha_registration(self, request):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  mobile_abha_registration function")
+            request_json = request.dict()
+            txn_id = request_json.get("txnId")
+            dob = request_json.get("dob")
+            dayOfBirth = dob[:2]
+            monthOfBirth = dob[3:5]
+            yearOfBirth = dob[6:10]
+            request_json.update({"dayOfBirth": dayOfBirth})
+            request_json.update({"monthOfBirth": monthOfBirth})
+            request_json.update({"yearOfBirth": yearOfBirth})
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_mobile_otp_url = (
+                f"{self.abha_url}/v1/registration/mobile/createHealthId"
+            )
+            resp, resp_code = APIInterface().post(
+                route=generate_mobile_otp_url,
+                data=request_json,
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "ABHA_ID_GENERATION",
+                    "request_status": "SUCCESS",
+                    "callback_response": resp,
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                return resp
+            else:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "ABHA_ID_GENERATION",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.mobile_abha_registration function: {error}"
+            )
+            raise error
