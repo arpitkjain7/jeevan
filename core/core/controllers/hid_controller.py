@@ -40,8 +40,8 @@ class HIDController:
                 data={"aadhaar": aadhaar_number},
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
-            txn_id = resp.get("txnId")
             if resp_code <= 250:
+                txn_id = resp.get("txnId")
                 gateway_request = {
                     "request_id": txn_id,
                     "request_type": "AADHAAR_OTP_GENERATION",
@@ -51,7 +51,6 @@ class HIDController:
                 return gateway_request
             else:
                 gateway_request = {
-                    "request_id": txn_id,
                     "request_type": "AADHAAR_OTP_GENERATION",
                     "request_status": "FAILED",
                     "error_message": resp.get("details")[0].get("message"),
@@ -136,7 +135,7 @@ class HIDController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             generate_aadhaar_otp_url = (
-                f"{self.abha_url}/v1/registration/aadhaar/generateMobileOTP"
+                f"{self.abha_url}/v2/registration/aadhaar/checkAndGenerateMobileOTP"
             )
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
@@ -150,6 +149,9 @@ class HIDController:
                     "request_status": "IN-PROGRESS",
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                gateway_request.update(
+                    {"mobileLinked": resp.get("mobileLinked", False)}
+                )
                 return gateway_request
             else:
                 gateway_request = {
@@ -159,6 +161,7 @@ class HIDController:
                     "error_message": resp.get("details")[0].get("message"),
                     "error_code": resp.get("details")[0].get("code"),
                 }
+                self.CRUDGatewayInteraction.update(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
@@ -211,6 +214,7 @@ class HIDController:
                     "error_message": resp.get("details")[0].get("message"),
                     "error_code": resp.get("details")[0].get("code"),
                 }
+                self.CRUDGatewayInteraction.update(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
@@ -254,6 +258,7 @@ class HIDController:
                     "request_id": txn_id,
                     "request_type": "ABHA_ID_GENERATION",
                     "request_status": "SUCCESS",
+                    "callback_response": resp,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
                 return resp
@@ -265,6 +270,7 @@ class HIDController:
                     "error_message": resp.get("details")[0].get("message"),
                     "error_code": resp.get("details")[0].get("code"),
                 }
+                self.CRUDGatewayInteraction.update(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
@@ -275,4 +281,148 @@ class HIDController:
             logging.error(
                 f"Error in HIDController.aadhaar_verifyMobileOTP function: {error}"
             )
+            raise error
+
+    def abha_verification(self, health_id: str):
+        """Verify if the abha address already exists
+
+        Args:
+            health_id (str): abha address to be checked
+
+        Raises:
+            HTTPException: _description_
+            error: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        try:
+            logging.info("executing  abha_verification function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            verify_abha_url = f"{self.abha_url}/v2/search/existsByHealthId"
+            resp, resp_code = APIInterface().post(
+                route=verify_abha_url,
+                data={"healthId": health_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                if resp.get("status"):
+                    return {"available": False}
+                return {"available": False}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=resp,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
+            raise error
+
+    def forgot_generateOtp(self, aadhaar_number: str):
+        """Generate Aadhaar OTP for getting Abha id from Aadhaar
+
+        Args:
+            aadhaar_number (str): Aadhaar Number of patient
+
+        Raises:
+            HTTPException: _description_
+            error: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        try:
+            logging.info("executing  forgot_generateOtp function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_otp_abha_url = (
+                f"{self.abha_url}/v1/forgot/healthId/aadhaar/generateOtp"
+            )
+            resp, resp_code = APIInterface().post(
+                route=generate_otp_abha_url,
+                data={"aadhaar": aadhaar_number},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                txn_id = resp.get("txnId")
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "FORGOT_ABHA",
+                    "request_status": "INIT",
+                }
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                return gateway_request
+            else:
+                gateway_request = {
+                    "request_type": "FORGOT_ABHA",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
+            raise error
+
+    def forgot_verifyOtp(self, otp: str, txn_id: str):
+        """Verify Aadhaar OTP for getting Abha id from Aadhaar
+
+        Args:
+            otp (str): Aadhaar OPT sent to patient
+            txn_id (str): Transaction id from previous step
+
+        Raises:
+            HTTPException: _description_
+            error: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        try:
+            logging.info("executing  forgot_generateOtp function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            verify_otp_abha_url = f"{self.abha_url}/v1/forgot/healthId/aadhaar"
+            resp, resp_code = APIInterface().post(
+                route=verify_otp_abha_url,
+                data={"otp": otp, "txnId": txn_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "FORGOT_ABHA",
+                    "request_status": "SUCCESS",
+                    "callback_response": resp,
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                return {
+                    "health_address": resp.get("healthId"),
+                    "health_id": resp.get("healthIdNumber"),
+                }
+            else:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "FORGOT_ABHA",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
             raise error
