@@ -14,6 +14,6 @@ class PatientMedicalRecord(Base):
     pulse = Column(Integer)
     blood_pressure = Column(String)
     body_temperature = Column(Float)
-    patient_id = Column(Integer, ForeignKey("patientDetails.id"))
+    patient_id = Column(String, ForeignKey("patientDetails.id"))
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

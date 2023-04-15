@@ -1,4 +1,5 @@
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
+from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from fastapi import APIRouter, HTTPException, status, Depends
 from core import logger
 from core.utils.custom.external_call import APIInterface
@@ -13,6 +14,7 @@ logging = logger(__name__)
 class HIDController:
     def __init__(self):
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
+        self.CRUDPatientDetails = CRUDPatientDetails()
         self.abha_url = os.environ["abha_url"]
 
     def aadhaar_generateOTP(self, aadhaar_number: str):
@@ -110,6 +112,7 @@ class HIDController:
                     "error_message": resp.get("details")[0].get("message"),
                     "error_code": resp.get("details")[0].get("code"),
                 }
+                self.CRUDGatewayInteraction.update(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
@@ -264,7 +267,43 @@ class HIDController:
                     "callback_response": resp,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
-                return resp
+                linking_token = resp.get("token")
+                refresh_token = resp.get("refreshToken")
+                logging.info("Getting patient details")
+                get_profile_url = f"{self.abha_url}/v1/account/profile"
+                patient_data, resp_code = APIInterface().get(
+                    route=get_profile_url,
+                    headers={
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "X-Token": f"Bearer {linking_token}",
+                    },
+                )
+                patient_id = str(uuid.uuid1())
+                patient_request = {
+                    "id": patient_id,
+                    "abha_number": patient_data["healthIdNumber"],
+                    "abha_address": patient_data["healthId"],
+                    "mobile_number": patient_data["mobile"],
+                    "name": patient_data["name"],
+                    "gender": patient_data["gender"],
+                    "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
+                    "email": patient_data["email"],
+                    "address": patient_data["address"],
+                    "village": patient_data["villageName"],
+                    "village_code": patient_data["villageCode"],
+                    "town": patient_data["townName"],
+                    "town_code": patient_data["townCode"],
+                    "district": patient_data["districtName"],
+                    "district_code": patient_data["districtCode"],
+                    "pincode": patient_data["pincode"],
+                    "state_name": patient_data["stateName"],
+                    "state_code": patient_data["stateCode"],
+                    "auth_methods": {"authMethods": patient_data["authMethods"]},
+                    "linking_token": linking_token,
+                    "refresh_token": refresh_token,
+                }
+                self.CRUDPatientDetails.create(**patient_request)
+                return patient_request
             else:
                 gateway_request = {
                     "request_id": txn_id,

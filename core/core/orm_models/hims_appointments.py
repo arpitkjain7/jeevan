@@ -10,7 +10,7 @@ class Appointments(Base):
     appointment_date = Column(Date)
     appointment_time = Column(Time)
     doc_id = Column(Integer, ForeignKey("docDetails.id"))
-    patient_id = Column(Integer, ForeignKey("patientDetails.id"))
+    patient_id = Column(String, ForeignKey("patientDetails.id"))
     token_number = Column(Integer)
     notes = Column(Text)
     created_at = Column(DateTime)
