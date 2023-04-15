@@ -48,6 +48,7 @@ class HIDController:
                     "request_status": "INIT",
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
@@ -99,6 +100,7 @@ class HIDController:
                     "request_status": "IN-PROGRESS",
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
@@ -150,7 +152,7 @@ class HIDController:
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
                 gateway_request.update(
-                    {"mobileLinked": resp.get("mobileLinked", False)}
+                    {"txn_id": txn_id, "mobileLinked": resp.get("mobileLinked", False)}
                 )
                 return gateway_request
             else:
@@ -205,6 +207,7 @@ class HIDController:
                     "request_status": "IN-PROGRESS",
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
@@ -357,6 +360,7 @@ class HIDController:
                     "request_status": "INIT",
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
