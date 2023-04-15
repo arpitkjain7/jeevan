@@ -278,10 +278,11 @@ class HIDController:
                         "X-Token": f"Bearer {linking_token}",
                     },
                 )
+                abha_number = patient_data["healthIdNumber"].replace("-", "")
                 patient_id = str(uuid.uuid1())
                 patient_request = {
                     "id": patient_id,
-                    "abha_number": patient_data["healthIdNumber"],
+                    "abha_number": abha_number,
                     "abha_address": patient_data["healthId"],
                     "mobile_number": patient_data["mobile"],
                     "name": patient_data["name"],
@@ -302,7 +303,14 @@ class HIDController:
                     "linking_token": linking_token,
                     "refresh_token": refresh_token,
                 }
-                self.CRUDPatientDetails.create(**patient_request)
+                patient_record = self.CRUDPatientDetails.read_by_abhaId(
+                    abha_number=abha_number
+                )
+                if patient_record:
+                    patient_request.update({"id": patient_record["id"]})
+                    self.CRUDPatientDetails.update(**patient_request)
+                else:
+                    self.CRUDPatientDetails.create(**patient_request)
                 return patient_request
             else:
                 gateway_request = {
