@@ -307,10 +307,12 @@ class HIDController:
                 data={"healthId": health_id},
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
+            available_status = resp.get("status")
+            logging.info(f"{available_status=}")
             if resp_code <= 250:
-                if resp.get("status"):
+                if resp.get("status") == True:
                     return {"available": False}
-                return {"available": False}
+                return {"available": True}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
