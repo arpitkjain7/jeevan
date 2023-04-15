@@ -601,12 +601,19 @@ class HIDController:
             request_json = request.dict()
             txn_id = request_json.get("txnId")
             dob = request_json.get("dob")
-            dayOfBirth = dob[:2]
-            monthOfBirth = dob[3:5]
-            yearOfBirth = dob[6:10]
-            request_json.update({"dayOfBirth": dayOfBirth})
-            request_json.update({"monthOfBirth": monthOfBirth})
-            request_json.update({"yearOfBirth": yearOfBirth})
+            date, month, year = dob.split("/")
+            name = request_json.get("firstName") + request_json.get("lastName")
+            token = self.CRUDGatewayInteraction.read(request_id=txn_id).get("token")
+            request_json.update(
+                {
+                    "dayOfBirth": date,
+                    "monthOfBirth": str(int(month)),
+                    "yearOfBirth": year,
+                    "token": token,
+                    "name": name,
+                }
+            )
+            request_json.pop("dob")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
@@ -618,6 +625,8 @@ class HIDController:
                 data=request_json,
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
+            logging.info(f"{resp=}")
+            logging.info(f"{resp_code=}")
             if resp_code <= 250:
                 gateway_request = {
                     "request_id": txn_id,

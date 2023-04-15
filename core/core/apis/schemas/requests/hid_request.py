@@ -37,7 +37,6 @@ class AbhaRegistration_MobileOTP(BaseModel):
     email: str
     healthId: str
     gender: str
-    token: str
     txnId: str
     dob: str
 
