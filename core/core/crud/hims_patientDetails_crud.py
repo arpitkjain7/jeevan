@@ -110,6 +110,33 @@ class CRUDPatientDetails:
             logging.error(f"Error in CRUDPatientDetails read function : {error}")
             raise error
 
+    def read_by_abhaAddress(self, abha_address: str):
+        """[CRUD function to read a PatientDetails record]
+
+        Args:
+            mobile_number (str): [Mobile Number to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientDetails record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientDetails read request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.abha_address == abha_address)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDPatientDetails read function : {error}")
+            raise error
+
     def read_by_patientId(self, patient_id: int):
         """[CRUD function to read a PatientDetails record]
 

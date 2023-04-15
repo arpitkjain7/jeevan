@@ -516,7 +516,6 @@ class HIDController:
                 return gateway_request
             else:
                 gateway_request = {
-                    "request_id": txn_id,
                     "request_type": "MOBILE_OTP_GENERATION",
                     "request_status": "FAILED",
                     "error_message": resp.get("details")[0].get("message"),
@@ -635,7 +634,37 @@ class HIDController:
                     "callback_response": resp,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
-                return resp
+                linking_token = resp.get("token")
+                refresh_token = resp.get("refreshToken")
+                logging.info("Getting patient details")
+                patient_id = str(uuid.uuid1())
+                patient_request = {
+                    "id": patient_id,
+                    "abha_number": resp["healthIdNumber"],
+                    "abha_address": resp["healthId"],
+                    "mobile_number": resp["mobile"],
+                    "name": resp["name"],
+                    "gender": resp["gender"],
+                    "DOB": dob,
+                    "email": resp["email"],
+                    "district": resp["districtName"],
+                    "district_code": resp["districtCode"],
+                    "pincode": resp["pincode"],
+                    "state_name": resp["stateName"],
+                    "state_code": resp["stateCode"],
+                    "auth_methods": {"authMethods": resp["authMethods"]},
+                    "linking_token": linking_token,
+                    "refresh_token": refresh_token,
+                }
+                patient_record = self.CRUDPatientDetails.read_by_abhaAddress(
+                    abha_address=resp["healthId"]
+                )
+                if patient_record:
+                    patient_request.update({"id": patient_record["id"]})
+                    self.CRUDPatientDetails.update(**patient_request)
+                else:
+                    self.CRUDPatientDetails.create(**patient_request)
+                return patient_request
             else:
                 gateway_request = {
                     "request_id": txn_id,
