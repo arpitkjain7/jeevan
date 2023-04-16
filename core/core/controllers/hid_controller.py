@@ -5,6 +5,7 @@ from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from datetime import datetime, timezone
+from core.utils.aws.s3_helper import upload_to_s3, get_object, create_presigned_url
 import os
 import json
 import uuid
@@ -17,6 +18,7 @@ class HIDController:
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.abha_url = os.environ["abha_url"]
+        self.s3_location = os.environ["s3_location"]
 
     def aadhaar_generateOTP(self, aadhaar_number: str):
         """[Controller to fetch patient auth modes]
@@ -700,43 +702,96 @@ class HIDController:
             )
             logging.info(f"{patient_obj=}")
             if patient_obj:
-                linking_token = patient_obj.get("linking_token")
-                resp, resp_code = APIInterface().get_bytes(
-                    route=f"{self.abha_url}/v1/account/getPngCard",
-                    headers={
-                        "Authorization": f"Bearer {gateway_access_token}",
-                        "X-Token": f"Bearer {linking_token}",
-                    },
-                )
-                logging.info(f"{resp=}")
-                logging.info(f"{resp_code=}")
-                logging.info(f"{type(resp_code)=}")
-                if resp_code >= 400:
-                    refresh_token = patient_obj.get("refresh_token")
-                    refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
-                    resp, resp_code = APIInterface().post(
-                        route=refresh_token_url,
-                        data={"refreshToken": refresh_token},
-                        headers={"Authorization": f"Bearer {gateway_access_token}"},
+                logging.info("Getting ABHA S3 location")
+                if patient_obj.get("abha_s3_location"):
+                    logging.info("Generating Presigned URL for ABHA S3 location")
+                    s3_presigned_url = create_presigned_url(
+                        bucket_name=self.s3_location,
+                        key=patient_obj.get("abha_s3_location"),
+                        expires_in=1800,
                     )
-                    if resp.get("accessToken", None):
-                        self.CRUDPatientDetails.update(
-                            **{
-                                "id": patient_id,
-                                "linking_token": resp.get("accessToken"),
-                            }
-                        )
-                    resp, resp_code = APIInterface().get_bytes(
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_url": s3_presigned_url}
+                else:
+                    logging.info("Getting Abha card")
+                    linking_token = patient_obj.get("linking_token")
+                    byte_data, resp_code = APIInterface().get_bytes(
                         route=f"{self.abha_url}/v1/account/getPngCard",
                         headers={
                             "Authorization": f"Bearer {gateway_access_token}",
                             "X-Token": f"Bearer {linking_token}",
                         },
                     )
-                    logging.info(f"{resp=}")
-                    logging.info(f"{resp_code=}")
-                    return {"data": resp}
-                return {"data": resp}
+                    if resp_code >= 400:
+                        logging.info(
+                            "Expired Linking Token. Generating new with Refresh token"
+                        )
+                        refresh_token = patient_obj.get("refresh_token")
+                        refresh_token_url = (
+                            f"{self.abha_url}/v1/auth/generate/access-token"
+                        )
+                        resp, resp_code = APIInterface().post(
+                            route=refresh_token_url,
+                            data={"refreshToken": refresh_token},
+                            headers={"Authorization": f"Bearer {gateway_access_token}"},
+                        )
+                        if resp.get("accessToken", None):
+                            self.CRUDPatientDetails.update(
+                                **{
+                                    "id": patient_id,
+                                    "linking_token": resp.get("accessToken"),
+                                }
+                            )
+                        logging.info("Getting Abha card")
+                        byte_data, resp_code = APIInterface().get_bytes(
+                            route=f"{self.abha_url}/v1/account/getPngCard",
+                            headers={
+                                "Authorization": f"Bearer {gateway_access_token}",
+                                "X-Token": f"Bearer {linking_token}",
+                            },
+                        )
+                        logging.info("Uploading Abha card to S3")
+                        upload_to_s3(
+                            bucket_name=self.s3_location,
+                            byte_data=byte_data,
+                            file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                        )
+                        logging.info("Uploading database with S3 location")
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                            }
+                        )
+                        logging.info("Generating Presigned URL for Abha S3")
+                        s3_presigned_url = create_presigned_url(
+                            bucket_name=self.s3_location,
+                            key=f"PATIENT_DATA/{patient_id}/abha.png",
+                            expires_in=1800,
+                        )
+                        logging.info("Returning S3 presigned url")
+                        return {"abha_url": s3_presigned_url}
+                    logging.info("Uploading Abha card to S3")
+                    upload_to_s3(
+                        bucket_name=self.s3_location,
+                        byte_data=byte_data,
+                        file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                    )
+                    logging.info("Uploading database with S3 location")
+                    self.CRUDPatientDetails.update(
+                        **{
+                            "id": patient_id,
+                            "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                        }
+                    )
+                    logging.info("Generating Presigned URL for Abha S3")
+                    s3_presigned_url = create_presigned_url(
+                        bucket_name=self.s3_location,
+                        key=f"PATIENT_DATA/{patient_id}/abha.png",
+                        expires_in=1800,
+                    )
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_url": s3_presigned_url}
         except Exception as error:
             logging.error(
                 f"Error in HIDController.mobile_abha_registration function: {error}"

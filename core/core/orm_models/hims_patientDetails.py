@@ -25,6 +25,7 @@ class PatientDetails(Base):
     state_name = Column(String)
     state_code = Column(String)
     auth_methods = Column(JSON)
+    abha_s3_location = Column(String)
     linking_token = Column(String)
     refresh_token = Column(String)
     created_at = Column(DateTime)

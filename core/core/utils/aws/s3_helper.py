@@ -10,6 +10,10 @@ s3_client = boto3.client(
 )
 
 
+def get_object(bucket_name: str, prefix: str):
+    return s3_client.list_objects(Bucket=bucket_name, Prefix=prefix).get("Contents")
+
+
 def create_bucket(bucket_name, region=None):
     """Create an S3 bucket in a specified region
 
