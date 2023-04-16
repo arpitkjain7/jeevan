@@ -6,6 +6,7 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from datetime import datetime, timezone
 import os
+import json
 import uuid
 
 logging = logger(__name__)
@@ -259,6 +260,8 @@ class HIDController:
                 data=request_json,
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
+            logging.info(f"{resp=}")
+            logging.info(f"{resp_code=}")
             if resp_code <= 250:
                 gateway_request = {
                     "request_id": txn_id,
@@ -680,6 +683,60 @@ class HIDController:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.mobile_abha_registration function: {error}"
+            )
+            raise error
+
+    def get_abha_card(self, patient_id: str):
+        try:
+            logging.info("executing  get_abha_card function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            if patient_obj:
+                linking_token = patient_obj.get("linking_token")
+                resp, resp_code = APIInterface().get_bytes(
+                    route=f"{self.abha_url}/v1/account/getPngCard",
+                    headers={
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "X-Token": f"Bearer {linking_token}",
+                    },
+                )
+                logging.info(f"{resp=}")
+                logging.info(f"{resp_code=}")
+                logging.info(f"{type(resp_code)=}")
+                if resp_code >= 400:
+                    refresh_token = patient_obj.get("refresh_token")
+                    refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
+                    resp, resp_code = APIInterface().post(
+                        route=refresh_token_url,
+                        data={"refreshToken": refresh_token},
+                        headers={"Authorization": f"Bearer {gateway_access_token}"},
+                    )
+                    if resp.get("accessToken", None):
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "linking_token": resp.get("accessToken"),
+                            }
+                        )
+                    resp, resp_code = APIInterface().get_bytes(
+                        route=f"{self.abha_url}/v1/account/getPngCard",
+                        headers={
+                            "Authorization": f"Bearer {gateway_access_token}",
+                            "X-Token": f"Bearer {linking_token}",
+                        },
+                    )
+                    logging.info(f"{resp=}")
+                    logging.info(f"{resp_code=}")
+                    return {"data": resp}
+                return {"data": resp}
         except Exception as error:
             logging.error(
                 f"Error in HIDController.mobile_abha_registration function: {error}"
