@@ -518,6 +518,7 @@ class HIDController:
                     "request_status": "INIT",
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
@@ -569,6 +570,7 @@ class HIDController:
                     "token": token,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
@@ -608,6 +610,7 @@ class HIDController:
             date, month, year = dob.split("/")
             name = request_json.get("firstName") + request_json.get("lastName")
             token = self.CRUDGatewayInteraction.read(request_id=txn_id).get("token")
+
             request_json.update(
                 {
                     "dayOfBirth": date,
@@ -679,6 +682,7 @@ class HIDController:
                     "error_code": resp.get("details")[0].get("code"),
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
