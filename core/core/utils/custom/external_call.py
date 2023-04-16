@@ -1,6 +1,7 @@
 import requests
 import json
 from core import logger
+import http.client
 
 logging = logger(__name__)
 
@@ -68,3 +69,14 @@ class APIInterface:
             return response.status_code
         except Exception as error:
             logging.error(f"Error in DELETE API request: {error}")
+
+    @staticmethod
+    def get_bytes(route, params=None, data=None, headers=None):
+        try:
+            url = route
+            logging.info("get_bytes request sent")
+            logging.debug(f"{url=}, {params=},{data=}")
+            response = requests.get(url, params=params, data=data, headers=headers)
+            return str(response.content, "UTF-8"), response.status_code
+        except Exception as error:
+            logging.error(f"Error in get_bytes API request: {error}")

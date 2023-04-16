@@ -43,3 +43,7 @@ class AbhaRegistration_MobileOTP(BaseModel):
 
 class MobileNumber(BaseModel):
     mobileNumber: str
+
+
+class PatientData(BaseModel):
+    patientId: str
