@@ -9,7 +9,7 @@ import uuid
 from core import logger
 
 logging = logger(__name__)
-patient_id = str(uuid.uuid1())
+patient_id = "111-111-111-111"
 
 
 def create_admin_user(admin_user_request):

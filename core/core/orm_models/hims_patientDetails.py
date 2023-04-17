@@ -28,5 +28,6 @@ class PatientDetails(Base):
     abha_s3_location = Column(String)
     linking_token = Column(String)
     refresh_token = Column(String)
+    access_token = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
