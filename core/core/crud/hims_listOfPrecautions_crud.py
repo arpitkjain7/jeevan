@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_listOfPrecautions import ListOfPrecautions
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDListOfPrecautions:
             logging.info("CRUDListOfPrecautions create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             list_of_precautions = ListOfPrecautions(**kwargs)
@@ -28,7 +33,6 @@ class CRUDListOfPrecautions:
         except Exception as error:
             logging.error(f"Error in CRUDListOfPrecautions create function : {error}")
             raise error
-
 
     def read_all(self):
         """[CRUD function to read_all Precaution record]
@@ -42,14 +46,16 @@ class CRUDListOfPrecautions:
         try:
             logging.info("CRUDListOfPrecautions read_all request")
             with session() as transaction_session:
-                obj: ListOfPrecautions = transaction_session.query(ListOfPrecautions).all()
+                obj: ListOfPrecautions = transaction_session.query(
+                    ListOfPrecautions
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
             logging.error(f"Error in CRUDListOfPrecautions read_all function : {error}")
             raise error
-        
+
     def read(self, instruction_name: str):
         """[CRUD function to read Diagnosis record]
 
@@ -71,7 +77,9 @@ class CRUDListOfPrecautions:
                 return obj.__dict__
             return None
         except Exception as error:
-            logging.error(f"Error in CRUDListOfPrecautionsTests read function : {error}")
+            logging.error(
+                f"Error in CRUDListOfPrecautionsTests read function : {error}"
+            )
             raise error
 
     def delete(self, instruction_id: int):

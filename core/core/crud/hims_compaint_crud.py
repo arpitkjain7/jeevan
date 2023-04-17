@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_complaint import Complaint
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDComplaint:
             logging.info("CRUDComplaint create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             complaint = Complaint(**kwargs)
@@ -85,7 +90,13 @@ class CRUDComplaint:
         """
         try:
             logging.info("CRUDComplaint update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: Complaint = (
                     transaction_session.query(Complaint)

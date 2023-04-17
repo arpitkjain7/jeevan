@@ -10,5 +10,15 @@ class RegisterPatient(BaseModel):
 
 class FetchRegisterationMode(BaseModel):
     abha_number: str
-    purpose: str
-    hip_id: str
+    purpose: str = "KYC_AND_LINK"
+
+
+class AuthInit(BaseModel):
+    abha_number: str
+    purpose: str = "KYC_AND_LINK"
+    auth_mode: str
+
+
+class VerifyOtp(BaseModel):
+    txnId: str
+    otp: str

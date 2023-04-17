@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDPatientDetails:
             logging.info("CRUDPatientDetails create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             patient_details = PatientDetails(**kwargs)
@@ -196,7 +201,13 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)

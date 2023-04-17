@@ -6,6 +6,7 @@ from core.orm_models.hims_medicines import Medicines
 from core.orm_models.hims_medicalTest import MedicalTest
 from core.orm_models.hims_precautions import Precautions
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -21,8 +22,12 @@ class CRUDPatientMedicalRecord:
             logging.info("CRUDPatientMedicalRecord create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             pmr_record = PatientMedicalRecord(**kwargs)
@@ -205,7 +210,13 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)

@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_medicalTestReports import MedicalTestReports
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDMedicalTestReports:
             logging.info("CRUDMedicalTestReports create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             medical_test_report = MedicalTestReports(**kwargs)
@@ -57,7 +62,6 @@ class CRUDMedicalTestReports:
             logging.error(f"Error in CRUDMedicalTestReports read function : {error}")
             raise error
 
-    
     def read_all(self):
         """[CRUD function to read_all Users record]
 
@@ -70,12 +74,16 @@ class CRUDMedicalTestReports:
         try:
             logging.info("CRUDMedicalTestReports read_all request")
             with session() as transaction_session:
-                obj: MedicalTestReports = transaction_session.query(MedicalTestReports).all()
+                obj: MedicalTestReports = transaction_session.query(
+                    MedicalTestReports
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTestReports read_all function : {error}")
+            logging.error(
+                f"Error in CRUDMedicalTestReports read_all function : {error}"
+            )
             raise error
 
     def update(self, **kwargs):
@@ -86,7 +94,13 @@ class CRUDMedicalTestReports:
         """
         try:
             logging.info("CRUDMedicalTestReports update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: MedicalTestReports = (
                     transaction_session.query(MedicalTestReports)

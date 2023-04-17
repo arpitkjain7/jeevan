@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_medicines import Medicines
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDMedicines:
             logging.info("CRUDMedicines create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             medicines = Medicines(**kwargs)
@@ -85,7 +90,13 @@ class CRUDMedicines:
         """
         try:
             logging.info("CRUDMedicines update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: Medicines = (
                     transaction_session.query(Medicines)

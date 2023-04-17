@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_medicalTest import MedicalTest
 from datetime import datetime
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -16,8 +17,12 @@ class CRUDMedicalTest:
             logging.info("CRUDMedicalTest create request")
             kwargs.update(
                 {
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
+                    "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    ),
                 }
             )
             medical_test = MedicalTest(**kwargs)
@@ -57,7 +62,6 @@ class CRUDMedicalTest:
             logging.error(f"Error in CRUDMedicalTest read function : {error}")
             raise error
 
-
     def read_all(self):
         """[CRUD function to read_all Users record]
 
@@ -86,7 +90,13 @@ class CRUDMedicalTest:
         """
         try:
             logging.info("CRUDMedicalTest update function")
-            kwargs.update({"updated_at": datetime.now()})
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
             with session() as transaction_session:
                 obj: MedicalTest = (
                     transaction_session.query(MedicalTest)
