@@ -169,17 +169,15 @@ def aadhaar_abhaRegistration(
 
 
 @hid_router.get("/v1/HID/registration/aadhaar/checkAbhaAvailability")
-def check_available_health_id(
-    request: HealthNumber, token: str = Depends(oauth2_scheme)
-):
+def check_available_health_id(health_id: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(
             f"Calling /v1/HID/aadhaar/registration/checkAbhaAvailability endpoint"
         )
-        logging.debug(f"Request: {request.healthNumber=}")
+        logging.debug(f"Request: {health_id=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return HIDController().abha_verification(health_id=request.healthNumber)
+            return HIDController().abha_verification(health_id=health_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
