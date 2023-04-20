@@ -74,7 +74,6 @@ def auth_init(request: AuthInit, token: str = Depends(oauth2_scheme)):
 
 @patient_router.post("/v1/patient/auth/verifyOtp")
 def auth_verifyOtp(request: VerifyOtp, token: str = Depends(oauth2_scheme)):
-    pass
     try:
         logging.info("Calling /v1/patient/auth/verifyOtp endpoint")
         logging.debug(f"Request: {request}")
@@ -92,6 +91,24 @@ def auth_verifyOtp(request: VerifyOtp, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/patient/auth/verifyOtp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v1.0/patients/profile/share")
+def patient_profileShare(request: dict):
+    try:
+        logging.info("Calling /v1.0/patients/profile/share endpoint")
+        logging.debug(f"Request: {request}")
+        return PatientController().patient_share(request=request)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1.0/patients/profile/share endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1.0/patients/profile/share endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
