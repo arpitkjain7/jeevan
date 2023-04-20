@@ -86,14 +86,14 @@ class CallbackController:
     def on_auth_confirm(self, request):
         try:
             logging.info("executing  on_auth_confirm function")
-            logging.info("Getting request id")
+            logging.info("Getting Transcation id")
             request_id = request.get("resp").get("requestId")
             logging.info("Getting error message")
             error_message = request.get("error")
             logging.info(f"{error_message=}")
             if error_message:
                 gateway_request = {
-                    "request_id": request.get("resp").get("requestId"),
+                    "request_id": request_id,
                     "callback_response": request,
                     "request_status": "FAILED",
                     "error_code": error_message.get("code", 000),
@@ -102,7 +102,7 @@ class CallbackController:
                 self.CRUDGatewayInteraction.update(**gateway_request)
             else:
                 gateway_request = {
-                    "request_id": request.get("resp").get("requestId"),
+                    "request_id": request_id,
                     "callback_response": request,
                     "request_status": "SUCESS",
                 }

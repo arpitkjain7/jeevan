@@ -100,12 +100,12 @@ class HIDController:
             )
             if resp_code <= 250:
                 gateway_request = {
-                    "request_id": txn_id,
+                    "request_id": str(uuid.uuid1()),
                     "request_type": "OTP_VERIFICATION",
                     "request_status": "IN-PROGRESS",
+                    "transaction_id": txn_id,
                 }
-                self.CRUDGatewayInteraction.update(**gateway_request)
-                gateway_request.update({"txn_id": txn_id})
+                self.CRUDGatewayInteraction.create(**gateway_request)
                 return gateway_request
             else:
                 gateway_request = {
