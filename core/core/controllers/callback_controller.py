@@ -119,6 +119,11 @@ class CallbackController:
                 patient_obj = self.CRUDPatientDetails.read_by_abhaId(
                     abha_number=abha_number
                 )
+                logging.info(f"{patient_data=}")
+                address_obj = patient_data.get("address")
+                if address_obj is None:
+                    address_obj = {}
+                logging.info(f"{patient_obj=}")
                 patient_id = str(uuid.uuid1())
                 patient_request = {
                     "id": patient_id,
@@ -128,10 +133,10 @@ class CallbackController:
                     "name": patient_data.get("name"),
                     "gender": patient_data.get("gender"),
                     "DOB": f"{patient_data.get('dayOfBirth')}/{patient_data.get('monthOfBirth')}/{patient_data.get('yearOfBirth')}",
-                    "address": patient_data.get("address").get("line"),
-                    "district": patient_data.get("address").get("district"),
-                    "pincode": patient_data.get("address").get("state"),
-                    "state_name": patient_data.get("address").get("pincode"),
+                    "address": address_obj.get("line"),
+                    "district": address_obj.get("district"),
+                    "pincode": address_obj.get("state"),
+                    "state_name": address_obj.get("pincode"),
                     "hip_id": hip_id,
                     "access_token": access_token,
                 }

@@ -22,3 +22,11 @@ class AuthInit(BaseModel):
 class VerifyOtp(BaseModel):
     txnId: str
     otp: str
+
+
+class VerifyDemographic(BaseModel):
+    txnId: str
+    name: str
+    gender: str
+    dateOfBirth: str
+    mobileNumber: str
