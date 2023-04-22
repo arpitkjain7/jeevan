@@ -83,7 +83,7 @@ class CallbackController:
             logging.error(f"Error in CallbackController.on_auth_init function: {error}")
             raise error
 
-    def on_auth_confirm(self, request):
+    def on_auth_confirm(self, request, hip_id):
         try:
             logging.info("executing  on_auth_confirm function")
             logging.info("Getting Transcation id")
@@ -132,6 +132,7 @@ class CallbackController:
                     "district": patient_data.get("address").get("district"),
                     "pincode": patient_data.get("address").get("state"),
                     "state_name": patient_data.get("address").get("pincode"),
+                    "hip_id": hip_id,
                     "access_token": access_token,
                 }
                 if patient_obj:

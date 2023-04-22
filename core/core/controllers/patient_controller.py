@@ -161,7 +161,7 @@ class PatientController:
             logging.error(f"Error in PatientController.verify_otp function: {error}")
             raise error
 
-    def patient_share(self, request):
+    def patient_share(self, request, hip_id):
         try:
             logging.info("executing  patient_share function")
             logging.info("Getting session access Token")
@@ -196,6 +196,7 @@ class PatientController:
                     "district": patient_data["address"]["district"],
                     "pincode": patient_data["address"]["pincode"],
                     "state_name": patient_data["address"]["state"],
+                    "hip_id": hip_id,
                 }
                 self.CRUDPatientDetails.create(**patient_request)
             akw_url = f"{self.gateway_url}/v1.0/patients/profile/on-share"

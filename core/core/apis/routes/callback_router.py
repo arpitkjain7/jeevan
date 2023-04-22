@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from core.controllers.callback_controller import CallbackController
 from core import logger
@@ -41,11 +41,14 @@ def on_init(auth_init_request: dict):
 
 
 @callback_router.post("/v0.5/users/auth/on-confirm")
-def on_confirm(auth_confirm_request: dict):
+async def on_confirm(auth_confirm_request: Request):
     try:
         logging.info("Calling /v0.5/users/auth/on-confirm endpoint")
-        logging.debug(f"Request: {auth_confirm_request}")
-        return CallbackController().on_auth_confirm(request=auth_confirm_request)
+        request_dict = await auth_confirm_request.json()
+        logging.debug(f"Request: {request_dict}")
+        hip_id = auth_confirm_request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        return CallbackController().on_auth_confirm(request=request_dict, hip_id=hip_id)
     except Exception as error:
         logging.error(f"Error in /v0.5/users/auth/on-confirm endpoint: {error}")
         raise HTTPException(
