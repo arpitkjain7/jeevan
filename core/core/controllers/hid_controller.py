@@ -235,7 +235,7 @@ class HIDController:
             )
             raise error
 
-    def aadhaar_registration(self, request):
+    def aadhaar_registration(self, request, hip_id):
         """[Controller to fetch patient auth modes]
 
         Args:
@@ -304,6 +304,7 @@ class HIDController:
                     "pincode": patient_data["pincode"],
                     "state_name": patient_data["stateName"],
                     "state_code": patient_data["stateCode"],
+                    "hip_id": hip_id,
                     "auth_methods": {"authMethods": patient_data["authMethods"]},
                     "linking_token": linking_token,
                     "refresh_token": refresh_token,
@@ -590,7 +591,7 @@ class HIDController:
             logging.error(f"Error in HIDController.verifyMobileOTP function: {error}")
             raise error
 
-    def mobile_abha_registration(self, request):
+    def mobile_abha_registration(self, request, hip_id):
         """[Controller to fetch patient auth modes]
 
         Args:
@@ -661,6 +662,7 @@ class HIDController:
                     "state_name": resp["stateName"],
                     "state_code": resp["stateCode"],
                     "auth_methods": {"authMethods": resp["authMethods"]},
+                    "hip_id": hip_id,
                     "linking_token": linking_token,
                     "refresh_token": refresh_token,
                 }

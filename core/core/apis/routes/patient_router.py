@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.patient_request import (
     FetchRegisterationMode,
@@ -99,16 +99,37 @@ def auth_verifyOtp(request: VerifyOtp, token: str = Depends(oauth2_scheme)):
 
 
 @patient_router.post("/v1.0/patients/profile/share")
-def patient_profileShare(request: dict):
+def patient_profileShare(request: Request):
     try:
         logging.info("Calling /v1.0/patients/profile/share endpoint")
-        logging.debug(f"Request: {request}")
-        return PatientController().patient_share(request=request)
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"Request: {request.dict()}")
+        return PatientController().patient_share(request=request.dict(), hip_id=hip_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v1.0/patients/profile/share endpoint: {httperror}")
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1.0/patients/profile/share endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/care-contexts/discover")
+def discover_patient(request: Request):
+    try:
+        logging.info("Calling /v0.5/care-contexts/discover endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        logging.debug(f"Request: {request.dict()}")
+        # return PatientController().patient_share(request=request)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
