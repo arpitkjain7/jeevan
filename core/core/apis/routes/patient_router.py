@@ -118,18 +118,40 @@ def patient_profileShare(request: Request):
 
 
 @patient_router.post("/v0.5/care-contexts/discover")
-def discover_patient(request: Request):
+async def discover_patient(request: Request):
     try:
         logging.info("Calling /v0.5/care-contexts/discover endpoint")
         hip_id = request.headers.get("X-HIP-ID")
         logging.debug(f"hip_id: {hip_id}")
-        logging.debug(f"Request: {request.dict()}")
-        # return PatientController().patient_share(request=request)
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().discover_patient(request=request_json, hip_id=hip_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {httperror}")
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/links/link/init")
+async def link_patient(request: Request):
+    try:
+        logging.info("Calling /v0.5/links/link/init endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        # return PatientController().discover_patient(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/links/link/init endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/links/link/init endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
