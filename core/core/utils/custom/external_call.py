@@ -19,6 +19,9 @@ class APIInterface:
             #         f"Call to {route} failed with {response.status_code} and response {response.text}"
             #     )
             # logging.debug(f"response = {response}")
+            logging.debug(
+                f"response.text = {response.text}, response.status_code = {response.status_code}"
+            )
             if response.text:
                 return json.loads(response.text), response.status_code
             return None, response.status_code

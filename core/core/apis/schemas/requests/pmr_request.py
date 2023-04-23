@@ -28,7 +28,7 @@ class MedicalTests(BaseModel):
 
 
 class PMR(BaseModel):
-    patient_id: int
+    patient_id: str
     doc_id: int
     appointment_id: int
     height: float
