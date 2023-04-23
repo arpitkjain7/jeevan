@@ -166,6 +166,65 @@ class PatientController:
             logging.error(f"Error in PatientController.verify_otp function: {error}")
             raise error
 
+    def verify_demographic(self, request):
+        try:
+            logging.info("executing  verify_demographic function")
+            request_dict = request.dict()
+            logging.info(f"{request_dict=}")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            auth_confirm_url = f"{self.gateway_url}/v0.5/users/auth/confirm"
+            logging.info(f"{request_dict.get('txnId')=}")
+            gateway_obj = self.CRUDGatewayInteraction.read(
+                request_id=request_dict.get("txnId")
+            )
+            logging.debug(f"{gateway_obj=}")
+            request_id = str(uuid.uuid1())
+            time_now = datetime.now(timezone.utc)
+            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            resp, resp_code = APIInterface().post(
+                route=auth_confirm_url,
+                data={
+                    "requestId": request_id,
+                    "timestamp": time_now,
+                    "transactionId": gateway_obj.get("transaction_id"),
+                    "credential": {
+                        "authCode": "",
+                        "demographic": {
+                            "name": request_dict.get("name"),
+                            "gender": request_dict.get("gender"),
+                            "dateOfBirth": request_dict.get("dateOfBirth"),
+                            "identifier": {
+                                "type": "MOBILE",
+                                "value": request_dict.get("mobileNumber"),
+                            },
+                        },
+                    },
+                },
+                headers={
+                    "X-CM-ID": "sbx",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            gateway_request = {
+                "request_id": request_id,
+                "request_type": "VERIFY_DEMOGRAPHIC",
+            }
+            if resp_code <= 250:
+                gateway_request.update({"request_status": "PROCESSING"})
+            else:
+                gateway_request.update({"request_status": "FAILED"})
+            self.CRUDGatewayInteraction.create(**gateway_request)
+            return gateway_request
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.verify_demographic function: {error}"
+            )
+            raise error
+
     def patient_share(self, request, hip_id):
         try:
             logging.info("executing  patient_share function")
