@@ -6,9 +6,10 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import uuid
+from pytz import timezone as pytz_timezone
 
 logging = logger(__name__)
 
@@ -433,4 +434,150 @@ class PatientController:
             logging.error(
                 f"Error in PatientController.discover_patient function: {error}"
             )
+            raise error
+
+    def link_patient(self, request, hip_id):
+        try:
+            logging.info("executing  link_patient function")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            logging.info("Getting transactionId")
+            txn_id = request.get("transactionId")
+            patient_obj = request.get("patient")
+            patient_id = patient_obj.get("referenceNumber")
+            pmr_list = []
+            for pmr in patient_obj.get("careContexts"):
+                pmr_id = pmr.get("referenceNumber")
+                pmr_list.append(pmr_id)
+            logging.info("Generating on-init request")
+            otp_ref_num = str(uuid.uuid1())
+            otp = str(uuid.uuid1().int)[-6:]
+            time_change = timedelta(minutes=15)
+            expiry_time = datetime.now(pytz_timezone("Asia/Kolkata")) + time_change
+            otp_expiry_time = expiry_time.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            payload = {
+                "requestId": str(uuid.uuid1()),
+                "timestamp": datetime.now(timezone.utc).strftime(
+                    "%Y-%m-%dT%H:%M:%S.%f"
+                ),
+                "transactionId": txn_id,
+                "link": {
+                    "referenceNumber": otp_ref_num,
+                    "authenticationType": "DIRECT",
+                    "meta": {
+                        "communicationMedium": "MOBILE",
+                        "communicationHint": "string",
+                        "communicationExpiry": otp_expiry_time,
+                    },
+                },
+                "error": None,
+                "resp": {"requestId": request.get("requestId")},
+            }
+            linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-init"
+            resp, resp_code = APIInterface().post(
+                route=linking_on_init_url,
+                data=payload,
+                headers={
+                    "X-CM-ID": "sbx",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            logging.debug(f"{resp=}")
+            self.CRUDGatewayInteraction.create(
+                **{
+                    "request_id": otp_ref_num,
+                    "request_type": "LINK_OTP_VERIFICATION",
+                    "request_status": "PROCESSING",
+                    "transaction_id": txn_id,
+                    "gateway_metadata": {
+                        "otp": otp,
+                        "otp_expiry": otp_expiry_time,
+                        "pmr_list": pmr_list,
+                        "patient_id": patient_id,
+                    },
+                }
+            )
+        except Exception as error:
+            logging.error(f"Error in PatientController.link_patient function: {error}")
+            raise error
+
+    def link_confirm(self, request, hip_id):
+        try:
+            logging.info("executing  link_confirm function")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            logging.info("Getting confirmation details")
+            link_ref_num = request.get("confirmation").get("linkRefNumber")
+            otp = request.get("confirmation").get("token")
+            gateway_obj = self.CRUDGatewayInteraction.read(request_id=link_ref_num)
+            gateway_meta = gateway_obj.get("gateway_metadata")
+            if otp == gateway_meta.get("otp"):
+                logging.info("OTP verified")
+                logging.info("Getting Patient Record")
+                patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                    patient_id=gateway_meta.get("patient_id")
+                )
+                logging.info("Getting PMR Id")
+                careContext = []
+                for pmr_id in gateway_meta.get("pmr_list"):
+                    pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+                    careContext.append(
+                        {
+                            "referenceNumber": pmr_obj["id"],
+                            "display": f"Consultation Record for {pmr_obj['date_of_consultation']}",
+                        }
+                    )
+                payload = {
+                    "requestId": str(uuid.uuid1()),
+                    "timestamp": datetime.now(timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%S.%f"
+                    ),
+                    "patient": {
+                        "referenceNumber": patient_obj["id"],
+                        "display": patient_obj["name"],
+                        "careContexts": careContext,
+                    },
+                    "error": None,
+                    "resp": {"requestId": request.get("requestId")},
+                }
+                self.CRUDGatewayInteraction.update(
+                    **{"request_id": link_ref_num, "request_status": "SUCCESS"}
+                )
+            else:
+                logging.info("Invalid OTP")
+                payload = {
+                    "requestId": str(uuid.uuid1()),
+                    "timestamp": datetime.now(timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%S.%f"
+                    ),
+                    "patient": None,
+                    "error": {"code": 403, "message": "Invalid OTP"},
+                    "resp": {"requestId": request.get("requestId")},
+                }
+                self.CRUDGatewayInteraction.update(
+                    **{
+                        "request_id": link_ref_num,
+                        "request_status": "FAILED",
+                        "error_message": "Invalid OTP",
+                        "error_code": "403",
+                    }
+                )
+            linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
+            resp, resp_code = APIInterface().post(
+                route=linking_on_init_url,
+                data=payload,
+                headers={
+                    "X-CM-ID": "sbx",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            logging.debug(f"{resp=}")
+        except Exception as error:
+            logging.error(f"Error in PatientController.link_confirm function: {error}")
             raise error
