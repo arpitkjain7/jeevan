@@ -177,12 +177,33 @@ async def link_patient(request: Request):
         logging.debug(f"hip_id: {hip_id}")
         request_json = await request.json()
         logging.debug(f"Request: {request_json}")
-        # return PatientController().discover_patient(request=request_json, hip_id=hip_id)
+        return PatientController().link_patient(request=request_json, hip_id=hip_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v0.5/links/link/init endpoint: {httperror}")
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/links/link/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/links/link/confirm")
+async def link_on_confirm(request: Request):
+    try:
+        logging.info("Calling /v0.5/links/link/confirm endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().link_confirm(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/links/link/confirm endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/links/link/confirm endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

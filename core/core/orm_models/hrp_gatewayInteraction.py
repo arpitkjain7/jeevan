@@ -9,6 +9,7 @@ class GatewayInteraction(Base):
     request_type = Column(String)
     transaction_id = Column(String)
     request_status = Column(String)
+    gateway_metadata = Column(JSON)
     token = Column(String)
     error_code = Column(String)
     error_message = Column(String)
