@@ -6,6 +6,7 @@ class PatientMedicalRecord(Base):
     __tablename__ = "patientMedicalRecord"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    hip_id = Column(String, ForeignKey("hipDetails.hip_id"))
     date_of_consultation = Column(DateTime)
     appointment_id = Column(Integer, ForeignKey("appointments.id"))
     doc_id = Column(Integer, ForeignKey("docDetails.id"))

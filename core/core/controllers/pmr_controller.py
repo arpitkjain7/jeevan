@@ -18,7 +18,7 @@ class PMRController:
         self.CRUDMedicines = CRUDMedicines()
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
 
-    def create_pmr(self, request):
+    def create_pmr(self, request, hip_id):
         """[Controller to create new pmr record]
 
         Args:
@@ -37,6 +37,7 @@ class PMRController:
             diagnosis_list = request_dict.pop("diagnosis")
             medicines_list = request_dict.pop("medicines")
             medical_tests_list = request_dict.pop("medical_tests")
+            request_dict.update({"hip_id": hip_id})
             logging.info("Creating PMR record")
             pmr_id = self.CRUDPatientMedicalRecord.create(**request_dict)
             logging.info(f"PMR record created with PMR_ID = {pmr_id}")
