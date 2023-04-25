@@ -392,7 +392,7 @@ class PatientController:
                     for pmr in pmr_record:
                         care_context.append(
                             {
-                                "referenceNumber": pmr["id"],
+                                "referenceNumber": f"{hip_obj['hip_uid']}-{pmr['id']}",
                                 "display": f"Consultation Record for {pmr['date_of_consultation']}",
                             }
                         )
@@ -524,11 +524,13 @@ class PatientController:
                 )
                 logging.info("Getting PMR Id")
                 careContext = []
+                hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
                 for pmr_id in gateway_meta.get("pmr_list"):
-                    pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+                    pmr_num = pmr_id.split("-")[-1]
+                    pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_num)
                     careContext.append(
                         {
-                            "referenceNumber": pmr_obj["id"],
+                            "referenceNumber": pmr_id,
                             "display": f"Consultation Record for {pmr_obj['date_of_consultation']}",
                         }
                     )

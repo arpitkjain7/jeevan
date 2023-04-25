@@ -91,6 +91,7 @@ def main():
         hip_request={
             "hip_id": "123123",
             "name": "ABC Healthcare",
+            "hip_uid": "ABC",
             "hip_address": "DUMMY",
         }
     )

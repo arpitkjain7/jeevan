@@ -17,7 +17,8 @@ def create_pmr(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_pmr(request=pmr_request)
+            hip_id = authenticated_user_details.get("hip_id")
+            return PMRController().create_pmr(request=pmr_request, hip_id=hip_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
