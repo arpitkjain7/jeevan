@@ -5,6 +5,7 @@ from core.apis.schemas.requests.patient_request import (
     AuthInit,
     VerifyOtp,
     VerifyDemographic,
+    RegisterWithoutABHA,
 )
 from core.controllers.patient_controller import PatientController
 from core import logger
@@ -204,6 +205,45 @@ async def link_on_confirm(request: Request):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/links/link/confirm endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v1/patient/register")
+def register_patient(register_patient_request: RegisterWithoutABHA, token: str = Depends(oauth2_scheme)):
+    """[API router to register new patient into the system]
+    Args:
+        register_patient_request (Register): [New user details]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v1/patient/register endpoint")
+        logging.debug(f"Request: {register_patient_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            hip_id = authenticated_user_details.get("hip_id")
+            register_patient_request.hip_id = hip_id
+            patient_obj = PatientController().register_patient_controller(
+                register_patient_request
+            )
+            if patient_obj.get("patient_id") is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=patient_obj["status"]
+                )
+            else:
+                return patient_obj
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/register1 endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/register2 endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
