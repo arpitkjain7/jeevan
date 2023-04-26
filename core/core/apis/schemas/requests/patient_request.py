@@ -36,4 +36,3 @@ class RegisterWithoutABHA(BaseModel):
     gender: str
     DOB: str
     mobile_number: str
-    hip_id: str

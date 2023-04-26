@@ -101,12 +101,12 @@ class CallbackController:
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
             else:
-                gateway_request = {
-                    "request_id": request_id,
-                    "callback_response": request,
-                    "request_status": "SUCESS",
-                }
-                self.CRUDGatewayInteraction.update(**gateway_request)
+                # gateway_request = {
+                #     "request_id": request_id,
+                #     "callback_response": request,
+                #     "request_status": "SUCESS",
+                # }
+                # self.CRUDGatewayInteraction.update(**gateway_request)
                 logging.info("Creating patient record")
                 access_token = request.get("auth").get("accessToken")
                 patient_data = request.get("auth").get("patient")
@@ -145,6 +145,18 @@ class CallbackController:
                     self.CRUDPatientDetails.update(**patient_request)
                 else:
                     self.CRUDPatientDetails.create(**patient_request)
+                patient_obj_created = self.CRUDPatientDetails.read_by_abhaId(
+                    abha_number=abha_number
+                )
+                if patient_obj_created:
+                    pid=patient_obj_created["id"]
+                    request.update({"patient_id": pid})
+                gateway_request = {
+                    "request_id": request_id,
+                    "callback_response": request,
+                    "request_status": "SUCESS",
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
                 return patient_request
             return {"status": "trigger success"}
         except Exception as error:
