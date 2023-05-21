@@ -10,7 +10,7 @@ from core.apis.routes.gatewayInteraction_router import gateway_router
 from core.apis.routes.callback_router import callback_router
 from core.apis.routes.listOfData_router import listOfData_router
 from core.apis.routes.hid_router import hid_router
-
+from core.apis.routes.dataTransfer_router import dataTransfer_router
 """
 from core.apis.routes.listOfComplaints_router import listOfComplaint_router
 from core.apis.routes.listOfDiagnosis_router import listOfDiagnosis_router
@@ -46,6 +46,7 @@ app.include_router(patient_router, tags=["Patient Registeration"])
 app.include_router(hip_router, tags=["HIP Records"])
 app.include_router(gateway_router, tags=["Gateway Interactions"])
 app.include_router(callback_router, tags=["Callback"])
+app.include_router(dataTransfer_router, tags=["Data Transfer"])
 app.include_router(listOfData_router, tags=["Common"])
 """
 app.include_router(listOfComplaint_router, tags=["Common"])

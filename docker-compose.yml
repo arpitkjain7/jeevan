@@ -28,6 +28,7 @@ services:
         volumes:
             - ./core:/app
             - ./logs:/core/logs
+            - ./fidelius-cli-1.2.0:/app/fidelius-cli-1.2.0
         ports:
             - 8001:8000
         depends_on:

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Float
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Float, Boolean
 from core import Base
 
 
@@ -16,5 +16,6 @@ class PatientMedicalRecord(Base):
     blood_pressure = Column(String)
     body_temperature = Column(Float)
     patient_id = Column(String, ForeignKey("patientDetails.id"))
+    abdm_linked = Column(Boolean)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

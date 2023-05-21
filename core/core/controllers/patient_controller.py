@@ -550,6 +550,23 @@ class PatientController:
                 self.CRUDGatewayInteraction.update(
                     **{"request_id": link_ref_num, "request_status": "SUCCESS"}
                 )
+                linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
+                resp, resp_code = APIInterface().post(
+                    route=linking_on_init_url,
+                    data=payload,
+                    headers={
+                        "X-CM-ID": "sbx",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                logging.debug(f"{resp_code=}")
+                logging.debug(f"{resp=}")
+                if resp_code < 300:
+                    for pmr_id in gateway_meta.get("pmr_list"):
+                        pmr_num = pmr_id.split("-")[-1]
+                        self.CRUDPatientMedicalRecord.update(
+                            **{"id": pmr_num, "abdm_linked": True}
+                        )
             else:
                 logging.info("Invalid OTP")
                 payload = {
@@ -569,17 +586,17 @@ class PatientController:
                         "error_code": "403",
                     }
                 )
-            linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
-            resp, resp_code = APIInterface().post(
-                route=linking_on_init_url,
-                data=payload,
-                headers={
-                    "X-CM-ID": "sbx",
-                    "Authorization": f"Bearer {gateway_access_token}",
-                },
-            )
-            logging.debug(f"{resp_code=}")
-            logging.debug(f"{resp=}")
+                linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
+                resp, resp_code = APIInterface().post(
+                    route=linking_on_init_url,
+                    data=payload,
+                    headers={
+                        "X-CM-ID": "sbx",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                logging.debug(f"{resp_code=}")
+                logging.debug(f"{resp=}")
         except Exception as error:
             logging.error(f"Error in PatientController.link_confirm function: {error}")
             raise error
