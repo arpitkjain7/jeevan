@@ -30,3 +30,9 @@ class VerifyDemographic(BaseModel):
     gender: str
     dateOfBirth: str
     mobileNumber: str
+
+class RegisterWithoutABHA(BaseModel):
+    name: str
+    gender: str
+    DOB: str
+    mobile_number: str

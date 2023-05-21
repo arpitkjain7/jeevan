@@ -4,6 +4,7 @@ from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
+from commons.auth import decodeJWT
 from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from datetime import datetime, timezone, timedelta
@@ -600,3 +601,38 @@ class PatientController:
         except Exception as error:
             logging.error(f"Error in PatientController.link_confirm function: {error}")
             raise error
+    
+    def register_patient_controller(self, request):
+            """[Controller to register new user]
+
+            Args:
+                request ([dict]): [create new user request]
+
+            Raises:
+                error: [Error raised from controller layer]
+
+            Returns:
+                [dict]: [authorization details]
+            """
+            try:
+                logging.info("executing register new patient function")
+                request_json = request.dict()
+                patient_obj = self.CRUDPatientDetails.read_by_name(name=request_json.get("name"), DOB=request_json.get("DOB"))
+                if patient_obj is not None:
+                    return {
+                        "name": request_json.get("name"),
+                        "patient_id": patient_obj.get("id"),
+                        "status": "Patient already exists",
+                    }
+                else:
+                    patient_id = str(uuid.uuid1())
+                    request_json["id"] = patient_id
+                    self.CRUDPatientDetails.create(**request_json)
+                    return {
+                        "name": request_json.get("name"),
+                        "patient_id": request_json.get("id"),
+                        "status": "New Patient created successfully",
+                    }
+            except Exception as error:
+                logging.error(f"Error in register_patient_controller function: {error}")
+                raise error

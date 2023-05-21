@@ -294,7 +294,9 @@ def mobile_verifyOTP(request: OTPVerification, token: str = Depends(oauth2_schem
         logging.info(f"Calling /v1/registration/mobile/verifyOtp")
         logging.debug(f"Request: {request.otp=}")
         logging.debug(f"Request: {request.txnId=}")
+        logging.debug(f"Token: {token=}")
         authenticated_user_details = decodeJWT(token=token)
+        logging.debug(f"UserDetails: {authenticated_user_details=}")
         if authenticated_user_details:
             return HIDController().verifyMobileOTP(
                 otp=request.otp, txn_id=request.txnId
