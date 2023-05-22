@@ -248,7 +248,7 @@ class PatientController:
                 abha_number = patient_data.get("healthIdNumber")
                 if abha_number:
                     abha_number = abha_number.replace("-", "")
-                patient_id = str(uuid.uuid1())
+                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -263,6 +263,7 @@ class PatientController:
                     "pincode": patient_data["address"]["pincode"],
                     "state_name": patient_data["address"]["state"],
                     "hip_id": hip_id,
+                    "abha_status": "ACTIVE",
                 }
                 self.CRUDPatientDetails.create(**patient_request)
             akw_url = f"{self.gateway_url}/v1.0/patients/profile/on-share"
@@ -527,8 +528,7 @@ class PatientController:
                 careContext = []
                 hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
                 for pmr_id in gateway_meta.get("pmr_list"):
-                    pmr_num = pmr_id.split("-")[-1]
-                    pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_num)
+                    pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
                     careContext.append(
                         {
                             "referenceNumber": pmr_id,
@@ -564,9 +564,8 @@ class PatientController:
                 logging.debug(f"{resp=}")
                 if resp_code < 300:
                     for pmr_id in gateway_meta.get("pmr_list"):
-                        pmr_num = pmr_id.split("-")[-1]
                         self.CRUDPatientMedicalRecord.update(
-                            **{"id": pmr_num, "abdm_linked": True}
+                            **{"id": pmr_id, "abdm_linked": "TRUE"}
                         )
             else:
                 logging.info("Invalid OTP")
@@ -601,38 +600,57 @@ class PatientController:
         except Exception as error:
             logging.error(f"Error in PatientController.link_confirm function: {error}")
             raise error
-    
-    def register_patient_controller(self, request):
-            """[Controller to register new user]
 
-            Args:
-                request ([dict]): [create new user request]
+    def register_patient_controller(self, request, hip_id):
+        """[Controller to register new user]
 
-            Raises:
-                error: [Error raised from controller layer]
+        Args:
+            request ([dict]): [create new user request]
 
-            Returns:
-                [dict]: [authorization details]
-            """
-            try:
-                logging.info("executing register new patient function")
-                request_json = request.dict()
-                patient_obj = self.CRUDPatientDetails.read_by_name(name=request_json.get("name"), DOB=request_json.get("DOB"))
-                if patient_obj is not None:
-                    return {
-                        "name": request_json.get("name"),
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing register new patient function")
+            request_json = request.dict()
+            patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
+                mobile_number=request_json.get("mobile_number")
+            )
+            # patient_obj = self.CRUDPatientDetails.read_by_name(
+            #     name=request_json.get("name"), DOB=request_json.get("DOB")
+            # )
+            if len(patient_list) > 0:
+                patient_details = [
+                    {
+                        "name": patient_obj.get("name"),
                         "patient_id": patient_obj.get("id"),
-                        "status": "Patient already exists",
+                        "abha_number": patient_obj.get("abha_number"),
+                        "abha_address": patient_obj.get("abha_address"),
                     }
-                else:
-                    patient_id = str(uuid.uuid1())
-                    request_json["id"] = patient_id
-                    self.CRUDPatientDetails.create(**request_json)
-                    return {
-                        "name": request_json.get("name"),
-                        "patient_id": request_json.get("id"),
-                        "status": "New Patient created successfully",
-                    }
-            except Exception as error:
-                logging.error(f"Error in register_patient_controller function: {error}")
-                raise error
+                    for patient_obj in patient_list
+                ]
+                return {
+                    "patient_details": patient_details,
+                    "status": "Patient already exist",
+                }
+            else:
+                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                request_json.update({"id": patient_id, "hip_id": hip_id})
+                self.CRUDPatientDetails.create(**request_json)
+                return {
+                    "patient_details": [
+                        {
+                            "name": request_json.get("name"),
+                            "patient_id": request_json.get("id"),
+                            "abha_number": None,
+                            "abha_address": None,
+                        }
+                    ],
+                    "status": "New Patient created successfully",
+                }
+        except Exception as error:
+            logging.error(f"Error in register_patient_controller function: {error}")
+            raise error

@@ -30,5 +30,6 @@ class PatientDetails(Base):
     linking_token = Column(String)
     refresh_token = Column(String)
     access_token = Column(String)
+    abha_status = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

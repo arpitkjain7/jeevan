@@ -6,7 +6,7 @@ class Medicines(Base):
     __tablename__ = "medicines"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    pmr_id = Column(Integer, ForeignKey("patientMedicalRecord.id"))
+    pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     medicine_name = Column(String)
     frequency = Column(String)
     time_of_day = Column(String)

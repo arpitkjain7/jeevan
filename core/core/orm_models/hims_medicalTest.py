@@ -7,6 +7,6 @@ class MedicalTest(Base):
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
-    pmr_id = Column(Integer, ForeignKey("patientMedicalRecord.id"))
+    pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

@@ -135,11 +135,11 @@ class CRUDPatientDetails:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.mobile_number == mobile_number)
-                    .first()
+                    .all()
                 )
             if obj is not None:
-                return obj.__dict__
-            return None
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails read function : {error}")
             raise error
@@ -252,7 +252,7 @@ class CRUDPatientDetails:
             logging.error(f"Error in CRUDPatientDetails read function : {error}")
             raise error
 
-    def read_by_name(self, name: str,DOB: str):
+    def read_by_name(self, name: str, DOB: str):
         """[CRUD function to read a PatientDetails record]
 
         Args:

@@ -5,7 +5,7 @@ from core import Base
 class PatientMedicalRecord(Base):
     __tablename__ = "patientMedicalRecord"
     __table_args__ = {"extend_existing": True}
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String, primary_key=True)
     hip_id = Column(String, ForeignKey("hipDetails.hip_id"))
     date_of_consultation = Column(DateTime)
     appointment_id = Column(Integer, ForeignKey("appointments.id"))
@@ -16,6 +16,6 @@ class PatientMedicalRecord(Base):
     blood_pressure = Column(String)
     body_temperature = Column(Float)
     patient_id = Column(String, ForeignKey("patientDetails.id"))
-    abdm_linked = Column(Boolean)
+    abdm_linked = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
