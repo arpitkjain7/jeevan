@@ -5,7 +5,7 @@ from core.controllers.listOfData_controller import ListOfComplaintsController
 from core.controllers.listOfData_controller import ListOfDiagnosisController
 from core.controllers.listOfData_controller import ListOfMedicalTestsController
 from core.controllers.listOfData_controller import ListOfMedicinesController
-from core.controllers.listOfData_controller import ListOfPrecautionsController
+from core.controllers.listOfData_controller import ListOfPrecautionsController, Common
 from commons.auth import decodeJWT
 from fastapi.security import OAuth2PasswordRequestForm
 from core import logger
@@ -13,6 +13,7 @@ from core import logger
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
 listOfData_router = APIRouter()
+common_router = APIRouter()
 
 """listOfComplaint_router = APIRouter()
 listOfDiagnosis_router = APIRouter()
@@ -464,9 +465,7 @@ def add_instruction(instruction: str, token: str = Depends(oauth2_scheme)):
         logging.debug(f"Request: {instruction}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfPrecautionsController().add_instruction_controller(
-                instruction
-            )
+            return ListOfPrecautionsController().add_instruction_controller(instruction)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -474,10 +473,14 @@ def add_instruction(instruction: str, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/listOfPrecautions/addInstruction endpoint: {httperror}")
+        logging.error(
+            f"Error in /v1/listOfPrecautions/addInstruction endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfPrecautions/addInstruction endpoint: {error}")
+        logging.error(
+            f"Error in /v1/listOfPrecautions/addInstruction endpoint: {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -510,13 +513,18 @@ def get_all_instructions(token: str = Depends(oauth2_scheme)):
         )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfPrecautions/getAllInstructions endpoint: {error}")
+        logging.error(
+            f"Error in /v1/listOfPrecautions/getAllInstructions endpoint: {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-#Changes made till here, need to update below function .
+
+
+# Changes made till here, need to update below function .
+
 
 @listOfData_router.post("/v1/listOfPrecautions/deleteInstruction")
 def delete_instruction(instruction_id: int, token: str = Depends(oauth2_scheme)):
@@ -534,7 +542,9 @@ def delete_instruction(instruction_id: int, token: str = Depends(oauth2_scheme))
         logging.debug(f"Request: {instruction_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return ListOfPrecautionsController().delete_instruction_controller(instruction_id)
+            return ListOfPrecautionsController().delete_instruction_controller(
+                instruction_id
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -547,7 +557,35 @@ def delete_instruction(instruction_id: int, token: str = Depends(oauth2_scheme))
         )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/listOfPrecautions/deleteInstruction endpoint: {error}")
+        logging.error(
+            f"Error in /v1/listOfPrecautions/deleteInstruction endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@common_router.get("/v1/checkAbhaAvailability")
+def check_available_health_id(health_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/checkAbhaAvailability endpoint")
+        logging.debug(f"Request: {health_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return Common().abha_availability(health_id=health_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/checkAbhaAvailability endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/aadhaar/abhaRegistration endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
