@@ -3,8 +3,12 @@ from core.crud.hims_listOfDiagnosis_crud import CRUDListOfDiagosis
 from core.crud.hims_listOfMedicalTests_crud import CRUDListOfMedicalTests
 from core.crud.hims_listOfMedicines_crud import CRUDListOfMedicines
 from core.crud.hims_listOfPrecautions_crud import CRUDListOfPrecautions
+from fastapi import APIRouter, HTTPException, status, Depends
+from core.utils.custom.external_call import APIInterface
+from core.utils.custom.session_helper import get_session_token
 from commons.auth import encrypt_password, verify_hash_password, signJWT
 from core import logger
+import os
 
 logging = logger(__name__)
 
@@ -310,7 +314,9 @@ class ListOfPrecautionsController:
         try:
             logging.info("executing add new instruction function")
             instruction_upper = instruction.upper()
-            instruction_obj = self.CRUDListOfPrecautions.read(instruction_name=instruction_upper)
+            instruction_obj = self.CRUDListOfPrecautions.read(
+                instruction_name=instruction_upper
+            )
             if instruction_obj:
                 instruction_obj.update({"status": "Instruction already exist"})
                 return instruction_obj
@@ -359,3 +365,46 @@ class ListOfPrecautionsController:
         except Exception as error:
             logging.error(f"Error in delete_instruction_controller function: {error}")
             raise {"error": "Invalid username or password"}
+
+
+class Common:
+    def __init__(self):
+        self.abha_url = os.environ["abha_url"]
+        self.s3_location = os.environ["s3_location"]
+
+    def abha_availability(self, health_id: str):
+        """Verify if the abha address already exists
+        Args:
+            health_id (str): abha address to be checked
+        Raises:
+            HTTPException: _description_
+            error: _description_
+        Returns:
+            _type_: _description_
+        """
+        try:
+            logging.info("executing  abha_availability function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            verify_abha_url = f"{self.abha_url}/v2/search/existsByHealthId"
+            resp, resp_code = APIInterface().post(
+                route=verify_abha_url,
+                data={"healthId": health_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            available_status = resp.get("status")
+            logging.info(f"{available_status=}")
+            if resp_code <= 250:
+                if resp.get("status") == True:
+                    return {"available": False}
+                return {"available": True}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=resp,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_availability function: {error}")
+            raise error
