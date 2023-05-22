@@ -16,6 +16,37 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
 patient_router = APIRouter()
 
 
+@patient_router.get("/v1/patient/verifyAbha")
+def verify_ABHA(
+    health_id: str, year_of_birth: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v1/verifyAbha endpoint")
+        logging.debug(f"Request: {health_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().abha_verification(
+                health_id=health_id,
+                year_of_birth=year_of_birth,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/verifyAbha endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/verifyAbha endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @patient_router.post("/v1/patient/fetchModes")
 def fetch_auth_modes(
     request: FetchRegisterationMode, token: str = Depends(oauth2_scheme)
