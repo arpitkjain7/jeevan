@@ -6,7 +6,7 @@ class Complaint(Base):
     __tablename__ = "complaint"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    pmr_id = Column(Integer, ForeignKey("patientMedicalRecord.id"))
+    pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     complaint_type = Column(String)
     frequency = Column(String)
     severity = Column(String)

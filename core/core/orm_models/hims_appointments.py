@@ -5,7 +5,7 @@ from core import Base
 
 class Appointments(Base):
     __tablename__ = "appointments"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = {"extend_existing": True, "schema": "lobster"}
     id = Column(Integer, primary_key=True, autoincrement=True)
     appointment_date = Column(Date)
     appointment_time = Column(Time)

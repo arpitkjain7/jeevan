@@ -284,7 +284,7 @@ class HIDController:
                     },
                 )
                 abha_number = patient_data["healthIdNumber"].replace("-", "")
-                patient_id = str(uuid.uuid1())
+                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -308,6 +308,7 @@ class HIDController:
                     "auth_methods": {"authMethods": patient_data["authMethods"]},
                     "linking_token": linking_token,
                     "refresh_token": refresh_token,
+                    "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaId(
                     abha_number=abha_number
@@ -646,7 +647,7 @@ class HIDController:
                 linking_token = resp.get("token")
                 refresh_token = resp.get("refreshToken")
                 logging.info("Getting patient details")
-                patient_id = str(uuid.uuid1())
+                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": resp["healthIdNumber"],
@@ -665,6 +666,7 @@ class HIDController:
                     "hip_id": hip_id,
                     "linking_token": linking_token,
                     "refresh_token": refresh_token,
+                    "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaAddress(
                     abha_address=resp["healthId"]

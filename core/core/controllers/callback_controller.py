@@ -1,5 +1,6 @@
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
+from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core import logger
 from datetime import datetime, timezone
 import os
@@ -12,6 +13,7 @@ class CallbackController:
     def __init__(self):
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDPatientDetails = CRUDPatientDetails()
+        self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
 
     def on_fetch_modes(self, request):
         """[Controller to fetch patient auth modes]
@@ -124,7 +126,7 @@ class CallbackController:
                 if address_obj is None:
                     address_obj = {}
                 logging.info(f"{patient_obj=}")
-                patient_id = str(uuid.uuid1())
+                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -139,6 +141,7 @@ class CallbackController:
                     "state_name": address_obj.get("pincode"),
                     "hip_id": hip_id,
                     "access_token": access_token,
+                    "abha_status": "ACTIVE",
                 }
                 if patient_obj:
                     patient_request.update({"id": patient_obj["id"]})
@@ -149,7 +152,7 @@ class CallbackController:
                     abha_number=abha_number
                 )
                 if patient_obj_created:
-                    pid=patient_obj_created["id"]
+                    pid = patient_obj_created["id"]
                     request.update({"patient_id": pid})
                 gateway_request = {
                     "request_id": request_id,
@@ -162,5 +165,46 @@ class CallbackController:
         except Exception as error:
             logging.error(
                 f"Error in CallbackController.on_auth_confirm function: {error}"
+            )
+            raise error
+
+    def on_add_context(self, request, hip_id):
+        try:
+            logging.info("executing  on_add_context function")
+            logging.info("Getting Transcation id")
+            request_id = request.get("resp").get("requestId")
+            logging.info("Getting error message")
+            error_message = request.get("error")
+            logging.info(f"{error_message=}")
+            if error_message:
+                gateway_request = {
+                    "request_id": request_id,
+                    "callback_response": request,
+                    "request_status": "FAILED",
+                    "error_code": error_message.get("code", 000),
+                    "error_message": error_message.get("message", None),
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+            else:
+                gateway_obj = self.CRUDGatewayInteraction.read(request_id=request_id)
+                gateway_metadata = gateway_obj.get("gateway_metadata")
+                logging.info(f"{gateway_metadata=}")
+                pmr_request = {
+                    "id": gateway_metadata.get("pmr_id"),
+                    "abdm_linked": "TRUE",
+                }
+                logging.info(f"{pmr_request=}")
+                self.CRUDPatientMedicalRecord.update(**pmr_request)
+                gateway_request = {
+                    "request_id": request_id,
+                    "callback_response": request,
+                    "request_status": "SUCESS",
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+
+            return {"status": "trigger success"}
+        except Exception as error:
+            logging.error(
+                f"Error in CallbackController.on_add_context function: {error}"
             )
             raise error
