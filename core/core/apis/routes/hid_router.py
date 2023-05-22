@@ -169,36 +169,6 @@ def aadhaar_abhaRegistration(
         )
 
 
-@hid_router.get("/v1/HID/registration/aadhaar/checkAbhaAvailability")
-def check_available_health_id(health_id: str, token: str = Depends(oauth2_scheme)):
-    try:
-        logging.info(
-            f"Calling /v1/HID/aadhaar/registration/checkAbhaAvailability endpoint"
-        )
-        logging.debug(f"Request: {health_id=}")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            return HIDController().abha_verification(health_id=health_id)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(
-            f"Error in /v1/HID/aadhaar/registration/checkAbhaAvailability endpoint: {httperror}"
-        )
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v1/HID/aadhaar/abhaRegistration endpoint: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
 @hid_router.post("/v1/HID/forgot/aadhaar/generateOtp")
 def generate_aadhaar_otp(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
     try:

@@ -340,46 +340,6 @@ class HIDController:
             )
             raise error
 
-    def abha_verification(self, health_id: str):
-        """Verify if the abha address already exists
-
-        Args:
-            health_id (str): abha address to be checked
-
-        Raises:
-            HTTPException: _description_
-            error: _description_
-
-        Returns:
-            _type_: _description_
-        """
-        try:
-            logging.info("executing  abha_verification function")
-            gateway_access_token = get_session_token(
-                session_parameter="gateway_token"
-            ).get("accessToken")
-            verify_abha_url = f"{self.abha_url}/v2/search/existsByHealthId"
-            resp, resp_code = APIInterface().post(
-                route=verify_abha_url,
-                data={"healthId": health_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
-            )
-            available_status = resp.get("status")
-            logging.info(f"{available_status=}")
-            if resp_code <= 250:
-                if resp.get("status") == True:
-                    return {"available": False}
-                return {"available": True}
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=resp,
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-        except Exception as error:
-            logging.error(f"Error in HIDController.abha_verification function: {error}")
-            raise error
-
     def forgot_generateOtp(self, aadhaar_number: str):
         """Generate Aadhaar OTP for getting Abha id from Aadhaar
 
