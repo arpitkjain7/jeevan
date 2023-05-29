@@ -161,7 +161,7 @@ class PMRController:
                 "%Y-%m-%dT%H:%M:%S.%f"
             )
             request_id = str(uuid.uuid1())
-            if pmr_obj["abdm_linked"] == "TRUE":
+            if pmr_obj["abdm_linked"]:
                 care_context_url = f"{self.gateway_url}/v0.5/links/context/notify"
                 payload = {
                     "requestId": request_id,
