@@ -27,6 +27,7 @@ class APIInterface:
             return None, response.status_code
         except Exception as error:
             logging.error(f"Error in POST API request: {error}")
+            raise error
 
     @staticmethod
     def get(route, params=None, data=None, headers=None):
