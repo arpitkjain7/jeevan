@@ -11,6 +11,7 @@ from core.apis.routes.callback_router import callback_router
 from core.apis.routes.listOfData_router import listOfData_router, common_router
 from core.apis.routes.hid_router import hid_router
 from core.apis.routes.dataTransfer_router import dataTransfer_router
+from core.apis.routes.appointment_router import appointment_router
 
 """
 from core.apis.routes.listOfComplaints_router import listOfComplaint_router
@@ -42,6 +43,7 @@ app.add_middleware(
 
 app.include_router(user_router, tags=["Authentication"])
 app.include_router(hid_router, tags=["ABHA Registration"])
+app.include_router(appointment_router, tags=["Appointments"])
 app.include_router(pmr_router, tags=["Patient Medical Record"])
 app.include_router(patient_router, tags=["Patient Registeration"])
 app.include_router(hip_router, tags=["HIP Records"])

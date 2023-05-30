@@ -21,7 +21,7 @@ def create_admin_user(admin_user_request):
 
 
 def create_sample_doc_record(doc_request):
-    existing_doc_record = CRUDDocDetails().read_by_docId(doc_id=1)
+    existing_doc_record = CRUDDocDetails().read_by_docId(doc_id=2)
     if not existing_doc_record:
         CRUDDocDetails().create(**doc_request)
 
@@ -36,7 +36,7 @@ def create_sample_patient_record(patient_request):
 
 def create_sample_appointment(appointment_request):
     existing_appointment_record = CRUDAppointments().read_by_patientId(
-        patient_id=patient_id
+        patient_id=patient_id, hip_id="123123"
     )
     if not existing_appointment_record:
         CRUDAppointments().create(**appointment_request)
@@ -61,11 +61,12 @@ def main():
     create_admin_user(admin_user_request=admin_user_request)
     create_sample_doc_record(
         doc_request={
-            "doc_name": "DUMMY",
+            "doc_name": "Dr Arpit Jain",
             "doc_specialization": "DUMMY",
             "doc_department": "DUMMY",
             "doc_working_days": "Mon,Tue,Wed",
             "doc_reg_id": "12312",
+            "avg_consultation_time": "15",
         }
     )
     create_sample_patient_record(
@@ -79,14 +80,13 @@ def main():
             "DOB": "10/12/1992",
         }
     )
-    create_sample_appointment(
-        appointment_request={
-            "appointment_date": "2023-09-08",
-            "appointment_time": "12:00",
-            "doc_id": 1,
-            "patient_id": patient_id,
-        }
-    )
+    # create_sample_appointment(
+    #     appointment_request={
+    #         "appointment_time": "12:00",
+    #         "doc_id": 1,
+    #         "patient_id": patient_id,
+    #     }
+    # )
     create_sample_hip(
         hip_request={
             "hip_id": "123123",
