@@ -402,7 +402,8 @@ def send_data(
         for care_context_obj in care_context_list:
             logging.info(f"{care_context_obj=}")
             with open("/app/core/utils/custom/invoice2.pdf", "rb") as pdf_file:
-                encoded_string = base64.b64encode(pdf_file.read())
+                # encoded_string = base64.b64encode(pdf_file.read())
+                encoded_string = pdf_file.read()
             fhir_bundle = prepare_data(
                 care_context=care_context_obj, file_bytes=encoded_string
             )

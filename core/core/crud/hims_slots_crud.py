@@ -1,5 +1,4 @@
 from core import session, logger
-from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_slots import Slots
 from datetime import datetime
 from pytz import timezone
@@ -7,15 +6,15 @@ from pytz import timezone
 logging = logger(__name__)
 
 
-class CRUDAppointments:
+class CRUDSlots:
     def create(self, **kwargs):
-        """[CRUD function to create a new Appointment record]
+        """[CRUD function to create a new User record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDAppointments create request")
+            logging.info("CRUDSlots create request")
             kwargs.update(
                 {
                     "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -26,21 +25,21 @@ class CRUDAppointments:
                     ),
                 }
             )
-            appointment = Appointments(**kwargs)
+            slots_details = Slots(**kwargs)
             with session() as transaction_session:
-                transaction_session.add(appointment)
+                transaction_session.add(slots_details)
                 transaction_session.commit()
-                transaction_session.refresh(appointment)
-            return appointment.id
+                transaction_session.refresh(slots_details)
+            return slots_details.slot_id
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments create function : {error}")
+            logging.error(f"Error in CRUDSlots create function : {error}")
             raise error
 
-    def read_by_docId(self, doc_id: str, hip_id: str):
+    def read(self, slot_id: int):
         """[CRUD function to read a User record]
 
         Args:
-            user_name (str): [User name to filter the record]
+            slot_id (int): [User name to filter the record]
 
         Raises:
             error: [Error returned from the DB layer]
@@ -49,37 +48,26 @@ class CRUDAppointments:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDAppointments read request")
+            logging.info("CRUDSlots read request")
             with session() as transaction_session:
-                joined_result = []
-                for appointment_obj, slot_obj in (
-                    transaction_session.query(Appointments, Slots)
-                    .filter(Appointments.doc_id == doc_id)
-                    .filter(Appointments.hip_id == hip_id)
-                    .filter(Slots.slot_id == Appointments.slot_id)
-                    .all()
-                ):
-                    appointment_obj.__dict__.update({"slot_details": slot_obj.__dict__})
-                    joined_result.append(appointment_obj)
-                return joined_result
-            #     obj: Appointments = (
-            #         transaction_session.query(Appointments)
-            #         .filter(Appointments.doc_id == doc_id)
-            #         .filter(Appointments.hip_id == hip_id)
-            #         .all()
-            #     )
-            # if obj is not None:
-            #     return [row.__dict__ for row in obj]
-            # return []
+                obj: Slots = (
+                    transaction_session.query(Slots)
+                    .filter(Slots.slot_id == slot_id)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            else:
+                return None
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments read function : {error}")
+            logging.error(f"Error in CRUDSlots read function : {error}")
             raise error
 
-    def read_by_patientId(self, patient_id: str, hip_id: str):
+    def read_by_doc_id(self, doc_id: str, appointment_date: str):
         """[CRUD function to read a User record]
 
         Args:
-            user_name (str): [User name to filter the record]
+            slot_id (int): [User name to filter the record]
 
         Raises:
             error: [Error returned from the DB layer]
@@ -88,19 +76,20 @@ class CRUDAppointments:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDAppointments read request")
+            logging.info("CRUDSlots read request")
             with session() as transaction_session:
-                obj: Appointments = (
-                    transaction_session.query(Appointments)
-                    .filter(Appointments.patient_id == patient_id)
-                    .filter(Appointments.hip_id == hip_id)
+                obj: Slots = (
+                    transaction_session.query(Slots)
+                    .filter(Slots.doc_id == doc_id)
+                    .filter(Slots.date == appointment_date)
                     .all()
                 )
             if obj is not None:
                 return [row.__dict__ for row in obj]
-            return []
+            else:
+                return []
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments read function : {error}")
+            logging.error(f"Error in CRUDSlots read function : {error}")
             raise error
 
     def read_all(self):
@@ -113,14 +102,15 @@ class CRUDAppointments:
             [list]: [all user records]
         """
         try:
-            logging.info("CRUDAppointments read_all request")
+            logging.info("CRUDSlots read_all request")
             with session() as transaction_session:
-                obj: Appointments = transaction_session.query(Appointments).all()
+                obj: Slots = transaction_session.query(Slots).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
-            return []
+            else:
+                return []
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments read_all function : {error}")
+            logging.error(f"Error in CRUDSlots read_all function : {error}")
             raise error
 
     def update(self, **kwargs):
@@ -130,7 +120,7 @@ class CRUDAppointments:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDAppointments update function")
+            logging.info("CRUDSlots update function")
             kwargs.update(
                 {
                     "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -139,33 +129,33 @@ class CRUDAppointments:
                 }
             )
             with session() as transaction_session:
-                obj: Appointments = (
-                    transaction_session.query(Appointments)
-                    .filter(Appointments.id == kwargs.get("id"))
+                obj: Slots = (
+                    transaction_session.query(Slots)
+                    .filter(Slots.slot_id == kwargs.get("slot_id"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments update function : {error}")
+            logging.error(f"Error in CRUDSlots update function : {error}")
             raise error
 
-    def delete(self, appointment_id: int):
+    def delete(self, slot_id: int):
         """[CRUD function to delete a User record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDAppointments delete function")
+            logging.info("CRUDSlots delete function")
             with session() as transaction_session:
-                obj: Appointments = (
-                    transaction_session.query(Appointments)
-                    .filter(Appointments.id == appointment_id)
+                obj: Slots = (
+                    transaction_session.query(Slots)
+                    .filter(Slots.slot_id == slot_id)
                     .first()
                 )
                 transaction_session.delete(obj)
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments delete function : {error}")
+            logging.error(f"Error in CRUDSlots delete function : {error}")
             raise error

@@ -134,10 +134,15 @@ def data_request(request):
         gateway_url = os.environ["gateway_url"]
         consent_on_notify_url = f"{gateway_url}/v0.5/health-information/hip/on-request"
         time_now = datetime.now(timezone.utc)
+        logging.info(f"{time_now=}")
         expire_datetime_object = parser.parse(consent_obj.get("expire_at"))
-        expire_time = expire_datetime_object.strftime("%Y-%m-%dT%H:%M:%S")
+        logging.info(f"{expire_datetime_object=}")
         utc_timezone = pytz_timezone("UTC")
-        expire_time_utc = utc_timezone.localize(expire_time)
+        logging.info(f"{utc_timezone=}")
+        expire_time_utc = utc_timezone.localize(expire_datetime_object)
+        logging.info(f"{expire_time_utc=}")
+        expire_time = expire_datetime_object.strftime("%Y-%m-%dT%H:%M:%S")
+        logging.info(f"{expire_time=}")
         if time_now < expire_time_utc and consent_obj.get("status") == "GRANTED":
             crud_request = {
                 "request_id": request_id,
