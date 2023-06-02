@@ -694,3 +694,11 @@ class PatientController:
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error
+
+    def list_all_patients(self, hip_id: str):
+        try:
+            logging.info("executing list_all_patients function")
+            return self.CRUDPatientDetails.read_all(hip_id=hip_id)
+        except Exception as error:
+            logging.error(f"Error in register_patient_controller function: {error}")
+            raise error

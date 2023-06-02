@@ -248,3 +248,28 @@ class PMRController:
         except Exception as error:
             logging.error(f"Error in PMRController.sync_pmr function: {error}")
             raise error
+
+    def delete_pmr(self, pmr_id):
+        try:
+            logging.info("executing delete_pmr function")
+            logging.info(f"Getting the PMR record for {pmr_id=}")
+            self.CRUDComplaint.delete()
+            pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            complaint_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            diagnosis_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
+            medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
+            pmr_metadata.update(
+                {
+                    "complaints": complaint_data,
+                    "diagnosis": diagnosis_data,
+                    "medicines": medicine_data,
+                    "medicalTests": medicalTest_data,
+                }
+            )
+            return pmr_metadata
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.get_pmr_controller function: {error}"
+            )
+            raise error

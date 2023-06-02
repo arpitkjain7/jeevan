@@ -128,3 +128,23 @@ class CRUDComplaint:
         except Exception as error:
             logging.error(f"Error in CRUDComplaint delete function : {error}")
             raise error
+
+    def delete_all(self, pmr_id: str):
+        """[CRUD function to delete_all  Complaint record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+        """
+        try:
+            logging.info("CRUDComplaint delete_all function")
+            with session() as transaction_session:
+                obj: Complaint = (
+                    transaction_session.query(Complaint)
+                    .filter(Complaint.pmr_id == pmr_id)
+                    .delete(synchronize_session=False)
+                )
+                transaction_session.commit()
+                return obj.__dict__
+        except Exception as error:
+            logging.error(f"Error in CRUDComplaint delete_all function : {error}")
+            raise error
