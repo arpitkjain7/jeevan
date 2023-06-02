@@ -280,7 +280,7 @@ class CRUDPatientDetails:
             logging.error(f"Error in CRUDPatientDetails read function : {error}")
             raise error
 
-    def read_all(self):
+    def read_all(self, hip_id: str):
         """[CRUD function to read_all PatientDetails record]
 
         Raises:
@@ -294,6 +294,7 @@ class CRUDPatientDetails:
             with session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.hip_id == hip_id)
                     .order_by(PatientDetails.created_at.desc())
                     .all()
                 )

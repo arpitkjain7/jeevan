@@ -128,3 +128,23 @@ class CRUDMedicines:
         except Exception as error:
             logging.error(f"Error in CRUDMedicines delete function : {error}")
             raise error
+
+    def delete_all(self, pmr_id: str):
+        """[CRUD function to delete_all a Diagnosis record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+        """
+        try:
+            logging.info("CRUDMedicines delete_all function")
+            with session() as transaction_session:
+                obj: Medicines = (
+                    transaction_session.query(Medicines)
+                    .filter(Medicines.pmr_id == pmr_id)
+                    .delete(synchronize_session=False)
+                )
+                transaction_session.commit()
+                return obj.__dict__
+        except Exception as error:
+            logging.error(f"Error in CRUDMedicines delete_all function : {error}")
+            raise error
