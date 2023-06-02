@@ -25,7 +25,7 @@ from core.apis.routes.listOfMedicines_router import listOfMedicines_router
 
 
 app = FastAPI(
-    title="Jeevan - Lobster",
+    title="CliniQ360 - Lobster",
     version="0.1 - Beta",
     description="ABDM complaint HIMS System for hospitals",
     redoc_url="/documentation",
@@ -67,14 +67,14 @@ def ping():
     Returns:
         [dict]: [success response for health check]
     """
-    return {"response": "ping to find my photos backend server successful"}
+    return {"response": "ping to CliniQ360 backend server successful"}
 
 
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Jeevan - Lobster",
+        title="CliniQ360 - Lobster",
         version="0.1 - Beta",
         description="ABDM complaint HIMS System for hospitals",
         routes=app.routes,
