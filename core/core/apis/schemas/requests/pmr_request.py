@@ -25,6 +25,7 @@ class Medicines(BaseModel):
 
 class MedicalTests(BaseModel):
     name: str
+    notes: str = None
 
 
 class PMR(BaseModel):
@@ -37,7 +38,23 @@ class PMR(BaseModel):
     blood_pressure: str
     body_temperature: float
     date_of_consultation: date
-    complaints: List[Complaint]
-    diagnosis: List[Diagnosis]
-    medicines: List[Medicines]
-    medical_tests: List[MedicalTests]
+
+
+class CreateComplaint(BaseModel):
+    pmr_id: str
+    data: List[Complaint]
+
+
+class CreateDiagnosis(BaseModel):
+    pmr_id: str
+    data: List[Diagnosis]
+
+
+class CreateMedication(BaseModel):
+    pmr_id: str
+    data: List[Medicines]
+
+
+class CreateMedicalTest(BaseModel):
+    pmr_id: str
+    data: List[MedicalTests]

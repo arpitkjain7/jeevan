@@ -43,36 +43,61 @@ class PMRController:
         try:
             logging.info("executing create new pmr function")
             request_dict = request.dict()
-            complaints_list = request_dict.pop("complaints")
-            diagnosis_list = request_dict.pop("diagnosis")
-            medicines_list = request_dict.pop("medicines")
-            medical_tests_list = request_dict.pop("medical_tests")
             pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": hip_id})
             logging.info("Creating PMR record")
             pmr_id = self.CRUDPatientMedicalRecord.create(**request_dict)
             logging.info(f"PMR record created with PMR_ID = {pmr_id}")
-            logging.info("Creating complaint records")
-            for complaint_obj in complaints_list:
-                complaint_obj.update({"pmr_id": pmr_id})
-                self.CRUDComplaint.create(**complaint_obj)
-            logging.info("Creating diagnosis records")
-            for diagnosis_obj in diagnosis_list:
-                diagnosis_obj.update({"pmr_id": pmr_id})
-                self.CRUDDiagnosis.create(**diagnosis_obj)
-            logging.info("Creating medicines records")
-            for medicines_obj in medicines_list:
-                medicines_obj.update({"pmr_id": pmr_id})
-                self.CRUDMedicines.create(**medicines_obj)
-            logging.info("Creating medical tests records")
-            for medical_tests_obj in medical_tests_list:
-                medical_tests_obj.update({"pmr_id": pmr_id})
-                self.CRUDMedicalTest.create(**medical_tests_obj)
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(
                 f"Error in PMRController.create_pmr_controller function: {error}"
             )
+            raise error
+
+    def create_complaints(self, request):
+        try:
+            logging.info("Creating complaint records")
+            for complaint_obj in request.data:
+                complaint_obj.update({"pmr_id": request.pmr_id})
+                self.CRUDComplaint.create(**complaint_obj)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_complaints function: {error}")
+            raise error
+
+    def create_diagnosis(self, request):
+        try:
+            logging.info("Creating diagnosis records")
+            for diagnosis_obj in request.data:
+                diagnosis_obj.update({"pmr_id": request.pmr_id})
+                self.CRUDDiagnosis.create(**diagnosis_obj)
+            logging.info("Creating complaint records")
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_diagnosis function: {error}")
+            raise error
+
+    def create_medication(self, request):
+        try:
+            logging.info("Creating medical tests records")
+            for medical_tests_obj in request.data:
+                medical_tests_obj.update({"pmr_id": request.pmr_id})
+                self.CRUDMedicalTest.create(**medical_tests_obj)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_medication function: {error}")
+            raise error
+
+    def create_medicalTest(self, request):
+        try:
+            logging.info("Creating medicines records")
+            for medicines_obj in request.data:
+                medicines_obj.update({"pmr_id": request.pmr_id})
+                self.CRUDMedicines.create(**medicines_obj)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_diagnosis function: {error}")
             raise error
 
     def get_pmr_with_patientId(self, patient_id: str):
