@@ -38,6 +38,7 @@ class PMR(BaseModel):
     blood_pressure: str
     body_temperature: float
     date_of_consultation: date
+    hip_id: str
 
 
 class CreateComplaint(BaseModel):

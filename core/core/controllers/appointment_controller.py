@@ -16,7 +16,7 @@ class AppointmentsController:
         self.CRUDSlots = CRUDSlots()
         self.gateway_url = os.environ["gateway_url"]
 
-    def create_appointment(self, request, hip_id):
+    def create_appointment(self, request):
         try:
             logging.info("executing  create_appointment function")
             logging.info(f"{request=}")
@@ -48,7 +48,7 @@ class AppointmentsController:
             }
             slot_id = self.CRUDSlots.create(**create_slots_crud_request)
             create_appointment_request = {
-                "hip_id": hip_id,
+                "hip_id": request.hip_id,
                 "doc_id": doc_id,
                 "patient_id": patient_id,
                 "slot_id": slot_id,

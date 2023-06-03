@@ -401,7 +401,7 @@ def send_data(
         sender_key_material = getEcdhKeyMaterial()
         for care_context_obj in care_context_list:
             logging.info(f"{care_context_obj=}")
-            with open("/app/core/utils/custom/invoice2.pdf", "rb") as pdf_file:
+            with open("/app/core/utils/custom/testimage.png", "rb") as pdf_file:
                 # encoded_string = base64.b64encode(pdf_file.read())
                 encoded_string = pdf_file.read()
             fhir_bundle = prepare_data(

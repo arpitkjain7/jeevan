@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from core.controllers.callback_controller import CallbackController
 from core import logger
 from commons.auth import decodeJWT
+from datetime import datetime, timezone
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -87,6 +88,23 @@ async def on_add_context(auth_confirm_request: Request):
         return CallbackController().on_add_context(request=request_dict, hip_id=hip_id)
     except Exception as error:
         logging.error(f"Error in /v0.5/links/context/on-notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@callback_router.get("/v0.5/heartbeat")
+def heartbeat():
+    try:
+        logging.info("Calling /v0.5/heartbeat endpoint")
+        return {
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f"),
+            "status": "UP",
+        }
+    except Exception as error:
+        logging.error(f"Error in /v0.5/heartbeat endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

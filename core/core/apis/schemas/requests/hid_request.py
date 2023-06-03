@@ -10,6 +10,7 @@ class AbhaRegistration(BaseModel):
     email: str
     healthId: str
     password: str
+    hip_id: str
     txnId: str
 
 
@@ -38,6 +39,7 @@ class AbhaRegistration_MobileOTP(BaseModel):
     healthId: str
     gender: str
     txnId: str
+    hip_id: str
     dob: str
 
 

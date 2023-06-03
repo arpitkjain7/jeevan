@@ -57,8 +57,7 @@ def fetch_auth_modes(
         logging.debug(f"Request: {request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
-            return PatientController().fetch_auth_modes(request=request, hip_id=hip_id)
+            return PatientController().fetch_auth_modes(request=request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -85,8 +84,7 @@ def auth_init(request: AuthInit, token: str = Depends(oauth2_scheme)):
         logging.debug(f"Request: {request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
-            return PatientController().auth_init(request=request, hip_id=hip_id)
+            return PatientController().auth_init(request=request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -261,9 +259,8 @@ def register_patient(
         logging.debug(f"Request: {register_patient_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return PatientController().register_patient_controller(
-                register_patient_request, hip_id=hip_id
+                register_patient_request
             )
             # if patient_obj.get("patient_id") is None:
             #     raise HTTPException(
@@ -285,7 +282,7 @@ def register_patient(
 
 
 @patient_router.get("/v1/patient/listAll")
-def list_all_patients(token: str = Depends(oauth2_scheme)):
+def list_all_patients(hip_id: str, token: str = Depends(oauth2_scheme)):
     """[API router to list all patient into the system]
     Raises:
         HTTPException: [Unauthorized exception when invalid token is passed]
@@ -297,7 +294,6 @@ def list_all_patients(token: str = Depends(oauth2_scheme)):
         logging.info("Calling /v1/patient/listAll endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return PatientController().list_all_patients(hip_id=hip_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v1/patient/listAll endpoint: {httperror}")
