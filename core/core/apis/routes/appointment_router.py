@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from core.apis.schemas.requests.appointment_request import Create, Update
+from core.apis.schemas.requests.appointment_request import Create, Update, Read
 from core.controllers.appointment_controller import AppointmentsController
 from commons.auth import decodeJWT
 from fastapi.security import OAuth2PasswordRequestForm
@@ -28,9 +28,8 @@ def create_appointment(
         logging.info("Calling /v1/appointment/create")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return AppointmentsController().create_appointment(
-                request=create_appointment_request, hip_id=hip_id
+                request=create_appointment_request
             )
         else:
             raise HTTPException(
@@ -51,7 +50,9 @@ def create_appointment(
 
 
 @appointment_router.get("/v1/appointment/{doc_id}")
-def get_appointment_by_docId(doc_id: str, token: str = Depends(oauth2_scheme)):
+def get_appointment_by_docId(
+    doc_id: str, hip_id: str, token: str = Depends(oauth2_scheme)
+):
     """[API router to register new user into the system]
     Args:
         register_user_request (Register): [New user details]
@@ -65,7 +66,6 @@ def get_appointment_by_docId(doc_id: str, token: str = Depends(oauth2_scheme)):
         logging.info(f"Calling /v1/appointment/{doc_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return AppointmentsController().get_appointment_by_doc_id(
                 doc_id=doc_id, hip_id=hip_id
             )
@@ -89,7 +89,7 @@ def get_appointment_by_docId(doc_id: str, token: str = Depends(oauth2_scheme)):
 
 @appointment_router.get("/v1/slots/{doc_id}")
 def get_slots_by_docId(
-    doc_id: str, appointment_date: str, token: str = Depends(oauth2_scheme)
+    doc_id: str, appointment_date: str, hip_id: str, token: str = Depends(oauth2_scheme)
 ):
     """[API router to register new user into the system]
     Args:
@@ -104,7 +104,6 @@ def get_slots_by_docId(
         logging.info(f"Calling /v1/slots/{doc_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return AppointmentsController().get_slots(
                 doc_id=doc_id, appointment_date=appointment_date, hip_id=hip_id
             )

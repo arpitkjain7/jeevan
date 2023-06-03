@@ -63,7 +63,7 @@ class PatientController:
             logging.error(f"Error in HIDController.abha_verification function: {error}")
             raise error
 
-    def fetch_auth_modes(self, request, hip_id):
+    def fetch_auth_modes(self, request):
         """[Controller to fetch patient auth modes]
 
         Args:
@@ -94,7 +94,7 @@ class PatientController:
                     "query": {
                         "id": request_dict.get("abha_number"),
                         "purpose": request_dict.get("purpose"),
-                        "requester": {"type": "HIP", "id": hip_id},
+                        "requester": {"type": "HIP", "id": request_dict["hip_id"]},
                     },
                 },
                 headers={
@@ -120,7 +120,7 @@ class PatientController:
             )
             raise error
 
-    def auth_init(self, request, hip_id):
+    def auth_init(self, request):
         try:
             logging.info("executing  auth_init function")
             request_dict = request.dict()
@@ -141,7 +141,7 @@ class PatientController:
                         "id": request_dict.get("abha_number"),
                         "purpose": request_dict.get("purpose"),
                         "authMode": request_dict.get("auth_mode"),
-                        "requester": {"type": "HIP", "id": hip_id},
+                        "requester": {"type": "HIP", "id": request_dict["hip_id"]},
                     },
                 },
                 headers={
@@ -641,7 +641,7 @@ class PatientController:
             logging.error(f"Error in PatientController.link_confirm function: {error}")
             raise error
 
-    def register_patient_controller(self, request, hip_id):
+    def register_patient_controller(self, request):
         """[Controller to register new user]
 
         Args:
@@ -678,7 +678,9 @@ class PatientController:
                 }
             else:
                 patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id, "hip_id": hip_id})
+                request_json.update(
+                    {"id": patient_id, "hip_id": request_json["hip_id"]}
+                )
                 self.CRUDPatientDetails.create(**request_json)
                 return {
                     "patient_details": [

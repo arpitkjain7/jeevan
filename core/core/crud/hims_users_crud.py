@@ -101,7 +101,7 @@ class CRUDUser:
             with session() as transaction_session:
                 obj: Users = (
                     transaction_session.query(Users)
-                    .filter(Users.email_id == kwargs.get("email_id"))
+                    .filter(Users.username == kwargs.get("username"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

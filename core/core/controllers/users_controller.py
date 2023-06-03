@@ -26,21 +26,49 @@ class UserManagementController:
             request_json = request.dict()
             password_hash = encrypt_password(password=request_json.get("password"))
             user_obj = self.CRUDUser.read(username=request_json.get("username"))
+            inp_hip_id = request_json.pop("hip_id")
+            inp_hip_name = request_json.pop("hip_name")
             if user_obj is not None:
-                return {
-                    "access_token": None,
-                    "token_type": "bearer",
-                    "user_role": request_json.get("user_role"),
-                    "status": "User already exists",
-                }
+                hip_details = user_obj.get("hip_details")
+                hip_list = list(hip_details.keys())
+                if inp_hip_id in hip_list:
+                    return {
+                        "access_token": None,
+                        "token_type": "bearer",
+                        "user_role": request_json.get("user_role"),
+                        "status": "User already exists",
+                    }
+                else:
+                    hip_details.update({inp_hip_id: inp_hip_name})
+                    request_json.update(
+                        {"password": password_hash, "hip_details": hip_details}
+                    )
+                    self.CRUDUser.update(**request_json)
+                    access_token = signJWT(
+                        email=request_json.get("username"),
+                        user_role=request_json.get("user_role"),
+                        department=request_json.get("department"),
+                        hip_id=hip_details,
+                    )
+                    return {
+                        "access_token": access_token,
+                        "token_type": "bearer",
+                        "user_role": request_json.get("user_role"),
+                        "status": "User onboarded successfully",
+                    }
             else:
-                request_json.update({"password": password_hash})
+                request_json.update(
+                    {
+                        "password": password_hash,
+                        "hip_details": {inp_hip_id: inp_hip_name},
+                    }
+                )
                 self.CRUDUser.create(**request_json)
                 access_token = signJWT(
                     email=request_json.get("username"),
                     user_role=request_json.get("user_role"),
                     department=request_json.get("department"),
-                    hip_id=request_json.get("hip_id"),
+                    hip_id={inp_hip_id: inp_hip_name},
                 )
                 return {
                     "access_token": access_token,
@@ -76,7 +104,7 @@ class UserManagementController:
                         email=request.username,
                         user_role=user_obj.get("user_role"),
                         department=user_obj.get("department"),
-                        hip_id=user_obj.get("hip_id"),
+                        hip_id=user_obj.get("hip_details"),
                     )
                     logging.info(f"{user_obj=}")
                     del user_obj["password"]

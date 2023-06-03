@@ -23,8 +23,7 @@ def recordVitals(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
-            return PMRController().create_pmr(request=pmr_request, hip_id=hip_id)
+            return PMRController().create_pmr(request=pmr_request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -156,13 +155,12 @@ def recordMedicalTest(
 
 
 @pmr_router.post("/v1/PMR/sync/{pmr_id}")
-def sync_pmr_to_gateway(pmr_id: str, token: str = Depends(oauth2_scheme)):
+def sync_pmr_to_gateway(pmr_id: str, hip_id: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/sync endpoint")
         logging.debug(f"Request: {pmr_id}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
             return PMRController().sync_pmr(pmr_id=pmr_id, hip_id=hip_id)
         else:
             raise HTTPException(

@@ -147,8 +147,7 @@ def aadhaar_abhaRegistration(
         logging.debug(f"Request: {request=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
-            return HIDController().aadhaar_registration(request, hip_id=hip_id)
+            return HIDController().aadhaar_registration(request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -298,8 +297,7 @@ def mobile_abhaRegistration(
         logging.debug(f"Request: {request=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            hip_id = authenticated_user_details.get("hip_id")
-            return HIDController().mobile_abha_registration(request, hip_id=hip_id)
+            return HIDController().mobile_abha_registration(request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

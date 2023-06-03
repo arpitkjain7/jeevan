@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, JSON
 from core import Base
 
 
@@ -9,8 +9,7 @@ class Users(Base):
     name = Column(String)
     username = Column(String, unique=True)
     password = Column(String)
-    hip_name = Column(String)
-    hip_id = Column(String)
+    hip_details = Column(JSON)
     user_role = Column(String)
     department = Column(String)
     created_at = Column(DateTime)

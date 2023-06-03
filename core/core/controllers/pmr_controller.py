@@ -28,7 +28,7 @@ class PMRController:
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
 
-    def create_pmr(self, request, hip_id):
+    def create_pmr(self, request):
         """[Controller to create new pmr record]
 
         Args:
@@ -44,7 +44,7 @@ class PMRController:
             logging.info("executing create new pmr function")
             request_dict = request.dict()
             pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
-            request_dict.update({"id": pmr_id, "hip_id": hip_id})
+            request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
             pmr_id = self.CRUDPatientMedicalRecord.create(**request_dict)
             logging.info(f"PMR record created with PMR_ID = {pmr_id}")

@@ -14,8 +14,7 @@ class LoginResponse(BaseModel):
     id: int
     username: str
     name: str
-    hip_name: str
-    hip_id: str
+    hip_details: dict
     user_role: str
     department: str
     access_token: str
@@ -26,7 +25,6 @@ class UserResponse(BaseModel):
     id: int
     username: str
     name: str
-    hip_name: str
-    hip_id: str
+    hip_details: dict
     user_role: str
     department: str
