@@ -244,6 +244,30 @@ class PMRController:
                     },
                 }
             )
+            logging.info("Sending SMS notification")
+            sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
+            mobile_number = patient_obj.get("mobile_number")
+            request_id = str(uuid.uuid1())
+            payload = {
+                "requestId": request_id,
+                "timestamp": datetime.now(timezone.utc).strftime(
+                    "%Y-%m-%dT%H:%M:%S.%f"
+                ),
+                "notification": {
+                    "phoneNo": mobile_number,
+                    "careContextInfo": f"Consultation Record for {date_of_consultation}",
+                    "hip": {"id": hip_id},
+                },
+            }
+            resp, resp_code = APIInterface().post(
+                route=sms_notify_url,
+                data=payload,
+                headers={
+                    "X-CM-ID": "sbx",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
+            )
+            logging.info(f"response code from /patients/sms/notify : {resp_code}")
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.sync_pmr function: {error}")
