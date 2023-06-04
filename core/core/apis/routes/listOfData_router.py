@@ -591,3 +591,32 @@ def check_available_health_id(health_id: str, token: str = Depends(oauth2_scheme
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+# below API is not showing in API lists
+
+
+@common_router.post("/v1/deepLinkNotify")
+def deep_link_notify(mobile_no: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/deepLinkNotify endpoint")
+        logging.debug(f"Request: {mobile_no=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return Common().deep_link_notify(mobile_no=mobile_no)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/deepLinkNotify endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/deepLinkNotify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
