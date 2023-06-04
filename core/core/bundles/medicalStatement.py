@@ -33,8 +33,8 @@ text = {
     "status": "generated",
     "div": '<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-IN" lang="en-IN">Atenolol 500 microgram/mL solution for injection</div>',
 }
-authored = "2020-07-09T15:32:26.605+05:30"
-requestor = {"reference": "Practitioner/1", "display": "Dr. DEF"}
+# authored = "2020-07-09T15:32:26.605+05:30"
+# requestor = {"reference": "Practitioner/1", "display": "Dr. DEF"}
 medicationStatement.meta = meta
 medicationStatement.id = "1"
 medicationStatement.text = text
