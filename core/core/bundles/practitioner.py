@@ -16,18 +16,18 @@ meta = Meta(
     lastUpdated=datetime.now(),
     profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"],
 )
-#bundle = Bundle(type="document")
+# bundle = Bundle(type="document")
 identifier = Identifier()
 identifier.system = "https://doctor.ndhm.gov.in"
 identifier.value = "21-1521-3828-3227"
 coding_obj = Coding()
 codeable_obj = CodeableConcept()
 codeable_obj.coding = [
-{
-  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-  "code": "MD",
-  "display": "Medical License number"
-}
+    {
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code": "MD",
+        "display": "Medical License number",
+    }
 ]
 identifier.type = codeable_obj
 
