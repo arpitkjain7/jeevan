@@ -25,7 +25,6 @@ class Medicines(BaseModel):
 
 class MedicalTests(BaseModel):
     name: str
-    notes: str = None
 
 
 class PMR(BaseModel):
