@@ -59,8 +59,9 @@ class PMRController:
         try:
             logging.info("Creating complaint records")
             for complaint_obj in request.data:
-                complaint_obj.update({"pmr_id": request.pmr_id})
-                self.CRUDComplaint.create(**complaint_obj)
+                complaint_obj_dict = complaint_obj.dict()
+                complaint_obj_dict.update({"pmr_id": request.pmr_id})
+                self.CRUDComplaint.create(**complaint_obj_dict)
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
@@ -70,8 +71,9 @@ class PMRController:
         try:
             logging.info("Creating diagnosis records")
             for diagnosis_obj in request.data:
-                diagnosis_obj.update({"pmr_id": request.pmr_id})
-                self.CRUDDiagnosis.create(**diagnosis_obj)
+                diagnosis_obj_dict = diagnosis_obj.dict()
+                diagnosis_obj_dict.update({"pmr_id": request.pmr_id})
+                self.CRUDDiagnosis.create(**diagnosis_obj_dict)
             logging.info("Creating complaint records")
             return {"pmr_id": request.pmr_id}
         except Exception as error:
@@ -80,10 +82,11 @@ class PMRController:
 
     def create_medication(self, request):
         try:
-            logging.info("Creating medical tests records")
-            for medical_tests_obj in request.data:
-                medical_tests_obj.update({"pmr_id": request.pmr_id})
-                self.CRUDMedicalTest.create(**medical_tests_obj)
+            logging.info("Creating medicines records")
+            for medicines_obj in request.data:
+                medicines_obj_dict = medicines_obj.dict()
+                medicines_obj_dict.update({"pmr_id": request.pmr_id})
+                self.CRUDMedicines.create(**medicines_obj_dict)
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_medication function: {error}")
@@ -91,10 +94,11 @@ class PMRController:
 
     def create_medicalTest(self, request):
         try:
-            logging.info("Creating medicines records")
-            for medicines_obj in request.data:
-                medicines_obj.update({"pmr_id": request.pmr_id})
-                self.CRUDMedicines.create(**medicines_obj)
+            logging.info("Creating medical tests records")
+            for medical_tests_obj in request.data:
+                medical_tests_obj_dict = medical_tests_obj.dict()
+                medical_tests_obj_dict.update({"pmr_id": request.pmr_id})
+                self.CRUDMedicalTest.create(**medical_tests_obj_dict)
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_diagnosis function: {error}")
@@ -141,7 +145,7 @@ class PMRController:
             logging.info(f"Getting the PMR record for {pmr_id=}")
             pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             complaint_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
-            diagnosis_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
             medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
             pmr_metadata.update(
@@ -211,7 +215,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": patient_obj.get("access_token"),
+                        "accessToken": patient_obj.get("linking_token"),
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
