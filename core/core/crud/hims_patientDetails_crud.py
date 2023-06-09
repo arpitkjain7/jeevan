@@ -299,7 +299,9 @@ class CRUDPatientDetails:
                     .all()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
+                return [
+                    [row] for row in obj
+                ]  # testing return [row.__dict__ for row in obj]
             return []
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
