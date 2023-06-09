@@ -26,6 +26,7 @@ class AppointmentsController:
             appointment_date = appointment_start.date()
             doc_id = request.doc_id
             patient_id = request.patient_id
+            appointment_type = request.appointment_type
             if request.appointment_end is None:
                 doc_obj = self.CRUDDocDetails.read_by_docId(doc_id=doc_id)
                 logging.info(f"{doc_obj=}")
@@ -44,12 +45,13 @@ class AppointmentsController:
                 "date": appointment_date,
                 "start_time": appointment_start.time(),
                 "end_time": appointment_end.time(),
-                "status": "BOOKED",
+                "status": "Scheduled",
             }
             slot_id = self.CRUDSlots.create(**create_slots_crud_request)
             create_appointment_request = {
                 "hip_id": request.hip_id,
                 "doc_id": doc_id,
+                "appointment_type": appointment_type,
                 "patient_id": patient_id,
                 "slot_id": slot_id,
             }

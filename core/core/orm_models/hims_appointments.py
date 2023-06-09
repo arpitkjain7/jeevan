@@ -11,6 +11,7 @@ class Appointments(Base):
     doc_id = Column(Integer, ForeignKey("docDetails.id"))
     patient_id = Column(String, ForeignKey("patientDetails.id"))
     slot_id = Column(Integer, ForeignKey("slots.slot_id"))
+    appointment_type = Column(String)
     token_number = Column(Integer)
     notes = Column(Text)
     created_at = Column(DateTime)

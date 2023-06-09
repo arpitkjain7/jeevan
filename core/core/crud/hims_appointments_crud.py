@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_slots import Slots
+from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
 
@@ -52,13 +53,22 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, slot_obj in (
-                    transaction_session.query(Appointments, Slots)
+                for appointment_obj, slot_obj, patient_obj in (
+                    transaction_session.query(Appointments, Slots, PatientDetails)
                     .filter(Appointments.doc_id == doc_id)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Slots.slot_id == Appointments.slot_id)
+                    .filter(PatientDetails.id == Appointments.patient_id)
                     .all()
                 ):
+                    start_time = slot_obj.start_time.strftime("%H:%M")
+                    end_time = slot_obj.end_time.strftime("%H:%M")
+                    appointment_obj.__dict__.update(
+                        {
+                            "patient_name": patient_obj.name,
+                            "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                        }
+                    )
                     appointment_obj.__dict__.update({"slot_details": slot_obj.__dict__})
                     joined_result.append(appointment_obj)
                 return joined_result
