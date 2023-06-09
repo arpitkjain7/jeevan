@@ -215,7 +215,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": patient_obj.get("linking_token"),
+                        "accessToken": patient_obj.get("access_token"),
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
