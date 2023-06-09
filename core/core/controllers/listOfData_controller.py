@@ -3,6 +3,7 @@ from core.crud.hims_listOfDiagnosis_crud import CRUDListOfDiagosis
 from core.crud.hims_listOfMedicalTests_crud import CRUDListOfMedicalTests
 from core.crud.hims_listOfMedicines_crud import CRUDListOfMedicines
 from core.crud.hims_listOfPrecautions_crud import CRUDListOfPrecautions
+from core.crud.hims_docDetails_crud import CRUDDocDetails
 from fastapi import APIRouter, HTTPException, status, Depends
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
@@ -372,6 +373,7 @@ class Common:
         self.abha_url = os.environ["abha_url"]
         self.s3_location = os.environ["s3_location"]
         self.gateway_url = os.environ["gateway_url"]
+        self.CRUD_docDetails = CRUDDocDetails()
 
     def abha_availability(self, health_id: str):
         """Verify if the abha address already exists
@@ -457,4 +459,23 @@ class Common:
                 )
         except Exception as error:
             logging.error(f"Error in HIDController.deep_link_notify function: {error}")
+            raise error
+
+    def get_all_doctors(self):
+        """[Controller to get all Doctors records]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing get all Doctors function")
+            logging.info(f"Getting the Doctors records")
+            return self.CRUD_docDetails.read_all()
+        except Exception as error:
+            logging.error(
+                f"Error in CommonController.get_all_doctors function: {error}"
+            )
             raise error
