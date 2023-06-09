@@ -61,6 +61,33 @@ class CRUDDocDetails:
             logging.error(f"Error in CRUDDocDetails read function : {error}")
             raise error
 
+    def read_by_hipId(self, hip_id: str):
+        """[CRUD function to read a DocDetails record]
+
+        Args:
+            doc_id (str): [Doctor Id for filtering records]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [DocDetails record matching the criteria]
+        """
+        try:
+            logging.info("CRUDDocDetails read request")
+            with session() as transaction_session:
+                obj: DocDetails = (
+                    transaction_session.query(DocDetails)
+                    .filter(DocDetails.hip_id == hip_id)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDDocDetails read function : {error}")
+            raise error
+
     def read_by_department(self, department: str):
         """[CRUD function to read a DocDetails record]
 

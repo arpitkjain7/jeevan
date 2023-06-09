@@ -620,15 +620,15 @@ def deep_link_notify(mobile_no: str, token: str = Depends(oauth2_scheme)):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
 
 @common_router.get("/v1/listAllDoctors")
-def get_all_doctors(token: str = Depends(oauth2_scheme)):
+def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/listAllDoctors")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().get_all_doctors()
+            return Common().get_all_doctors(hip_id=hip_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

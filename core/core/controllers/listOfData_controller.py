@@ -461,7 +461,7 @@ class Common:
             logging.error(f"Error in HIDController.deep_link_notify function: {error}")
             raise error
 
-    def get_all_doctors(self):
+    def get_all_doctors(self, hip_id: str):
         """[Controller to get all Doctors records]
 
         Raises:
@@ -473,7 +473,9 @@ class Common:
         try:
             logging.info("executing get all Doctors function")
             logging.info(f"Getting the Doctors records")
-            return self.CRUD_docDetails.read_all()
+            doc = self.CRUD_docDetails.read_by_hipId(hip_id=hip_id)
+            logging.info(doc)
+            return doc
         except Exception as error:
             logging.error(
                 f"Error in CommonController.get_all_doctors function: {error}"
