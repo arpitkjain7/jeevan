@@ -62,6 +62,7 @@ def main():
     create_sample_doc_record(
         doc_request={
             "doc_name": "Dr Arpit Jain",
+            "hip_id": "123123",
             "doc_specialization": "DUMMY",
             "doc_department": "DUMMY",
             "doc_working_days": "Mon,Tue,Wed",

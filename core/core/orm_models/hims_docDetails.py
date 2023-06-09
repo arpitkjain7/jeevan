@@ -17,6 +17,7 @@ class DocDetails(Base):
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     doc_name = Column(String)
+    hip_id = Column(String)
     doc_degree = Column(String)
     doc_specialization = Column(String)
     doc_department = Column(String)
