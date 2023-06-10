@@ -8,6 +8,7 @@ from fhir.resources.patient import Patient
 from fhir.resources.practitioner import Practitioner
 from fhir.resources.procedure import Procedure
 from fhir.resources.servicerequest import ServiceRequest
+from fhir.resources.composition import Composition, CompositionSection
 from fhir.resources.humanname import HumanName
 from fhir.resources.identifier import Identifier
 from fhir.resources.contactdetail import ContactDetail
@@ -21,6 +22,8 @@ from fhir.resources.coding import Coding
 from fhir.resources.reference import Reference
 from fhir.resources.meta import Meta
 from datetime import datetime
+
+time_now = datetime.now().astimezone(tz=None).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 
 def appointment(
@@ -478,7 +481,7 @@ def practitioner(
     practitioner = Practitioner(resource_type="Practitioner")
     meta = Meta(
         versionId=1,
-        lastUpdated=datetime.now(),
+        lastUpdated="2015-02-07T13:28:17.239+02:00",
         profile=[meta_profile],
     )
     # bundle = Bundle(type="document")
@@ -637,3 +640,201 @@ def service_request(
     serviceReq_json = serviceReq.json()
     print(serviceReq_json)
     return serviceReq_json
+
+
+def section(title, coding_system, coding_code, coding_display, reference):
+    section = CompositionSection()
+    code_obj = CodeableConcept()
+    code_obj.coding = [
+        {
+            "system": coding_system,
+            "code": coding_code,
+            "display": coding_display,
+        }
+    ]
+    ref = Reference()
+    ref.reference = reference
+    section.title = title
+    section.code = code_obj
+    section.entry = [ref]
+    return section
+
+
+def composition(
+    practitioner_ref: str,
+    practitioner_display: str,
+    title: str,
+    status: str,
+    patient_reference: str,
+    patient_display: str,
+    encounter_reference: str,
+    custodian_reference: str,
+    custodian_display: str,
+):
+    codeable_obj = CodeableConcept()
+    codeable_obj.text = "Clinical Consultation report"
+    codeable_obj.coding = [
+        {
+            "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+            "code": "active",
+            "display": "Active",
+        }
+    ]
+    author_ref = Reference()
+    author_ref.reference = practitioner_ref
+    author_ref.display = practitioner_display
+
+    composition = Composition(
+        resource_type="Composition",
+        id="1",
+        date="2020-07-09T15:32:26.605+05:30",
+        title=title,
+        status=status,
+        author=[author_ref],
+        type=codeable_obj,
+    )
+    meta = Meta(
+        versionId=1,
+        lastUpdated="2015-02-07T13:28:17.239+02:00",
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/OPConsultRecord"],
+    )
+    bundle = Bundle(type="document")
+    text = {
+        "status": "generated",
+        "div": '<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-IN" lang="en-IN">\n      <p>No Known Allergy</p>\n      <p>recordedDate:2015-08-06</p>\n    </div>',
+    }
+    identifier = Identifier()
+    identifier.system = "https://ndhm.in"
+    identifier.value = "S100"
+
+    patient_ref = Reference()
+    patient_ref.reference = patient_reference
+    patient_ref.display = patient_display
+    encounter_ref = Reference()
+    encounter_ref.reference = encounter_reference
+    custodian_ref = Reference()
+    custodian_ref.reference = custodian_reference
+    custodian_ref.display = custodian_display
+    section0 = section(
+        "Chief complaints",
+        "http://snomed.info/sct",
+        "422843007",
+        "Chief complaint section",
+        "Condition/1",
+    )
+    section1 = section(
+        "Chief complaints",
+        "http://snomed.info/sct",
+        "422843007",
+        "Chief complaint section",
+        "Condition/2",
+    )
+    section2 = section(
+        "Chief complaints",
+        "http://snomed.info/sct",
+        "422843007",
+        "Chief complaint section",
+        "Condition/3",
+    )
+
+    composition.id = "1"
+    composition.meta = meta
+    composition.text = text
+    composition.identifier = [identifier]
+    composition.type = codeable_obj
+    composition.subject = [patient_ref]
+    composition.encounter = encounter_ref
+    # composition.date = date
+    # recorder is not working
+    # "recorder": {
+    #  "reference": "Practitioner/1"
+    # },
+    # allergyIntolerance.recorder
+    composition.custodian = custodian_ref
+    composition.section = [section0, section1, section2]
+
+    composition_json = composition.json()
+
+    print(composition_json)
+    return composition_json
+
+
+def allergy_intolerance(
+    patient_ref: str,
+    clinical_system: str,
+    clinical_code: str,
+    clinical_display: str,
+    verification_system: str,
+    verification_code: str,
+    verification_display: str,
+    code_obj_system: str,
+    code_obj_code: str,
+    code_obj_display: str,
+    practitioner_ref: str,
+    note_text: str,
+):
+    allergyIntolerance = AllergyIntolerance(
+        resource_type="AllergyIntolerance", patient=Reference(reference=patient_ref)
+    )
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"
+        ],
+    )
+    bundle = Bundle(type="document")
+    text = {
+        "status": "generated",
+        "div": '<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-IN" lang="en-IN">\n      <p>No Known Allergy</p>\n      <p>recordedDate:2015-08-06</p>\n    </div>',
+    }
+
+    coding_obj = Coding()
+    codeable_obj = CodeableConcept()
+    codeable_obj.coding = [
+        {
+            "system": clinical_system,
+            "code": clinical_code,
+            "display": clinical_display,
+        }
+    ]
+    clinicalStatus = codeable_obj
+    verification_coding_obj = CodeableConcept()
+    verification_coding_obj.coding = [
+        {
+            "system": verification_system,
+            "code": verification_code,
+            "display": verification_display,
+        }
+    ]
+    verificationStatus = verification_coding_obj
+    code_obj = CodeableConcept()
+    code_obj.coding = [
+        {
+            "system": code_obj_system,
+            "code": code_obj_code,
+            "display": code_obj_display,
+        }
+    ]
+    code = code_obj
+    recoder_ref = Reference()
+    recoder_ref.reference = practitioner_ref
+    note = [{"text": note_text}]
+
+    allergyIntolerance.id = "1"
+    allergyIntolerance.meta = meta
+    allergyIntolerance.text = text
+    allergyIntolerance.clinicalStatus = clinicalStatus
+    allergyIntolerance.verificationStatus = verificationStatus
+    allergyIntolerance.code = code
+    # allergyIntolerance.patient = patient_ref
+    allergyIntolerance.recordedDate = "2020-07-09T15:37:31-06:00"
+    # recorder is not working
+    # "recorder": {
+    #  "reference": "Practitioner/1"
+    # },
+    # allergyIntolerance.recorder
+    allergyIntolerance.note = note
+
+    allergy_json = allergyIntolerance.json()
+
+    print(allergy_json)
+    return allergy_json

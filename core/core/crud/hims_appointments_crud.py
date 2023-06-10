@@ -70,7 +70,7 @@ class CRUDAppointments:
                         }
                     )
                     appointment_obj.__dict__.update({"slot_details": slot_obj.__dict__})
-                    joined_result.append(appointment_obj)
+                    joined_result.append([appointment_obj])
                 return joined_result
             #     obj: Appointments = (
             #         transaction_session.query(Appointments)
