@@ -300,7 +300,7 @@ class CRUDPatientDetails:
                 )
             if obj is not None:
                 return [
-                    [row] for row in obj
+                    [row.__dict__] for row in obj
                 ]  # testing return [row.__dict__ for row in obj]
             return []
         except Exception as error:
