@@ -30,6 +30,31 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime),
         sa.Column("updated_at", sa.DateTime),
     )
+    op.add_column(
+        table_name="patientMedicalRecord",
+        column=sa.Column("oxygen_saturation", sa.Integer()),
+        schema="lobster",
+    )
+    op.add_column(
+        table_name="patientMedicalRecord",
+        column=sa.Column("respiratory_rate", sa.Integer()),
+        schema="lobster",
+    )
+    op.add_column(
+        table_name="patientMedicalRecord",
+        column=sa.Column("body_mass_index", sa.Integer()),
+        schema="lobster",
+    )
+    op.add_column(
+        table_name="patientMedicalRecord",
+        column=sa.Column("systolic_blood_pressure", sa.Integer()),
+        schema="lobster",
+    )
+    op.add_column(
+        table_name="patientMedicalRecord",
+        column=sa.Column("diastolic_blood_pressure", sa.Integer()),
+        schema="lobster",
+    )
 
 
 def downgrade() -> None:
