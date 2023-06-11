@@ -4,6 +4,7 @@ from core.crud.hims_appointments_crud import CRUDAppointments
 from core.crud.hims_medicalTest_crud import CRUDMedicalTest
 from core.crud.hims_medicines_crud import CRUDMedicines
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
+from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.utils.custom.external_call import APIInterface
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
@@ -27,6 +28,7 @@ class PMRController:
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
+        self.CRUDMedicalHistory = CRUDMedicalHistory()
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -46,6 +48,7 @@ class PMRController:
             pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
+            logging.info(f"PMR: {request_dict=}")
             pmr_id = self.CRUDPatientMedicalRecord.create(**request_dict)
             logging.info(f"PMR record created with PMR_ID = {pmr_id}")
             return {"pmr_id": pmr_id}
@@ -65,6 +68,22 @@ class PMRController:
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
+            raise error
+
+    def create_medicalHistory(self, request):
+        try:
+            logging.info("Creating medical history records")
+            logging.info(f"{request=}")
+            for medical_history_obj in request.data:
+                medical_history_obj_dict = medical_history_obj.dict()
+                medical_history_obj_dict.update({"pmr_id": request.pmr_id})
+                logging.info(f"{medical_history_obj_dict=}")
+                self.CRUDMedicalHistory.create(**medical_history_obj_dict)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.create_medical_history function: {error}"
+            )
             raise error
 
     def create_diagnosis(self, request):
