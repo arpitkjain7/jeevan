@@ -55,3 +55,21 @@ def raiseConsentRequest(consent_init_request: dict):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+# need to work after PHR app is up
+@hiu_router.post("/v0.5/consents/hiu/notify")
+def consentNotifyHIU(consent_notify: dict):
+    try:
+        logging.info("Calling /v0.5/consents/hiu/notify endpoint")
+        logging.info(f"Notify Request: {consent_notify=}")
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/consents/hiu/notify endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/consents/hiu/notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
