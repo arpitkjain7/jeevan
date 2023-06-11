@@ -167,12 +167,14 @@ class PMRController:
             diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
             medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
+            medicalHistory_data = self.CRUDMedicalHistory.read_by_pmrId(pmr_id=pmr_id)
             pmr_metadata.update(
                 {
                     "complaints": complaint_data,
                     "diagnosis": diagnosis_data,
                     "medicines": medicine_data,
                     "medicalTests": medicalTest_data,
+                    "medicalHistory": medicalHistory_data,
                 }
             )
             return pmr_metadata
