@@ -25,7 +25,7 @@ def upgrade() -> None:
             primary_key=True,
             autoincrement=True,
         ),
-        sa.Column("pmr_id", sa.String),
+        sa.Column("pmr_id", sa.String, sa.ForeignKey),
         sa.Column("height", sa.String),
         sa.Column("weight", sa.String),
         sa.Column("pulse", sa.String),
