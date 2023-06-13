@@ -30,6 +30,7 @@ class CRUDComplaint:
                 transaction_session.add(complaint)
                 transaction_session.commit()
                 transaction_session.refresh(complaint)
+            return complaint.id
         except Exception as error:
             logging.error(f"Error in CRUDComplaint create function : {error}")
             raise error

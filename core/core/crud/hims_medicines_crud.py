@@ -30,6 +30,7 @@ class CRUDMedicines:
                 transaction_session.add(medicines)
                 transaction_session.commit()
                 transaction_session.refresh(medicines)
+            return medicines.id
         except Exception as error:
             logging.error(f"Error in CRUDMedicines create function : {error}")
             raise error

@@ -30,6 +30,7 @@ class CRUDMedicalTest:
                 transaction_session.add(medical_test)
                 transaction_session.commit()
                 transaction_session.refresh(medical_test)
+            return medical_test.id
         except Exception as error:
             logging.error(f"Error in CRUDMedicalTest create function : {error}")
             raise error
