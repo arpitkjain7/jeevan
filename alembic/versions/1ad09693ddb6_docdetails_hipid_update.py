@@ -17,11 +17,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        table_name="docDetails",
-        column=sa.Column("hip_id", sa.String(100)),
-        schema="lobster",
-    )
+    # op.add_column(
+    #     table_name="docDetails",
+    #     column=sa.Column("hip_id", sa.String(100)),
+    #     schema="lobster",
+    # )
+    pass
 
 
 def downgrade() -> None:

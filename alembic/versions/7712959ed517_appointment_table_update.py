@@ -22,11 +22,11 @@ def upgrade() -> None:
         column=sa.Column("appointment_status", sa.String(100)),
         schema="lobster",
     )
-    op.add_column(
-        table_name="appointments",
-        column=sa.Column("appointment_type", sa.String(100)),
-        schema="lobster",
-    )
+    # op.add_column(
+    #     table_name="appointments",
+    #     column=sa.Column("appointment_type", sa.String(100)),
+    #     schema="lobster",
+    # )
 
 
 def downgrade() -> None:
