@@ -17,13 +17,14 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.drop_column(table_name="users", schema="lobster", column_name="hip_id")
-    op.drop_column(table_name="users", schema="lobster", column_name="hip_name")
-    op.add_column(
-        table_name="users",
-        column=sa.Column("hip_details", sa.JSON()),
-        schema="lobster",
-    )
+    # op.drop_column(table_name="users", schema="lobster", column_name="hip_id")
+    # op.drop_column(table_name="users", schema="lobster", column_name="hip_name")
+    # op.add_column(
+    #     table_name="users",
+    #     column=sa.Column("hip_details", sa.JSON()),
+    #     schema="lobster",
+    # )
+    pass
 
 
 def downgrade() -> None:
