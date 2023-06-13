@@ -30,6 +30,7 @@ class CRUDMedicalHistory:
                 transaction_session.add(medicalHistory)
                 transaction_session.commit()
                 transaction_session.refresh(medicalHistory)
+            return medicalHistory.id
         except Exception as error:
             logging.error(f"Error in CRUDMedicalHistory create function : {error}")
             raise error
@@ -82,7 +83,7 @@ class CRUDMedicalHistory:
             logging.error(f"Error in CRUDMedicalHistory read_all function : {error}")
             raise error
 
-    def update(self, **kwargs):
+    def update(self, id: str, **kwargs):
         """[CRUD function to update a MedicalHistory record]
 
         Raises:
@@ -100,7 +101,7 @@ class CRUDMedicalHistory:
             with session() as transaction_session:
                 obj: MedicalHistory = (
                     transaction_session.query(MedicalHistory)
-                    .filter(MedicalHistory.id == kwargs.get("id"))
+                    .filter(MedicalHistory.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

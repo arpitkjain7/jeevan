@@ -30,6 +30,7 @@ class CRUDDiagnosis:
                 transaction_session.add(diagnosis)
                 transaction_session.commit()
                 transaction_session.refresh(diagnosis)
+            return diagnosis.id
         except Exception as error:
             logging.error(f"Error in CRUDDiagnosis create function : {error}")
             raise error
@@ -82,7 +83,7 @@ class CRUDDiagnosis:
             logging.error(f"Error in CRUDDiagnosis read_all function : {error}")
             raise error
 
-    def update(self, **kwargs):
+    def update(self, id: str, **kwargs):
         """[CRUD function to update a Diagnosis record]
 
         Raises:
@@ -100,7 +101,7 @@ class CRUDDiagnosis:
             with session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
-                    .filter(Diagnosis.id == kwargs.get("id"))
+                    .filter(Diagnosis.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
