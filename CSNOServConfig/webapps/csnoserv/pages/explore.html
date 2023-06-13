@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<div class="detailbar"  >
+	<div class="headings">Explore</div>	
+	
+	Explore API provides facility to travel through SNOMED CT Concepts in order to learn more about it.	
+	</div>
+	<div class="bar">All descendants -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Retrieves the details of all descendant children (immediate and even grandchildren) for a particular Concept ID (delayed response may be observed for high level parent Concept IDs).</span>	
+	<br>
+	<span class="headings">Parameters -</span>
+	<ul>
+		<li>id</li>		
+			
+	</ul>
+	<span class="headings">Example -</span>
+	<a id="linkexplorealldescendants" href="api/explore/alldescendants?id=297968009" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexplorealldescendants").innerHTML=url+"/api/explore/alldescendants?id=297968009"
+				</script></a>
+	</div>
+<!-- 	
+	<div class="bar">All ancestors -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Retrieves the details of all ancestor parent (immediate and even grandparent) for a particular Concept ID (delayed response may be observed for high level parent Concept IDs).</span>	
+	<br>
+	<span class="headings">Parameters -</span>
+	<ul>
+		<li>id</li>		
+			
+	</ul>
+	<span class="headings">Example -</span>
+	<a id="linkexploreallancestor" href="api/explore/allancestor?id=22298006" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexploreallancestor").innerHTML=url+"/api/explore/allancestor?id=22298006"
+				</script></a>
+	</div>
+	 -->
+	<div class="bar">Parents -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Retrieves the details of all parent concepts for a particular Concept ID.</span>	
+	<br>
+	<span class="headings">Parameters -</span>
+	<ul>
+		<li>id</li>		
+			
+	</ul>
+	<span class="headings">Example -</span>
+	<a id="linkexploreparents" href="api/explore/parents?id=22298006" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexploreparents").innerHTML=url+"/api/explore/parents?id=22298006"
+				</script></a>
+	</div>
+	
+	<div class="bar">Children -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Retrieves the details of all immediate child concepts for a particular Concept ID.</span>	
+	<br>
+	<span class="headings">Parameters - </span>
+	<ul>
+		<li>id</li>		
+			
+	</ul>
+	<span class="headings">Example -</span>
+	<a id="linkexplorechildren" href="api/explore/children?id=22298006" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexplorechildren").innerHTML=url+"/api/explore/children?id=22298006"
+				</script></a>
+	</div>
+<div class="bar">All Concepts by attribute -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Retrieves the details of concepts for a particular Attribute Relation Type.</span>	
+	<br>
+	<span class="headings">Parameters - </span>
+	<ul>
+		<li>attribute</li>
+		<li>destinationid</li>
+		<li>semantictag</li>
+
+			
+	</ul>
+	<span class="headings">Example -</span><br>
+	
+	<a id="linkexploreconcept" href="api/explore/concept?attribute=has precise active ingredient&destinationid=387517004" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexploreconcept").innerHTML=url+"api/explore/concept?attribute=has precise active ingredient&destinationid=387517004"
+				</script></a><br>
+	
+	<a id="linkexploreconcept1" href="api/explore/concept?attribute=procedure site - direct&destinationid=66754008&semantictag=procedure" target="_blank">
+	<script type="text/javascript">
+				var url=window.location.href;
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linkexploreconcept1").innerHTML=url+"api/explore/concept?attribute=procedure site - direct&destinationid=66754008&semantictag=procedure"
+				</script></a>
+	</div>
+
+
+
+	
+</body>
+</html>

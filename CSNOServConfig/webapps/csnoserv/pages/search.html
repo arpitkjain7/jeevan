@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>CSNOServ</title>	
+</head>
+
+<body >
+		
+	 <div class="detailbar">
+		<div class="headings">Suggest</div>	
+	Suggest API provides facility of retrieving best matching suggestions (only Clinical Term) for SNOMED CT Concept by specifying parameters.	
+	</div>	
+	
+	
+	<div class="bar">Suggest -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span>
+	<span class="simpletext" >Retrieves most matching suggestions for given term/text in the SNOMED CT repository based on provided component state, semantictag, acceptability. refsetid parameter enables search within SNOMED CT Reference Set.
+	In parameters, except term, other are optional parameters. If any optional parameter is not mentioned explicitly then it will assign default value to that parameter.</span>	
+	<br>
+	<span class="headings">Parameters -</span>
+	<ul>
+		<li>term</li>
+		<li>state</li>
+		<li>semantictag</li>		
+		<li>acceptability</li>
+		<li>returnlimit</li>
+		<li>refsetid</li>
+		<li>parentid</li>
+		<li>excludeparentconcept</li>
+	</ul>
+	<span class="headings">Example -</span>
+		<a id="linksuggest" href="api/search/suggest?term=headache&state=active&semantictag=finding&acceptability=preferred&returnlimit=50&refsetid=null&parentid=null&excludeparentconcept=false" target="_blank">
+				<script type="text/javascript">
+				var url=window.location.href;
+				var link="/api/search/suggest?term=headache&state=active&semantictag=finding&acceptability=preferred&returnlimit=50&refsetid=null&parentid=null"+"<br>&excludeparentconcept=false";
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linksuggest").innerHTML=url+link;
+				</script></a>
+	</div>
+	   <div class="detailbar">
+	<div class="headings" >Search</div>	
+	Search API provides facility to search SNOMED CT Concept by specifying parameters and retrieves result.
+	</div>	  
+	
+	<div class="bar">Search -</div>
+	<div class="detailbar" > 
+	<span class="headings">Description -</span> 
+	<span class="simpletext" >Searches given term/text or concept id in the SNOMED CT repository based on provided component state, semantictag, acceptability. refsetid parameter enables search within SNOMED CT Reference Set.
+In parameters, except term, other are optional parameters. If any optional parameter is not mentioned explicitly then it will assign default value to that parameter.</span>	
+	<br>
+	<span class="headings">Parameters -</span>
+	<ul>
+		<li>term</li>
+		<li>state</li>
+		<li>semantictag</li>		
+		<li>acceptability</li>
+		<li>returnlimit</li>
+		<li>groupbyconcept</li>
+		<li>refsetid</li>
+		<li>parentid</li>
+		<li>excludeparentconcept</li>
+		<li>fullconcept</li>
+	</ul>
+	<span class="headings">Example -</span>
+		<a id="linksearch" href="api/search/search?term=headache&state=active&semantictag=finding&acceptability=preferred&returnlimit=100&groupbyconcept=false&refsetid=null&parentid=null&excludeparentconcept=false&fullconcept=true" target="_blank">
+		   <script type="text/javascript">
+				var url=window.location.href;
+				var link="/api/search/search?term=headache&state=active&semantictag=finding&acceptability=preferred&returnlimit=100&groupbyconcept=false&refsetid=null&parentid=null&excludeparentconcept=false&fullconcept=true";
+				if(url.charAt(url.length-1)=="#")
+				{
+					url=url.substring(0, url.length - 2);	
+				}
+				document.getElementById("linksearch").innerHTML=url+link;
+		   </script>
+		 </a>	
+	</div>
+	
+	
+	
+</body>
+</html>

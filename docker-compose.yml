@@ -61,6 +61,22 @@ services:
             - lobster
         depends_on:
             - lobster_mq
+
+    lobster_csnoserv:
+        build: CSNOServConfig/.
+        image: lobster/csnoserv:latest
+        container_name: lobster-csnoserv
+        environment:
+            - JAVA_OPTS=-Xms256m -Xmx1024m -XX:MaxPermSize=256m
+        ports:
+            - 8080:8080
+        volumes:
+            - ./CSNOServConfig:/usr/local/tomcat/app
+            - ./CSNOServConfig/webapps:/usr/local/tomcat/webapps
+        networks:
+            - lobster
+        restart: "on-failure"
+
 networks:
     lobster:
         name: lobster-network
