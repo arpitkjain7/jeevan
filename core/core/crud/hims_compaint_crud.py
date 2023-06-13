@@ -82,7 +82,7 @@ class CRUDComplaint:
             logging.error(f"Error in CRUDComplaint read_all function : {error}")
             raise error
 
-    def update(self, **kwargs):
+    def update(self, id: str, **kwargs):
         """[CRUD function to update a Complaint record]
 
         Raises:
@@ -100,7 +100,7 @@ class CRUDComplaint:
             with session() as transaction_session:
                 obj: Complaint = (
                     transaction_session.query(Complaint)
-                    .filter(Complaint.id == kwargs.get("id"))
+                    .filter(Complaint.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

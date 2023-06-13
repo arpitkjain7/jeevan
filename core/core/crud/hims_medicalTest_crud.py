@@ -82,7 +82,7 @@ class CRUDMedicalTest:
             logging.error(f"Error in CRUDMedicalTest read_all function : {error}")
             raise error
 
-    def update(self, **kwargs):
+    def update(self, id: str, **kwargs):
         """[CRUD function to update a User record]
 
         Raises:
@@ -100,7 +100,7 @@ class CRUDMedicalTest:
             with session() as transaction_session:
                 obj: MedicalTest = (
                     transaction_session.query(MedicalTest)
-                    .filter(MedicalTest.id == kwargs.get("id"))
+                    .filter(MedicalTest.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
