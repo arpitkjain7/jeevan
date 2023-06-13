@@ -15,7 +15,6 @@ dataTransfer_router = APIRouter()
 
 @dataTransfer_router.post("/v0.5/consents/hip/notify")
 def consent_notify(consent_notify_request: dict):
-    pass
     try:
         logging.info("Calling /v0.5/consents/hip/notify endpoint")
         logging.debug(f"Request: {consent_notify_request}")
@@ -31,7 +30,6 @@ def consent_notify(consent_notify_request: dict):
 
 @dataTransfer_router.post("/v0.5/health-information/hip/request")
 def hi_data_request(consent_notify_request: dict, background_tasks: BackgroundTasks):
-    pass
     try:
         logging.info("Calling /v0.5/health-information/hip/request endpoint")
         logging.debug(f"Request: {consent_notify_request}")

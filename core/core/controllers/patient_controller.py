@@ -700,7 +700,9 @@ class PatientController:
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
-            return self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            logging.info(f"{patient_obj=}")
+            return patient_obj
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error

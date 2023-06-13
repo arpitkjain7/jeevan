@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>CSNOServ</title>
+
+<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/messageResource.min.js"></script>
+
+<link rel="stylesheet" href="css/main.css">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+
+	<div class="main-div" id="maindiv">
+
+		<div id="parametersidenav" class="sidenav">
+			<a href="javascript:void(0)" class="closebtn"
+				onclick="closeparameterbar()">&times;</a>
+
+			<div class="note">
+				<p>
+					<b>Note :</b> All parameters except 'term' are case sensitive.
+				</p>
+			</div>
+
+			<table>
+				<tr>
+					<th>PARAMETER</th>
+					<th>DESCRIPTION</th>
+				</tr>
+
+				<tr>
+					<td>term</td>
+					<td>Term/text or Concept ID to be searched in SNOMED CT
+						repository.<br> Example- fever, 22298006
+					</td>
+
+
+				</tr>
+
+				<tr>
+					<td>id</td>
+					<td>SNOMED CT Concept Identifier.<br> Example- 22298006
+					</td>
+				</tr>
+
+				<tr>
+					<td>state</td>
+					<td>State of a component. <br>
+						<p>Possible values - active, inactive, both.
+						<ul>
+							<li>active - It will return only active Components.</li>
+							<li>inactive - It will return only inactive Components.</li>
+							<li>both - It will return both active and inactive
+								Components.</li>
+						</ul> Default Value - both
+					</td>
+				</tr>
+
+				<tr>
+					<td>semantictag</td>
+
+					<td>The Semantic Tag in which SNOMED CT term/text or concept
+						id will be searched.
+						<p>One or more Semantic Tag can be given with ++ separator.</p>
+						<p class="more">
+							Possible values - all, procedure, disorder, finding, observable
+							entity, body structure, organism, substance, specimen, physical
+							force, event, environment / location, situation , qualifier
+							value, record artifact, life style, regime/therapy and <a
+								id="linksemantic" href="api/search/semantic"
+								onclick="getAllSematicTags()" target="_blank"> all possible
+								values </a>
+						</p>
+						<p>Default Value - all</p>
+					</td>
+				</tr>
+
+
+				<tr>
+					<td>acceptability</td>
+					<td>Represents the type of description i.e. whether the search
+						results contains preferred terms or preferred terms other than
+						FSN, only acceptable terms or synonyms. <br>
+						<p>
+							Possible values - preferred, preferredexcludingfsn, synonyms,
+							acceptable, all.<br> If acceptability is,
+						<ul>
+							<li>preferred - refers to all preferred description for a
+								concept (including FSN).</li>
+							<li>preferredexcludingfsn - refers to SNOMEDCT description
+								for preferred terms excluding FSN.</li>
+							<li>synonyms - refers to all description for a concept
+								(excluding FSN).</li>
+							<li>acceptable- refers to all description for a concept
+								excluding preferred.</li>
+							<li>all - refers to all description for a concept (both
+								preferred and acceptable).</li>
+						</ul> Default Value - all
+					</td>
+				</tr>
+
+				<tr>
+					<td>returnlimit</td>
+					<td>Maximum number of matching terms to be fetched. <br>For
+						all results returnlimit is -1. <br>Example - 100
+					</td>
+				</tr>
+
+				<tr>
+					<td>groupbyconcept</td>
+					<td>Boolean value, if true, then method will return set of
+						CompositeDescription which will contain one description from one
+						concept. <br>The default value is false, which will return
+						all matching descriptions. Any value other than 'true' and 'false'
+						will internally considered as 'false'.
+					</td>
+				</tr>
+
+				<tr>
+					<td>refsetid</td>
+					<td>Refset Identifier. <br> For Search through whole
+						SNOMED CT terminology refsetid is null <br> For Search
+						through specific Refset refsetid should be a numeric value <br>
+						Example - 721144007
+
+					</td>
+				</tr>
+				<tr>
+					<td>parentid</td>
+					<td>Parent Concept Identifier
+						<p>One or more Parent Id can be given with ++ separator.</p> <br>
+						For Search through whole SNOMED CT terminology parentid is null <br>
+						For Search through all descendants of a specific Concept parentid
+						should be a numeric value <br> Example - 27624003
+					</td>
+				</tr>
+				<tr>
+				<tr>
+					<td>fullconcept</td>
+					<td>Boolean value, if true, then method will return set of
+						CompositeDescription which contains full concept details object.
+						if false, then method returns set of CompositeDescription which
+						contains only conceptId, term, id (descriptionId), FSN of concept.
+						<br>The default value is true, which will return all concept
+						detail. Any value other than 'true' and 'false' will internally
+						considered as 'true'.
+					</td>
+				</tr>
+				<tr>
+					<td>excludeparentconcept</td>
+					<td>Boolean value, if true, then method will return set of
+						CompositeDescription which will not contain descriptions from
+						given parent id. <br> The default value is false, which will
+						contain descriptions from given parent id. Any value other than
+						'true' and 'false' will internally considered as 'false'.
+					</td>
+				</tr>
+				<tr>
+					<td>langrefset</td>
+					<td>Specifies English language reference set for US or UK. <br>
+					<p>
+							Possible values - us, uk, hi, all <br>Example - us</td>
+				</tr>
+
+				<tr>
+					<td>relation</td>
+					<td>Type of relationship need to find for a concept. <br>
+					<p class="more">
+							Possible values - is a, finding site, causative agent, procedure
+							site, has active ingredient, has manufactured dose form, has
+							basis of strength substance and <a id="linktype"
+								href="api/search/relationshiptype"
+								onclick="getRelationShipType()" target="_blank"> all
+								possible values </a>
+						</p> <br>Example - is a
+					</td>
+				</tr>
+
+				<tr>
+					<td>direction</td>
+					<td>Direction in which relationship need to find for a
+						concept. <br>
+					<p>
+							Possible values - source, destination. <br>Example - source
+						
+					</td>
+				</tr>
+
+				<tr>
+					<td>attribute</td>
+					<td>Direction in which relationship need to find for a
+						concept. <br>
+					<p class="more">
+							Possible values - finding site, causative agent, has intent,
+							procedure site, specimen substance, associated finding,
+							associated with and <a id="linktype"
+								href="api/search/relationshiptype"
+								onclick="getRelationShipType()" target="_blank"> all
+								possible values </a>
+						</p> <br>Example - causative agent
+					</td>
+				</tr>
+
+				<tr>
+					<td>destinationid</td>
+					<td>SNOMED CT Concept Identifier.<br> Example- 34348001
+					</td>
+				</tr>
+
+				<tr>
+					<td>gender</td>
+					<td>Gender of the patient. <br>
+					<p>
+							Possible values - male, m, female, f <br>Example - male</td>
+				</tr>
+
+				<tr>
+					<td>birthdate</td>
+					<td>Date of the birth of the patient. <br>
+					<p>
+							Possible values - any date in MM-DD-YYYY format. <br>Example
+							- 10-30-2009, 03-10-1991</td>
+				</tr>
+
+				<tr>
+					<td>diagnosisdate</td>
+					<td>Date of the diagnosis i.e. date on which patient was
+						diagnosed. <br>
+					<p>
+							Possible values - any date in MM-DD-YYYY format. <br>Example
+							- 01-01-2016
+					</td>
+				</tr>
+
+				<tr>
+					<td>secondary</td>
+					<td>Secondary diagnosis concept id. <br>
+					<p>
+							SNOMED CT Concept Identifier. <br>Example - 22298006</td>
+				</tr>
+				<tr>
+					<td>moduleId</td>
+					<td>A field in each component release file which represents 
+					the development module within which it was created and is maintained. 
+					<br>
+						<p>
+							Example -  900000000000207008
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="header" class="header">
+			<a href="/csnoserv/"> <img class="pull-left"
+				src="img/CSNOServ.png" alt="CSNOServ" style="height: 70px">
+			</a> <img class="pull-right" src="img/CDACLogo.png" alt="C-DAC"
+				style="height: 60px">
+		</div>
+
+		<ul id="menubar" class="bar">
+			<li class="dropdown"><a href="#" onclick="loadhome();"
+				class="tablinks">Home</a></li>
+			<li class="dropdown"><a href="#" class="tablinks">API</a>
+				<div class="dropdown-content">
+					<a href="#" onclick="loadsearch();">Search</a> <a href="#"
+						onclick="loadlookup();">Lookup</a> <a href="#"
+						onclick="loadexplore();">Explore</a> <a href="#"
+						onclick="loadmap();">Map</a> <a href="#" onclick="loaddisb();">DISB</a>
+					<a href="#" onclick="loadvalidation();">Validate</a>
+				</div></li>
+			<li id="configLink" class="dropdown"><a href="#"
+				onclick="loadcreateDB();" class="tablinks">Configuration</a></li>
+			<a class="pull-right" href="#" onclick="loadparameterbar();">Parameter
+				Description</a>
+		</ul>
+
+		<div id="maincontent">
+			<div class="detailbar">
+				<div class="headings" align="left">About CSNOServ -</div>
+				<p align="justify">
+					CSNOServ is a ready to call Representational State Transfer (REST)
+					API Layer exposed as Web Service. This service can be readily
+					deployed along with application or centrally by the user for one or
+					more products / deployment. This service is provided as part of
+					C-DAC's Toolkit for SNOMED CT (CSNOtk). SNOMED Clinical Terms
+					(SNOMED CT) is the most comprehensive, multilingual clinical
+					healthcare terminology in the world. It is owned, maintained, and
+					distributed by the SNOMED International on behalf of its member
+					countries. CSNOServ includes SNOMED Clinical Terms (SNOMED CT )
+					which is used by permission of the SNOMED International. All rights
+					reserved. SNOMED CT was originally created by the College of
+					American Pathologists. "SNOMED", "SNOMED CT" and "SNOMED Clinical
+					Terms" are registered trademarks of the SNOMED International <a
+						target="_blank" href="http://www.snomed.org">(www.snomed.org</a>).
+					It is implicit that use of SNOMED CT in CSNOServ is governed by the
+					conditions of SNOMED CT Sub-license issued by Centre for
+					Development of Advance Computing(C-DAC).
+				</p>
+			</div>
+
+			<div class="bar" align="left">API -</div>
+			<div class="detailbar" align="justify">
+				<a href="#" onclick="loadsearch();">Search</a> - Suggest API
+				provides facility of retrieving best matching suggestions (only
+				Clinical Term) for SNOMED CT Concept by specifying parameters. <br>&emsp;&emsp;&emsp;&nbsp;-
+				Search API provides facility to search SNOMED CT Concept by
+				specifying parameters and retrieves result. <br>
+				<br>
+				<a href="#" onclick="loadlookup();">Lookup</a> - Lookup APIs provide
+				facility to find information about specified SNOMED CT Concept. <br>
+				<br>
+				<a href="#" onclick="loadexplore();">Explore</a> - Explore APIs
+				provide facility to travel through SNOMED CT Concepts in order to
+				learn more about it. <br>
+				<br>
+				<a href="#" onclick="loadmap();">Map</a> - Map API provide facility
+				to convert SNOMED CT Concept to corresponding ICD-10 code by
+				specifying parameters. <br>
+				<br>
+				<a href="#" onclick="loaddisb();">DISB</a> - DISB API provide
+				facility to access Drug Information Service Bundle(DISB) to get
+				additional information about Substance, Generic Drug and Medicine.
+			</div>
+
+		</div>
+
+		<div id="footer" class="bar" align="justify">
+			<span style="font-weight: normal; font-size: 12px;"> &copy;
+				CSNOtk v7.5</span> <a class="pull-right" href="#"
+				onclick="loadsublicence();">Sub-license</a>
+		</div>
+
+
+	</div>
+
+</body>
+
+</html>

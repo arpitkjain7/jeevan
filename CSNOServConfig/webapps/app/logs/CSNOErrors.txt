@@ -1,0 +1,116 @@
+---------------------------------------------------------------------
+2023-06-13 05:01:47.339
+class org.apache.lucene.index.IndexNotFoundException
+Class Name: org.apache.lucene.index.SegmentInfos$FindSegmentsFile
+Method Name: run
+Line Number: 715
+Message: no segments* file found in MMapDirectory@/usr/local/tomcat/webapps/app/data/SnoIndex lockFactory=org.apache.lucene.store.NativeFSLockFactory@4cd450dc: files: []
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:22.195
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:22.203
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:22.211
+class java.lang.NumberFormatException
+Class Name: java.lang.NumberFormatException
+Method Name: forInputString
+Line Number: 65
+Message: For input string: "headache"
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:22.431
+class org.apache.lucene.index.IndexNotFoundException
+Class Name: org.apache.lucene.index.SegmentInfos$FindSegmentsFile
+Method Name: run
+Line Number: 715
+Message: no segments* file found in MMapDirectory@/usr/local/tomcat/webapps/app/data/SnoIndex lockFactory=org.apache.lucene.store.NativeFSLockFactory@4cd450dc: files: []
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:35.239
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:35.245
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:35.252
+class java.lang.NumberFormatException
+Class Name: java.lang.NumberFormatException
+Method Name: forInputString
+Line Number: 65
+Message: For input string: "fever"
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:35.26
+class org.apache.lucene.index.IndexNotFoundException
+Class Name: org.apache.lucene.index.SegmentInfos$FindSegmentsFile
+Method Name: run
+Line Number: 715
+Message: no segments* file found in MMapDirectory@/usr/local/tomcat/webapps/app/data/SnoIndex lockFactory=org.apache.lucene.store.NativeFSLockFactory@4cd450dc: files: []
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:54.348
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:09:54.355
+Invalid Query Parameter Value: semantictag: finding
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:11:33.879
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:11:33.9
+class org.apache.lucene.index.IndexNotFoundException
+Class Name: org.apache.lucene.index.SegmentInfos$FindSegmentsFile
+Method Name: run
+Line Number: 715
+Message: no segments* file found in MMapDirectory@/usr/local/tomcat/webapps/app/data/SnoIndex lockFactory=org.apache.lucene.store.NativeFSLockFactory@4cd450dc: files: []
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:11:45.728
+class java.io.IOException
+Class Name: in.cdac.medinfo.csnotk.csnolib.agents.LuceneSearchAgent
+Method Name: getSemanticTags
+Line Number: -1
+Message: Semantic index directory is not present
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+2023-06-13 05:11:45.744
+class org.apache.lucene.index.IndexNotFoundException
+Class Name: org.apache.lucene.index.SegmentInfos$FindSegmentsFile
+Method Name: run
+Line Number: 715
+Message: no segments* file found in MMapDirectory@/usr/local/tomcat/webapps/app/data/SnoIndex lockFactory=org.apache.lucene.store.NativeFSLockFactory@4cd450dc: files: []
+---------------------------------------------------------------------
