@@ -25,7 +25,7 @@ def upgrade() -> None:
             primary_key=True,
             autoincrement=True,
         ),
-        sa.Column("pmr_id", sa.String, sa.ForeignKey),
+        sa.Column("pmr_id", sa.String),
         sa.Column("height", sa.String),
         sa.Column("weight", sa.String),
         sa.Column("pulse", sa.String),
@@ -43,8 +43,8 @@ def upgrade() -> None:
         "fk_pmr_id",
         "vitals",
         "patientMedicalRecord",
-        "pmr_id",
-        "id",
+        ["pmr_id"],
+        ["id"],
     )
     op.drop_column(
         table_name="patientMedicalRecord", schema="lobster", column_name="height"
