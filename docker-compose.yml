@@ -66,6 +66,7 @@ services:
         build: CSNOServConfig/.
         image: lobster/csnoserv:latest
         container_name: lobster-csnoserv
+        user: root
         environment:
             - JAVA_OPTS=-Xms256m -Xmx1024m -XX:MaxPermSize=256m
         ports:
