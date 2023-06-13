@@ -32,6 +32,8 @@ timezone = pytz.timezone("Asia/Kolkata")
 
 time_now = datetime.now().astimezone(tz=None).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
+time_now = datetime.now().astimezone(tz=None).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+
 
 def appointment(
     patient_reference: str,
