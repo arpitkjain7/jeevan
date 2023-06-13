@@ -30,6 +30,7 @@ class CRUDMedicalHistory:
                 transaction_session.add(medicalHistory)
                 transaction_session.commit()
                 transaction_session.refresh(medicalHistory)
+            return medicalHistory.id
         except Exception as error:
             logging.error(f"Error in CRUDMedicalHistory create function : {error}")
             raise error

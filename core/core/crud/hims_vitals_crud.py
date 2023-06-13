@@ -30,6 +30,7 @@ class CRUDVital:
                 transaction_session.add(vital)
                 transaction_session.commit()
                 transaction_session.refresh(vital)
+            return vital.id
         except Exception as error:
             logging.error(f"Error in CRUDVital create function : {error}")
             raise error

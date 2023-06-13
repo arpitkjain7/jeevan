@@ -30,6 +30,7 @@ class CRUDDiagnosis:
                 transaction_session.add(diagnosis)
                 transaction_session.commit()
                 transaction_session.refresh(diagnosis)
+            return diagnosis.id
         except Exception as error:
             logging.error(f"Error in CRUDDiagnosis create function : {error}")
             raise error
