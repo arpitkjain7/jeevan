@@ -23,3 +23,5 @@ from core.orm_models.hrp_gatewayInteraction import *
 from core.orm_models.hims_slots import *
 from core.orm_models.hims_medicalHistory import *
 from core.orm_models.hims_vitals import *
+from core.orm_models.hims_symptoms import *
+from core.orm_models.hims_currentMedicines import *
