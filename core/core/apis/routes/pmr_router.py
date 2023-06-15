@@ -5,15 +5,21 @@ from core.apis.schemas.requests.pmr_request import (
     CreateVital,
     CreateComplaint,
     CreateDiagnosis,
+    CreateCondition,
     CreateMedicalTest,
     CreateMedication,
     CreateMedicalHistory,
+    CreateCurrentMedication,
+    CreateSymptoms,
     UpdateVital,
     UpdateComplaint,
     UpdateDiagnosis,
+    UpdateCondition,
     UpdateMedication,
     UpdateMedicalTest,
     UpdateMedicalHistory,
+    UpdateCurrentMedication,
+    UpdateSymptoms,
 )
 from core.controllers.pmr_controller import PMRController
 from core import logger
@@ -121,6 +127,62 @@ def updateVital(vital_request: UpdateVital, token: str = Depends(oauth2_scheme))
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/pmr/updateVital endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/createCondition")
+def createCondition(
+    condition_request: CreateCondition, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info("Calling /v1/pmr/createCondition endpoint")
+        logging.debug(f"Request: {condition_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_condition(request=condition_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/createCondition endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/createCondition endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/updateCondition")
+def updateCondition(
+    condition_request: UpdateCondition, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info("Calling /v1/pmr/updateCondition endpoint")
+        logging.debug(f"Request: {condition_request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().update_condition(request=condition_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/updateCondition endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/updateCondition endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -240,6 +302,62 @@ def updateDiagnosis(
         )
 
 
+@pmr_router.post("/v1/PMR/createSymptoms")
+def createSymptoms(
+    symptoms_request: CreateSymptoms, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info("Calling /v1/pmr/createSymptoms endpoint")
+        logging.debug(f"Request: {symptoms_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_symptoms(request=symptoms_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/createSymptoms endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/createSymptoms endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/updateSymptoms")
+def updateDiagnosis(
+    symptoms_request: UpdateSymptoms, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info("Calling /v1/pmr/updateSymptoms endpoint")
+        logging.debug(f"Request: {symptoms_request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().update_symptoms(request=symptoms_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/updateSymptoms endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/updateSymptoms endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @pmr_router.post("/v1/PMR/createMedication")
 def createMedication(
     medication_request: CreateMedication, token: str = Depends(oauth2_scheme)
@@ -296,16 +414,80 @@ def updateMedication(
         )
 
 
+@pmr_router.post("/v1/PMR/createCurrentMedication")
+def createCurrentMedication(
+    current_medication_request: CreateCurrentMedication,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/pmr/createCurrentMedication endpoint")
+        logging.debug(f"Request: {current_medication_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_current_medication(
+                request=current_medication_request
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/createCurrentMedication endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/createCurrentMedication endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/updateCurrentMedication")
+def updateCurrentMedication(
+    update_medication_request: UpdateCurrentMedication,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/pmr/updateCurrentMedication endpoint")
+        logging.debug(f"Request: {update_medication_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().update_current_medication(
+                request=update_medication_request
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/updateCurrentMedication endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/updateCurrentMedication endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @pmr_router.post("/v1/PMR/createMedicalTest")
 def createMedicalTest(
     medicalTest_request: CreateMedicalTest, token: str = Depends(oauth2_scheme)
 ):
     try:
         logging.info("Calling /v1/pmr/createMedicalTest endpoint")
-        logging.debug(f"Request: {medicalTest_request}")
+        logging.debug(f"Request: {current_medication_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_medicalTest(request=medicalTest_request)
+            return PMRController().create_medicalTest(
+                request=current_medication_request
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
