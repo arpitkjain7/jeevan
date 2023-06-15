@@ -42,11 +42,10 @@ def upgrade() -> None:
     )
     op.create_foreign_key(
         "fk_pmr_id",
-        "vitals",
-        "patientMedicalRecord",
+        "lobster.vitals",
+        "lobster.patientMedicalRecord",
         ["pmr_id"],
         ["id"],
-        schema="lobster",
     )
     op.drop_column(
         table_name="patientMedicalRecord", schema="lobster", column_name="height"
