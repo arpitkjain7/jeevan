@@ -38,6 +38,7 @@ def upgrade() -> None:
         sa.Column("diastolic_blood_pressure", sa.String),
         sa.Column("created_at", sa.DateTime),
         sa.Column("updated_at", sa.DateTime),
+        schema="lobster",
     )
     op.create_foreign_key(
         "fk_pmr_id",
@@ -45,21 +46,22 @@ def upgrade() -> None:
         "patientMedicalRecord",
         ["pmr_id"],
         ["id"],
+        schema="lobster",
     )
     op.drop_column(
         table_name="patientMedicalRecord", schema="lobster", column_name="height"
     )
-    op.drop_column("patientMedicalRecord", "weight")
-    op.drop_column("patientMedicalRecord", "pulse")
-    op.drop_column("patientMedicalRecord", "blood_pressure")
-    op.drop_column("patientMedicalRecord", "body_temperature")
-    op.drop_column("patientMedicalRecord", "oxygen_saturation")
-    op.drop_column("patientMedicalRecord", "respiratory_rate")
-    op.drop_column("patientMedicalRecord", "body_mass_index")
-    op.drop_column("patientMedicalRecord", "systolic_blood_pressure")
-    op.drop_column("patientMedicalRecord", "diastolic_blood_pressure")
+    op.drop_column("patientMedicalRecord", "weight", schema="lobster")
+    op.drop_column("patientMedicalRecord", "pulse", schema="lobster")
+    op.drop_column("patientMedicalRecord", "blood_pressure", schema="lobster")
+    op.drop_column("patientMedicalRecord", "body_temperature", schema="lobster")
+    op.drop_column("patientMedicalRecord", "oxygen_saturation", schema="lobster")
+    op.drop_column("patientMedicalRecord", "respiratory_rate", schema="lobster")
+    op.drop_column("patientMedicalRecord", "body_mass_index", schema="lobster")
+    op.drop_column("patientMedicalRecord", "systolic_blood_pressure", schema="lobster")
+    op.drop_column("patientMedicalRecord", "diastolic_blood_pressure", schema="lobster")
 
 
 def downgrade() -> None:
-    op.drop_table("vitals")
-    op.drop_constraint("fk_pmr_id", "vitals", type_="foreignkey")
+    op.drop_table("vitals", schema="lobster")
+    op.drop_constraint("fk_pmr_id", "vitals", type_="foreignkey", schema="lobster")
