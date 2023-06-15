@@ -27,7 +27,7 @@ def upgrade() -> None:
         "symptoms",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column(
-            "pmr_id", sa.String, sa.ForeignKey("lobster.patientMedicalRecord.pmr_id")
+            "pmr_id", sa.String, sa.ForeignKey("lobster.patientMedicalRecord.id")
         ),
         sa.Column("symptom", sa.String),
         sa.Column("duration", sa.String),
@@ -42,7 +42,7 @@ def upgrade() -> None:
         "currentMedicines",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column(
-            "pmr_id", sa.String, sa.ForeignKey("lobster.patientMedicalRecord.pmr_id")
+            "pmr_id", sa.String, sa.ForeignKey("lobster.patientMedicalRecord.id")
         ),
         sa.Column("medicine_name", sa.String),
         sa.Column("start_date", sa.DateTime),
