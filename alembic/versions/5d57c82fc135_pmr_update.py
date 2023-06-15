@@ -42,8 +42,8 @@ def upgrade() -> None:
     )
     op.create_foreign_key(
         "fk_pmr_id",
-        "lobster.vitals",
-        "lobster.patientMedicalRecord",
+        "vitals",
+        "patientMedicalRecord",
         ["pmr_id"],
         ["id"],
     )
