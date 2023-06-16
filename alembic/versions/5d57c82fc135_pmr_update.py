@@ -25,7 +25,9 @@ def upgrade() -> None:
             primary_key=True,
             autoincrement=True,
         ),
-        sa.Column("pmr_id", sa.String),
+        sa.Column(
+            "pmr_id", sa.String, sa.ForeignKey("lobster.patientMedicalRecord.id")
+        ),
         sa.Column("height", sa.String),
         sa.Column("weight", sa.String),
         sa.Column("pulse", sa.String),
@@ -38,28 +40,9 @@ def upgrade() -> None:
         sa.Column("diastolic_blood_pressure", sa.String),
         sa.Column("created_at", sa.DateTime),
         sa.Column("updated_at", sa.DateTime),
+        schema="lobster",
     )
-    op.create_foreign_key(
-        "fk_pmr_id",
-        "vitals",
-        "patientMedicalRecord",
-        ["pmr_id"],
-        ["id"],
-    )
-    op.drop_column(
-        table_name="patientMedicalRecord", schema="lobster", column_name="height"
-    )
-    op.drop_column("patientMedicalRecord", "weight")
-    op.drop_column("patientMedicalRecord", "pulse")
-    op.drop_column("patientMedicalRecord", "blood_pressure")
-    op.drop_column("patientMedicalRecord", "body_temperature")
-    op.drop_column("patientMedicalRecord", "oxygen_saturation")
-    op.drop_column("patientMedicalRecord", "respiratory_rate")
-    op.drop_column("patientMedicalRecord", "body_mass_index")
-    op.drop_column("patientMedicalRecord", "systolic_blood_pressure")
-    op.drop_column("patientMedicalRecord", "diastolic_blood_pressure")
 
 
 def downgrade() -> None:
-    op.drop_table("vitals")
-    op.drop_constraint("fk_pmr_id", "vitals", type_="foreignkey")
+    op.drop_table("vitals", schema="lobster")

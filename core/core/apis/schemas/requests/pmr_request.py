@@ -23,16 +23,43 @@ class Complaint(BaseModel):
     duration: str
 
 
+class Condition(BaseModel):
+    condition: str
+    start_date: str
+    status: str
+    notes: str = None
+
+
 class Diagnosis(BaseModel):
     disease: str
     duration: str
+    start_time: str
+    status: str
+    notes: str = None
+
+
+class Symptoms(BaseModel):
+    symptom: str
+    duration: str
+    severity: str
+    notes: str = None
+    start_date: str
 
 
 class Medicines(BaseModel):
     medicine_name: str
     frequency: str
+    dosage: str
     time_of_day: str
     duration: str
+    duration_period: str
+    notes: str = None
+
+
+class CurrentMedicines(BaseModel):
+    medicine_name: str
+    start_date: str
+    status: str
     notes: str = None
 
 
@@ -71,6 +98,17 @@ class UpdateComplaint(BaseModel):
     data: List[Complaint]
 
 
+class CreateCondition(BaseModel):
+    pmr_id: str
+    data: List[Condition]
+
+
+class UpdateCondition(BaseModel):
+    id: str
+    pmr_id: str
+    data: List[Condition]
+
+
 class CreateDiagnosis(BaseModel):
     pmr_id: str
     data: List[Diagnosis]
@@ -82,6 +120,17 @@ class UpdateDiagnosis(BaseModel):
     data: List[Diagnosis]
 
 
+class CreateSymptoms(BaseModel):
+    pmr_id: str
+    data: List[Symptoms]
+
+
+class UpdateSymptoms(BaseModel):
+    id: str
+    pmr_id: str
+    data: List[Symptoms]
+
+
 class CreateMedication(BaseModel):
     pmr_id: str
     data: List[Medicines]
@@ -91,6 +140,17 @@ class UpdateMedication(BaseModel):
     id: str
     pmr_id: str
     data: List[Medicines]
+
+
+class CreateCurrentMedication(BaseModel):
+    pmr_id: str
+    data: List[CurrentMedicines]
+
+
+class UpdateCurrentMedication(BaseModel):
+    id: str
+    pmr_id: str
+    data: List[CurrentMedicines]
 
 
 class CreateMedicalTest(BaseModel):
