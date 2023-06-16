@@ -7,8 +7,11 @@ from core.crud.hims_medicines_crud import CRUDMedicines
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
+from core.crud.hims_current_medicines_crud import CRUDCurrentMedicines
 from core.utils.custom.external_call import APIInterface
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
+from core.crud.hims_symptoms_crud import CRUDSymptoms
+from core.crud.hims_condition_crud import CRUDCondition
 from core.utils.custom.session_helper import get_session_token
 from core import logger
 from datetime import datetime, timezone
@@ -31,6 +34,9 @@ class PMRController:
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDMedicalHistory = CRUDMedicalHistory()
         self.CRUDVital = CRUDVital()
+        self.CRUDSymptoms = CRUDSymptoms()
+        self.CRUDCurrentMedicines = CRUDCurrentMedicines()
+        self.CRUDCondition = CRUDCondition()
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -130,6 +136,30 @@ class PMRController:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
             raise error
 
+    def create_condition(self, request):
+        try:
+            logging.info("Creating condition records")
+            for condition_obj in request.data:
+                condition_obj_dict = condition_obj.dict()
+                condition_obj_dict.update({"pmr_id": request.pmr_id})
+                condition_id = self.CRUDCondition.create(**condition_obj_dict)
+            logging.info("Creating condition records")
+            return {"pmr_id": request.pmr_id, "condition_id": condition_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_condition function: {error}")
+            raise error
+
+    def update_condition(self, request):
+        try:
+            logging.info("Updating condition records")
+            for condition_obj in request.data:
+                condition_obj_dict = condition_obj.dict()
+                self.CRUDCondition.update(**condition_obj_dict, id=request.id)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_conditions function: {error}")
+            raise error
+
     def create_diagnosis(self, request):
         try:
             logging.info("Creating diagnosis records")
@@ -154,6 +184,30 @@ class PMRController:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
             raise error
 
+    def create_symptoms(self, request):
+        try:
+            logging.info("Creating symptoms records")
+            for symptoms_obj in request.data:
+                symptoms_obj_dict = symptoms_obj.dict()
+                symptoms_obj_dict.update({"pmr_id": request.pmr_id})
+                symptom_id = self.CRUDSymptoms.create(**symptoms_obj_dict)
+            logging.info("Creating symptoms records")
+            return {"pmr_id": request.pmr_id, "symptom_id": symptom_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_symptoms function: {error}")
+            raise error
+
+    def update_symptoms(self, request):
+        try:
+            logging.info("Updating symptoms records")
+            for symptoms_obj in request.data:
+                symptoms_obj_dict = symptoms_obj.dict()
+                self.CRUDSymptoms.update(**symptoms_obj_dict, id=request.id)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.update_symptoms function: {error}")
+            raise error
+
     def create_medication(self, request):
         try:
             logging.info("Creating medicines records")
@@ -175,6 +229,38 @@ class PMRController:
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
+            raise error
+
+    def create_current_medication(self, request):
+        try:
+            logging.info("Creating curremt medicines records")
+            for current_medicines_obj in request.data:
+                current_medicines_obj_dict = current_medicines_obj.dict()
+                current_medicines_obj_dict.update({"pmr_id": request.pmr_id})
+                current_medicines_id = self.CRUDCurrentMedicines.create(
+                    **current_medicines_obj_dict
+                )
+            return {
+                "pmr_id": request.pmr_id,
+                "current_medicines_id": current_medicines_id,
+            }
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_medication function: {error}")
+            raise error
+
+    def update_current_medication(self, request):
+        try:
+            logging.info("Updating current medicine records")
+            for current_medicines_obj in request.data:
+                current_medicines_obj_dict = current_medicines_obj.dict()
+                self.CRUDCurrentMedicines.update(
+                    **current_medicines_obj_dict, id=request.id
+                )
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.update_current_medication function: {error}"
+            )
             raise error
 
     def create_medicalTest(self, request):
@@ -277,13 +363,18 @@ class PMRController:
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
             medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
             medicalHistory_data = self.CRUDMedicalHistory.read_by_pmrId(pmr_id=pmr_id)
-
+            condition = self.CRUDCondition.read_by_pmrId(pmr_id=pmr_id)
+            symptoms = self.CRUDSymptoms.read_by_pmrId(pmr_id=pmr_id)
+            current_medication = self.CRUDCurrentMedicines.read_by_pmrId(pmr_id=pmr_id)
             pmr_metadata.update(
                 {
                     "vitals": vitals_data,
                     "complaints": complaint_data,
+                    "conditions": condition,
                     "diagnosis": diagnosis_data,
+                    "symptoms": symptoms,
                     "medicines": medicine_data,
+                    "current_medication": current_medication,
                     "medicalTests": medicalTest_data,
                     "medicalHistory": medicalHistory_data,
                 }
