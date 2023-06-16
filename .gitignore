@@ -23,6 +23,7 @@ wheels/
 pip-wheel-metadata/
 share/python-wheels/
 CSNOServConfig/release_files/
+CSNOServConfig/data/
 *.zip
 *.egg-info/
 .installed.cfg
