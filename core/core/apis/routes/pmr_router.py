@@ -331,7 +331,7 @@ def createSymptoms(
 
 
 @pmr_router.post("/v1/PMR/updateSymptoms")
-def updateDiagnosis(
+def updateSymptoms(
     symptoms_request: UpdateSymptoms, token: str = Depends(oauth2_scheme)
 ):
     try:
@@ -680,6 +680,32 @@ def delete_pmr(pmr_id: str, token: str = Depends(oauth2_scheme)):
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return PMRController().delete_pmr(pmr_id=pmr_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/get endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/get endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.delete("/v1/PMR/delete/{condition_id}")
+def delete_condition(condition_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/pmr/deleteCondition endpoint")
+        logging.debug(f"Request: {condition_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().delete_condition(condition_id=condition_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

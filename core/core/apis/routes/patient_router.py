@@ -281,6 +281,32 @@ def register_patient(
         )
 
 
+@patient_router.get("/v1/patient/{patient_id}")
+def get_patient_details(patient_id: str, token: str = Depends(oauth2_scheme)):
+    """[API router to list all patient into the system]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v1/patient/listAll endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().get_patient_details(patient_id=patient_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/listAll endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/listAll endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @patient_router.get("/v1/patient/listAll")
 def list_all_patients(hip_id: str, token: str = Depends(oauth2_scheme)):
     """[API router to list all patient into the system]
