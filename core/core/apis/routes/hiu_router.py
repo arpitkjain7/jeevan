@@ -127,3 +127,41 @@ def consentOnFetch(consent_on_fetch: dict):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@hiu_router.post("/v1/HIU/receiveData")
+def receive_data(receive_data: dict):
+    try:
+        logging.info("Calling /v1/HIU/receiveData endpoint")
+        logging.info(f"Request: {receive_data=}")
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HIU/receiveData endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HIU/receiveData endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.post("/v0.5/health-information/hiu/on-request")
+def healthInfoOnRequest(receive_data: dict):
+    try:
+        logging.info("Calling /v0.5/health-information/hiu/on-request endpoint")
+        logging.info(f"Request: {receive_data=}")
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v0.5/health-information/hiu/on-request endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v0.5/health-information/hiu/on-request endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )

@@ -394,31 +394,6 @@ def prepare_data(care_context, file_bytes):
     # }
 
 
-# def process_task(customer_name):
-#     try:
-#         logging.info("executing  process_task function")
-#         return {"message": "Order Received! Thank you for your patience."}
-#     except Exception as error:
-#         logging.error(f"Error in process_task function: {error}")
-#         raise error
-
-
-@celery.task
-def send_data_copy(
-    hi_request: dict, consent_id: str, transaction_id: str, request_id: str
-):
-    logging.info("send_data_copy triggered")
-    logging.info(f"{hi_request=},{consent_id=},{transaction_id=},{request_id=}")
-    logging.info("FINISHED")
-
-
-@celery.task
-def send_data_copy_1(customer_name, order_quantity):
-    logging.info("send_data_copy_1 triggered")
-    logging.info(f"{customer_name=},{order_quantity=}")
-    logging.info("FINISHED")
-
-
 def send_data(
     hi_request: dict, consent_obj: dict, transaction_id: str, request_id: str
 ):
