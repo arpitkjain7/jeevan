@@ -31,3 +31,8 @@ class RaiseConsent(BaseModel):
     expiry: str
     hip_id: str
     doc_id: str
+
+
+class FindPatient(BaseModel):
+    abha_address: str
+    hiu_id: str

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from core.apis.schemas.requests.hiu_request import RaiseConsent
+from core.apis.schemas.requests.hiu_request import RaiseConsent, FindPatient
 from core.controllers.hiu_controller import HIUController
 from core import logger
 from commons.auth import decodeJWT
@@ -68,6 +68,42 @@ def consentNotifyHIU(consent_notify: dict):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/consents/hiu/notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.post("/v1/HIU/findPatient")
+def patientFind(patient_data: FindPatient):
+    try:
+        logging.info("Calling /v1/HIU/findPatient endpoint")
+        logging.info(f"patientFind Request: {patient_data=}")
+        return HIUController().find_patient(request=patient_data)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HIU/findPatient endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HIU/findPatient endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.post("/v0.5/patients/on-find")
+def patientOnFind(patient_data: dict):
+    try:
+        logging.info("Calling /v0.5/patients/on-find endpoint")
+        logging.info(f"patientOnFind Request: {patient_data=}")
+        return HIUController().on_find_patient(request=patient_data)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/patients/on-find endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/patients/on-find endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

@@ -114,4 +114,66 @@ class HIUController:
         pass
 
     def find_patient(self, request):
-        pass
+        try:
+            logging.info("executing find_patient function")
+            request_dict = request.dict()
+            logging.info(f"{request_dict=}")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            find_patient_url = f"{self.gateway_url}/v0.5/patients/find"
+            request_id = str(uuid.uuid1())
+            time_now = datetime.now(timezone.utc)
+            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            _, resp_code = APIInterface().post(
+                route=find_patient_url,
+                data={
+                    "requestId": request_id,
+                    "timestamp": time_now,
+                    "query": {
+                        "patient": {"id": request_dict["abha_address"]},
+                        "requester": {"type": "HIU", "id": request_dict["hiu_id"]},
+                    },
+                },
+                headers={
+                    "X-CM-ID": "sbx",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            crud_request = {
+                "request_id": request_id,
+                "request_type": "FIND_PATIENT",
+                "request_status": "PROCESSING",
+            }
+            self.CRUDGatewayInteraction.create(**crud_request)
+            return crud_request
+        except Exception as error:
+            logging.error(f"Error in HIUController.find_patient function: {error}")
+            raise error
+
+    def on_find_patient(self, request):
+        try:
+            logging.info("executing on_find_patient function")
+            logging.info(f"{request=}")
+            logging.info("Getting session access Token")
+            patient_data = request["patient"]
+            request_id = request["resp"]["requestId"]
+            if patient_data:
+                crud_request = {
+                    "request_id": request_id,
+                    "request_status": "SUCCESS",
+                    "callback_response": request,
+                }
+            else:
+                crud_request = {
+                    "request_id": request_id,
+                    "request_status": "FAILED",
+                    "callback_response": request,
+                }
+            self.CRUDGatewayInteraction.update(**crud_request)
+            return crud_request
+        except Exception as error:
+            logging.error(f"Error in HIUController.on_find_patient function: {error}")
+            raise error
