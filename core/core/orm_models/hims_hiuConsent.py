@@ -2,8 +2,8 @@ from sqlalchemy import Column, String, Integer, DateTime, JSON
 from core import Base
 
 
-class Consent(Base):
-    __tablename__ = "consent"
+class HIUConsent(Base):
+    __tablename__ = "hiu_consent"
     __table_args__ = {"extend_existing": True}
     id = Column(String, primary_key=True)
     status = Column(String)

@@ -508,7 +508,10 @@ def send_data(
                 },
             },
         }
-        headers = {"X-CM-ID": "sbx", "Authorization": f"Bearer {gateway_access_token}"}
+        headers = {
+            "X-CM-ID": os.environ["X-CM-ID"],
+            "Authorization": f"Bearer {gateway_access_token}",
+        }
         _, ack_resp_code = APIInterface().post(
             route=data_transfer_success_url, data=request, headers=headers
         )

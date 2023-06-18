@@ -57,12 +57,12 @@ def raiseConsentRequest(consent_init_request: dict):
         )
 
 
-# need to work after PHR app is up
 @hiu_router.post("/v0.5/consents/hiu/notify")
 def consentNotifyHIU(consent_notify: dict):
     try:
         logging.info("Calling /v0.5/consents/hiu/notify endpoint")
         logging.info(f"Notify Request: {consent_notify=}")
+        return HIUController().hiu_notify(request=consent_notify)
     except HTTPException as httperror:
         logging.error(f"Error in /v0.5/consents/hiu/notify endpoint: {httperror}")
         raise httperror
@@ -104,6 +104,24 @@ def patientOnFind(patient_data: dict):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/patients/on-find endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.post("/v0.5/consents/on-fetch")
+def consentOnFetch(consent_on_fetch: dict):
+    try:
+        logging.info("Calling /v0.5/consents/on-fetch endpoint")
+        logging.info(f"Request: {consent_on_fetch=}")
+        return HIUController().hiu_fetch_consent(request=consent_on_fetch)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/consents/on-fetch endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/consents/on-fetch endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

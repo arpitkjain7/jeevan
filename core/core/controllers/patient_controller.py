@@ -98,7 +98,7 @@ class PatientController:
                     },
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -145,7 +145,7 @@ class PatientController:
                     },
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -189,7 +189,7 @@ class PatientController:
                     "credential": {"authCode": request_dict.get("otp")},
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -246,7 +246,7 @@ class PatientController:
                     },
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -324,7 +324,7 @@ class PatientController:
                     "resp": {"requestId": request.get("requestId")},
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -379,7 +379,7 @@ class PatientController:
                             "resp": {"requestId": req_id},
                         },
                         headers={
-                            "X-CM-ID": "sbx",
+                            "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
                         },
                     )
@@ -409,7 +409,7 @@ class PatientController:
                             "resp": {"requestId": req_id},
                         },
                         headers={
-                            "X-CM-ID": "sbx",
+                            "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
                         },
                     )
@@ -458,7 +458,7 @@ class PatientController:
                             "resp": {"requestId": req_id},
                         },
                         headers={
-                            "X-CM-ID": "sbx",
+                            "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
                             "Content-Type": "application/json",
                         },
@@ -522,7 +522,7 @@ class PatientController:
                 route=linking_on_init_url,
                 data=payload,
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -596,7 +596,7 @@ class PatientController:
                     route=linking_on_init_url,
                     data=payload,
                     headers={
-                        "X-CM-ID": "sbx",
+                        "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
                     },
                 )
@@ -631,7 +631,7 @@ class PatientController:
                     route=linking_on_init_url,
                     data=payload,
                     headers={
-                        "X-CM-ID": "sbx",
+                        "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
                     },
                 )
