@@ -5,11 +5,13 @@ from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
+from core.utils.custom.encryption_helper import getEcdhKeyMaterial
 import os
 import uuid
 from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 from dateutil import parser
+from core import celery
 
 logging = logger(__name__)
 
@@ -251,6 +253,13 @@ class HIUController:
             if consent_status == "GRANTED":
                 logging.info("Consent granted")
                 logging.info("Creating consent table record")
+                valid_date_from = (
+                    consent_details.get("permission").get("dateRange").get("from")
+                )
+                valid_date_to = (
+                    consent_details.get("permission").get("dateRange").get("to")
+                )
+                expire_at = consent_details.get("permission").get("dataEraseAt")
                 consent_crud_request = {
                     "id": consent_id,
                     "status": consent_status,
@@ -263,19 +272,63 @@ class HIUController:
                     "hi_type": {"hi_types": consent_details.get("hiTypes")},
                     "access_mode": consent_details.get("permission").get("accessMode"),
                     "date_range": {
-                        "from": consent_details.get("permission")
-                        .get("dateRange")
-                        .get("from"),
-                        "to": consent_details.get("permission")
-                        .get("dateRange")
-                        .get("to"),
+                        "from": valid_date_from,
+                        "to": valid_date_to,
                     },
-                    "expire_at": consent_details.get("permission").get("dataEraseAt"),
+                    "expire_at": expire_at,
                     "care_contexts": {
                         "care_context": consent_details.get("careContexts")
                     },
                 }
                 self.CRUDHIUConsents.create(**consent_crud_request)
+                logging.info("Sending health information request")
+                logging.info("Getting session access Token")
+                gateway_access_token = get_session_token(
+                    session_parameter="gateway_token"
+                ).get("accessToken")
+                health_info_url = (
+                    f"{self.gateway_url}/v0.5/health-information/cm/request"
+                )
+                request_id = str(uuid.uuid1())
+                time_now = datetime.now(timezone.utc)
+                time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                sender_key_material = getEcdhKeyMaterial()
+                _, resp_code = APIInterface().post(
+                    route=health_info_url,
+                    data={
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "hiRequest": {
+                            "consent": {"id": consent_id},
+                            "dateRange": {
+                                "from": valid_date_from,
+                                "to": valid_date_to,
+                            },
+                            "dataPushUrl": os.environ["data_push_url"],
+                            "keyMaterial": {
+                                "cryptoAlg": "ECDH",
+                                "curve": "Curve25519",
+                                "dhPublicKey": {
+                                    "expiry": expire_at,
+                                    "parameters": "Curve25519/32byte random key",
+                                    "keyValue": sender_key_material.get("publicKey"),
+                                },
+                                "nonce": sender_key_material.get("nonce"),
+                            },
+                        },
+                    },
+                    headers={
+                        "X-CM-ID": os.environ["X-CM-ID"],
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                logging.info(f"Response Code is {resp_code=}")
+                crud_request = {
+                    "request_id": request_id,
+                    "request_status": "PROCESSING",
+                    "request_type": "DATA_TRANSFER_TRIGGERED",
+                }
+                self.CRUDGatewayInteraction.create(**crud_request)
             elif consent_status == "EXPIRED" or consent_status == "REVOKED":
                 logging.info("Consent expired or revoked")
                 logging.info("Creating consent table record")
@@ -288,4 +341,25 @@ class HIUController:
                 self.CRUDHIUConsents.create(**consent_crud_request)
         except Exception as error:
             logging.error(f"Error in HIUController.hiu_fetch_consent function: {error}")
+            raise error
+
+    def health_info_hiu_on_request(self, request):
+        try:
+            logging.info("executing health_info_hiu_on_request function")
+            logging.info(f"{request=}")
+            request_id = request["resp"]["requestId"]
+            transaction_id = request["hiRequest"]["transactionId"]
+            transaction_status = request["hiRequest"]["sessionStatus"]
+            crud_request = {
+                "request_id": request_id,
+                "request_status": transaction_status,
+                "transaction_id": transaction_id,
+                "callback_response": request,
+            }
+            self.CRUDGatewayInteraction.update(**crud_request)
+            return crud_request
+        except Exception as error:
+            logging.error(
+                f"Error in HIUController.health_info_hiu_on_request function: {error}"
+            )
             raise error
