@@ -1,6 +1,7 @@
 from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_docDetails_crud import CRUDDocDetails
+from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
@@ -18,6 +19,7 @@ class HIUController:
         self.CRUDHIP = CRUDHIP()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDDocDetails = CRUDDocDetails()
+        self.CRUDHIUConsents = CRUDHIUConsents()
         self.gateway_url = os.environ["gateway_url"]
 
     def raise_consent(self, request):
@@ -94,7 +96,7 @@ class HIUController:
                     },
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -111,7 +113,25 @@ class HIUController:
             raise error
 
     def consent_on_init(self, request):
-        pass
+        try:
+            logging.info("executing consent_on_init function")
+            logging.info(f"{request=}")
+            consent_id = request.get("consentRequest").get("id")
+            request_id = request.get("resp").get("requestId")
+            crud_request = {
+                "request_id": request_id,
+                "transaction_id": consent_id,
+                "request_status": "SUCCESS",
+            }
+            logging.info("Creating gateway record")
+            self.CRUDGatewayInteraction.update(**crud_request)
+            logging.info("Creating consent table record")
+            consent_crud_request = {"id": consent_id, "status": "REQUESTED"}
+            self.CRUDHIUConsents.create(**consent_crud_request)
+            return crud_request
+        except Exception as error:
+            logging.error(f"Error in HIUController.consent_on_init function: {error}")
+            raise error
 
     def find_patient(self, request):
         try:
@@ -137,7 +157,7 @@ class HIUController:
                     },
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -176,4 +196,96 @@ class HIUController:
             return crud_request
         except Exception as error:
             logging.error(f"Error in HIUController.on_find_patient function: {error}")
+            raise error
+
+    def hiu_notify(self, request):
+        try:
+            logging.info("executing hiu_notify function")
+            logging.info(f"{request=}")
+            notification_obj = request.get("notification")
+            consent_id = notification_obj.get("consentRequestId")
+            logging.info("Updating consent table record")
+            consent_crud_request = {
+                "id": consent_id,
+                "status": notification_obj.get("status"),
+            }
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            fetch_consent_url = f"{self.gateway_url}/v0.5/consents/fetch"
+            for consentArtifact in notification_obj.get("consentArtefacts"):
+                consentArtifactId = consentArtifact.get("id")
+                request_id = str(uuid.uuid1())
+                time_now = datetime.now(timezone.utc)
+                time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                _, resp_code = APIInterface().post(
+                    route=fetch_consent_url,
+                    data={
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "consentId": consentArtifactId,
+                    },
+                    headers={
+                        "X-CM-ID": os.environ["X-CM-ID"],
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                logging.info(f"Response Code for {consentArtifactId=} is {resp_code=}")
+                # self.CRUDHIUConsents.create(
+                #     **{"id": consentArtifactId, "status": "REQUESTED"}
+                # )
+            self.CRUDHIUConsents.create(**consent_crud_request)
+        except Exception as error:
+            logging.error(f"Error in HIUController.hiu_notify function: {error}")
+            raise error
+
+    def hiu_fetch_consent(self, request):
+        try:
+            logging.info("executing  hiu_fetch_consent function")
+            consent_obj = request.get("consent")
+            consent_status = consent_obj.get("status")
+            consent_details = consent_obj.get("consentDetail")
+            consent_id = consent_details.get("consentId")
+            request_id = request.get("requestId")
+            if consent_status == "GRANTED":
+                logging.info("Consent granted")
+                logging.info("Creating consent table record")
+                consent_crud_request = {
+                    "id": consent_id,
+                    "status": consent_status,
+                    "purpose": consent_details.get("purpose").get("text"),
+                    "patient": consent_details.get("patient").get("id"),
+                    "hip_id": consent_details.get("hip").get("id"),
+                    "hip_name": consent_details.get("hip").get("name"),
+                    "hiu_id": consent_details.get("hiu").get("id"),
+                    "hiu_name": consent_details.get("requester").get("name"),
+                    "hi_type": {"hi_types": consent_details.get("hiTypes")},
+                    "access_mode": consent_details.get("permission").get("accessMode"),
+                    "date_range": {
+                        "from": consent_details.get("permission")
+                        .get("dateRange")
+                        .get("from"),
+                        "to": consent_details.get("permission")
+                        .get("dateRange")
+                        .get("to"),
+                    },
+                    "expire_at": consent_details.get("permission").get("dataEraseAt"),
+                    "care_contexts": {
+                        "care_context": consent_details.get("careContexts")
+                    },
+                }
+                self.CRUDHIUConsents.create(**consent_crud_request)
+            elif consent_status == "EXPIRED" or consent_status == "REVOKED":
+                logging.info("Consent expired or revoked")
+                logging.info("Creating consent table record")
+                consent_crud_request = {"id": consent_id, "status": consent_status}
+                self.CRUDHIUConsents.create(**consent_crud_request)
+            elif consent_status == "DENIED":
+                logging.info("Consent denied")
+                logging.info("Creating consent table record")
+                consent_crud_request = {"id": consent_id, "status": consent_status}
+                self.CRUDHIUConsents.create(**consent_crud_request)
+        except Exception as error:
+            logging.error(f"Error in HIUController.hiu_fetch_consent function: {error}")
             raise error

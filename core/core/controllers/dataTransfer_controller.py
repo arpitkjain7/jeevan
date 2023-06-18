@@ -82,6 +82,19 @@ class DataTransferController:
                 logging.info("Creating consent table record")
                 consent_crud_request = {"id": consent_id, "status": consent_status}
                 self.CRUDConsents.update(**consent_crud_request)
+            elif consent_status == "DENIED":
+                logging.info("Consent denied")
+                crud_request = {
+                    "request_id": request_id,
+                    "request_type": "CONSENT_NOTIFY_DENIED",
+                    "request_status": "PROCESSING",
+                    "transaction_id": consent_id,
+                    "callback_response": consent_details,
+                }
+                self.CRUDGatewayInteraction.create(**crud_request)
+                logging.info("Creating consent table record")
+                consent_crud_request = {"id": consent_id, "status": consent_status}
+                self.CRUDConsents.update(**consent_crud_request)
             logging.info("Getting session access Token")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
@@ -102,7 +115,7 @@ class DataTransferController:
                     "resp": {"requestId": request_id},
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -174,7 +187,7 @@ def data_request(request):
                     "resp": {"requestId": request_id},
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -214,7 +227,7 @@ def data_request(request):
                     "resp": {"requestId": request_id},
                 },
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )

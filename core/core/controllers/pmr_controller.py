@@ -455,7 +455,7 @@ class PMRController:
                 route=care_context_url,
                 data=payload,
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
@@ -490,7 +490,7 @@ class PMRController:
                 route=sms_notify_url,
                 data=payload,
                 headers={
-                    "X-CM-ID": "sbx",
+                    "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
