@@ -524,3 +524,13 @@ class PMRController:
                 f"Error in PMRController.get_pmr_controller function: {error}"
             )
             raise error
+
+    def delete_condition(self, condition_id):
+        try:
+            logging.info("executing delete_condition function")
+            logging.info(f"Getting the PMR record for {condition_id=}")
+            delete_obj = self.CRUDCondition.delete(condition_id=condition_id)
+            return f"Deleted Conditiion {delete_obj}"
+        except Exception as error:
+            logging.error(f"Error in PMRController.delete_condition function: {error}")
+            raise error
