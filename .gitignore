@@ -22,8 +22,9 @@ var/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
-CSNOServConfig/release_files/
-CSNOServConfig/data/
+*/CSNOServConfig/release_files/
+*/CSNOServConfig/data/
+*/db/
 *.zip
 *.egg-info/
 .installed.cfg

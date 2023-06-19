@@ -79,90 +79,6 @@ def appointment(
     return appointment.json()
 
 
-def allergyIntolerance(
-    text_status: str,
-    text_div: str,
-    coding_system: str,
-    coding_code: str,
-    coding_display: str,
-    verification_system: str,
-    verification_code: str,
-    verification_display: str,
-    codeobj_system: str,
-    codeobj_code: str,
-    codeobj_display: str,
-    patient_ref: str,
-    practitioner_ref: str,
-    note_text: str,
-):
-    print("Inside Allergy Intolerance")
-    allergyIntolerance = AllergyIntolerance(
-        resource_type="AllergyIntolerance", patient=Reference(reference="Patient/1")
-    )
-    meta = Meta(
-        profile=[
-            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"
-        ],
-    )
-    bundle = Bundle(type="document")
-    text = {
-        "status": text_status,
-        "div": text_div,
-    }
-
-    codeable_obj = CodeableConcept()
-    codeable_obj.coding = [
-        {
-            "system": coding_system,
-            "code": coding_code,
-            "display": coding_display,
-        }
-    ]
-    clinicalStatus = codeable_obj
-    verification_coding_obj = CodeableConcept()
-    verification_coding_obj.coding = [
-        {
-            "system": verification_system,
-            "code": verification_code,
-            "display": verification_display,
-        }
-    ]
-    verificationStatus = verification_coding_obj
-    code_obj = CodeableConcept()
-    code_obj.coding = [
-        {
-            "system": codeobj_system,
-            "code": codeobj_code,
-            "display": codeobj_display,
-        }
-    ]
-    code = code_obj
-    # patient_ref = Reference()
-    # patient_ref.reference = patient_ref
-    # recoder_ref = Reference()
-    # recoder_ref.reference = practitioner_ref
-    note = [{"text": note_text}]
-
-    allergyIntolerance.id = "1"
-    allergyIntolerance.meta = meta
-    allergyIntolerance.text = text
-    allergyIntolerance.clinicalStatus = clinicalStatus
-    allergyIntolerance.verificationStatus = verificationStatus
-    allergyIntolerance.code = code
-    # allergyIntolerance.patient = patient_ref
-    allergyIntolerance.recordedDate = "2020-07-09T15:37:31-06:00"
-    # recorder is not working
-    # "recorder": {
-    #  "reference": "Practitioner/1"
-    # },
-    # allergyIntolerance.recorder
-    allergyIntolerance.note = note
-
-    allergy_json = allergyIntolerance.json()
-    print(allergy_json)
-    return allergy_json
-
-
 def medical_statement(
     patient_ref: str,
     med_obj_system: str,
@@ -741,6 +657,47 @@ def document(
     print(document_reference_json)
     return document_reference_json
 
+
+def allergyIntolerance(
+    allergyIntolerance_id: str,
+    codeobj_code: str,
+    codeobj_display: str,
+    patient_ref: str,
+):
+    print("Inside Allergy Intolerance")
+    allergyIntolerance = AllergyIntolerance(
+        resource_type="AllergyIntolerance",
+        patient=Reference(reference=f"Patient/{patient_ref}"),
+        id=allergyIntolerance_id,
+    )
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"
+        ],
+    )
+    code_obj = CodeableConcept()
+    code_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": codeobj_code,
+            "display": codeobj_display,
+        }
+    ]
+    code_obj.text = codeobj_display
+    code = code_obj
+    allergyIntolerance.meta = meta
+    allergyIntolerance.code = code
+    allergy_json = allergyIntolerance.json()
+    print(allergy_json)
+    return allergy_json
+
+
+# allergyIntolerance(
+#     allergyIntolerance_id="1",
+#     codeobj_code="716186003",
+#     codeobj_display="test",
+#     patient_ref="60",
+# )
 
 # document(
 #     document_ref_id="1",
