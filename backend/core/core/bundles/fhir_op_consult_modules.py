@@ -10,6 +10,7 @@ from fhir.resources.medicationrequest import MedicationRequest
 from fhir.resources.organization import Organization
 from fhir.resources.patient import Patient
 from fhir.resources.practitioner import Practitioner
+from fhir.resources.practitionerrole import PractitionerRole
 from fhir.resources.procedure import Procedure
 from fhir.resources.servicerequest import ServiceRequest
 from fhir.resources.composition import Composition, CompositionSection
@@ -33,317 +34,6 @@ timezone = pytz.timezone("Asia/Kolkata")
 time_now = datetime.now().astimezone(tz=None).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 time_now = datetime.now().astimezone(tz=None).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-
-
-def appointment(
-    patient_reference: str,
-    practitioner_reference: str,
-    snomed_code: str,
-    appt_reason_name: str,
-    appt_status: str,
-    start_timestamp: str,
-    end_timestamp: str,
-):
-    # Create a reference to the patient
-    print("Inside Appointment")
-    patient_ref = Reference()
-    patient_ref.reference = patient_reference  # Replace with actual patient ID
-
-    # Create a reference to the practitioner
-    practitioner_ref = Reference()
-    practitioner_ref.reference = (
-        practitioner_reference  # Replace with actual practitioner ID
-    )
-
-    # Create a Coding instance for the SNOMED CT code
-    snomed_coding = Coding()
-    snomed_coding.system = "http://snomed.info/sct"
-    snomed_coding.code = snomed_code  # Replace with actual SNOMED CT code
-    snomed_coding.display = appt_reason_name  # Replace with actual reason name
-
-    # Create a CodeableConcept instance for the reason
-    appointment_reason = CodeableConcept()
-    appointment_reason.coding = [snomed_coding]
-
-    # Create an Appointment instance
-    appointment = Appointment(
-        status=appt_status,
-        participant=[
-            AppointmentParticipant(actor=patient_ref, status="accepted"),
-            AppointmentParticipant(actor=practitioner_ref, status="accepted"),
-        ],
-    )
-    appointment.start = start_timestamp  # Replace with actual start time
-    appointment.end = end_timestamp  # Replace with actual end time
-    print(appointment.json())
-    return appointment.json()
-
-
-def medical_statement(
-    patient_ref: str,
-    med_obj_system: str,
-    med_obj_code: str,
-    med_obj_display: str,
-    status: str,
-    meta_profile: str,
-    text_status: str,
-    text_div: str,
-    date_asserted: str,
-):
-    print("Inside Medical Statement")
-    subject = {"reference": patient_ref}
-    med_obj = CodeableConcept()
-    med_obj.coding = [
-        {
-            "system": med_obj_system,
-            "code": med_obj_code,
-            "display": med_obj_display,
-        }
-    ]
-    med = CodeableReference()  # this CODE part need to be checked furhter
-    med.concept = med_obj
-    medicationStatement = MedicationStatement(
-        resource_type="MedicationStatement",
-        subject=subject,
-        status=status,
-        medication=med,
-    )
-    meta = Meta(
-        profile=[meta_profile],
-    )
-    bundle = Bundle(type="document")
-    text = {
-        "status": text_status,
-        "div": text_div,
-    }
-    medicationStatement.meta = meta
-    medicationStatement.id = "1"
-    medicationStatement.text = text
-    medicationStatement.subject = subject
-    medicationStatement.dateAsserted = date_asserted
-    # Convert the Patient resource to JSON
-    procedure_json = medicationStatement.json()
-    print(procedure_json)
-    return procedure_json
-
-
-def medication_request(
-    patient_ref: str,
-    subject_display: str,
-    med_obj_system: str,
-    med_obj_code: str,
-    med_obj_display: str,
-    status: str,
-    intent: str,
-    meta_profile: str,
-    text_status: str,
-    text_div: str,
-    category_obj_system: str,
-    category_obj_code: str,
-    category_obj_display: str,
-    additional_obj_system: str,
-    additional_obj_code: str,
-    additional_obj_display: str,
-    route_system: str,
-    route_code: str,
-    route_display: str,
-    practitioner_ref: str,
-    practitioner_display: str,
-):
-    print("Inside Med Request")
-    subject = {"reference": patient_ref, "display": subject_display}
-    med_obj = CodeableConcept()
-    med_obj.coding = [
-        {
-            "system": med_obj_system,
-            "code": med_obj_code,
-            "display": med_obj_display,
-        }
-    ]
-    med = CodeableReference()  # this CODE part need to be checked furhter
-    med.concept = med_obj
-    medicationReq = MedicationRequest(
-        resource_type="MedicationRequest",
-        subject=subject,
-        status=status,
-        intent=intent,
-        medication=med,
-    )
-    meta = Meta(
-        profile=[meta_profile],
-    )
-    bundle = Bundle(type="document")
-    text = {
-        "status": text_status,
-        "div": text_div,
-    }
-    category_obj = CodeableConcept()
-    category_obj.coding = [
-        {
-            "system": category_obj_system,
-            "code": category_obj_code,
-            "display": category_obj_display,
-        }
-    ]
-    category = category_obj
-    additional_obj = CodeableConcept()
-    additional_obj.coding = [
-        {
-            "system": additional_obj_system,
-            "code": additional_obj_code,
-            "display": additional_obj_display,
-        }
-    ]
-    route = CodeableConcept()
-    route.coding = [
-        {
-            "system": route_system,
-            "code": route_code,
-            "display": route_display,
-        }
-    ]
-
-    dosage = Dosage()
-    dosage.additionalInstruction = [additional_obj]
-    dosage.route = route
-    authored = "2020-07-09"
-    requestor = {"reference": practitioner_ref, "display": practitioner_display}
-    medicationReq.meta = meta
-    medicationReq.id = "1"
-    medicationReq.text = text
-    medicationReq.dosageInstruction = [dosage]
-    medicationReq.subject = subject
-    medicationReq.authoredOn = authored
-    medicationReq.requester = requestor
-    # Convert the Patient resource to JSON
-    procedure_json = medicationReq.json()
-    print(procedure_json)
-    return procedure_json
-
-
-def procedure(
-    patient_ref: str,
-    code_obj_system: str,
-    code_obj_code: str,
-    code_obj_display: str,
-    status: str,
-    procedure_date: str,
-    meta_profile: str,
-    text_status: str,
-    text_div: str,
-    followup_obj_system: str,
-    followup_obj_code: str,
-    followup_obj_display: str,
-):
-    print("Inside Procedure")
-    subject = {"reference": patient_ref}
-    procedure = Procedure(resource_type="Procedure", subject=subject, status=status)
-    meta = Meta(
-        profile=[meta_profile],
-    )
-    bundle = Bundle(type="document")
-    text = {
-        "status": text_status,
-        "div": text_div,
-    }
-
-    code_obj = CodeableConcept()
-    code_obj.text = "Assessment of diabetic foot ulcer"
-    code_obj.coding = [
-        {
-            "system": code_obj_system,
-            "code": code_obj_code,
-            "display": code_obj_display,
-        }
-    ]
-    code = code_obj
-    performedDateTime = procedure_date
-    followUp_obj = CodeableConcept()
-    followUp_obj.coding = [
-        {
-            "system": followup_obj_system,
-            "code": followup_obj_code,
-            "display": followup_obj_display,
-        }
-    ]
-
-    procedure.meta = meta
-    procedure.id = "1"
-    procedure.text = text
-    procedure.code = code
-    procedure.subject = subject
-    procedure.followUp = [followUp_obj]
-    # Convert the Patient resource to JSON
-    procedure_json = procedure.json()
-    print(procedure_json)
-    return procedure_json
-
-
-def service_request(
-    patient_ref: str,
-    code_obj_system: str,
-    code_obj_code: str,
-    code_obj_display: str,
-    status: str,
-    intent: str,
-    meta_profile: str,
-    text_status: str,
-    text_div: str,
-    category_obj_system: str,
-    category_obj_code: str,
-    category_obj_display: str,
-    code_text: str,
-    practitioner_ref: str,
-    practitioner_display: str,
-    authored_date: str,
-):
-    print("Inside Service Req")
-    subject = {"reference": patient_ref}
-    serviceReq = ServiceRequest(
-        resource_type="ServiceRequest",
-        subject=subject,
-        status=status,
-        intent=intent,
-    )
-    meta = Meta(
-        profile=[meta_profile],
-    )
-    bundle = Bundle(type="document")
-    text = {"status": text_status, "div": text_div}
-    category_obj = CodeableConcept()
-    category_obj.coding = [
-        {
-            "system": category_obj_system,
-            "code": category_obj_code,
-            "display": category_obj_display,
-        }
-    ]
-    category = category_obj
-    code_obj = CodeableConcept()
-    code_obj.coding = [
-        {
-            "system": code_obj_system,
-            "code": code_obj_code,
-            "display": code_obj_display,
-        }
-    ]
-    code_obj.text = code_text
-    code = CodeableReference()  # this CODE part need to be checked furhter
-    code.concept = code_obj
-    authored = authored_date
-    requestor = {"reference": practitioner_ref, "display": practitioner_display}
-    serviceReq.meta = meta
-    serviceReq.id = "1"
-    serviceReq.text = text
-    serviceReq.code = code
-    serviceReq.subject = subject
-    serviceReq.authoredOn = authored
-    serviceReq.requester = requestor
-    serviceReq.category = [category]
-    # Convert the Patient resource to JSON
-    serviceReq_json = serviceReq.json()
-    print(serviceReq_json)
-    return serviceReq_json
 
 
 ##########################################################################
@@ -400,45 +90,6 @@ def patient(
     return patient_json
 
 
-def practitioner(
-    practitioner_id: str,
-    identifier_system: str,
-    identifier_value: str,
-    identifier_code_system: str,
-    identifier_code: str,
-    identifier_display_value: str,
-    practitioner_name: str,
-):
-    print("Inside Practitioner")
-    practitioner = Practitioner(resource_type="Practitioner", id=practitioner_id)
-    time_str = datetime.now(timezone).isoformat()
-    meta = Meta(
-        versionId=1,
-        lastUpdated=time_str,
-        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"],
-    )
-    identifier = Identifier()
-    identifier.system = identifier_system
-    identifier.value = identifier_value
-    codeable_obj = CodeableConcept()
-    codeable_obj.coding = [
-        {
-            "system": identifier_code_system,
-            "code": identifier_code,
-            "display": identifier_display_value,
-        }
-    ]
-    identifier.type = codeable_obj
-    practitioner.identifier = [identifier]
-    practitioner.meta = meta
-    name = HumanName()
-    name.text = practitioner_name
-    practitioner.name = [name]
-    practitioner_json = practitioner.json()
-    print(practitioner_json)
-    return practitioner_json
-
-
 def encounter(
     encounter_id: str,
     encounter_status: str,
@@ -483,8 +134,7 @@ def encounter(
     return encounter_json
 
 
-# TODO: pending
-def practitioner_role(
+def practitioner(
     practitioner_id: str,
     identifier_system: str,
     identifier_value: str,
@@ -493,13 +143,13 @@ def practitioner_role(
     identifier_display_value: str,
     practitioner_name: str,
 ):
-    print("Inside Practitioner Role")
+    print("Inside Practitioner")
     practitioner = Practitioner(resource_type="Practitioner", id=practitioner_id)
     time_str = datetime.now(timezone).isoformat()
     meta = Meta(
         versionId=1,
         lastUpdated=time_str,
-        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/PractitionerRole"],
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"],
     )
     identifier = Identifier()
     identifier.system = identifier_system
@@ -521,6 +171,60 @@ def practitioner_role(
     practitioner_json = practitioner.json()
     print(practitioner_json)
     return practitioner_json
+
+
+def practitioner_role(
+    practitioner_id: str,
+    identifier_value: str,
+    identifier_code: str,
+    identifier_display_value: str,
+    practitioner_ref: str,
+    practitioner_display: str,
+    organization_ref: str,
+    codeobj_code: str,
+    codeobj_display: str,
+):
+    print("Inside Practitioner Role")
+    practitioner_role = PractitionerRole(
+        resource_type="PractitionerRole", id=practitioner_id
+    )
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/PractitionerRole"],
+    )
+    identifier = Identifier()
+    identifier.system = "http://snomed.info/sct"
+    identifier.value = identifier_value
+    codeable_obj = CodeableConcept()
+    codeable_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": identifier_code,
+            "display": identifier_display_value,
+        }
+    ]
+    identifier.type = codeable_obj
+    practitioner_role.identifier = [identifier]
+    code = CodeableConcept()
+    code.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": codeobj_code,
+            "display": codeobj_display,
+        }
+    ]
+
+    practitioner_role.practitioner = Reference(
+        reference=f"Practitioner/{practitioner_ref}", display=practitioner_display
+    )
+
+    practitioner_role.organization = Reference(
+        reference=f"Organization/{organization_ref}"
+    )
+    practitioner_role.meta = meta
+    practitioner_role.code = [code]
+    practitioner_role_json = practitioner_role.json()
+    print(practitioner_role_json)
+    return practitioner_role_json
 
 
 def organization(
@@ -569,7 +273,6 @@ def organization(
     return organization_json
 
 
-# TODO: observation
 def condition(
     condition_id: str,
     clinical_system: str,
@@ -615,6 +318,315 @@ def condition(
     return condition_json
 
 
+# TODO: observation (Observation resource represents an individual laboratory test  )
+
+
+def allergyIntolerance(
+    allergyIntolerance_id: str,
+    codeobj_code: str,
+    codeobj_display: str,
+    patient_ref: str,
+):
+    print("Inside Allergy Intolerance")
+    allergyIntolerance = AllergyIntolerance(
+        resource_type="AllergyIntolerance",
+        patient=Reference(reference=f"Patient/{patient_ref}"),
+        id=allergyIntolerance_id,
+    )
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"
+        ],
+    )
+    code_obj = CodeableConcept()
+    code_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": codeobj_code,
+            "display": codeobj_display,
+        }
+    ]
+    code_obj.text = codeobj_display
+    code = code_obj
+    allergyIntolerance.meta = meta
+    allergyIntolerance.code = code
+    allergy_json = allergyIntolerance.json()
+    print(allergy_json)
+    return allergy_json
+
+
+def procedure(
+    patient_ref: str,
+    procedure_id: str,
+    code_obj_code: str,
+    code_obj_display: str,
+    status: str,
+    followup_obj_code: str,
+    followup_obj_display: str,
+):
+    print("Inside Procedure")
+    subject = {"reference": f"Patient/{patient_ref}"}
+    procedure = Procedure(resource_type="Procedure", subject=subject, status=status)
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Procedure"],
+    )
+    code = CodeableConcept()
+    code.text = "Assessment of diabetic foot ulcer"
+    code.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": code_obj_code,
+            "display": code_obj_display,
+        }
+    ]
+    # performedDateTime = procedure_date
+    followUp_obj = CodeableConcept()
+    followUp_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": followup_obj_code,
+            "display": followup_obj_display,
+        }
+    ]
+    procedure.meta = meta
+    procedure.id = procedure_id
+    procedure.code = code
+    procedure.subject = subject
+    procedure.followUp = [followUp_obj]
+    # procedure.date
+    # Convert the Patient resource to JSON
+    procedure_json = procedure.json()
+    print(procedure_json)
+    return procedure_json
+
+
+# TODO : FamilyMemberHistory
+def service_request(
+    patient_ref: str,
+    code_obj_code: str,
+    code_obj_display: str,
+    status: str,
+    intent: str,
+    service_request_id: str,
+    category_obj_code: str,
+    category_obj_display: str,
+    code_text: str,
+    practitioner_ref: str,
+    practitioner_display: str,
+    authored_date: str,
+):
+    print("Inside Service Req")
+    subject = {"reference": f"Patient{patient_ref}"}
+    serviceReq = ServiceRequest(
+        resource_type="ServiceRequest",
+        subject=subject,
+        status=status,
+        intent=intent,
+    )
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/ServiceRequest"],
+    )
+    requestor = {
+        "reference": f"Practitioner/{practitioner_ref}",
+        "display": practitioner_display,
+    }
+    category_obj = CodeableConcept()
+    category_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": category_obj_code,
+            "display": category_obj_display,
+        }
+    ]
+    category = category_obj
+    code_obj = CodeableConcept()
+    code_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": code_obj_code,
+            "display": code_obj_display,
+        }
+    ]
+    code_obj.text = code_text
+    code = (
+        CodeableReference()
+    )  # this CODE part need to be checked furhter, Codeable concept and codeable Reference
+    code.concept = code_obj
+    authored = authored_date
+    serviceReq.meta = meta
+    serviceReq.id = service_request_id
+    serviceReq.code = code
+    serviceReq.subject = subject
+    serviceReq.authoredOn = authored
+    serviceReq.requester = requestor
+    serviceReq.category = [category]
+    # Convert the Patient resource to JSON
+    serviceReq_json = serviceReq.json()
+    print(serviceReq_json)
+    return serviceReq_json
+
+
+def medical_statement(
+    patient_ref: str,
+    medication_obj_code: str,
+    medication_obj_display: str,
+    status: str,
+    medication_statement_id: str,
+):
+    print("Inside Medical Statement")
+    subject = {"reference": patient_ref}
+    medication_obj = CodeableConcept()
+    medication_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": medication_obj_code,
+            "display": medication_obj_display,
+        }
+    ]
+    medication = CodeableReference()  # this CODE part need to be checked furhter
+    medication.concept = medication_obj
+    medication_statement = MedicationStatement(
+        resource_type="MedicationStatement",
+        subject=subject,
+        status=status,
+        medication=medication,
+        id=medication_statement_id,
+    )
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationStatement"
+        ],
+    )
+    medication_statement.meta = meta
+    medication_statement.id = medication_statement_id
+    medication_statement.subject = subject
+    # medication_statement.medicationCodeableConcept = medication_obj
+    medication_statement_json = medication_statement.json()
+    print(medication_statement_json)
+    return medication_statement_json
+
+
+# medication_request.reasonCode and medication_request.reasonReference
+# medication vs medicationCodeableConcept
+def medication_request(
+    patient_ref: str,
+    subject_display: str,
+    medication_obj_code: str,
+    medication_obj_display: str,
+    status: str,
+    intent: str,
+    authored_on: str,
+    category_obj_code: str,
+    category_obj_display: str,
+    additional_obj_code: str,
+    additional_obj_display: str,
+    route_code: str,
+    route_display: str,
+    practitioner_ref: str,
+    practitioner_display: str,
+):
+    print("Inside Med Request")
+    subject = {"reference": f"Patient/{patient_ref}", "display": subject_display}
+    medication_obj = CodeableConcept()
+    medication_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": medication_obj_code,
+            "display": medication_obj_display,
+        }
+    ]
+    medication = CodeableReference()  # this CODE part need to be checked furhter
+    medication.concept = medication_obj
+    medication_request = MedicationRequest(
+        resource_type="MedicationRequest",
+        subject=subject,
+        status=status,
+        intent=intent,
+        medication=medication,
+    )
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationRequest"],
+    )
+    category_obj = CodeableConcept()
+    category_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": category_obj_code,
+            "display": category_obj_display,
+        }
+    ]
+    category = category_obj
+    additional_obj = CodeableConcept()
+    additional_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": additional_obj_code,
+            "display": additional_obj_display,
+        }
+    ]
+    route = CodeableConcept()
+    route.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": route_code,
+            "display": route_display,
+        }
+    ]
+
+    dosage = Dosage()
+    dosage.additionalInstruction = [additional_obj]
+    dosage.route = route
+    authored_on = authored_on
+    requestor = {
+        "reference": f"Practitioner/{practitioner_ref}",
+        "display": practitioner_display,
+    }
+    medication_request.meta = meta
+    medication_request.id = "1"
+    medication_request.dosageInstruction = [dosage]
+    medication_request.subject = subject
+    medication_request.category = [category]
+    medication_request.authoredOn = authored_on
+    medication_request.requester = requestor
+    # Convert the Patient resource to JSON
+    medication_request_json = medication_request.json()
+    print(medication_request_json)
+    return medication_request_json
+
+
+## serviceType and appointmentType needs to be figured out
+def appointment(
+    patient_ref: str,
+    practitioner_ref: str,
+    status: str,
+    start_timestamp: str,
+    end_timestamp: str,
+):
+    print("Inside Appointment")
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Appointment"],
+    )
+    patient_reference = Reference()
+    patient_reference.reference = f"Patient/{patient_ref}"
+    practitioner_reference = Reference()
+    practitioner_reference.reference = f"Practitioner/{practitioner_ref}"
+    # Create an Appointment instance
+    appointment = Appointment(
+        status=status,
+        participant=[
+            AppointmentParticipant(actor=patient_reference, status="accepted"),
+            AppointmentParticipant(actor=practitioner_reference, status="accepted"),
+        ],
+    )
+
+    appointment.meta = meta
+    appointment.status = status
+    appointment.start = start_timestamp  # Replace with actual start time
+    appointment.end = end_timestamp  # Replace with actual end time
+    print(appointment.json())
+    return appointment.json()
+
+
 def document(
     document_ref_id: str,
     document_code: str,
@@ -658,39 +670,78 @@ def document(
     return document_reference_json
 
 
-def allergyIntolerance(
-    allergyIntolerance_id: str,
-    codeobj_code: str,
-    codeobj_display: str,
-    patient_ref: str,
-):
-    print("Inside Allergy Intolerance")
-    allergyIntolerance = AllergyIntolerance(
-        resource_type="AllergyIntolerance",
-        patient=Reference(reference=f"Patient/{patient_ref}"),
-        id=allergyIntolerance_id,
-    )
-    meta = Meta(
-        profile=[
-            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/AllergyIntolerance"
-        ],
-    )
-    code_obj = CodeableConcept()
-    code_obj.coding = [
-        {
-            "system": "http://snomed.info/sct",
-            "code": codeobj_code,
-            "display": codeobj_display,
-        }
-    ]
-    code_obj.text = codeobj_display
-    code = code_obj
-    allergyIntolerance.meta = meta
-    allergyIntolerance.code = code
-    allergy_json = allergyIntolerance.json()
-    print(allergy_json)
-    return allergy_json
+# practitioner_role(
+#     practitioner_id="12",
+#     identifier_value="213",
+#     identifier_code="ja",
+#     identifier_display_value="jsa",
+#     practitioner_ref="112341",
+#     practitioner_display="Dr. ABC",
+#     organization_ref="Jeevan",
+#     codeobj_code="85733003",
+#     codeobj_display="General pathologist",
+# )
 
+
+# service_request(
+#     patient_ref="1",
+#     code_obj_code="16254007",
+#     code_obj_display="Lipid Panel",
+#     status="Active",
+#     intent="order",
+#     service_request_id="12",
+#     category_obj_code="123",
+#     category_obj_display="rew",
+#     code_text="Text",
+#     practitioner_ref="1",
+#     practitioner_display="Dr ABC",
+#     authored_date="2020-07-08T09:33:27+07:00",
+# )
+
+# procedure(
+#     patient_ref="1",
+#     procedure_id="3",
+#     code_obj_code="36969009",
+#     code_obj_display="Placement of stent in coronary artery",
+#     status="Active",
+#     followup_obj_code="123",
+#     followup_obj_display="today",
+# )
+
+# medication_request(
+#     patient_ref="01",
+#     subject_display="RACHIT",
+#     medication_obj_code="231",
+#     medication_obj_display="Azithromycin",
+#     status="active",
+#     intent="order",
+#     authored_on="2020-07-09",
+#     category_obj_code="1213",
+#     category_obj_display="Cold",
+#     additional_obj_code="3242",
+#     additional_obj_display="No ",
+#     route_code="2222",
+#     route_display="unknown",
+#     practitioner_ref="1",
+#     practitioner_display="DR. abc",
+# )
+
+# appointment(
+#     patient_ref="12",
+#     practitioner_ref="23",
+#     status="accepted",
+#     start_timestamp="2020-07-12T09:00:00Z",
+#     end_timestamp="2020-07-12T10:00:00Z",
+# )
+
+
+# medical_statement(
+#     patient_ref="60",
+#     medication_obj_code="23421",
+#     medication_obj_display="Dolo",
+#     status="active",
+#     medication_statement_id="2",
+# )
 
 # allergyIntolerance(
 #     allergyIntolerance_id="1",
