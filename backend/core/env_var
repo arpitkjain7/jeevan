@@ -1,0 +1,9 @@
+core_url=http://lobster_core:8000
+db_url="postgresql://postgres:postgres@lobster_db:5432/postgres"
+abha_url=https://healthidsbx.abdm.gov.in/api
+gateway_url=https://dev.abdm.gov.in/gateway
+client_id="SBX_002789"
+client_secret="15b6e353-7521-41c5-90ae-178bfe5114f0"
+s3_location="jeevanhealthcare-lobster"
+X-CM-ID=sbx
+data_push_url=https://7b09-2402-e280-3e33-1da-208d-ecf7-3c7a-373f.ngrok-free.app/v1/HIU/receiveData
