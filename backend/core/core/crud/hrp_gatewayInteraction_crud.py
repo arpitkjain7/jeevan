@@ -62,6 +62,35 @@ class CRUDGatewayInteraction:
             logging.error(f"Error in CRUDUser read function : {error}")
             raise error
 
+    def read_by_transId(self, transaction_id: str, request_type: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDUser read request")
+            with session() as transaction_session:
+                obj: GatewayInteraction = (
+                    transaction_session.query(GatewayInteraction)
+                    .filter(GatewayInteraction.transaction_id == transaction_id)
+                    .filter(GatewayInteraction.request_type == request_type)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            else:
+                return None
+        except Exception as error:
+            logging.error(f"Error in CRUDUser read function : {error}")
+            raise error
+
     def update(self, **kwargs):
         """[CRUD function to update a User record]
 

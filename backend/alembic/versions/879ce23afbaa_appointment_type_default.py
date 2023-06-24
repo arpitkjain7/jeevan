@@ -1,8 +1,8 @@
 """appointment_type_default
 
-Revision ID: 3e892c173c97
-Revises: 1fb4338cfed5
-Create Date: 2023-06-16 09:28:55.401472
+Revision ID: 879ce23afbaa
+Revises: 87451b49acf6
+Create Date: 2023-06-20 09:34:37.880557
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "3e892c173c97"
-down_revision = "1fb4338cfed5"
+revision = "879ce23afbaa"
+down_revision = "87451b49acf6"
 branch_labels = None
 depends_on = None
 

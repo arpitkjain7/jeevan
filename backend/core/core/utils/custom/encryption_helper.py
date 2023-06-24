@@ -62,7 +62,7 @@ def decryptData(decryptParams):
     )
     result = execFideliusCli(["-f", paramsFilePath])
     removeFileAtPath(paramsFilePath)
-    return result
+    return json.dumps(result)
 
 
 def encrypt_data(
