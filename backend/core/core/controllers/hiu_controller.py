@@ -5,9 +5,9 @@ from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
-from core.utils.custom.encryption_helper import getEcdhKeyMaterial
+from core.utils.custom.encryption_helper import getEcdhKeyMaterial, decryptData
 import os
-import uuid
+import uuid, json
 from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 from dateutil import parser
@@ -292,7 +292,13 @@ class HIUController:
                 request_id = str(uuid.uuid1())
                 time_now = datetime.now(timezone.utc)
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-                sender_key_material = getEcdhKeyMaterial()
+                requester_key_material = getEcdhKeyMaterial()
+                self.CRUDHIUConsents.update(
+                    **{
+                        "id": consent_id,
+                        "requester_key_material": requester_key_material,
+                    }
+                )
                 _, resp_code = APIInterface().post(
                     route=health_info_url,
                     data={
@@ -311,9 +317,9 @@ class HIUController:
                                 "dhPublicKey": {
                                     "expiry": expire_at,
                                     "parameters": "Curve25519/32byte random key",
-                                    "keyValue": sender_key_material.get("publicKey"),
+                                    "keyValue": requester_key_material.get("publicKey"),
                                 },
-                                "nonce": sender_key_material.get("nonce"),
+                                "nonce": requester_key_material.get("nonce"),
                             },
                         },
                     },
@@ -327,6 +333,10 @@ class HIUController:
                     "request_id": request_id,
                     "request_status": "PROCESSING",
                     "request_type": "DATA_TRANSFER_TRIGGERED",
+                    "callback_response": {
+                        "consent_id": consent_id,
+                        "requester_key_material": requester_key_material,
+                    },
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
             elif consent_status == "EXPIRED" or consent_status == "REVOKED":
@@ -347,19 +357,77 @@ class HIUController:
         try:
             logging.info("executing health_info_hiu_on_request function")
             logging.info(f"{request=}")
-            request_id = request["resp"]["requestId"]
             transaction_id = request["hiRequest"]["transactionId"]
-            transaction_status = request["hiRequest"]["sessionStatus"]
+            request_id = request["resp"]["requestId"]
             crud_request = {
                 "request_id": request_id,
-                "request_status": transaction_status,
+                "request_status": "ACK",
                 "transaction_id": transaction_id,
-                "callback_response": request,
             }
             self.CRUDGatewayInteraction.update(**crud_request)
-            return crud_request
         except Exception as error:
             logging.error(
                 f"Error in HIUController.health_info_hiu_on_request function: {error}"
+            )
+            raise error
+
+    def hiu_process_patient_data(self, request):
+        try:
+            logging.info("executing hiu_process_patient_data function")
+            logging.info(f"{request=}")
+            transaction_id = request["transactionId"]
+            gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
+                transaction_id=transaction_id, request_type="DATA_TRANSFER_TRIGGERED"
+            )
+            logging.info(f"{gateway_obj=}")
+            crud_request = {
+                "request_id": gateway_obj["request_id"],
+                "callback_response": request,
+                "request_status": "DECRYPTING",
+            }
+            self.CRUDGatewayInteraction.update(**crud_request)
+            patient_data = request["entries"]
+            sender_key_material = request["keyMaterial"]
+            consent_details = gateway_obj.get("callback_response")
+            logging.info(f"{consent_details=}")
+            consent_id = consent_details.get("consent_id")
+            logging.info(f"{consent_id=}")
+            requester_key_material = consent_details.get("requester_key_material")
+            logging.info(f"{requester_key_material=}")
+            patient_data_list = []
+            for entry in patient_data:
+                encrypted_data = entry.get("content")
+                decrypted_data = decryptData(
+                    decryptParams={
+                        "encryptedData": encrypted_data,
+                        "requesterNonce": requester_key_material.get("nonce"),
+                        "senderNonce": sender_key_material.get("nonce"),
+                        "requesterPrivateKey": requester_key_material.get("privateKey"),
+                        "senderPublicKey": sender_key_material.get("dhPublicKey").get(
+                            "keyValue"
+                        ),
+                    }
+                )
+                logging.info(f"{decrypted_data=}")
+                logging.info(type(decrypted_data))
+                decrypted_json = json.loads(decrypted_data)
+                logging.info(f"{decrypted_json=}")
+                logging.info(type(decrypted_json))
+                fhir_data = decrypted_json.get("decryptedData")
+                logging.info(f"{fhir_data=}")
+                logging.info(type(fhir_data))
+                fhir_string = fhir_data.replace("'", '"')
+                fhir_json = json.loads(fhir_string)
+                logging.info(f"{fhir_json=}")
+                logging.info(type(fhir_json))
+                patient_data_list.append(fhir_json)
+            logging.info(f"{patient_data_list=}")
+            self.CRUDHIUConsents.update(
+                **{"id": consent_id, "patient_data_raw": patient_data_list}
+            )
+            return {"satatus": "success"}
+        except Exception as error:
+            logging.error(
+                f"Error in HIUController.hiu_process_patient_data function: {error}"
             )
             raise error

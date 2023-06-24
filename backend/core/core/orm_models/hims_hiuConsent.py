@@ -18,5 +18,8 @@ class HIUConsent(Base):
     date_range = Column(JSON)
     expire_at = Column(String)
     care_contexts = Column(JSON)
+    requester_key_material = Column(JSON)
+    patient_data_raw = Column(JSON)
+    patient_data_transformed = Column(JSON)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
