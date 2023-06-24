@@ -134,6 +134,7 @@ def receive_data(receive_data: dict):
     try:
         logging.info("Calling /v1/HIU/receiveData endpoint")
         logging.info(f"Request: {receive_data=}")
+        return HIUController().hiu_process_patient_data(request=receive_data)
     except HTTPException as httperror:
         logging.error(f"Error in /v1/HIU/receiveData endpoint: {httperror}")
         raise httperror
@@ -151,6 +152,7 @@ def healthInfoOnRequest(receive_data: dict):
     try:
         logging.info("Calling /v0.5/health-information/hiu/on-request endpoint")
         logging.info(f"Request: {receive_data=}")
+        return HIUController().health_info_hiu_on_request(request=receive_data)
     except HTTPException as httperror:
         logging.error(
             f"Error in /v0.5/health-information/hiu/on-request endpoint: {httperror}"
