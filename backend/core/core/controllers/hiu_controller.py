@@ -2,6 +2,7 @@ from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
+from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
@@ -22,7 +23,32 @@ class HIUController:
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDDocDetails = CRUDDocDetails()
         self.CRUDHIUConsents = CRUDHIUConsents()
+        self.CRUDPatientDetails = CRUDPatientDetails()
         self.gateway_url = os.environ["gateway_url"]
+
+    def list_consent(self, patient_id: str):
+        try:
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            abha_address = patient_obj["abha_address"]
+            return self.CRUDHIUConsents.read_by_abhaAddress(abha_address=abha_address)
+        except Exception as error:
+            logging.error(f"Error in HIUController.list_consent function: {error}")
+            raise error
+
+    def list_approved_consent(self, patient_id: str):
+        try:
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            abha_address = patient_obj["abha_address"]
+            return self.CRUDHIUConsents.read_approved_by_abhaAddress(
+                abha_address=abha_address
+            )
+        except Exception as error:
+            logging.error(f"Error in HIUController.list_consent function: {error}")
+            raise error
 
     def raise_consent(self, request):
         """[Controller to create new hip record]
@@ -61,10 +87,13 @@ class HIUController:
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
+            logging.info(f"{self.gateway_url=}")
             raise_consent_url = f"{self.gateway_url}/v0.5/consent-requests/init"
+            logging.info(f"{raise_consent_url=}")
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            logging.info("Calling raise consent url")
             _, resp_code = APIInterface().post(
                 route=raise_consent_url,
                 data={
@@ -127,9 +156,6 @@ class HIUController:
             }
             logging.info("Creating gateway record")
             self.CRUDGatewayInteraction.update(**crud_request)
-            logging.info("Creating consent table record")
-            consent_crud_request = {"id": consent_id, "status": "REQUESTED"}
-            self.CRUDHIUConsents.create(**consent_crud_request)
             return crud_request
         except Exception as error:
             logging.error(f"Error in HIUController.consent_on_init function: {error}")

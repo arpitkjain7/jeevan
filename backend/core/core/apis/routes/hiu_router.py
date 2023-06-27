@@ -10,6 +10,64 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
 hiu_router = APIRouter()
 
 
+@hiu_router.get("/v1/HIU/listConsent/{patient_id}")
+def list_all_consent(patient_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/HIU/listConsent/{patient_id} endpoint")
+        logging.debug(f"Request: {patient_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIUController().list_consent(patient_id=patient_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/HIU/listConsent/{patient_id} endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HIU/listConsent/{patient_id} endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.get("/v1/HIU/listApprovedConsent/{patient_id}")
+def list_approved_consent(patient_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/HIU/listApprovedConsent/{patient_id} endpoint")
+        logging.debug(f"Request: {patient_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIUController().list_approved_consent(patient_id=patient_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/HIU/listApprovedConsent/{patient_id} endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v1/HIU/listApprovedConsent/{patient_id} endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @hiu_router.post("/v1/HIU/consentInit")
 def raiseConsentRequest(hiu_request: RaiseConsent, token: str = Depends(oauth2_scheme)):
     try:
