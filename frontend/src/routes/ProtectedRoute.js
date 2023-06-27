@@ -1,14 +1,17 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Route, Redirect, useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
-  const isAuthenticated = true;
+  const userData = useSelector((state) => state?.auth?.user);
+  const isAuthenticated = userData?.accesstoken;
+  const navigate = useNavigate();
 
   return (
     <Route
       {...rest}
       render={(props) =>
-        isAuthenticated ? <Component {...props} /> : <Redirect to="/login" />
+        isAuthenticated ? <Component {...props} /> : <navigate to="/" />
       }
     />
   );
