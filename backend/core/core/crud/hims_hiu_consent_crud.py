@@ -61,7 +61,7 @@ class CRUDHIUConsents:
             logging.error(f"Error in CRUDConsents read function : {error}")
             raise error
 
-    def read_by_patientId(self, patient_id: str):
+    def read_by_abhaAddress(self, abha_address: str):
         """[CRUD function to read a User record]
 
         Args:
@@ -78,8 +78,37 @@ class CRUDHIUConsents:
             with session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
-                    .filter(HIUConsent.patient == patient_id)
-                    .order_by(HIUConsent.Consent_date.desc())
+                    .filter(HIUConsent.patient == abha_address)
+                    .order_by(HIUConsent.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDConsents read function : {error}")
+            raise error
+
+    def read_approved_by_abhaAddress(self, abha_address: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDConsents read request")
+            with session() as transaction_session:
+                obj: HIUConsent = (
+                    transaction_session.query(HIUConsent)
+                    .filter(HIUConsent.patient == abha_address)
+                    .filter(HIUConsent.status == "GRANTED")
+                    .order_by(HIUConsent.created_at.desc())
                     .all()
                 )
             if obj is not None:
