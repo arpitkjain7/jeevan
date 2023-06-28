@@ -11,5 +11,7 @@ class Condition(Base):
     start_date = Column(DateTime)
     status = Column(String)
     notes = Column(String)
+    snowmed_code = Column(String)
+    snowmed_display = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

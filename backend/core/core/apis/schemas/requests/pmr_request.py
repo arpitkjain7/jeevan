@@ -14,6 +14,8 @@ class Vital(BaseModel):
     body_mass_index: str
     systolic_blood_pressure: str
     diastolic_blood_pressure: str
+    snowmed_code: str
+    snowmed_display: str
 
 
 class Complaint(BaseModel):
@@ -21,6 +23,8 @@ class Complaint(BaseModel):
     frequency: str
     severity: str
     duration: str
+    snowmed_code: str
+    snowmed_display: str
 
 
 class Condition(BaseModel):
@@ -28,6 +32,8 @@ class Condition(BaseModel):
     start_date: str
     status: str
     notes: str = None
+    snowmed_code: str
+    snowmed_display: str
 
 
 class Diagnosis(BaseModel):
@@ -36,6 +42,8 @@ class Diagnosis(BaseModel):
     start_time: str
     status: str
     notes: str = None
+    snowmed_code: str
+    snowmed_display: str
 
 
 class Symptoms(BaseModel):
@@ -44,6 +52,8 @@ class Symptoms(BaseModel):
     severity: str
     notes: str = None
     start_date: str
+    snowmed_code: str
+    snowmed_display: str
 
 
 class Medicines(BaseModel):
@@ -54,6 +64,8 @@ class Medicines(BaseModel):
     duration: str
     duration_period: str
     notes: str = None
+    snowmed_code: str
+    snowmed_display: str
 
 
 class CurrentMedicines(BaseModel):
@@ -61,6 +73,8 @@ class CurrentMedicines(BaseModel):
     start_date: str
     status: str
     notes: str = None
+    snowmed_code: str
+    snowmed_display: str
 
 
 class MedicalHistory(BaseModel):
@@ -70,10 +84,14 @@ class MedicalHistory(BaseModel):
     alcohol: str = None
     tobacco: str = None
     smoke: str = None
+    snowmed_code: str
+    snowmed_display: str
 
 
 class MedicalTests(BaseModel):
     name: str
+    snowmed_code: str
+    snowmed_display: str
 
 
 class CreateVital(BaseModel):
