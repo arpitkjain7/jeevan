@@ -6,6 +6,7 @@ from core.apis.schemas.requests.patient_request import (
     VerifyOtp,
     VerifyDemographic,
     RegisterWithoutABHA,
+    UpdatePatient,
 )
 from core.controllers.patient_controller import PatientController
 from core import logger
@@ -274,6 +275,32 @@ def register_patient(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/patient/register endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v1/patient/update")
+def updatePatient(update_patient: UpdatePatient, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/patient/update endpoint")
+        logging.debug(f"Request: {update_patient}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().update_patient(request=update_patient)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/update endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/update endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

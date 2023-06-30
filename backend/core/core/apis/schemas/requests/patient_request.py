@@ -40,3 +40,12 @@ class RegisterWithoutABHA(BaseModel):
     DOB: str
     mobile_number: str
     hip_id: str
+
+
+class UpdatePatient(BaseModel):
+    pid: str
+    name: str
+    gender: str
+    DOB: str
+    mobile_number: str
+    hip_id: str
