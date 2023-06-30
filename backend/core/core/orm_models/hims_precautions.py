@@ -8,5 +8,7 @@ class Precautions(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     notes = Column(Text)
+    snowmed_code = Column(String)
+    snowmed_display = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

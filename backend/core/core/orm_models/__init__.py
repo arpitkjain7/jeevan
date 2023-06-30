@@ -25,5 +25,5 @@ from core.orm_models.hims_medicalHistory import *
 from core.orm_models.hims_vitals import *
 from core.orm_models.hims_symptoms import *
 from core.orm_models.hims_currentMedicines import *
-from core.orm_models.hims_complaint import *
+from core.orm_models.hims_condition import *
 from core.orm_models.hims_hiuConsent import *
