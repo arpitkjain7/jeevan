@@ -481,3 +481,15 @@ class Common:
                 f"Error in CommonController.get_all_doctors function: {error}"
             )
             raise error
+
+    def update_doc_details(self, request):
+        try:
+            logging.info("Updating doctor details records")
+            # for patient_obj in request.data:
+            doctor_obj_dict = request.dict()
+            doctor_obj_dict.pop("doc_id")
+            self.CRUD_docDetails.update(**doctor_obj_dict, id=request.doc_id)
+            return {"doc_id": request.doc_id}
+        except Exception as error:
+            logging.error(f"Error in Common.update_doctor function: {error}")
+            raise error

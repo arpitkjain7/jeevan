@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, styled, Checkbox } from "@mui/material";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../app/auth.slice";
+import { useNavigate } from "react-router-dom";
 
 const LogInWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -24,12 +26,30 @@ const LogInWrapper = styled("div")(({ theme }) => ({
       backgroundColor: theme.primaryBlack,
     },
   },
+  ".login-title": {
+    "&.MuiTypography-root": {
+      fontFamily: "Inter",
+      fontWeight: "500",
+      lineHeight: "150%",
+      marginBottom: "4px",
+    },
+  },
+  ".login-subTitle": {
+    "&.MuiTypography-root": {
+      fontFamily: "Inter",
+      fontWeight: "500",
+      fontSize: "16px",
+      lineHeight: "16px",
+    },
+  },
 }));
 
-const LoginPage = () => {
+const LoginPage = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state?.auth?.user);
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -41,18 +61,38 @@ const LoginPage = () => {
 
   const handleSignIn = () => {
     // Handle sign-in logic here
-    console.log("Signing in...");
-    history.push("/hospitals");
+    console.log(password, email, "password");
+    // let urlencoded = new URLSearchParams();
+    // urlencoded.append("username", email);
+    // urlencoded.append("password", password);
+
+    const payload = {
+      username: email,
+      password: password,
+    };
+    dispatch(loginUser(payload)).then((response) => {
+      const resData = response?.payload;
+      console.log(resData, "data");
+      if (resData?.access_token) {
+        localStorage.setItem("accesstoken", resData?.access_token);
+        localStorage.setItem("userRole", resData?.user_role);
+        props?.setIndex(1);
+      }
+    });
   };
 
   return (
     <LogInWrapper>
       <div className="login-content">
         <div className="login-heading">
-          <Typography variant="h2" align="center">
+          <Typography variant="h2" align="center" className="login-title">
             Login
           </Typography>
-          <Typography variant="subtitle1" align="center">
+          <Typography
+            variant="subtitle1"
+            align="center"
+            className="login-subTitle"
+          >
             Please enter your detail
           </Typography>
         </div>
