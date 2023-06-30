@@ -17,5 +17,7 @@ class Vital(Base):
     body_mass_index = Column(String)
     systolic_blood_pressure = Column(String)
     diastolic_blood_pressure = Column(String)
+    snowmed_code = Column(String)
+    snowmed_display = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

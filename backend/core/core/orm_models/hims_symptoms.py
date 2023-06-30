@@ -12,5 +12,7 @@ class Symptoms(Base):
     severity = Column(String)
     notes = Column(String)
     start_date = Column(DateTime)
+    snowmed_code = Column(String)
+    snowmed_display = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

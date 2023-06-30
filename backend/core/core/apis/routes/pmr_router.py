@@ -482,12 +482,10 @@ def createMedicalTest(
 ):
     try:
         logging.info("Calling /v1/pmr/createMedicalTest endpoint")
-        logging.debug(f"Request: {current_medication_request}")
+        logging.debug(f"Request: {medicalTest_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_medicalTest(
-                request=current_medication_request
-            )
+            return PMRController().create_medicalTest(request=medicalTest_request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
