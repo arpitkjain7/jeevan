@@ -489,7 +489,7 @@ class Common:
             doctor_obj_dict = request.dict()
             doctor_obj_dict.pop("doc_id")
             self.CRUD_docDetails.update(**doctor_obj_dict, id=request.doc_id)
-            return {"patient_id": request.pid}
+            return {"doc_id": request.doc_id}
         except Exception as error:
             logging.error(f"Error in Common.update_doctor function: {error}")
             raise error
