@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     DateTime,
+    TIME,
     Float,
     VARCHAR,
 )
@@ -24,14 +25,8 @@ class DocDetails(Base):
     doc_working_days = Column(String)
     doc_reg_id = Column(String)
     avg_consultation_time = Column(String)
-    monday_availability = Column(String)
-    tuesday_availability = Column(String)
-    wednesday_availability = Column(String)
-    thursday_availability = Column(String)
-    friday_availability = Column(String)
-    saturday_availability = Column(String)
-    sunday_availability = Column(String)
-    unavailability = Column(String)
+    start_time = Column(TIME)
+    end_time = Column(TIME)
     consultation_fees = Column(Integer)
     follow_up_fees = Column(Integer)
     created_at = Column(DateTime)
