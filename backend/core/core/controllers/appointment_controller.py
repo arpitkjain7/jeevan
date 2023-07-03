@@ -81,9 +81,13 @@ class AppointmentsController:
             logging.info(f"{appointment_date=}")
             appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
             logging.info(f"{hip_id=}")
-            return self.CRUDSlots.read_by_doc_id(
+            doc_details = self.CRUDDocDetails.read_by_docId(doc_id=doc_id)
+            slots = self.CRUDSlots.read_by_doc_id(
                 doc_id=doc_id, appointment_date=appointment_date
             )
+            doc_details["slots"] = slots
+            logging.info(f"{doc_details=}")
+            return doc_details
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_slots function: {error}"
