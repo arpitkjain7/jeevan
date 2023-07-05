@@ -57,7 +57,7 @@ const OtpInput = ({ verifyOTP }) => {
     event.preventDefault();
     const pastedText = event.clipboardData.getData("text/plain");
     const otpArray = pastedText
-      .slice(0, 6)
+      ?.slice(0, 6)
       .split("")
       .map((char) => (/^\d$/.test(char) ? char : ""));
     setOTP(otpArray);
@@ -65,7 +65,7 @@ const OtpInput = ({ verifyOTP }) => {
 
   return (
     <OtpInputWrapperWrapper>
-      {otp.map((value, index) => (
+      {otp?.map((value, index) => (
         <TextField
           key={index}
           type="text"

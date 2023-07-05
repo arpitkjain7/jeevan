@@ -10,20 +10,31 @@ import {
   TextField,
   IconButton,
   styled,
+  Typography,
 } from "@mui/material";
 import { Class, Search as SearchIcon } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
   "&": {
-    border: `1px solid ${theme.primaryGrey}`,
+    border: `1px solid ${theme.palette.primaryGrey}`,
+    backgroundColor: theme?.palette?.primaryWhite
   },
   ".search-wrap": {
-    padding: "16px",
+    padding: theme.spacing(4),
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "18px"
+    marginBottom: theme.spacing(4.5),
+  },
+  ".linkTypography": {
+    "&.MuiTypography-root": theme.typography.link,
+  },
+  ".table-component-wrapper": {},
+  ".table-component-header": {
+    "&.MuiTableHead-root": {
+      backgroundColor: theme.palette.primaryOpacityBlue,
+    },
   },
 }));
 
@@ -33,7 +44,8 @@ const MyTable = ({
   showSearch = true,
   tableStyle,
   tableClassName,
-  searchClassName
+  searchClassName,
+  onRowClick,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,7 +53,7 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
-  const filteredData = data.filter((item) => {
+  const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return columns.some((column) =>
       item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
@@ -57,7 +69,7 @@ const MyTable = ({
             fullWidth
             sx={{ mb: 2 }}
             InputProps={{
-              endAdornment: (
+              startAdornment: (
                 <IconButton size="small">
                   <SearchIcon />
                 </IconButton>
@@ -75,18 +87,18 @@ const MyTable = ({
         style={tableStyle}
         className={tableClassName}
       >
-        <Table>
-          <TableHead>
+        <Table className="table-component-wrapper">
+          <TableHead className="table-component-header">
             <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column.key}>{column.header}</TableCell>
+              {columns?.map((column) => (
+                <TableCell key={column.key}  classNamwe="table-header-cell">{column.header}</TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((item) => (
-              <TableRow key={item.id}>
-                {columns.map((column) => {
+            {filteredData?.map((item) => (
+              <TableRow key={item.id} onClick={() => onRowClick(item)}>
+                {columns?.map((column) => {
                   if (column.key !== "actions") {
                     return (
                       <TableCell key={`${item.id}-${column.key}`}>
@@ -96,18 +108,35 @@ const MyTable = ({
                       </TableCell>
                     );
                   } else {
+                    const actions = column.actions || [];
                     return (
                       <TableCell key={`${item.id}-${column.key}`} align="right">
-                        {column.actions &&
-                          column.actions.map((action, index) => (
-                            <IconButton
-                              key={index}
-                              size="small"
-                              onClick={() => action.onClick(item)}
-                            >
-                              {action?.icon}
-                            </IconButton>
-                          ))}
+                        {actions?.map((action, index) => {
+                          if (action?.type === "icon") {
+                            return (
+                              <IconButton
+                                key={index}
+                                size="small"
+                                onClick={() => action?.onClick(item)}
+                              >
+                                {action.icon}
+                              </IconButton>
+                            );
+                          } else if (action?.type === "link") {
+                            return (
+                              <Typography
+                                key={index}
+                                size="small"
+                                onClick={() => action.onClick(item)}
+                                className="linkTypography"
+                              >
+                                {action?.key
+                                  ? column[action?.key]
+                                  : action?.link}
+                              </Typography>
+                            );
+                          }
+                        })}
                       </TableCell>
                     );
                   }
