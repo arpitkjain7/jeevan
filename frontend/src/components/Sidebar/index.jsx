@@ -56,7 +56,7 @@ const Sidebar = ({ open, onClose, list }) => {
           </ListItemIcon>
         </ListItem>
         <ListItem>
-          <ListItemIcon>
+          <ListItemIcon onClick={() => redirectRoutes("/appointment-list")}>
             <Dvr
               sx={{
                 fontSize: 30,

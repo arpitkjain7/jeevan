@@ -7,25 +7,20 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     gap: "24px",
     paddingBottom: "40px",
-    borderBottom: `1px solid ${theme.primaryGrey}`,
+    borderBottom: `1px solid ${theme.palette.primaryGrey}`,
   },
   ".form-radio-group": {
     width: "300px",
-    padding: "16px",
-    border: `1px solid ${theme.tertiaryGrey}`,
-    borderRadius: "8px",
+    padding: theme.spacing(4),
+    border: `1px solid ${theme.palette.tertiaryGrey}`,
+    borderRadius: theme.spacing(2),
 
-    "& > label": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "160%",
-    },
+    "& > label": theme.typography.body1 ,
   },
-  ".radio-input": { marginRight: "16px" },
+  ".radio-input": { marginRight: theme.spacing(4) },
 
   ".select-header": {
-    marginTop: "16px",
+    marginTop: theme.spacing(4),
   },
   ".form-control-checkbox": {
     "&.MuiFormControlLabel-root": {
@@ -37,22 +32,11 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
       },
     },
 
-    "& > .MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "150%",
-      marginBottom: "4px",
-    },
+    "& > .MuiTypography-root": theme.typography.body1,
   },
   ".form-control-subtext": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "14px",
-      lineHeight: "160%",
-      marginBottom: "4px",
-    },
+    "&.MuiTypography-root": theme.typography.body3,
+    marginBottom: theme.spacing(4),
   },
 }));
 
@@ -89,7 +73,7 @@ function VerificationSelection({
             control={
               <Checkbox checked={checkedOption} onChange={handleOptionCheck} />
             }
-            label="Header"
+            label="Create ABHA for the patient"
             className="form-control-checkbox"
           />
           <Typography className="form-control-subtext">

@@ -11,6 +11,8 @@ import Dashboard from "../pages/Dashboard";
 import PatientPage from "../pages/PatientPage";
 import Sidebar from "../components/Sidebar";
 import PatientRegistration from "../pages/PatientRegistration";
+import AppointmentPage from "../pages/AppointmentPage";
+import CreateAppointment from "../pages/CreateAppointment";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -61,7 +63,18 @@ function App() {
                   <Route path="/login" element={<SignInPage />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/patient-list" element={<PatientPage />} />
-                  <Route path="/patient-registration" element={<PatientRegistration />} />
+                  <Route
+                    path="/patient-registration"
+                    element={<PatientRegistration />}
+                  />
+                  <Route
+                    path="/appointment-list"
+                    element={<AppointmentPage />}
+                  />
+                  <Route
+                    path="/create-appointment"
+                    element={<CreateAppointment />}
+                  />
                 </Routes>
               </div>
             </div>
