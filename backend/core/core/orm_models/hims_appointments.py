@@ -13,6 +13,8 @@ class Appointments(Base):
     slot_id = Column(Integer, ForeignKey("slots.slot_id"))
     appointment_type = Column(String)
     token_number = Column(Integer)
+    consultation_status = Column(String)
+    followup_date = Column(Date)
     notes = Column(Text)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
