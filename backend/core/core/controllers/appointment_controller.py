@@ -21,7 +21,7 @@ class AppointmentsController:
             logging.info("executing  create_appointment function")
             logging.info(f"{request=}")
             appointment_start = datetime.strptime(
-                request.appointment_start, "%Y-%m-%d %H:%M:%S"
+                request.appointment_start, "%Y-%m-%d %H:%M"
             )
             appointment_date = appointment_start.date()
             doc_id = request.doc_id
@@ -37,7 +37,7 @@ class AppointmentsController:
                 )
             else:
                 appointment_end = datetime.strptime(
-                    request.appointment_end, "%Y-%m-%d %H:%M:%S"
+                    request.appointment_end, "%Y-%m-%d %H:%M"
                 )
             create_slots_crud_request = {
                 "doc_id": doc_id,

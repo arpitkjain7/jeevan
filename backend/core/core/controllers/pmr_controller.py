@@ -534,3 +534,53 @@ class PMRController:
         except Exception as error:
             logging.error(f"Error in PMRController.delete_condition function: {error}")
             raise error
+
+    def update_consultation_status(self, request):
+        """[Controller to update pmr record]
+
+        Args:
+            request ([dict]): [update pmr request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing update consultation status function")
+            request_dict = request.dict()
+            appointment_id = request_dict.pop("appointment_id")
+            logging.info(
+                f"Consultation Status: {request_dict=}, PMR: {appointment_id=}"
+            )
+            self.CRUDAppointments.update(appointment_id, **request_dict)
+            return {"appointment_id": appointment_id}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.update_consultation_status function: {error}"
+            )
+            raise error
+
+    def update_followup(self, request):
+        """[Controller to update pmr record]
+
+        Args:
+            request ([dict]): [update pmr request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing update followup date function")
+            request_dict = request.dict()
+            appointment_id = request_dict.pop("appointment_id")
+            logging.info(f"Follow Up date : {request_dict=}, PMR: {appointment_id=}")
+            self.CRUDAppointments.update(appointment_id, **request_dict)
+            return {"appointment_id": appointment_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.update_followup function: {error}")
+            raise error
