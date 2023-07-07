@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import date
+from enum import Enum
 
 
 class Vital(BaseModel):
@@ -205,3 +206,21 @@ class PMR(BaseModel):
     # medication: List[CreateMedication]
     # medical_test: List[CreateMedicalTest]
     # medical_history: List[CreateMedicalHistory]
+
+
+class ConsultationStatus(str, Enum):
+    SCHED = "scheduled"
+    INP = "in progress"
+    PND = "pending"
+    COMP = "completed"
+    CANC = "cancelled"
+
+
+class UpdateConsultationStatus(BaseModel):
+    appointment_id: str
+    consultation_status: ConsultationStatus
+
+
+class FollowUp(BaseModel):
+    appointment_id: str
+    followup_date: date
