@@ -202,7 +202,7 @@ class CRUDPatientMedicalRecord:
             )
             raise error
 
-    def update(self, **kwargs):
+    def update(self, pmr_id, **kwargs):
         """[CRUD function to update a PatientMedicalRecord record]
 
         Raises:
@@ -220,7 +220,7 @@ class CRUDPatientMedicalRecord:
             with session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
-                    .filter(PatientMedicalRecord.id == kwargs.get("id"))
+                    .filter(PatientMedicalRecord.id == pmr_id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

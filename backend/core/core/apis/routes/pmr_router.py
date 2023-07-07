@@ -20,6 +20,8 @@ from core.apis.schemas.requests.pmr_request import (
     UpdateMedicalHistory,
     UpdateCurrentMedication,
     UpdateSymptoms,
+    UpdateConsultationStatus,
+    FollowUp,
 )
 from core.controllers.pmr_controller import PMRController
 from core import logger
@@ -715,6 +717,64 @@ def delete_condition(condition_id: str, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/pmr/get endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/updateConsultationStatus")
+def updateConsultationStatus(
+    consultation_request: UpdateConsultationStatus, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info("Calling /v1/pmr/updateConsultationStatus endpoint")
+        logging.debug(f"Request: {consultation_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().update_consultation_status(
+                request=consultation_request
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/pmr/updateConsultationStatus endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/updateConsultationStatus endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/updateFollowUp")
+def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/pmr/updateFollowUp endpoint")
+        logging.debug(f"Request: {followup_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().update_followup(request=followup_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/updateFollowUp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/updateFollowUp endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
