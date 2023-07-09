@@ -7,10 +7,10 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   "&": {
     // maxWidth: "1440px",
     // margin: "0 auto",
-    backgroundColor: theme.primaryWhite,
+    backgroundColor: theme.palette.primaryWhite,
     zIndex: "9999",
     height: "80px",
-    borderBottom: `1px solid ${theme.tertiaryGrey}`,
+    borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
   },
   ".header-container": {
     display: "flex",
@@ -33,7 +33,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "24px",
   },
   ".header-question-text": {
-    color: theme.secondaryGrey,
+    color: theme.palette.secondaryGrey,
     fontFamily: "Inter",
     fontWeight: "500",
     fontSize: "16px",
@@ -41,12 +41,12 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   },
   ".header-btn": {
     "&.MuiButtonBase-root": {
-      border: `1px solid ${theme.primaryBlack}`,
+      border: `1px solid ${theme.palette.primaryBlack}`,
       fontFamily: "Inter",
       fontWeight: "500",
       fontSize: "16px",
-      backgroundColor: theme.primaryBlack,
-      color: theme.primaryWhite,
+      backgroundColor: theme.palette.primaryBlack,
+      color: theme.palette.primaryWhite,
       padding: "8px 32px",
     },
   },

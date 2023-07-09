@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchPatientList } from "./patientpage.slice";
-
+import { convertDateFormat } from "../../utils/utils";
+import { useNavigate } from "react-router-dom";
+import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice";
+import MenuIcon from "../../assets/icons/kebabIcon.svg";
 const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
@@ -15,44 +17,19 @@ const ListWrapper = styled("div")(({ theme }) => ({
     marginBottom: "40px",
   },
   ".patientList-heading": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "28px",
-      lineHeight: "160%",
-    },
+    "&.MuiTypography-root": theme.typography.h1,
   },
-  ".patientList-desc": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "160%",
-    },
-  },
+  ".patientList-desc": theme.typography.h2,
   ".table-class": {
     "&.MuiPaper-root": {
       borderRadius: "0",
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      backgroundColor: theme.primaryGrey,
-      "& > tr >th": {
-        color: theme.primaryBlack,
-        fontFamily: "Inter",
-        fontWeight: "500",
-        fontSize: "16px",
-        lineHeight: "16px",
-      },
+      "& > tr >th": theme.typography.body2,
     },
     "& .MuiTableBody-root": {
-      "& > tr >td": {
-        color: theme.primaryBlack,
-        fontFamily: "Inter",
-        fontWeight: "500",
-        fontSize: "16px",
-        lineHeight: "16px",
-      },
+      "& > tr >td": theme.typography.body1,
     },
   },
   ".search-class": {
@@ -62,55 +39,46 @@ const ListWrapper = styled("div")(({ theme }) => ({
       margin: 0,
       "& .MuiInputBase-input": {
         padding: "12px 16px",
+        backgroundColor: theme.palette.primaryWhite,
+      },
+      "& .MuiButtonBase-root .MuiSvgIcon-root": {
+        color: theme.palette.secondaryBlue,
       },
     },
   },
 }));
 
 const columns = [
-  { key: "name", header: "Patient Name" },
+  { key: "patientDetails", header: "Patient Name" },
   { key: "abha_number", header: "Abha Id" },
   { key: "mobile_number", header: "Contact Number" },
-  { key: "state_code", header: "Last Visited" },
-  { key: "abha_status", header: "Status" },
+  { key: "updatedDate", header: "Last Visited" },
+  { key: "createdDate", header: "Follow Up" },
   {
     key: "actions",
     header: "",
     actions: [
       {
-        icon: <MenuIcon />,
+        link: "Start Visit",
+        type: "link",
         onClick: (item) => {
-          // Handle edit action for the specific item
+          console.log(item,"item")
         },
       },
     ],
   },
-];
-
-const data = [
   {
-    id: 1,
-    patient_name: "Item 1",
-    abha_id: "12345",
-    contact_number: "9876543210",
-    last_visited: "yesterday",
-    status: "",
-  },
-  {
-    id: 2,
-    patient_name: "Item 2",
-    abha_id: "12345",
-    contact_number: "9876543210",
-    status: "",
-    last_visited: "yesterday",
-  },
-  {
-    id: 3,
-    patient_name: "Item 3",
-    abha_id: "12345",
-    contact_number: "9876543210",
-    status: "",
-    last_visited: "yesterday",
+    key: "actions",
+    header: "",
+    actions: [
+      {
+        icon: <img src={MenuIcon} alt="menu" />,
+        type: "icon",
+        onClick: (item) => {
+          console.log(item,"item")
+        },
+      },
+    ],
   },
 ];
 
@@ -125,7 +93,7 @@ const PatientPage = () => {
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
@@ -136,21 +104,36 @@ const PatientPage = () => {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
-        const mainList = res.payload
-         let patientList = []
-         mainList?.map(item=>{
-          patientList?.push(item[0])
-         })
-        console.log(patientList,"patient");
-        setTableData(patientList)
+        const patientList = res.payload;
+        const formattedPatientList = patientList?.map((item) => {
+          const patientGender = item?.gender.toLowerCase()?.includes("m")
+            ? "M"
+            : "F";
+          const updatedDate = convertDateFormat(item?.updated_at, "dd-MM-yyyy");
+          const createdDate = convertDateFormat(item?.created_at, "dd-MM-yyyy");
+          return {
+            patientDetails: `${item.name || ""} | ${patientGender || ""}`,
+            updatedDate: updatedDate,
+            createdDate: createdDate,
+            ...item,
+          };
+        });
+        setTableData(formattedPatientList);
       });
     }
   }, []);
+
+  const onTableRowClick = (row) => {
+    dispatch(AppointmentPageActions.setSelectedPatientData(row));
+    navigate("/create-appointment");
+  };
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
         <Typography className="patientList-heading">Patient List</Typography>
-        <Typography className="patientList-desc">Description</Typography>
+        <Typography className="patientList-desc">
+          Manage your patient information
+        </Typography>
       </div>
       <div className="table-container">
         <MyTable
@@ -160,6 +143,7 @@ const PatientPage = () => {
           searchInputStyle={searchInputStyle}
           tableClassName="table-class"
           searchClassName="search-class"
+          onRowClick={(row) => onTableRowClick(row)}
         />
       </div>
     </ListWrapper>
