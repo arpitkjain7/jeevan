@@ -77,4 +77,4 @@ const theme = createTheme({
   spacing: 4,
 });
 
-export const themes = createTheme(theme);
+export default theme
