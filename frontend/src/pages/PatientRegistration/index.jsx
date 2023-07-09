@@ -24,6 +24,7 @@ import VerificationSelection from "../../components/VerificationSelection";
 import AadharVerification from "../../components/AadharVerification";
 import PhoneVerification from "../../components/PhoneVerification";
 import RegisterationConfirmation from "../../components/RegistrationConfirmation";
+import { apis } from "../../utils/apis";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -95,7 +96,8 @@ const PatientRegistration = () => {
   const [stepFour, setStepFour] = useState(false);
   const [aadhar, setAadhar] = useState("");
   const dispatch = useDispatch();
-  const [userCreated, setUserCreated] = useState(false)
+  const [userCreated, setUserCreated] = useState(false);
+  const [phoneNumberUsed, setPhoneNumberUsed] = useState(true);
 
   const modes = [
     {
@@ -108,10 +110,27 @@ const PatientRegistration = () => {
     },
   ];
 
+  const resetFields = () => {
+    setStepOne(false);
+    setStepTwo(false);
+    setStepThree(false);
+    setStepFour(false);
+    setPhoneNumberUsed(true);
+    setNumber("");
+    setUserDeatilsForm(true);
+    setAadhar("");
+    setSixDigitOTP("");
+    setVerifyNumber(true);
+    setVerifyAadhar(true);
+    setRegistration(true);
+    setCheckedOption(null);
+  };
   const handleOptionChange = (event) => {
+    if (selectedOption?.length) {
+      resetFields();
+    }
     console.log(event.target.value);
     setSelectedOption(event.target.value);
-    setStepOne(true);
   };
 
   const handleOptionCheck = (event) => {
@@ -145,14 +164,32 @@ const PatientRegistration = () => {
       };
       dispatch(registerAADHAR(payload)).then((res) => {
         console.log(res?.payload);
-        setStepTwo(true);
       });
     } else if (type === "phone_number") {
       console.log("Form submitted:", number);
-      const payload = {
-        mobileNumber: number,
-      };
-      dispatch(registerPhone(payload)).then((res) => console.log(res?.payload));
+      const payload =
+        selectedOption === "aadhar"
+          ? {
+              txnId: aadharData?.txn_id,
+              mobileNumber: number,
+            }
+          : {
+              mobileNumber: number,
+            };
+      const url =
+        selectedOption === "aadhar"
+          ? apis?.registerAadharNumber
+          : apis?.restigerNumber;
+      dispatch(registerPhone({ payload, url })).then((res) => {
+        const resData = res?.payload;
+        console.log(resData, "response");
+        if (resData?.mobileLinked && selectedOption === "aadhar") {
+          setPhoneNumberUsed(resData?.mobileLinked);
+          setStepThree(true);
+        } else {
+          setPhoneNumberUsed(false);
+        }
+      });
     }
   };
 
@@ -209,6 +246,15 @@ const PatientRegistration = () => {
     "check"
   );
 
+  const handleConfirmSelection = () => {
+    if (selectedOption) {
+      setStepOne(true);
+    }
+    if (selectedOption === "phone_number" && checkedOption) {
+      setStepTwo(true);
+    }
+  };
+
   return (
     <PatientRegisterWrapper>
       <ExpandableCard
@@ -225,6 +271,7 @@ const PatientRegistration = () => {
           selectedOption={selectedOption}
           checkedOption={checkedOption}
           handleOptionCheck={handleOptionCheck}
+          handleConfirmSelection={handleConfirmSelection}
         />
       </ExpandableCard>
       {selectedOption === "aadhar" && stepOne && !checkedOption && (
@@ -260,10 +307,11 @@ const PatientRegistration = () => {
             handleSubmit={handleSubmit}
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
+            phoneNumberUsed={phoneNumberUsed}
           />
         </ExpandableCard>
       ) : null}
-      {(selectedOption === "phone_number" && stepTwo && !checkedOption) ||
+      {(selectedOption === "phone_number" && stepTwo && checkedOption) ||
       (selectedOption === "aadhar" && stepThree && !checkedOption) ||
       (checkedOption && stepTwo) ? (
         <ExpandableCard
@@ -275,17 +323,18 @@ const PatientRegistration = () => {
             <PatientRegistartionForm setUserCreated={setUserCreated}/>
           </div>
         </ExpandableCard>
-       ) : null} 
-      {userCreated && <ExpandableCard
+      ) : null}
+      {/* {userCreated && (
+        <ExpandableCard
           title="SucessFully Created"
           expanded={userDetailsForm}
           setExpanded={setUserDeatilsForm}
         >
           <div className="patient-registration-form">
-            {/* <RegisterationConfirmation /> */}
+            <RegisterationConfirmation />
           </div>
-        </ExpandableCard>}
-      
+        </ExpandableCard>
+      )} */}
     </PatientRegisterWrapper>
   );
 };

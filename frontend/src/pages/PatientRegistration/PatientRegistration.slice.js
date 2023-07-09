@@ -14,8 +14,8 @@ export const registerAADHAR = createAsyncThunk(
 
 export const registerPhone = createAsyncThunk(
   "registration/aadharregisterPhone",
-  async (userData) => {
-    const response = await apiRequest("POST", apis?.restigerNumber, userData);
+  async ({ payload, url }) => {
+    const response = await apiRequest("POST", url, payload);
     return response;
   }
 );
