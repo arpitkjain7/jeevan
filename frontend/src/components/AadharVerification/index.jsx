@@ -16,9 +16,7 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     marginBottom: "24px",
     gap: "24px",
   },
-  ".verification-btn": {
-    "&.MuiButtonBase-root": theme.typography.primaryButton,
-  },
+  
   ".aadhar-text": {
     "&.MuiFormControl-root": {
       "& > .MuiInputBase-root": {

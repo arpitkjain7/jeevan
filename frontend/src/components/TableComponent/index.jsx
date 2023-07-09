@@ -23,7 +23,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "18px"
+    marginBottom: "18px",
   },
 }));
 
@@ -33,7 +33,7 @@ const MyTable = ({
   showSearch = true,
   tableStyle,
   tableClassName,
-  searchClassName
+  searchClassName,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,11 +41,14 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
-  const filteredData = data.filter((item) => {
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    return columns.some((column) =>
-      item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
-    );
+  const filteredData = data?.filter((item) => {
+    if(columns){
+      const lowerCaseSearchTerm = searchTerm?.toLowerCase();
+      return columns?.some((column) =>
+        item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
+      );
+    }
+    
   });
 
   return (
@@ -78,28 +81,28 @@ const MyTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column.key}>{column.header}</TableCell>
+              {columns?.map((column) => (
+                <TableCell key={column.key}>{column?.header}</TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((item) => (
+            {filteredData?.map((item) => (
               <TableRow key={item.id}>
-                {columns.map((column) => {
+                {columns?.map((column) => {
                   if (column.key !== "actions") {
                     return (
-                      <TableCell key={`${item.id}-${column.key}`}>
-                        {column.render
-                          ? column.render(item[column.key])
+                      <TableCell key={`${item?.id}-${column?.key}`}>
+                        {column?.render
+                          ? column?.render(item[column?.key])
                           : item[column.key]}
                       </TableCell>
                     );
                   } else {
                     return (
                       <TableCell key={`${item.id}-${column.key}`} align="right">
-                        {column.actions &&
-                          column.actions.map((action, index) => (
+                        {column?.actions &&
+                          column?.actions.map((action, index) => (
                             <IconButton
                               key={index}
                               size="small"

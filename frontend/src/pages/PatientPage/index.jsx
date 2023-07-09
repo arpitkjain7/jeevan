@@ -4,6 +4,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchPatientList } from "./patientpage.slice";
+import { useNavigate } from "react-router-dom";
 
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -36,9 +37,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      backgroundColor: theme.primaryGrey,
+      backgroundColor: theme.palette.primaryGrey,
       "& > tr >th": {
-        color: theme.primaryBlack,
+        color: theme.palette.primaryBlack,
         fontFamily: "Inter",
         fontWeight: "500",
         fontSize: "16px",
@@ -47,7 +48,7 @@ const ListWrapper = styled("div")(({ theme }) => ({
     },
     "& .MuiTableBody-root": {
       "& > tr >td": {
-        color: theme.primaryBlack,
+        color: theme.palette.primaryBlack,
         fontFamily: "Inter",
         fontWeight: "500",
         fontSize: "16px",
@@ -67,25 +68,7 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const columns = [
-  { key: "name", header: "Patient Name" },
-  { key: "abha_number", header: "Abha Id" },
-  { key: "mobile_number", header: "Contact Number" },
-  { key: "state_code", header: "Last Visited" },
-  { key: "abha_status", header: "Status" },
-  {
-    key: "actions",
-    header: "",
-    actions: [
-      {
-        icon: <MenuIcon />,
-        onClick: (item) => {
-          // Handle edit action for the specific item
-        },
-      },
-    ],
-  },
-];
+
 
 const data = [
   {
@@ -125,6 +108,27 @@ const PatientPage = () => {
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const columns = [
+    { key: "name", header: "Patient Name" },
+    { key: "abha_number", header: "Abha Id" },
+    { key: "mobile_number", header: "Contact Number" },
+    { key: "state_code", header: "Last Visited" },
+    { key: "abha_status", header: "Status" },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          icon: <MenuIcon />,
+          onClick: (item) => {
+            // Handle edit action for the specific item
+          },
+        },
+      ],
+    },
+  ];
 
   useEffect(() => {
     let currentHospital = {};
@@ -137,12 +141,9 @@ const PatientPage = () => {
       };
       dispatch(fetchPatientList(payload)).then((res) => {
         const mainList = res.payload
-         let patientList = []
-         mainList?.map(item=>{
-          patientList?.push(item[0])
-         })
-        console.log(patientList,"patient");
-        setTableData(patientList)
+        
+        console.log(mainList,"patient");
+        setTableData(mainList)
       });
     }
   }, []);
