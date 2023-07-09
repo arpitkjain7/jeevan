@@ -23,7 +23,7 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-btn": {
     "&.MuiButtonBase-root": {
-      backgroundColor: theme.primaryBlack,
+      backgroundColor: theme.palette.primaryBlack,
     },
   },
   ".login-title": {

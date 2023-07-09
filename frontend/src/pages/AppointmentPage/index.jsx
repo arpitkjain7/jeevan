@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
+import MenuIcon from "@mui/icons-material/Menu";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchPatientList } from "./patientpage.slice";
+import { fetchAppointmentList } from "./AppointmentPage.slice";
 import { convertDateFormat } from "../../utils/utils";
-import { useNavigate } from "react-router-dom";
-import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice";
-import MenuIcon from "../../assets/icons/kebabIcon.svg";
+
 const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
@@ -17,19 +16,44 @@ const ListWrapper = styled("div")(({ theme }) => ({
     marginBottom: "40px",
   },
   ".patientList-heading": {
-    "&.MuiTypography-root": theme.typography.h1,
+    "&.MuiTypography-root": {
+      fontFamily: "Inter",
+      fontWeight: "500",
+      fontSize: "28px",
+      lineHeight: "160%",
+    },
   },
-  ".patientList-desc": theme.typography.h2,
+  ".patientList-desc": {
+    "&.MuiTypography-root": {
+      fontFamily: "Inter",
+      fontWeight: "500",
+      fontSize: "16px",
+      lineHeight: "160%",
+    },
+  },
   ".table-class": {
     "&.MuiPaper-root": {
       borderRadius: "0",
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      backgroundColor: theme.palette.primaryGrey,
+      "& > tr >th": {
+        color: theme.palette.primaryBlack,
+        fontFamily: "Inter",
+        fontWeight: "500",
+        fontSize: "16px",
+        lineHeight: "16px",
+      },
     },
     "& .MuiTableBody-root": {
-      "& > tr >td": theme.typography.body1,
+      "& > tr >td": {
+        color: theme.palette.primaryBlack,
+        fontFamily: "Inter",
+        fontWeight: "500",
+        fontSize: "16px",
+        lineHeight: "16px",
+      },
     },
   },
   ".search-class": {
@@ -39,10 +63,6 @@ const ListWrapper = styled("div")(({ theme }) => ({
       margin: 0,
       "& .MuiInputBase-input": {
         padding: "12px 16px",
-        backgroundColor: theme.palette.primaryWhite,
-      },
-      "& .MuiButtonBase-root .MuiSvgIcon-root": {
-        color: theme.palette.secondaryBlue,
       },
     },
   },
@@ -54,6 +74,7 @@ const columns = [
   { key: "mobile_number", header: "Contact Number" },
   { key: "updatedDate", header: "Last Visited" },
   { key: "createdDate", header: "Follow Up" },
+  { key: "abha_status", header: "Status" },
   {
     key: "actions",
     header: "",
@@ -62,7 +83,7 @@ const columns = [
         link: "Start Visit",
         type: "link",
         onClick: (item) => {
-          console.log(item,"item")
+          // Handle edit action for the specific item
         },
       },
     ],
@@ -72,10 +93,10 @@ const columns = [
     header: "",
     actions: [
       {
-        icon: <img src={MenuIcon} alt="menu" />,
+        icon: <MenuIcon />,
         type: "icon",
         onClick: (item) => {
-          console.log(item,"item")
+          // Handle edit action for the specific item
         },
       },
     ],
@@ -88,12 +109,12 @@ const searchInputStyle = {
   backgroundColor: "#f1f1f1",
 };
 
-const PatientPage = () => {
+const AppointmentPage = () => {
   const hospital = localStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
@@ -103,37 +124,35 @@ const PatientPage = () => {
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
-      dispatch(fetchPatientList(payload)).then((res) => {
-        const patientList = res.payload;
+      dispatch(fetchAppointmentList(payload)).then((res) => {
+        const mainList = res.payload;
+        let patientList = [];
+        mainList?.map((item) => {
+          patientList?.push(item[0]);
+        });
         const formattedPatientList = patientList?.map((item) => {
-          const patientGender = item?.gender.toLowerCase()?.includes("m")
-            ? "M"
-            : "F";
-          const updatedDate = convertDateFormat(item?.updated_at, "dd-MM-yyyy");
-          const createdDate = convertDateFormat(item?.created_at, "dd-MM-yyyy");
+          // const patientGender = item?.gender.toLowerCase()?.includes("m")
+            // ? "M"
+            // : "F";
+          // const updatedDate = convertDateFormat(item?.updated_at);
+          // const createdDate = convertDateFormat(item?.created_at);
           return {
-            patientDetails: `${item.name || ""} | ${patientGender || ""}`,
-            updatedDate: updatedDate,
-            createdDate: createdDate,
-            ...item,
+            // patientDetails: `${item.name} | ${patientGender}`,
+            // updatedDate: updatedDate,
+            // createdDate: createdDate,
+            // ...item,
           };
         });
+        console.log(formattedPatientList, "patient");
         setTableData(formattedPatientList);
       });
     }
   }, []);
-
-  const onTableRowClick = (row) => {
-    dispatch(AppointmentPageActions.setSelectedPatientData(row));
-    navigate("/create-appointment");
-  };
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
-        <Typography className="patientList-heading">Patient List</Typography>
-        <Typography className="patientList-desc">
-          Manage your patient information
-        </Typography>
+        <Typography className="patientList-heading">Appointment List</Typography>
+        <Typography className="patientList-desc">Description</Typography>
       </div>
       <div className="table-container">
         <MyTable
@@ -143,11 +162,10 @@ const PatientPage = () => {
           searchInputStyle={searchInputStyle}
           tableClassName="table-class"
           searchClassName="search-class"
-          onRowClick={(row) => onTableRowClick(row)}
         />
       </div>
     </ListWrapper>
   );
 };
 
-export default PatientPage;
+export default AppointmentPage;

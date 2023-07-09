@@ -13,13 +13,13 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     gap: "24px",
     paddingBottom: "40px",
-    borderBottom: `1px solid ${theme.primaryGrey}`,
+    borderBottom: `1px solid ${theme.palette.primaryGrey}`,
   },
   ".form-radio-group": {
     width: "300px",
-    padding: "16px",
-    border: `1px solid ${theme.tertiaryGrey}`,
-    borderRadius: "8px",
+    padding: theme.spacing(4),
+    border: `1px solid ${theme.palette.tertiaryGrey}`,
+    borderRadius: theme.spacing(2),
 
     "& > label": theme.typography.body1,
   },
@@ -42,13 +42,7 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
       },
     },
 
-    "& > .MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "150%",
-      marginBottom: "4px",
-    },
+    "& > .MuiTypography-root": theme.typography.body1,
   },
   ".form-control-subtext": {
     "&.MuiTypography-root": {
@@ -103,7 +97,7 @@ function VerificationSelection({
                 onChange={handleOptionCheck}
               />
             }
-            label="Header"
+            label="Create ABHA for the patient"
             className="form-control-checkbox"
           />
           <Typography className="form-control-subtext">

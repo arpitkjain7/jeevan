@@ -17,13 +17,13 @@ const RegisterationConfirmation = () => {
         Success
       </Typography>
       <Grid container spacing={2} xs={10}>
-        {data.map((item) => (
+        {data?.map((item) => (
           <Grid item key={item.key} xs={2}>
             <Typography variant="subtitle1" gutterBottom>
-              {item.key}
+              {item?.key}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              {item.value}
+              {item?.value}
             </Typography>
           </Grid>
         ))}
