@@ -32,12 +32,7 @@ const CardWrapper = styled("div")(({ theme }) => ({
   },
 
   ".card-title-text": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "18px",
-      lineHeight: "160%",
-    },
+    "&.MuiTypography-root": theme.typography.body2,
   },
 }));
 

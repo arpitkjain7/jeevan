@@ -1,4 +1,4 @@
-import { createTheme, ThemeOptions } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
@@ -44,7 +44,7 @@ const theme = createTheme({
       color: "#171717",
       textTransform: "capitalize",
     },
-  body3: {
+    body3: {
       fontSize: "14px",
       fontWeight: 400,
       lineHeight: "150%",
@@ -77,4 +77,4 @@ const theme = createTheme({
   spacing: 4,
 });
 
-export default theme
+export default theme;

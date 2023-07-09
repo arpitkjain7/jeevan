@@ -45,12 +45,12 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
 
       justifyContent: "center",
       alignItems: "center",
-      border: `1px solid ${theme.primaryBlack}`,
+      border: `1px solid ${theme.palette.primaryBlack}`,
       fontFamily: "Inter",
       fontWeight: "500",
       fontSize: "16px",
-      backgroundColor: theme.primaryBlack,
-      color: theme.primaryWhite,
+      backgroundColor: theme.palette.primaryBlack,
+      color: theme.palette.primaryWhite,
       padding: "8px 32px",
       height: "40px",
     },
@@ -320,7 +320,7 @@ const PatientRegistration = () => {
           setExpanded={setUserDeatilsForm}
         >
           <div className="patient-registration-form">
-            <PatientRegistartionForm setUserCreated={setUserCreated}/>
+            <PatientRegistartionForm setUserCreated={setUserCreated} />
           </div>
         </ExpandableCard>
       ) : null}

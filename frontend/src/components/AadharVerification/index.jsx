@@ -16,7 +16,9 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     marginBottom: "24px",
     gap: "24px",
   },
-  
+  ".verification-btn": {
+  "&.MuiButtonBase-root": theme.typography.primaryButton,
+  },
   ".aadhar-text": {
     "&.MuiFormControl-root": {
       "& > .MuiInputBase-root": {
@@ -31,13 +33,7 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".otp-title": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "14px",
-      lineHeight: "160%",
-      marginBottom: "4px",
-    },
+    "&.MuiTypography-root": theme.typography.body3,
   },
 }));
 
