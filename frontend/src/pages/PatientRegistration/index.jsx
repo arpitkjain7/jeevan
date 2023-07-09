@@ -44,12 +44,12 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
 
       justifyContent: "center",
       alignItems: "center",
-      border: `1px solid ${theme.primaryBlack}`,
+      border: `1px solid ${theme.palette.primaryBlack}`,
       fontFamily: "Inter",
       fontWeight: "500",
       fontSize: "16px",
-      backgroundColor: theme.primaryBlack,
-      color: theme.primaryWhite,
+      backgroundColor: theme.palette.primaryBlack,
+      color: theme.palette.primaryWhite,
       padding: "8px 32px",
       height: "40px",
     },
@@ -95,7 +95,7 @@ const PatientRegistration = () => {
   const [stepFour, setStepFour] = useState(false);
   const [aadhar, setAadhar] = useState("");
   const dispatch = useDispatch();
-  const [userCreated, setUserCreated] = useState(false)
+  const [userCreated, setUserCreated] = useState(false);
 
   const modes = [
     {
@@ -272,11 +272,12 @@ const PatientRegistration = () => {
           setExpanded={setUserDeatilsForm}
         >
           <div className="patient-registration-form">
-            <PatientRegistartionForm setUserCreated={setUserCreated}/>
+            <PatientRegistartionForm setUserCreated={setUserCreated} />
           </div>
         </ExpandableCard>
-       ) : null} 
-      {userCreated && <ExpandableCard
+      ) : null}
+      {userCreated && (
+        <ExpandableCard
           title="SucessFully Created"
           expanded={userDetailsForm}
           setExpanded={setUserDeatilsForm}
@@ -284,8 +285,8 @@ const PatientRegistration = () => {
           <div className="patient-registration-form">
             {/* <RegisterationConfirmation /> */}
           </div>
-        </ExpandableCard>}
-      
+        </ExpandableCard>
+      )}
     </PatientRegisterWrapper>
   );
 };

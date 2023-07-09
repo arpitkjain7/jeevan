@@ -12,26 +12,14 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
     justifyContent: "center",
   },
   ".hospitalList-title": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "32px",
-      lineHeight: "150%",
-      marginBottom: "4px",
-    },
+    "&.MuiTypography-root": theme.typography.h1,
   },
   ".hospitalList-content": {
     textAlign: "center",
+    marginBottom: theme.spacing(12)
+
   },
-  ".hospitalList-subTitle": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "16px",
-      marginBottom: "54px",
-    },
-  },
+  ".hospitalList-subTitle": { "&.MuiTypography-root": theme.typography.h2 },
   ".hospitalList-container": {
     alignItems: "center",
     justifyContent: "center",
@@ -40,24 +28,20 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
     marginTop: "10%",
   },
   ".hospitalList-name-wrapper": {
-    border: `1px solid ${theme.tertiaryGrey}`,
+    border: `1px solid ${theme.palette.tertiaryGrey}`,
     borderRadius: "3px",
-    backgroundColor: theme.primaryWhite,
-    padding: "16px",
+    backgroundColor: theme.palette.primaryWhite,
+    padding: theme.spacing(4),
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
     cursor: "pointer",
+
   },
 
   ".hospitalList-name": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "16px",
-    },
+    "&.MuiTypography-root": theme.typography.body1,
   },
 }));
 
@@ -81,7 +65,7 @@ const HospitalList = () => {
   }, []);
 
   const redirectToDashboard = (hospitalData) => {
-    localStorage.setItem("selectedHospital",JSON.stringify(hospitalData));
+    localStorage.setItem("selectedHospital", JSON.stringify(hospitalData));
     navigate("/dashboard");
   };
 
