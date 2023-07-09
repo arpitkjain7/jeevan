@@ -1,4 +1,10 @@
-import { Checkbox, FormControlLabel, Typography, styled } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+  styled,
+} from "@mui/material";
 import React from "react";
 
 const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
@@ -15,17 +21,16 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     border: `1px solid ${theme.tertiaryGrey}`,
     borderRadius: "8px",
 
-    "& > label": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "160%",
-    },
+    "& > label": theme.typography.body1,
   },
-  ".radio-input": { marginRight: "16px" },
-
+  ".radio-input": { marginRight: theme.spacing(4) },
+  ".select-header-container": {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(4),
+  },
   ".select-header": {
-    marginTop: "16px",
+    marginTop: theme.spacing(8),
   },
   ".form-control-checkbox": {
     "&.MuiFormControlLabel-root": {
@@ -54,6 +59,10 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
       marginBottom: "4px",
     },
   },
+
+  ".confirm-verification-btn": {
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
+  },
 }));
 
 function VerificationSelection({
@@ -62,6 +71,7 @@ function VerificationSelection({
   selectedOption,
   checkedOption,
   handleOptionCheck,
+  handleConfirmSelection,
 }) {
   return (
     <VerificationSelectionWrapper>
@@ -87,7 +97,11 @@ function VerificationSelection({
         <div className="select-header">
           <FormControlLabel
             control={
-              <Checkbox checked={checkedOption} onChange={handleOptionCheck} />
+              <Checkbox
+                disabled={selectedOption === "aadhar"}
+                checked={checkedOption}
+                onChange={handleOptionCheck}
+              />
             }
             label="Header"
             className="form-control-checkbox"
@@ -98,6 +112,15 @@ function VerificationSelection({
             ever since the 1500s, when an unknown printer took a galley of type
             and scrambled it to make a type specimen book.
           </Typography>
+        </div>
+        <div>
+          <Button
+            className="confirm-verification-btn"
+            onClick={handleConfirmSelection}
+            disabled={!selectedOption}
+          >
+            Confirm
+          </Button>
         </div>
       </div>
     </VerificationSelectionWrapper>

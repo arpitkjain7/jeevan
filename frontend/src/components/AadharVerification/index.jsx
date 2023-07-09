@@ -1,6 +1,13 @@
-import { Button, TextField, Typography, styled } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+  styled,
+} from "@mui/material";
 import React from "react";
 import OtpInput from "../OTPValidation";
+import { useSelector } from "react-redux";
 
 const AadharVerificationWrapper = styled("div")(({ theme }) => ({
   ".validate-aadhar-form": {
@@ -10,20 +17,7 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     gap: "24px",
   },
   ".verification-btn": {
-    "&.MuiButtonBase-root": {
-      display: "flex",
-
-      justifyContent: "center",
-      alignItems: "center",
-      border: `1px solid ${theme.primaryBlack}`,
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      backgroundColor: theme.primaryBlack,
-      color: theme.primaryWhite,
-      padding: "8px 32px",
-      height: "40px",
-    },
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
   },
   ".aadhar-text": {
     "&.MuiFormControl-root": {
@@ -49,13 +43,17 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-function AadharVerification({
+const AadharVerification = ({
   aadhar,
   handleAadharChange,
   handleSubmit,
   setSixDigitOTP,
   verifyOTP,
-}) {
+}) => {
+  const dataState = useSelector((state) => state);
+  const fetchingAadharOtp = dataState?.PatientRegistartion?.loading;
+
+  console.log(fetchingAadharOtp, "loading");
   return (
     <AadharVerificationWrapper>
       <div className="validate-aadhar-form">
@@ -70,7 +68,7 @@ function AadharVerification({
           variant="contained"
           className="verification-btn"
         >
-          Get OTP
+          {fetchingAadharOtp ? <CircularProgress size={24} /> : " Get OTP"}
         </Button>
       </div>
       <div>
@@ -79,6 +77,6 @@ function AadharVerification({
       </div>
     </AadharVerificationWrapper>
   );
-}
+};
 
 export default AadharVerification;
