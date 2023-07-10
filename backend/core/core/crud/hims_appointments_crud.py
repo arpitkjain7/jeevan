@@ -1,6 +1,7 @@
 from core import session, logger
 from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_slots import Slots
+from core.orm_models.hims_docDetails import DocDetails
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
@@ -113,7 +114,7 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read function : {error}")
             raise error
 
-    def read_all(self):
+    def read_all(self, hip_id: str):
         """[CRUD function to read_all Users record]
 
         Raises:
@@ -125,9 +126,33 @@ class CRUDAppointments:
         try:
             logging.info("CRUDAppointments read_all request")
             with session() as transaction_session:
-                obj: Appointments = transaction_session.query(Appointments).all()
-            if obj is not None:
-                return [row.__dict__ for row in obj]
+                joined_result = []
+                for appointment_obj, doctor_obj, patient_obj, slot_obj in (
+                    transaction_session.query(
+                        Appointments, DocDetails, PatientDetails, Slots
+                    )
+                    .filter(Appointments.hip_id == hip_id)
+                    .filter(DocDetails.id == Appointments.doc_id)
+                    .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(Slots.slot_id == Appointments.slot_id)
+                    .all()
+                ):
+                    start_time = slot_obj.start_time.strftime("%H:%M")
+                    end_time = slot_obj.end_time.strftime("%H:%M")
+                    appointment_obj.__dict__.update(
+                        {
+                            "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                            "patient_details": patient_obj,
+                            "doc_details": doctor_obj,
+                            "slot_details": slot_obj,
+                        },
+                    )
+                    # appointment_obj.__dict__.update(
+                    #     {"doc_details": doctor_obj},
+                    # )
+                    joined_result.append(appointment_obj)
+            if joined_result is not None:
+                return joined_result
             return []
         except Exception as error:
             logging.error(f"Error in CRUDAppointments read_all function : {error}")
