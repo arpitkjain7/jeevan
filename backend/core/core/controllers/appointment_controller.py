@@ -63,6 +63,17 @@ class AppointmentsController:
             )
             raise error
 
+    def get_all_appointment(self, hip_id):
+        try:
+            logging.info("executing  get_all_appointment function")
+            logging.info(f"{hip_id=}")
+            return self.CRUDAppointments.read_all(hip_id=hip_id)
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_appointment function: {error}"
+            )
+            raise error
+
     def get_appointment_by_doc_id(self, doc_id, hip_id):
         try:
             logging.info("executing  get_appointment_by_doc_id function")
