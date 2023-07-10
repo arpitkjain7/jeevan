@@ -566,9 +566,12 @@ class PatientController:
                 )
                 logging.info("Getting PMR Id")
                 careContext = []
-                hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
+                logging.info(f"{hip_id=}")
                 for pmr_id in gateway_meta.get("pmr_list"):
+                    pmr_id = pmr_id.split("-", 1)[1]
+                    logging.info(f"{pmr_id=}")
                     pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+                    logging.info(f"{pmr_obj=}")
                     careContext.append(
                         {
                             "referenceNumber": pmr_id,
