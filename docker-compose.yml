@@ -78,11 +78,11 @@ services:
             - lobster
         restart: "on-failure"
 
-    cliniq_ui:
-        container_name: cliniq_ui-app
+    lobster_ui:
+        container_name: lobster-ui
         build:
-            context: ./frontend
-            dockerfile: ./frontend/Dockerfile
+            context: frontend
+            dockerfile: Dockerfile
         ports:
             - "8082:80"
         volumes:
