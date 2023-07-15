@@ -818,3 +818,55 @@ async def uploadDocument(
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@pmr_router.get("/v1/PMR/listDocuments/{pmr_id}")
+def listDocuments(pmr_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/PMR/listDocuments/{pmr_id} endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().list_documents(pmr_id=pmr_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/listDocuments/{pmr_id} endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/listDocuments/{pmr_id} endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.get("/v1/PMR/getDocument/{document_id}")
+def getDocument(document_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/PMR/getDocument/{document_id} endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().get_document(document_id=document_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/PMR/getDocument/{document_id} endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/getDocument/{document_id} endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
