@@ -57,7 +57,7 @@ def upload_to_s3(bucket_name: str, byte_data: bytes, file_name: str):
         _ = s3_client.put_object(
             ACL="private", Body=byte_data, Bucket=bucket_name, Key=file_name
         )
-        return f"s3://{bucket_name}/{file_name}"
+        return f"{bucket_name}/{file_name}"
     except ClientError as e:
         raise e
 

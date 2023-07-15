@@ -13,7 +13,7 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
-from core.utils.aws.s3_helper import upload_to_s3
+from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url
 from core.utils.custom.session_helper import get_session_token
 from core import logger
 from datetime import datetime, timezone
@@ -613,4 +613,29 @@ class PMRController:
             return {"document_id": document_id, "status": "success"}
         except Exception as error:
             logging.error(f"Error in PMRController.upload_document function: {error}")
+            raise error
+
+    def list_documents(self, pmr_id):
+        try:
+            logging.info("executing list_documents function")
+            return self.CRUDPatientMedicalDocuments.read_by_pmr_id(pmr_id=pmr_id)
+        except Exception as error:
+            logging.error(f"Error in PMRController.list_documents function: {error}")
+            raise error
+
+    def get_document(self, document_id):
+        try:
+            logging.info("executing get_document function")
+            document_obj = self.CRUDPatientMedicalDocuments.read(
+                document_id=document_id
+            )
+            document_location = document_obj.get("document_location")
+            bucket_name = document_location.split("/")[0]
+            document_key = "/".join(document_location.split("/")[1:])
+            presigned_url = create_presigned_url(
+                bucket_name=bucket_name, key=document_key, expires_in=1800
+            )
+            return {"document_url": presigned_url}
+        except Exception as error:
+            logging.error(f"Error in PMRController.get_document function: {error}")
             raise error
