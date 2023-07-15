@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
+from typing import List
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     PMR,
@@ -775,6 +776,43 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/pmr/updateFollowUp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/uploadDocument")
+async def uploadDocument(
+    pmr_id: str,
+    document_type: str,
+    file: UploadFile,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/PMR/uploadDocument endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            file_name = file.filename
+            contents = await file.read()
+            return PMRController().upload_document(
+                pmr_id=pmr_id,
+                document_data=contents,
+                document_type=document_type,
+                document_name=file_name,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/event/addCoverPhoto endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/event/addCoverPhoto endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
