@@ -613,7 +613,7 @@ class HIDController:
                     "abha_number": resp["healthIdNumber"],
                     "abha_address": resp["healthId"],
                     "mobile_number": resp["mobile"],
-                    "name": resp["name"],
+                    "name": name,
                     "gender": resp["gender"],
                     "DOB": dob,
                     "email": resp["email"],
