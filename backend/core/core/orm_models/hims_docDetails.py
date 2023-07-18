@@ -2,6 +2,7 @@ from enum import unique
 from sqlalchemy import (
     Column,
     String,
+    Boolean,
     Integer,
     ForeignKey,
     JSON,
@@ -20,6 +21,7 @@ class DocDetails(Base):
     doc_name = Column(String)
     hip_id = Column(String)
     doc_degree = Column(String)
+    affiliated = Column(Boolean)
     doc_specialization = Column(String)
     doc_department = Column(String)
     doc_working_days = Column(String)
