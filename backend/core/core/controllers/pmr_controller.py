@@ -56,7 +56,10 @@ class PMRController:
         """
         try:
             logging.info("executing create new pmr function")
-            request_dict = request.dict()
+            if type(request) is dict:
+                request_dict = request
+            else:
+                request_dict = request.dict()
             pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
@@ -638,4 +641,42 @@ class PMRController:
             return {"document_url": presigned_url}
         except Exception as error:
             logging.error(f"Error in PMRController.get_document function: {error}")
+            raise error
+
+    def upload_health_document(
+        self,
+        pmr_id,
+        patient_id,
+        appointment_id,
+        hip_id,
+        doc_id,
+        document_data,
+        document_type,
+        document_name,
+        date,
+    ):
+        try:
+            logging.info("executing upload_health_document function")
+            logging.info(f"{pmr_id=}")
+            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+            s3_location = upload_to_s3(
+                bucket_name=self.cliniq_bucket,
+                byte_data=document_data,
+                file_name=document_key,
+            )
+            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            self.CRUDPatientMedicalDocuments.create(
+                **{
+                    "id": document_id,
+                    "pmr_id": pmr_id,
+                    "document_name": document_name,
+                    "document_type": document_type,
+                    "document_location": s3_location,
+                }
+            )
+            return {"document_id": document_id, "status": "success"}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.upload_health_document function: {error}"
+            )
             raise error

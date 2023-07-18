@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
 from typing import List
+from datetime import date
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     PMR,
@@ -870,3 +871,71 @@ def getDocument(document_id: str, token: str = Depends(oauth2_scheme)):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@pmr_router.post("/v1/PMR/uploadHealthDocument")
+async def uploadHealthDocument(
+    patient_id: str,
+    appointment_id: str,
+    hip_id: str,
+    doc_id: str,
+    document_type: str,
+    date: date,
+    file: UploadFile,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/PMR/uploadHealthDocument endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            file_name = file.filename
+            contents = await file.read()
+            pmr_request = {
+                "patient_id": patient_id,
+                "doc_id": doc_id,
+                "appointment_id": appointment_id,
+                "hip_id": hip_id,
+            }
+            pmr_id = PMRController().create_pmr(request=pmr_request)
+
+            return PMRController().upload_health_document(
+                pmr_id=pmr_id["pmr_id"],
+                patient_id=patient_id,
+                appointment_id=appointment_id,
+                hip_id=hip_id,
+                doc_id=doc_id,
+                document_data=contents,
+                document_type=document_type,
+                document_name=file_name,
+                date=date,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+# New column in Doc Details table (External or Affiliated) Boolean
+# New API to create doc details record with affiliation type
+# New column in PMR table (External or Affiliated) Boolean
+# Upload Document API flow
+# To add new Doc in doc details
+# Upload API for document with
+# Doc Id
+# Document bytes
+# Date
+# Document type
+# Create PMR with affiliation type
+# Create PatientMedicalDocument record in database
