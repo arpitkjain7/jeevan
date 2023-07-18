@@ -1,0 +1,1 @@
+docker-compose -f csnoserv.yml up -d
