@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+    lobster_csnoserv:
+        build: backend/CSNOServConfig/.
+        image: lobster/csnoserv:latest
+        container_name: lobster-csnoserv
+        user: "0:0"
+        environment:
+            - JAVA_OPTS=-Xms256m -Xmx1024m -XX:MaxPermSize=256m
+        ports:
+            - 8080:8080
+        volumes:
+            - ./backend/CSNOServConfig:/usr/local/tomcat/app
+            - ./backend/CSNOServConfig/webapps:/usr/local/tomcat/webapps
+        restart: "on-failure"
