@@ -10,20 +10,7 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
     gap: "24px",
   },
   ".verification-btn": {
-    "&.MuiButtonBase-root": {
-      display: "flex",
-
-      justifyContent: "center",
-      alignItems: "center",
-      border: `1px solid ${theme.palette.primaryBlack}`,
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      backgroundColor: theme.palette.primaryBlack,
-      color: theme.palette.primaryWhite,
-      padding: "8px 32px",
-      height: "40px",
-    },
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
   },
   ".phone-text": {
     "&.MuiFormControl-root": {

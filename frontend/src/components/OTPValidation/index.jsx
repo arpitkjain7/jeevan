@@ -3,11 +3,10 @@ import { useDispatch } from "react-redux";
 import { TextField, Grid, styled } from "@mui/material";
 
 const OtpInputWrapperWrapper = styled("div")(({ theme }) => ({
-
   ".otp-textfield": {
     "&.MuiFormControl-root": {
       width: "48px",
-      marginRight: "16px"
+      marginRight: "16px",
     },
   },
 }));

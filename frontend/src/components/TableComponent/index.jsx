@@ -30,6 +30,11 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
   },
+  ".table-body-container":{
+    "&.MuiTableBody-root":{
+      backgroundColor: theme.palette.primaryWhite
+    }
+  },
   ".table-component-wrapper": {},
   ".table-component-header": {
     "&.MuiTableHead-root": {
@@ -95,7 +100,7 @@ const MyTable = ({
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody className="table-body-container">
             {filteredData?.map((item) => (
               <TableRow key={item.id} onClick={() => onRowClick(item)}>
                 {columns?.map((column) => {

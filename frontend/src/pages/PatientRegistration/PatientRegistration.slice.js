@@ -37,8 +37,8 @@ export const verifyPhoneOTP = createAsyncThunk(
 
 export const registerPatient = createAsyncThunk(
   "registration/registerPatient",
-  async (data) => {
-    const response = await apiRequest("POST", apis?.registerUser, data);
+  async ({ payload, url }) => {
+    const response = await apiRequest("POST", url, payload);
     return response;
   }
 );
