@@ -13,5 +13,5 @@ export const apis = {
   listAllDoctors: "listAllDoctors",
   doctorSlotsDetails: "slots",
   createAppointment: "appointment/create",
-  listAppointments: "",
+  listAppointments: "appointment/listAll",
 };
