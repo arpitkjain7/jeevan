@@ -28,9 +28,14 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     gap: theme.spacing(4),
+    marginBottom: theme.spacing(4),
   },
   ".select-header": {
     marginTop: theme.spacing(8),
+    padding: theme.spacing(4),
+    backgroundColor: theme.palette.secondaryOpacityBlue,
+    borderRadius: theme.spacing(2),
+    border: `1px solid ${theme.palette.secondaryBlue}`,
   },
   ".form-control-checkbox": {
     "&.MuiFormControlLabel-root": {
@@ -107,15 +112,15 @@ function VerificationSelection({
             and scrambled it to make a type specimen book.
           </Typography>
         </div>
-        <div>
-          <Button
-            className="confirm-verification-btn"
-            onClick={handleConfirmSelection}
-            disabled={!selectedOption}
-          >
-            Confirm
-          </Button>
-        </div>
+      </div>
+      <div style={{ float: "right" }}>
+        <Button
+          className="confirm-verification-btn"
+          onClick={handleConfirmSelection}
+          disabled={!selectedOption}
+        >
+          Confirm
+        </Button>
       </div>
     </VerificationSelectionWrapper>
   );

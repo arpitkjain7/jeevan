@@ -94,6 +94,7 @@ const BookingSlots = () => {
     }
   };
 
+
   const handleDateSelect = (date) => {
     let first = Object.keys(doctorDetails)?.length ? false : true;
     if (date !== selectedDate) {
@@ -156,7 +157,7 @@ const BookingSlots = () => {
   }, []);
 
   const generateTimeSlots = (startTime, endTime, duration) => {
-    const slots = [];
+    const generatedSlots = [];
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
 
@@ -171,19 +172,50 @@ const BookingSlots = () => {
         minute: "2-digit",
       });
       const slot = `${slotStart}-${slotEnd}`;
-      slots.push(slot);
+      generatedSlots.push(slot);
     }
 
-    return slots;
+    return generatedSlots;
   };
 
+  function convertToTimeSlots(bookedSlots) {
+    // Convert the booked time slots to the format 'HH:mm-HH:mm'
+    return bookedSlots.map(slot => {
+      const [startTime, endTime] = slot.split('-');
+      return `${startTime.slice(0, 5)}-${endTime.slice(0, 5)}`;
+    });
+  }
+
+  function removeBookedSlots(originalSlots, bookedSlots) {
+    // Convert booked slots to the 'HH:mm-HH:mm' format
+    const bookedSlotsFormatted = convertToTimeSlots(bookedSlots);
+  
+    // Remove booked time slots from the original slots
+    const availableSlots = originalSlots.filter(slot => !bookedSlotsFormatted.includes(slot));
+    return availableSlots;
+  }
+  
+
   useEffect(() => {
+    let filledSlots = [];
+    if (doctorDetails?.slots) {
+      doctorDetails.slots?.map((slot) => {
+        const startTime = slot.start_time;
+        const endTime = slot.end_time;
+        const range = `${startTime}-${endTime}`;
+        filledSlots?.push(range);
+      });
+      console.log("filled", filledSlots);
+    }
+    const slotsBooked =convertToTimeSlots(filledSlots)
     if (doctorDetails) {
       const startTime = doctorDetails?.consultation_start_time;
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
-      setSlots(timeSlots);
+      console.log(removeBookedSlots(timeSlots, slotsBooked), "slotsTime");
+
+      setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
   }, [doctorDetails]);
 
@@ -206,6 +238,7 @@ const BookingSlots = () => {
     console.log(payload);
   };
 
+  console.log(slots, "slots");
   return (
     <SlotWrapper>
       <StyledCard>
