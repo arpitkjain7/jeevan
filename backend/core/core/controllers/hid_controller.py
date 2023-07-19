@@ -570,7 +570,7 @@ class HIDController:
             txn_id = request_json.get("txnId")
             dob = request_json.get("dob")
             date, month, year = dob.split("/")
-            name = request_json.get("firstName") + request_json.get("lastName")
+            name = f"{request_json.get('firstName')} {request_json.get('lastName')}"
             token = self.CRUDGatewayInteraction.read(request_id=txn_id).get("token")
 
             request_json.update(
@@ -613,7 +613,7 @@ class HIDController:
                     "abha_number": resp["healthIdNumber"],
                     "abha_address": resp["healthId"],
                     "mobile_number": resp["mobile"],
-                    "name": resp["name"],
+                    "name": name,
                     "gender": resp["gender"],
                     "DOB": dob,
                     "email": resp["email"],
