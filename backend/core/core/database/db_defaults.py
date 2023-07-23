@@ -66,7 +66,7 @@ def main():
             "doc_specialization": "DUMMY",
             "doc_department": "DUMMY",
             "doc_working_days": "Mon,Tue,Wed",
-            "doc_reg_id": "12312",
+            "doc_licence_no": "12312",
             "avg_consultation_time": "15",
         }
     )
