@@ -123,6 +123,18 @@ class Common:
             )
             raise error
 
+    def create_doctor(self, request):
+        try:
+            logging.info("Creating doctor record")
+            # for patient_obj in request.data:
+            doctor_obj_dict = request.dict()
+            logging.info(f"{doctor_obj_dict=}")
+            doc_id = self.CRUD_docDetails.create(**doctor_obj_dict)
+            return {"doc_id": doc_id}
+        except Exception as error:
+            logging.error(f"Error in Common.create_doctor function: {error}")
+            raise error
+
     def update_doc_details(self, request):
         try:
             logging.info("Updating doctor details records")

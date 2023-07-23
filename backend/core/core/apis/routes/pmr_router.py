@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
 from typing import List
+from collections import defaultdict
 from datetime import date
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
@@ -873,48 +874,76 @@ def getDocument(document_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/uploadHealthDocument")
-async def uploadHealthDocument(
+## test2
+@pmr_router.post("/v1/PMR/uploadHealthDocuments")
+async def uploadHealthDocuments(
     patient_id: str,
     appointment_id: str,
     hip_id: str,
-    doc_id: str,
-    document_type: str,
-    date: date,
-    file: UploadFile,
+    doc_ids: List[str],
+    document_types: List[str],
+    dates: List[date],
+    files: List[UploadFile],
     token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1/PMR/uploadHealthDocument endpoint")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            file_name = file.filename
-            contents = await file.read()
+        # Authenticate user
+        authenticated_user_details = decodeJWT(token)
+        if not authenticated_user_details:
+            raise HTTPException(status_code=401, detail="Invalid access token")
+        documents = defaultdict(list)
+        response = []
+        # Group files, document types and dates
+        for file, document_type, document_date, doc_id in zip(
+            files,
+            document_types,
+            dates,
+            doc_ids,
+        ):
+            documents[f"{document_type}_{doc_id}_{document_date}"].append(
+                {"file": file}
+            )
+            logging.info(f"{documents=}")
+        for key, value in documents.items():
+            logging.info(f"{key=}--{value=}")
+            document_type, doc_id, document_date = key.split("_")
+            document_list = value
+            logging.info(f"{document_type=}--{doc_id=}--{document_date=}")
+            pmr_docs = []
             pmr_request = {
                 "patient_id": patient_id,
-                "doc_id": doc_id,
                 "appointment_id": appointment_id,
                 "hip_id": hip_id,
+                "doc_id": doc_id,
             }
-            pmr_id = PMRController().create_pmr(request=pmr_request)
-
-            return PMRController().upload_health_document(
-                pmr_id=pmr_id["pmr_id"],
-                patient_id=patient_id,
-                appointment_id=appointment_id,
-                hip_id=hip_id,
-                doc_id=doc_id,
-                document_data=contents,
-                document_type=document_type,
-                document_name=file_name,
-                date=date,
-            )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            pmr_id = PMRController().create_pmr(pmr_request)
+            # Process each file
+            for document in document_list:
+                logging.info(f"{document=}")
+                file = document["file"]
+                file_name = file.filename
+                content = await file.read()
+                pmr_doc = {
+                    "doc_id": doc_id,
+                    "document_type": document_type,
+                    "date": document_date,
+                    "file": content,
+                    "file_name": file_name,
+                }
+                pmr_docs.append(pmr_doc)
+                # logging.info(f"{pmr_docs=}")
+            for document in pmr_docs:
+                # logging.info(f"{document=}")
+                resp = PMRController().upload_health_document(
+                    pmr_id=pmr_id["pmr_id"],
+                    patient_id=patient_id,
+                    document_data=document["file"],
+                    document_type=document["document_type"],
+                    document_name=document["file_name"],
+                    date=document_date,
+                )
+                response.append(resp)
+        return response
     except HTTPException as httperror:
         logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {httperror}")
         raise httperror
@@ -925,17 +954,3 @@ async def uploadHealthDocument(
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-# New column in Doc Details table (External or Affiliated) Boolean
-# New API to create doc details record with affiliation type
-# New column in PMR table (External or Affiliated) Boolean
-# Upload Document API flow
-# To add new Doc in doc details
-# Upload API for document with
-# Doc Id
-# Document bytes
-# Date
-# Document type
-# Create PMR with affiliation type
-# Create PatientMedicalDocument record in database

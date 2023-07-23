@@ -30,6 +30,8 @@ class CRUDDocDetails:
                 transaction_session.add(doc_details)
                 transaction_session.commit()
                 transaction_session.refresh(doc_details)
+            logging.info(f"{doc_details.id=}")
+            return doc_details.id
         except Exception as error:
             logging.error(f"Error in CRUDDocDetails create function : {error}")
             raise error

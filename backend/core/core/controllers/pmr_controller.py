@@ -632,9 +632,12 @@ class PMRController:
             document_obj = self.CRUDPatientMedicalDocuments.read(
                 document_id=document_id
             )
+            logging.info(f"{document_obj=}")
             document_location = document_obj.get("document_location")
             bucket_name = document_location.split("/")[0]
             document_key = "/".join(document_location.split("/")[1:])
+            logging.info(f"{bucket_name=}")
+            logging.info(f"{document_key=}")
             presigned_url = create_presigned_url(
                 bucket_name=bucket_name, key=document_key, expires_in=1800
             )
@@ -647,13 +650,9 @@ class PMRController:
         self,
         pmr_id,
         patient_id,
-        appointment_id,
-        hip_id,
-        doc_id,
         document_data,
         document_type,
         document_name,
-        date,
     ):
         try:
             logging.info("executing upload_health_document function")
