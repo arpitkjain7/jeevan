@@ -12,6 +12,8 @@ from core.utils.custom.external_call import APIInterface
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
+from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url
 from core.utils.custom.session_helper import get_session_token
 from core import logger
 from datetime import datetime, timezone
@@ -24,6 +26,7 @@ logging = logger(__name__)
 class PMRController:
     def __init__(self):
         self.gateway_url = os.environ["gateway_url"]
+        self.cliniq_bucket = os.environ["s3_location"]
         self.CRUDComplaint = CRUDComplaint()
         self.CRUDDiagnosis = CRUDDiagnosis()
         self.CRUDAppointments = CRUDAppointments()
@@ -37,6 +40,7 @@ class PMRController:
         self.CRUDSymptoms = CRUDSymptoms()
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
         self.CRUDCondition = CRUDCondition()
+        self.CRUDPatientMedicalDocuments = CRUDPatientMedicalDocuments()
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -52,7 +56,10 @@ class PMRController:
         """
         try:
             logging.info("executing create new pmr function")
-            request_dict = request.dict()
+            if type(request) is dict:
+                request_dict = request
+            else:
+                request_dict = request.dict()
             pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
@@ -583,4 +590,92 @@ class PMRController:
             return {"appointment_id": appointment_id}
         except Exception as error:
             logging.error(f"Error in PMRController.update_followup function: {error}")
+            raise error
+
+    def upload_document(self, pmr_id, document_data, document_type, document_name):
+        try:
+            logging.info("executing upload_document function")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            patient_id = pmr_obj.get("patient_id")
+            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+            s3_location = upload_to_s3(
+                bucket_name=self.cliniq_bucket,
+                byte_data=document_data,
+                file_name=document_key,
+            )
+            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            self.CRUDPatientMedicalDocuments.create(
+                **{
+                    "id": document_id,
+                    "pmr_id": pmr_id,
+                    "document_name": document_name,
+                    "document_type": document_type,
+                    "document_location": s3_location,
+                }
+            )
+            return {"document_id": document_id, "status": "success"}
+        except Exception as error:
+            logging.error(f"Error in PMRController.upload_document function: {error}")
+            raise error
+
+    def list_documents(self, pmr_id):
+        try:
+            logging.info("executing list_documents function")
+            return self.CRUDPatientMedicalDocuments.read_by_pmr_id(pmr_id=pmr_id)
+        except Exception as error:
+            logging.error(f"Error in PMRController.list_documents function: {error}")
+            raise error
+
+    def get_document(self, document_id):
+        try:
+            logging.info("executing get_document function")
+            document_obj = self.CRUDPatientMedicalDocuments.read(
+                document_id=document_id
+            )
+            logging.info(f"{document_obj=}")
+            document_location = document_obj.get("document_location")
+            bucket_name = document_location.split("/")[0]
+            document_key = "/".join(document_location.split("/")[1:])
+            logging.info(f"{bucket_name=}")
+            logging.info(f"{document_key=}")
+            presigned_url = create_presigned_url(
+                bucket_name=bucket_name, key=document_key, expires_in=1800
+            )
+            return {"document_url": presigned_url}
+        except Exception as error:
+            logging.error(f"Error in PMRController.get_document function: {error}")
+            raise error
+
+    def upload_health_document(
+        self,
+        pmr_id,
+        patient_id,
+        document_data,
+        document_type,
+        document_name,
+    ):
+        try:
+            logging.info("executing upload_health_document function")
+            logging.info(f"{pmr_id=}")
+            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+            s3_location = upload_to_s3(
+                bucket_name=self.cliniq_bucket,
+                byte_data=document_data,
+                file_name=document_key,
+            )
+            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            self.CRUDPatientMedicalDocuments.create(
+                **{
+                    "id": document_id,
+                    "pmr_id": pmr_id,
+                    "document_name": document_name,
+                    "document_type": document_type,
+                    "document_location": s3_location,
+                }
+            )
+            return {"document_id": document_id, "status": "success"}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.upload_health_document function: {error}"
+            )
             raise error
