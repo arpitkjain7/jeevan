@@ -1,4 +1,10 @@
-import { Checkbox, FormControlLabel, Typography, styled } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+  styled,
+} from "@mui/material";
 import React from "react";
 
 const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
@@ -15,12 +21,21 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     border: `1px solid ${theme.palette.tertiaryGrey}`,
     borderRadius: theme.spacing(2),
 
-    "& > label": theme.typography.body1 ,
+    "& > label": theme.typography.body1,
   },
   ".radio-input": { marginRight: theme.spacing(4) },
-
+  ".select-header-container": {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+  },
   ".select-header": {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(8),
+    padding: theme.spacing(4),
+    backgroundColor: theme.palette.secondaryOpacityBlue,
+    borderRadius: theme.spacing(2),
+    border: `1px solid ${theme.palette.secondaryBlue}`,
   },
   ".form-control-checkbox": {
     "&.MuiFormControlLabel-root": {
@@ -35,8 +50,17 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     "& > .MuiTypography-root": theme.typography.body1,
   },
   ".form-control-subtext": {
-    "&.MuiTypography-root": theme.typography.body3,
-    marginBottom: theme.spacing(4),
+    "&.MuiTypography-root": {
+      fontFamily: "Inter",
+      fontWeight: "500",
+      fontSize: "14px",
+      lineHeight: "160%",
+      marginBottom: "4px",
+    },
+  },
+
+  ".confirm-verification-btn": {
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
   },
 }));
 
@@ -46,6 +70,7 @@ function VerificationSelection({
   selectedOption,
   checkedOption,
   handleOptionCheck,
+  handleConfirmSelection,
 }) {
   return (
     <VerificationSelectionWrapper>
@@ -71,7 +96,11 @@ function VerificationSelection({
         <div className="select-header">
           <FormControlLabel
             control={
-              <Checkbox checked={checkedOption} onChange={handleOptionCheck} />
+              <Checkbox
+                disabled={selectedOption === "aadhar"}
+                checked={checkedOption}
+                onChange={handleOptionCheck}
+              />
             }
             label="Create ABHA for the patient"
             className="form-control-checkbox"
@@ -83,6 +112,15 @@ function VerificationSelection({
             and scrambled it to make a type specimen book.
           </Typography>
         </div>
+      </div>
+      <div style={{ float: "right" }}>
+        <Button
+          className="confirm-verification-btn"
+          onClick={handleConfirmSelection}
+          disabled={!selectedOption}
+        >
+          Confirm
+        </Button>
       </div>
     </VerificationSelectionWrapper>
   );

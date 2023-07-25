@@ -5,6 +5,7 @@ import BookingSlots from "../../components/ScheduleAppointment";
 
 function CreateAppointment() {
   const [tab, setTab] = useState(0);
+  const [completed, setCompleted] = useState(false);
 
   const handleTabChange = (newValue) => {
     console.log("Selected tab:", newValue);
@@ -16,7 +17,11 @@ function CreateAppointment() {
     {
       label: "Encounter",
       content: (
-        <AppointmentForm handleTabChange={handleTabChange} setTab={setTab} />
+        <AppointmentForm
+          handleTabChange={handleTabChange}
+          setTab={setTab}
+          setCompleted={setCompleted}
+        />
       ),
     },
     {
@@ -24,10 +29,18 @@ function CreateAppointment() {
       content: (
         <BookingSlots handleTabChange={handleTabChange} setTab={setTab} />
       ),
+      disable: !completed,
     },
   ];
 
-  return <CustomTabs tabs={tabs} defaultTab={tab} onChange={handleTabChange} />;
+  return (
+    <CustomTabs
+      tabs={tabs}
+      defaultTab={tab}
+      onChange={handleTabChange}
+      tab={tab}
+    />
+  );
 }
 
 export default CreateAppointment;

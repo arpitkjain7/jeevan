@@ -30,6 +30,11 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
   },
+  ".table-body-container":{
+    "&.MuiTableBody-root":{
+      backgroundColor: theme.palette.primaryWhite
+    }
+  },
   ".table-component-wrapper": {},
   ".table-component-header": {
     "&.MuiTableHead-root": {
@@ -95,15 +100,15 @@ const MyTable = ({
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody className="table-body-container">
             {filteredData?.map((item) => (
               <TableRow key={item.id} onClick={() => onRowClick(item)}>
                 {columns?.map((column) => {
                   if (column.key !== "actions") {
                     return (
-                      <TableCell key={`${item.id}-${column.key}`}>
-                        {column.render
-                          ? column.render(item[column.key])
+                      <TableCell key={`${item?.id}-${column?.key}`}>
+                        {column?.render
+                          ? column?.render(item[column?.key])
                           : item[column.key]}
                       </TableCell>
                     );

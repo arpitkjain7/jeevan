@@ -180,10 +180,9 @@ function AppointmentForm(props) {
       billingType: billingTypeValue,
     };
 
-    console.log(props);
-
     dispatch(ScheduleAppointmentActions.setAppointmentDetails(data));
     props?.setTab(1);
+    props?.setCompleted(true);
   };
 
   console.log(selectedPatient);

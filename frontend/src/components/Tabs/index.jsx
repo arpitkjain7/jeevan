@@ -1,5 +1,5 @@
 import { Tab, Tabs, Typography, styled } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const TabsWrapper = styled("div")(({ theme }) => ({
   ".tabs-root": {
@@ -29,13 +29,17 @@ const TabsWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const CustomTabs = ({ tabs, defaultTab, onChange }) => {
+const CustomTabs = ({ tabs, defaultTab, onChange, tab }) => {
   const [value, setValue] = useState(defaultTab);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
     onChange(newValue);
   };
+
+  useEffect(() => {
+    setValue(defaultTab);
+  }, [defaultTab]);
 
   return (
     <TabsWrapper className="tabs-root">
@@ -48,6 +52,7 @@ const CustomTabs = ({ tabs, defaultTab, onChange }) => {
         {tabs?.map((tab, index) => (
           <Tab
             key={index}
+            disabled={tab?.disable ? tab?.disable : false}
             label={
               <div className="tab-container">
                 <div>{tab?.icon}</div>

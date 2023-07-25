@@ -5,10 +5,13 @@ export const apis = {
   registerAadhar: "HID/registration/aadhaar/generateOTP",
   verifyOTPAadhar: "HID/registration/aadhaar/verifyOTP",
   restigerNumber: "registration/mobile/generateOtp",
+  registerAadharNumber: "HID/registration/aadhaar/generateMobileOTP",
   verifyOTPNumber: "registration/mobile/verifyOtp",
   registerUser: "patient/register",
+  registerAadharPaient: "HID/registration/aadhaar/abhaRegistration",
+  registerPhonePatient: "registration/mobile/createHealthId",
   listAllDoctors: "listAllDoctors",
   doctorSlotsDetails: "slots",
   createAppointment: "appointment/create",
-  listAppointments: ""
+  listAppointments: "appointment/listAll",
 };
