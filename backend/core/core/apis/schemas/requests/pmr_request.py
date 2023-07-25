@@ -199,13 +199,15 @@ class PMR(BaseModel):
     doc_id: int
     appointment_id: int
     hip_id: str
-    date_of_consultation: date
-    # vitals: List[Vital]
-    # complaints: List[CreateComplaint]
-    # diagnosis: List[CreateDiagnosis]
-    # medication: List[CreateMedication]
-    # medical_test: List[CreateMedicalTest]
-    # medical_history: List[CreateMedicalHistory]
+
+
+# date_of_consultation: date
+# vitals: List[Vital]
+# complaints: List[CreateComplaint]
+# diagnosis: List[CreateDiagnosis]
+# medication: List[CreateMedication]
+# medical_test: List[CreateMedicalTest]
+# medical_history: List[CreateMedicalHistory]
 
 
 class ConsultationStatus(str, Enum):

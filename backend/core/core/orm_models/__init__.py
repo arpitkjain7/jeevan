@@ -4,11 +4,6 @@ from core.orm_models.hims_consent import *
 from core.orm_models.hims_diagnosis import *
 from core.orm_models.hims_docDetails import *
 from core.orm_models.hims_hipDetails import *
-from core.orm_models.hims_listOfComplaints import *
-from core.orm_models.hims_listOfDiagnosis import *
-from core.orm_models.hims_listOfMedicalTests import *
-from core.orm_models.hims_listOfMedicines import *
-from core.orm_models.hims_listOfPrecautions import *
 from core.orm_models.hims_medicalTest import *
 from core.orm_models.hims_medicalTestReports import *
 from core.orm_models.hims_patientDetails import *
@@ -27,3 +22,4 @@ from core.orm_models.hims_symptoms import *
 from core.orm_models.hims_currentMedicines import *
 from core.orm_models.hims_condition import *
 from core.orm_models.hims_hiuConsent import *
+from core.orm_models.hims_patientMedicalDocuments import *
