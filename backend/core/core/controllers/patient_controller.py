@@ -659,24 +659,25 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
-            patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
-                mobile_number=request_json.get("mobile_number")
-            )
-            # patient_obj = self.CRUDPatientDetails.read_by_name(
-            #     name=request_json.get("name"), DOB=request_json.get("DOB")
+            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
+            #     mobile_number=request_json.get("mobile_number")
             # )
-            if len(patient_list) > 0:
-                patient_details = [
-                    {
-                        "name": patient_obj.get("name"),
-                        "patient_id": patient_obj.get("id"),
-                        "abha_number": patient_obj.get("abha_number"),
-                        "abha_address": patient_obj.get("abha_address"),
-                    }
-                    for patient_obj in patient_list
-                ]
+            patient_obj = self.CRUDPatientDetails.read_by_mobile_dob(
+                mobile_number=request_json.get("mobile_number"),
+                DOB=request_json.get("DOB"),
+            )
+            if patient_obj:
+                # patient_details = [
+                #     {
+                #         "name": patient_obj.get("name"),
+                #         "patient_id": patient_obj.get("id"),
+                #         "abha_number": patient_obj.get("abha_number"),
+                #         "abha_address": patient_obj.get("abha_address"),
+                #     }
+                #     for patient_obj in patient_list
+                # ]
                 return {
-                    "patient_details": patient_details,
+                    "patient_details": patient_obj,
                     "status": "Patient already exist",
                 }
             else:
