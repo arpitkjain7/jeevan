@@ -11,6 +11,7 @@ class PatientMedicalRecord(Base):
     appointment_id = Column(Integer, ForeignKey("appointments.id"))
     doc_id = Column(Integer, ForeignKey("docDetails.id"))
     patient_id = Column(String, ForeignKey("patientDetails.id"))
+    affiliated = Column(Boolean)
     abdm_linked = Column(Boolean)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
