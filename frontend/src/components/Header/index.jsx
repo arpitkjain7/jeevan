@@ -40,15 +40,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     lineHeight: "16px",
   },
   ".header-btn": {
-    "&.MuiButtonBase-root": {
-      border: `1px solid ${theme.palette.primaryBlack}`,
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      backgroundColor: theme.palette.primaryBlack,
-      color: theme.palette.primaryWhite,
-      padding: "8px 32px",
-    },
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
   },
 }));
 

@@ -7,9 +7,11 @@ import { useNavigate } from "react-router-dom";
 const LogInWrapper = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
+    flexDirection:"column",
     alignItems: "center",
     justifyContent: "center",
   },
+
   ".login-heading": {
     marginBottom: "48px",
   },
@@ -20,28 +22,26 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     "& > .MuiFormControl-root": {
       marginBottom: "32px",
     },
+
   },
   ".login-btn": {
-    "&.MuiButtonBase-root": {
-      backgroundColor: theme.palette.primaryBlack,
-    },
-  },
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
+},
   ".login-title": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      lineHeight: "150%",
-      marginBottom: "4px",
-    },
+    "&.MuiTypography-root": theme.typography.h1,
   },
   ".login-subTitle": {
-    "&.MuiTypography-root": {
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      lineHeight: "16px",
-    },
+    "&.MuiTypography-root": theme.typography.h2,
   },
+  ".login-field-title": {
+    "&.MuiTypography-root": theme.typography.body1,
+    marginBottom: theme.spacing(2),
+  },
+  ".login-text-field":{
+    "&.MuiFormControl-root > .MuiInputBase-root > input":{
+      width:"410px"
+    }
+  }
 }));
 
 const LoginPage = (props) => {
@@ -86,32 +86,36 @@ const LoginPage = (props) => {
       <div className="login-content">
         <div className="login-heading">
           <Typography variant="h2" align="center" className="login-title">
-            Login
+            Welcome Back
           </Typography>
           <Typography
             variant="subtitle1"
             align="center"
             className="login-subTitle"
           >
-            Please enter your detail
+            Please enter your details to continue login
           </Typography>
         </div>
 
         <div className="login-form">
+          <Typography className="login-field-title">Username</Typography>
           <TextField
             value={email}
             onChange={handleEmailChange}
             fullWidth
             variant="outlined"
-            placeholder="UserName"
+            placeholder="Enter Your username"
+            className="login-text-field"
           />
+          <Typography className="login-field-title">Password</Typography>
           <TextField
             value={password}
             onChange={handlePasswordChange}
             fullWidth
             variant="outlined"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
+            className="login-text-field"
           />
           {/* <div>
               <div className="flex items-center space-x-2">

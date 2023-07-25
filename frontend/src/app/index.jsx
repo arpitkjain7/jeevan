@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import { makeStyles, styled } from "@mui/material";
 import Header from "../components/Header";
 import "./global.scss";
@@ -13,6 +18,8 @@ import Sidebar from "../components/Sidebar";
 import PatientRegistration from "../pages/PatientRegistration";
 import AppointmentPage from "../pages/AppointmentPage";
 import CreateAppointment from "../pages/CreateAppointment";
+import PatientDetails from "../pages/DoctorPage/PatientDetails";
+import RegisterationConfirmation from "../components/RegistrationConfirmation";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -36,15 +43,19 @@ const AppWrapper = styled("div")(({ theme }) => ({
 
 function App() {
   const dataState = useSelector((state) => state);
+  const isAuthenticated = localStorage.getItem("accesstoken");
+  // const navigate = useNavigate();
   useEffect(() => {
     console.log("reduxStore", dataState);
   }, [dataState]);
 
+  // const navigateToLogin = () => {
+  //   navigate("/");
+  // };
   return (
     <Router>
       <AppWrapper>
         <Header />
-
         <div style={{ display: "flex" }}>
           <div style={{ flex: 0.05 }}>
             <Sidebar />
@@ -61,20 +72,36 @@ function App() {
               <div style={{ flex: 1, padding: "46px 32px" }}>
                 <Routes>
                   <Route path="/login" element={<SignInPage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/patient-list" element={<PatientPage />} />
-                  <Route
-                    path="/patient-registration"
-                    element={<PatientRegistration />}
-                  />
-                  <Route
-                    path="/appointment-list"
-                    element={<AppointmentPage />}
-                  />
-                  <Route
-                    path="/create-appointment"
-                    element={<CreateAppointment />}
-                  />
+                  {isAuthenticated ? (
+                    <>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/patient-list" element={<PatientPage />} />
+                      <Route
+                        path="/patient-registration"
+                        element={<PatientRegistration />}
+                      />
+                      <Route
+                        path="/appointment-list"
+                        element={<AppointmentPage />}
+                      />
+                      <Route
+                        path="/create-appointment"
+                        element={<CreateAppointment />}
+                      />
+                      <Route
+                        path="/patient-details"
+                        element={<PatientDetails />}
+                      />
+                      <Route
+                        path="/registered-patient"
+                        element={<RegisterationConfirmation />}
+                      />
+                    </>
+                  ) : (
+                    <Route path="*" element={<SignInPage />} />
+                  )}
+
+                  <Route path="/" element={<SignInPage />} />
                 </Routes>
               </div>
             </div>

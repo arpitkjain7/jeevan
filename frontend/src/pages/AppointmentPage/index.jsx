@@ -69,12 +69,13 @@ const ListWrapper = styled("div")(({ theme }) => ({
 }));
 
 const columns = [
+  { key: "patientId", header: "Patient ID" },
   { key: "patientDetails", header: "Patient Name" },
-  { key: "abha_number", header: "Abha Id" },
-  { key: "mobile_number", header: "Contact Number" },
-  { key: "updatedDate", header: "Last Visited" },
-  { key: "createdDate", header: "Follow Up" },
-  { key: "abha_status", header: "Status" },
+  { key: "mobileNumber", header: "Contact Number" },
+  { key: "encounterType", header: "Encounter Type" },
+  { key: "docName", header: "Doctor" },
+  { key: "slotTime", header: "Slot" },
+  { key: "status", header: "Status" },
   {
     key: "actions",
     header: "",
@@ -126,25 +127,40 @@ const AppointmentPage = () => {
       };
       dispatch(fetchAppointmentList(payload)).then((res) => {
         const mainList = res.payload;
-        let patientList = [];
-        mainList?.map((item) => {
-          patientList?.push(item[0]);
-        });
-        const formattedPatientList = patientList?.map((item) => {
-          // const patientGender = item?.gender.toLowerCase()?.includes("m")
-            // ? "M"
-            // : "F";
+        console.log(mainList)
+        // let patientList = [];
+        // mainList?.map((item) => {
+        //   patientList?.push(item[1]);
+        // });
+        const formattedAppointmentList = mainList?.map((item) => {
+          const patientId = item?.patient_id
+          const patientGender = item?.patient_details?.gender.toLowerCase()?.includes("m")
+            ? "M"
+            : "F";
+          console.log(patientGender)
+          const mobileNumber = item?.patient_details?.mobile_number
+          const encounterType = item?.appointment_type
+          const docName = item?.doc_details?.doc_name
+          const slotTime = item?.slot_time
+          const status = item?.slot_details?.status
+
           // const updatedDate = convertDateFormat(item?.updated_at);
           // const createdDate = convertDateFormat(item?.created_at);
           return {
-            // patientDetails: `${item.name} | ${patientGender}`,
+            patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
+            patientId: patientId,
+            mobileNumber: mobileNumber,
+            encounterType: encounterType,
+            docName: docName,
+            slotTime: slotTime,
+            status: status
             // updatedDate: updatedDate,
             // createdDate: createdDate,
             // ...item,
           };
         });
-        console.log(formattedPatientList, "patient");
-        setTableData(formattedPatientList);
+        console.log(formattedAppointmentList, "appointment");
+        setTableData(formattedAppointmentList);
       });
     }
   }, []);

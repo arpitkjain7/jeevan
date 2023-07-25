@@ -36,8 +36,13 @@ const CardWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const ExpandableCard = ({ title, children,expanded, setExpanded, completed }) => {
-
+const ExpandableCard = ({
+  title,
+  children,
+  expanded,
+  setExpanded,
+  completed,
+}) => {
   const [formCompleted, setFormCompleted] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
