@@ -63,18 +63,3 @@ def encrypt_data_endpoint(consent_notify_request: dict):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-# @dataTransfer_router.post("/async")
-# def async_test(customer_name: str, order_quantity: str):
-#     try:
-#         return DataTransferController().async_test(
-#             order_name=customer_name, order_id=order_quantity
-#         )
-#     except Exception as error:
-#         logging.error(f"Error in /async endpoint: {error}")
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail=str(error),
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
