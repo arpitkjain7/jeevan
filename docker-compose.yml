@@ -71,7 +71,6 @@ services:
       - "8082:80"
     volumes:
       - ./frontend/src:/app/src
-      - ./fronend:/app
     networks:
       - lobster
     restart: "on-failure"
