@@ -120,16 +120,6 @@ class PMRController:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
             raise error
 
-    def get_vital(self, patient_id):
-        try:
-            logging.info("Get vital records")
-            response = self.CRUDVital.read_by_patientId(patient_id)
-            logging.info(f"{response=}")
-            return response
-        except Exception as error:
-            logging.error(f"Error in PMRController.get_vital function: {error}")
-            raise error
-
     def create_complaints(self, request):
         try:
             logging.info("Creating complaint records")
