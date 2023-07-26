@@ -1,11 +1,11 @@
-FROM node:20.5-alpine
+FROM node:20-alpine as build
 WORKDIR /app
 COPY package.json .
-RUN npm install
+RUN yarn install
 COPY . .
 
 
-RUN npm run build:production
+RUN yarn build
 
 FROM nginx
 
