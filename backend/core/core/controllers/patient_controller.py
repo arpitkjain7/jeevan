@@ -2,6 +2,7 @@ from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
+from core.crud.hims_vitals_crud import CRUDVital
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from commons.auth import decodeJWT
@@ -21,6 +22,7 @@ class PatientController:
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDHIP = CRUDHIP()
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
+        self.CRUDVital = CRUDVital()
         self.gateway_url = os.environ["gateway_url"]
         self.abha_url = os.environ["abha_url"]
         self.s3_location = os.environ["s3_location"]
@@ -735,4 +737,14 @@ class PatientController:
             return patient_obj
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
+            raise error
+
+    def get_vital(self, patient_id):
+        try:
+            logging.info("Get vital records")
+            response = self.CRUDVital.read_by_patientId(patient_id)
+            logging.info(f"{response=}")
+            return response
+        except Exception as error:
+            logging.error(f"Error in PatientController.get_vital function: {error}")
             raise error
