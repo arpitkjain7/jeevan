@@ -63,9 +63,6 @@ services:
       - lobster_mq
 
   lobster_ui:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
     image: cliniq360/lobster-ui:latest
     container_name: lobster-ui
     ports:
