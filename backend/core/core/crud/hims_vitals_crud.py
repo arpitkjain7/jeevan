@@ -2,6 +2,7 @@ from core import session, logger
 from core.orm_models.hims_vitals import Vital
 from datetime import datetime
 from pytz import timezone
+from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
 
 logging = logger(__name__)
 
@@ -58,6 +59,37 @@ class CRUDVital:
                 )
             if obj is not None:
                 return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDVital read function : {error}")
+            raise error
+
+    def read_by_patientId(self, patient_id: int):
+        """[CRUD function to read a vital record]
+
+        Args:
+            pmr_id (str): [Patient Medical Record Id to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [Vital record matching the criteria]
+        """
+        try:
+            logging.info("CRUDVital read request")
+            with session() as transaction_session:
+                obj: Vital = (
+                    transaction_session.query(PatientMedicalRecord, Vital)
+                    .join(PatientMedicalRecord, PatientMedicalRecord.id == Vital.pmr_id)
+                    .filter(PatientMedicalRecord.patient_id == patient_id)
+                    .order_by(Vital.created_at.desc())
+                    .all()
+                )
+            logging.info(f"{obj=}")
+            if obj is not None:
+                vitals = [v for p, v in obj]
+                return [v.__dict__ for v in vitals]
             return []
         except Exception as error:
             logging.error(f"Error in CRUDVital read function : {error}")
