@@ -63,10 +63,8 @@ services:
       - lobster_mq
 
   lobster_ui:
+    image: cliniq360/lobster-ui:latest
     container_name: lobster-ui
-    build:
-      context: frontend
-      dockerfile: Dockerfile
     ports:
       - "8082:80"
     volumes:

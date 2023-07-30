@@ -28,9 +28,8 @@
   "scripts": {
     "start": "yarn react-scripts start",
     "build": "yarn react-scripts build",
-    "build:production": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "yarn react-scripts test",
+    "eject": "yarn react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -49,8 +48,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "tailwindcss": "^3.3.2"
   }
 }
