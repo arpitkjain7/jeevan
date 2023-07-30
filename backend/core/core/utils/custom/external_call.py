@@ -90,7 +90,7 @@ class APIInterface:
             url = route
             logging.info("POST request sent")
             logging.debug(f"url = {url}, params = {params}")
-            response = requests.post(url, json=data,params=params headers=headers)
+            response = requests.post(url, json=data, params=params, headers=headers)
             logging.debug(
                 f"response.text = {response.text}, response.status_code = {response.status_code}"
             )
