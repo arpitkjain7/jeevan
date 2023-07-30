@@ -14,4 +14,5 @@ export const apis = {
   doctorSlotsDetails: "slots",
   createAppointment: "appointment/create",
   listAppointments: "appointment/listAll",
+  searchVitals: "https://snomed.cliniq360.com/csnoserv/api/search/suggest",
 };

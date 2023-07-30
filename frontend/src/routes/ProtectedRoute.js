@@ -4,7 +4,7 @@ import { Route, Routes, Redirect, useNavigate } from "react-router-dom";
 import PatientRegistration from "../pages/PatientRegistration";
 import AppointmentPage from "../pages/AppointmentPage";
 import CreateAppointment from "../pages/CreateAppointment";
-import PatientDetails from "../pages/DoctorPage/PatientDetails";
+import PatientDetails from "../pages/DoctorPage/EMRPage";
 import SignInPage from "../pages/SignIn";
 import HospitalList from "../pages/HospitalList";
 import Dashboard from "../pages/Dashboard";

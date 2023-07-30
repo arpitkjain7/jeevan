@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const BASE_URL = "https://engine.cliniq360.com/v1";
+const SNOMED_URL = "https://snomed.cliniq360.com/csnoserv/api";
 
 const defaultHeader = () => {
   const access_token = localStorage.getItem("accesstoken");
