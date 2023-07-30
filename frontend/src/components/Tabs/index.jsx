@@ -29,7 +29,7 @@ const TabsWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const CustomTabs = ({ tabs, defaultTab, onChange, tab }) => {
+const CustomTabs = ({ tabs, defaultTab, onChange, tab, addSteps = false }) => {
   const [value, setValue] = useState(defaultTab);
 
   const handleChange = (event, newValue) => {
@@ -57,7 +57,7 @@ const CustomTabs = ({ tabs, defaultTab, onChange, tab }) => {
               <div className="tab-container">
                 <div>{tab?.icon}</div>
                 <div>
-                  <Typography>Step {index + 1}</Typography>
+                  {addSteps && <Typography>Step {index + 1}</Typography>}
                   <Typography>{tab.label}</Typography>
                 </div>
               </div>

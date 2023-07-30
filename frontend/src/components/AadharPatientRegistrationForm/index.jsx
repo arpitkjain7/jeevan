@@ -51,10 +51,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
         txnId: txnId,
       };
       console.log(payload);
-        dispatch(registerPatient({payload, url: apis.registerAadharPaient})).then(res=>{
-          console.log(res.payload)
+      dispatch(
+        registerPatient({ payload, url: apis.registerAadharPaient })
+      ).then((res) => {
+        console.log(res.payload);
         //   setUserCreated(true);
-        });
+      });
     }
   };
 
