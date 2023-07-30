@@ -573,8 +573,8 @@ class PatientController:
             otp_verification_response = otpHelper().verify_otp(
                 mobile_number=patient_mobile_number, otp=otp
             )
-            if otp_verification_response.get("type")="success":
-            # if otp == gateway_meta.get("otp"):
+            if otp_verification_response.get("type") == "success":
+                # if otp == gateway_meta.get("otp"):
                 logging.info("OTP verified")
                 logging.info("Getting Patient Record")
                 patient_obj = self.CRUDPatientDetails.read_by_patientId(
