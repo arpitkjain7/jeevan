@@ -125,6 +125,7 @@ class PMRController:
             logging.info("Creating complaint records")
             for complaint_obj in request.data:
                 complaint_obj_dict = complaint_obj.dict()
+                logging.info(f"{complaint_obj_dict=}")
                 complaint_obj_dict.update({"pmr_id": request.pmr_id})
                 complaint_id = self.CRUDComplaint.create(**complaint_obj_dict)
             return {"pmr_id": request.pmr_id, "complaint_id": complaint_id}
@@ -590,6 +591,60 @@ class PMRController:
             return {"appointment_id": appointment_id}
         except Exception as error:
             logging.error(f"Error in PMRController.update_followup function: {error}")
+            raise error
+
+    def submit_pmr(self, request):
+        """[Controller to create new pmr record]
+
+        Args:
+            request ([dict]): [create new pmr request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing submit pmr function")
+            pmr_id = request.pmr_id
+            logging.info("Submitting PMR record")
+            logging.info(f"{request=}")
+            resp = dict()
+            resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
+            resp["condition_id"] = self.create_condition(request.condition)[
+                "condition_id"
+            ]
+            resp["complaint_id"] = self.create_complaints(request.complaint)[
+                "complaint_id"
+            ]
+            resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
+                "diagnosis_id"
+            ]
+            resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
+            resp["medication_id"] = self.create_medication(request.medication)[
+                "medicines_id"
+            ]
+            resp["current_medication_id"] = self.create_current_medication(
+                request.currentMedication
+            )["current_medicines_id"]
+            resp["medical_test_id"] = self.create_medicalTest(request.medical_test)[
+                "medicalTest_id"
+            ]
+            resp["medical_history_id"] = self.create_medicalHistory(
+                request.medical_history
+            )["medicalHistory_id"]
+
+            logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
+            logging.info(f"{resp=}")
+            return {
+                "pmr_id": pmr_id,
+                "response": resp,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.submit_pmr_controller function: {error}"
+            )
             raise error
 
     def upload_document(self, pmr_id, document_data, document_type, document_name):
