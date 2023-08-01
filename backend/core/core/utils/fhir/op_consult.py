@@ -16,20 +16,6 @@ timezone = pytz.timezone("Asia/Kolkata")
 
 def opConsultDocument(bundle_name: str, bundle_identifier: str, pmr_id: str):
     time_str = datetime.now(timezone).isoformat()
-    identifier = Identifier()
-    identifier.value = bundle_identifier
-    meta = Meta(
-        versionId=1,
-        lastUpdated=time_str,
-        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"],
-        security=[
-            {
-                "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
-                "code": "V",
-                "display": "very restricted",
-            }
-        ],
-    )
     # Creating Practitioner Entry
     # pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
     pmr_obj = CRUDPatientMedicalRecord().read_details(pmr_id=pmr_id)[0]
@@ -113,6 +99,20 @@ def opConsultDocument(bundle_name: str, bundle_identifier: str, pmr_id: str):
             document_bytes=document_content,
         )
     # Creating Bundle
+    identifier = Identifier()
+    identifier.value = bundle_identifier
+    meta = Meta(
+        versionId=1,
+        lastUpdated=time_str,
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"],
+        security=[
+            {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+                "code": "V",
+                "display": "very restricted",
+            }
+        ],
+    )
     bundle = Bundle(
         resource_type="Bundle",
         id=bundle_name,
