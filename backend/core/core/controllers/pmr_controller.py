@@ -41,6 +41,12 @@ class PMRController:
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
         self.CRUDCondition = CRUDCondition()
         self.CRUDPatientMedicalDocuments = CRUDPatientMedicalDocuments()
+        self.mime_type_mapping = {
+            "pdf": "application/pdf",
+            "jpeg": "image/jpg",
+            "jpg": "image/jpg",
+            "png": "image/png",
+        }
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -597,6 +603,7 @@ class PMRController:
             logging.info("executing upload_document function")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             patient_id = pmr_obj.get("patient_id")
+            document_ext = document_name.split(".")[-1]
             document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
             s3_location = upload_to_s3(
                 bucket_name=self.cliniq_bucket,
@@ -609,7 +616,9 @@ class PMRController:
                     "id": document_id,
                     "pmr_id": pmr_id,
                     "document_name": document_name,
-                    "document_type": document_type,
+                    "document_mime_type": self.mime_type_mapping.get(document_ext),
+                    "document_type": document_type.name,
+                    "document_type_code": document_type.value,
                     "document_location": s3_location,
                 }
             )
@@ -657,6 +666,7 @@ class PMRController:
         try:
             logging.info("executing upload_health_document function")
             logging.info(f"{pmr_id=}")
+            document_ext = document_name.split(".")[-1]
             document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
             s3_location = upload_to_s3(
                 bucket_name=self.cliniq_bucket,
@@ -669,6 +679,7 @@ class PMRController:
                     "id": document_id,
                     "pmr_id": pmr_id,
                     "document_name": document_name,
+                    "document_mime_type": self.mime_type_mapping.get(document_ext),
                     "document_type": document_type,
                     "document_location": s3_location,
                 }
