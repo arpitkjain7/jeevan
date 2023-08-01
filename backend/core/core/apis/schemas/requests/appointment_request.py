@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from enum import Enum
 
 
-class AppointmentType(str, Enum):
+class EncounterType(str, Enum):
     AMB = "ambulatory"
     EMER = "emergency"
     FLD = "field"
@@ -17,10 +17,16 @@ class AppointmentType(str, Enum):
     VR = "virtual"
 
 
+class AppointmentType(str, Enum):
+    FIRST = "first visit"
+    FOLLOWUP = "follow-up visit"
+
+
 class Create(BaseModel):
     doc_id: int
     patient_id: str
     appointment_type: AppointmentType
+    encounter_type: EncounterType
     hip_id: str
     appointment_start: str
     appointment_end: str = None

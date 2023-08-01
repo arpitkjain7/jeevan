@@ -5,6 +5,10 @@ from core.orm_models.hims_diagnosis import Diagnosis
 from core.orm_models.hims_medicines import Medicines
 from core.orm_models.hims_medicalTest import MedicalTest
 from core.orm_models.hims_precautions import Precautions
+from core.orm_models.hims_hipDetails import HIPDetail
+from core.orm_models.hims_appointments import Appointments
+from core.orm_models.hims_patientDetails import PatientDetails
+from core.orm_models.hims_docDetails import DocDetails
 from datetime import datetime
 from pytz import timezone
 
@@ -250,5 +254,47 @@ class CRUDPatientMedicalRecord:
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord delete function : {error}"
+            )
+            raise error
+
+    def read_details(self, pmr_id: str):
+        try:
+            logging.info("CRUDPatientMedicalRecord read_details request")
+            with session() as transaction_session:
+                joined_result = []
+                for (
+                    hip_obj,
+                    doctor_obj,
+                    appointment_obj,
+                    patient_obj,
+                    pmr_obj,
+                ) in (
+                    transaction_session.query(
+                        HIPDetail,
+                        DocDetails,
+                        Appointments,
+                        PatientDetails,
+                        PatientMedicalRecord,
+                    )
+                    .filter(HIPDetail.hip_id == PatientMedicalRecord.hip_id)
+                    .filter(DocDetails.id == PatientMedicalRecord.doc_id)
+                    .filter(Appointments.id == PatientMedicalRecord.appointment_id)
+                    .filter(PatientDetails.id == PatientMedicalRecord.patient_id)
+                    .filter(PatientMedicalRecord.id == pmr_id)
+                    .all()
+                ):
+                    pmr_obj.__dict__.update(
+                        {
+                            "hip": hip_obj,
+                            "doctor": doctor_obj,
+                            "appointment": appointment_obj,
+                            "patient": patient_obj,
+                        }
+                    )
+                    joined_result.append(pmr_obj)
+            return joined_result
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_details function : {error}"
             )
             raise error

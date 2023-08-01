@@ -25,6 +25,7 @@ from core.apis.schemas.requests.pmr_request import (
     UpdateSymptoms,
     UpdateConsultationStatus,
     FollowUp,
+    UploadDocument,
 )
 from core.controllers.pmr_controller import PMRController
 from core import logger
@@ -61,7 +62,7 @@ def createPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/updatePMR")
+@pmr_router.patch("/v1/PMR/updatePMR")
 def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updatePMR endpoint")
@@ -787,8 +788,7 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
 
 @pmr_router.post("/v1/PMR/uploadDocument")
 async def uploadDocument(
-    pmr_id: str,
-    document_type: str,
+    upload_request: UploadDocument,
     file: UploadFile,
     token: str = Depends(oauth2_scheme),
 ):
@@ -799,9 +799,9 @@ async def uploadDocument(
             file_name = file.filename
             contents = await file.read()
             return PMRController().upload_document(
-                pmr_id=pmr_id,
+                pmr_id=upload_request.pmr_id,
                 document_data=contents,
-                document_type=document_type,
+                document_type=upload_request.document_type,
                 document_name=file_name,
             )
         else:

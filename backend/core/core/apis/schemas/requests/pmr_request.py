@@ -226,3 +226,13 @@ class UpdateConsultationStatus(BaseModel):
 class FollowUp(BaseModel):
     appointment_id: str
     followup_date: date
+
+
+class DocumentTypes(str, Enum):
+    OPCONSULT = "OP Consult"
+    LABREPORT = "Lab Report"
+
+
+class UploadDocument(BaseModel):
+    pmr_id: str
+    document_type: DocumentTypes
