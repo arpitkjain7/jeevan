@@ -13,6 +13,7 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.utils.fhir.op_consult import opConsultDocument
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url
 from core.utils.custom.session_helper import get_session_token
 from core import logger
@@ -689,4 +690,18 @@ class PMRController:
             logging.error(
                 f"Error in PMRController.upload_health_document function: {error}"
             )
+            raise error
+
+    def get_fhir(self, pmr_id):
+        try:
+            logging.info("executing get_fhir function")
+            logging.info(f"{pmr_id=}")
+            bundle_id = str(uuid.uuid1())
+            return opConsultDocument(
+                bundle_name=f"OPConsultNote-{pmr_id}",
+                bundle_identifier=bundle_id,
+                pmr_id=pmr_id,
+            )
+        except Exception as error:
+            logging.error(f"Error in PMRController.get_document function: {error}")
             raise error
