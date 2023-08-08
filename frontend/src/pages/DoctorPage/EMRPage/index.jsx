@@ -4,7 +4,7 @@ import PatientDetailsHeader from "../../../components/PatientDetailsHeader";
 import { Typography, styled, TextField, Grid } from "@mui/material";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { searchVitalsDetails } from "./EMRPage.slice";
+import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { Button } from "@mui/base";
 
@@ -118,6 +118,8 @@ const PatientEMRDetails = () => {
   const [medicationsSpecs, setMedicationsSpecs] = useState({});
   const [labInvestigationSpecs, setLabInvestigationSpecs] = useState({});
   const medicalHistoryRef = useRef(null);
+  const patient = sessionStorage?.getItem("selectedPatient");
+  const [emrId, setEMRId] = useState();
 
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -153,6 +155,20 @@ const PatientEMRDetails = () => {
     dispatch(searchVitalsDetails(queryParams)).then((res) => {
       console.log("vitals:", res);
     });
+
+    const currentPatient = JSON.parse(patient);
+    if (currentPatient && Object.keys(currentPatient)?.length) {
+      console.log(currentPatient, "patientData");
+      const emrPayload = {
+        patient_id: currentPatient?.patientId,
+        doc_id: currentPatient?.doc_id,
+        appointment_id: currentPatient?.id,
+        hip_id: currentPatient?.hip_id,
+      };
+      dispatch(getEMRId(emrPayload)).then((res) => {
+        setEMRId(res.payload.pmr_id);
+      });
+    }
   }, []);
 
   const handleMeidcalHistoryChange = async (event) => {
@@ -581,20 +597,159 @@ const PatientEMRDetails = () => {
     });
   };
 
+  function transformObject(obj) {
+    const transformedArray = [];
+
+    for (const diseaseKey in obj) {
+      if (obj.hasOwnProperty(diseaseKey)) {
+        const diseaseData = obj[diseaseKey];
+
+        const transformedItem = {
+          disease: diseaseKey,
+          duration: diseaseData.since || diseaseData.since2,
+          status: diseaseData.severity || diseaseData.severity2,
+          notes: diseaseData.notes || diseaseData.notes2,
+          snowmed_code: 123,
+          snowmed_display: 123,
+        };
+
+        transformedArray.push(transformedItem);
+      }
+    }
+
+    return transformedArray;
+  }
+
   const submitEMR = () => {
-    // console.log(
-    //   medicalHistory,
-    //   existingConditions,
-    //   symptoms,
-    //   examFindings,
-    //   diagnosis,
-    //   medications,
-    //   labInvestigation,
-    //   "---------Selected Data------------"
-    // );
+    console.log(
+      medicalHistory,
+      existingConditions,
+      symptoms,
+      examFindings,
+      diagnosis,
+      medications,
+      labInvestigation,
+      "---------Selected Data------------"
+    );
+
+    const symptomsEMR = transformObject(symptomsSpecs);
+    const diagnosisEMR = transformObject(diagnosisSpecs);
+    console.log(symptomsEMR, "values");
 
     // console.log(formValues, "formValues");
-    console.log(optionTextValues, "values");
+    const payload = {
+      pmr_id: emrId,
+      vital: {
+        pmr_id: emrId,
+        data: [
+          {
+            height: formValues?.bodyHeight,
+            weight: formValues?.bodyWeight,
+            pulse: formValues?.pulseRate,
+            blood_pressure: formValues?.bloodPressure,
+            body_temperature: formValues?.bodyTemp,
+            oxygen_saturation: formValues?.oxygenSaturation,
+            respiratory_rate: formValues?.respiratoryRate,
+            body_mass_index: formValues?.bodyMass,
+            systolic_blood_pressure: formValues?.systolicBP,
+            diastolic_blood_pressure: formValues?.diastolicaBP,
+            snowmed_code: 123,
+            snowmed_display: 123,
+          },
+        ],
+      },
+      condition: {
+        pmr_id: emrId,
+        data: [
+          {
+            condition: "string",
+            start_date: "string",
+            status: "string",
+            notes: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+      complaint: {
+        pmr_id: emrId,
+        data: [
+          {
+            complaint_type: "string",
+            frequency: "string",
+            severity: "string",
+            duration: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+      diagnosis: {
+        pmr_id: emrId,
+        data: diagnosisEMR,
+      },
+      symptom: {
+        pmr_id: emrId,
+        data: symptomsEMR,
+      },
+      medication: {
+        pmr_id: emrId,
+        data: [
+          {
+            medicine_name: "string",
+            frequency: "string",
+            dosage: "string",
+            time_of_day: "string",
+            duration: "string",
+            duration_period: "string",
+            notes: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+      currentMedication: {
+        pmr_id: emrId,
+        data: [
+          {
+            medicine_name: "string",
+            start_date: "string",
+            status: "string",
+            notes: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+      medical_test: {
+        pmr_id: emrId,
+        data: [
+          {
+            name: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+      medical_history: {
+        pmr_id: emrId,
+        data: [
+          {
+            diabetes_melitus: "string",
+            hypertension: "string",
+            hypothyroidism: "string",
+            alcohol: "string",
+            tobacco: "string",
+            smoke: "string",
+            snowmed_code: "string",
+            snowmed_display: "string",
+          },
+        ],
+      },
+    };
+    dispatch(postEMR(payload)).then(res=>{
+      console.log(res.payload,"submitted")
+    })
   };
 
   const resetEMRForm = () => {
