@@ -15,4 +15,6 @@ export const apis = {
   createAppointment: "appointment/create",
   listAppointments: "appointment/listAll",
   searchVitals: "https://snomed.cliniq360.com/csnoserv/api/search/suggest",
+  createEMR: "PMR/createPMR",
+  submitEMR: "PMR/submitPMR"
 };
