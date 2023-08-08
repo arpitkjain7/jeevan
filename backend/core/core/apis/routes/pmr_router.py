@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import date
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
+    CreatePMR,
     PMR,
     CreateVital,
     CreateComplaint,
@@ -36,7 +37,7 @@ pmr_router = APIRouter()
 
 
 @pmr_router.post("/v1/PMR/createPMR")
-def createPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/createPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
@@ -61,7 +62,33 @@ def createPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/updatePMR")
+@pmr_router.post("/v1/PMR/submitPMR")
+def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/pmr/submitPMR endpoint")
+        logging.debug(f"Request: {pmr_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().submit_pmr(request=pmr_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/submitPMR endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/submitPMR endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.patch("/v1/PMR/updatePMR")
 def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updatePMR endpoint")
@@ -113,7 +140,7 @@ def createVital(vital_request: CreateVital, token: str = Depends(oauth2_scheme))
         )
 
 
-@pmr_router.post("/v1/PMR/updateVital")
+@pmr_router.patch("/v1/PMR/updateVital")
 def updateVital(vital_request: UpdateVital, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updateVital endpoint")
@@ -167,7 +194,7 @@ def createCondition(
         )
 
 
-@pmr_router.post("/v1/PMR/updateCondition")
+@pmr_router.patch("/v1/PMR/updateCondition")
 def updateCondition(
     condition_request: UpdateCondition, token: str = Depends(oauth2_scheme)
 ):
@@ -223,7 +250,7 @@ def createComplaints(
         )
 
 
-@pmr_router.post("/v1/PMR/updateComplaints")
+@pmr_router.patch("/v1/PMR/updateComplaints")
 def updateComplaints(
     complaint_request: UpdateComplaint, token: str = Depends(oauth2_scheme)
 ):
@@ -279,7 +306,7 @@ def createDiagnosis(
         )
 
 
-@pmr_router.post("/v1/PMR/updateDiagnosis")
+@pmr_router.patch("/v1/PMR/updateDiagnosis")
 def updateDiagnosis(
     diagnosis_request: UpdateDiagnosis, token: str = Depends(oauth2_scheme)
 ):
@@ -335,7 +362,7 @@ def createSymptoms(
         )
 
 
-@pmr_router.post("/v1/PMR/updateSymptoms")
+@pmr_router.patch("/v1/PMR/updateSymptoms")
 def updateSymptoms(
     symptoms_request: UpdateSymptoms, token: str = Depends(oauth2_scheme)
 ):
@@ -391,7 +418,7 @@ def createMedication(
         )
 
 
-@pmr_router.post("/v1/PMR/updateMedication")
+@pmr_router.patch("/v1/PMR/updateMedication")
 def updateMedication(
     medication_request: UpdateMedication, token: str = Depends(oauth2_scheme)
 ):
@@ -450,7 +477,7 @@ def createCurrentMedication(
         )
 
 
-@pmr_router.post("/v1/PMR/updateCurrentMedication")
+@pmr_router.patch("/v1/PMR/updateCurrentMedication")
 def updateCurrentMedication(
     update_medication_request: UpdateCurrentMedication,
     token: str = Depends(oauth2_scheme),
@@ -509,7 +536,7 @@ def createMedicalTest(
         )
 
 
-@pmr_router.post("/v1/PMR/updateMedicalTest")
+@pmr_router.patch("/v1/PMR/updateMedicalTest")
 def updateMedicalTest(
     medicalTest_request: UpdateMedicalTest, token: str = Depends(oauth2_scheme)
 ):
@@ -567,7 +594,7 @@ def createMedicalHistory(
         )
 
 
-@pmr_router.post("/v1/PMR/updateMedicalHistory")
+@pmr_router.patch("/v1/PMR/updateMedicalHistory")
 def updateMedicalHistory(
     medical_history_request: UpdateMedicalHistory, token: str = Depends(oauth2_scheme)
 ):
@@ -727,7 +754,7 @@ def delete_condition(condition_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/updateConsultationStatus")
+@pmr_router.patch("/v1/PMR/updateConsultationStatus")
 def updateConsultationStatus(
     consultation_request: UpdateConsultationStatus, token: str = Depends(oauth2_scheme)
 ):
@@ -759,7 +786,7 @@ def updateConsultationStatus(
         )
 
 
-@pmr_router.post("/v1/PMR/updateFollowUp")
+@pmr_router.patch("/v1/PMR/updateFollowUp")
 def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updateFollowUp endpoint")

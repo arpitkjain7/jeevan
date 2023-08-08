@@ -40,7 +40,6 @@ class Condition(BaseModel):
 class Diagnosis(BaseModel):
     disease: str
     duration: str
-    start_time: str
     status: str
     notes: str = None
     snowmed_code: str
@@ -194,7 +193,7 @@ class UpdateMedicalHistory(BaseModel):
     data: List[MedicalHistory]
 
 
-class PMR(BaseModel):
+class CreatePMR(BaseModel):
     patient_id: str
     doc_id: int
     appointment_id: int
@@ -208,6 +207,19 @@ class PMR(BaseModel):
 # medication: List[CreateMedication]
 # medical_test: List[CreateMedicalTest]
 # medical_history: List[CreateMedicalHistory]
+
+
+class PMR(BaseModel):
+    pmr_id: str
+    vital: CreateVital
+    condition: CreateCondition
+    complaint: CreateComplaint
+    diagnosis: CreateDiagnosis
+    symptom: CreateSymptoms
+    medication: CreateMedication
+    currentMedication: CreateCurrentMedication
+    medical_test: CreateMedicalTest
+    medical_history: CreateMedicalHistory
 
 
 class ConsultationStatus(str, Enum):
