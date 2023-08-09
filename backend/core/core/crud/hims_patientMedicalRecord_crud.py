@@ -1,9 +1,9 @@
 from core import session, logger
 from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
-from core.orm_models.hims_complaint import Complaint
+from core.orm_models.hims_examinationFindings import ExaminationFindings
 from core.orm_models.hims_diagnosis import Diagnosis
 from core.orm_models.hims_medicines import Medicines
-from core.orm_models.hims_medicalTest import MedicalTest
+from core.orm_models.hims_labInvestigations import LabInvestigations
 from core.orm_models.hims_precautions import Precautions
 from datetime import datetime
 from pytz import timezone
@@ -70,7 +70,7 @@ class CRUDPatientMedicalRecord:
                         Medicines,
                         Diagnosis,
                         PatientMedicalRecord,
-                        MedicalTest,
+                        LabInvestigations,
                     )
                     .filter(Complaint.pmr_id == pmr_id)
                     .filter(MedicalTest.pmr_id == pmr_id)
@@ -224,6 +224,9 @@ class CRUDPatientMedicalRecord:
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
+            if obj is not None:
+                return pmr_id
+            return []
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord update function : {error}"
