@@ -210,12 +210,12 @@ class PMR(BaseModel):
     pmr_id: str
     vital: CreateVital
     condition: CreateCondition
-    examinationFindings: ExaminationFindings
+    examinationFindings: CreateExaminationFindings
     diagnosis: CreateDiagnosis
     symptom: CreateSymptoms
     medication: CreateMedication
     currentMedication: CreateCurrentMedication
-    medical_test: CreateLabInvestigation
+    lab_investigation: CreateLabInvestigation
     medical_history: CreateMedicalHistory
 
 
