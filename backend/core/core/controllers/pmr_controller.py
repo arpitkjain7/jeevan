@@ -668,7 +668,7 @@ class PMRController:
                 "condition_id"
             ]
             resp["examination_findings_id"] = self.create_examination_findings(
-                request.examination_findings
+                request.examinationFindings
             )["examination_findings_id"]
             resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
                 "diagnosis_id"
@@ -680,9 +680,9 @@ class PMRController:
             resp["current_medication_id"] = self.create_current_medication(
                 request.currentMedication
             )["current_medicines_id"]
-            resp["medical_test_id"] = self.create_medicalTest(request.medical_test)[
-                "medicalTest_id"
-            ]
+            resp["lab_investigation_id"] = self.create_labInvestigation(
+                request.lab_investigation
+            )["labInvestigation_id"]
             resp["medical_history_id"] = self.create_medicalHistory(
                 request.medical_history
             )["medicalHistory_id"]
