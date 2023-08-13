@@ -84,3 +84,20 @@ class APIInterface:
             return response.content, response.status_code
         except Exception as error:
             logging.error(f"Error in get_bytes API request: {error}")
+
+    @staticmethod
+    def post_with_params(route, params=None, headers=None, data=None):
+        try:
+            url = route
+            logging.info("POST request sent")
+            logging.debug(f"url = {url}, params = {params}")
+            response = requests.post(url, json=data, params=params, headers=headers)
+            logging.debug(
+                f"response.text = {response.text}, response.status_code = {response.status_code}"
+            )
+            if response.text:
+                return json.loads(response.text), response.status_code
+            return None, response.status_code
+        except Exception as error:
+            logging.error(f"Error in post_with_params request: {error}")
+            raise error

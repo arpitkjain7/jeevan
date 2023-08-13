@@ -237,6 +237,21 @@ class FollowUp(BaseModel):
     followup_date: date
 
 
+class DocumentTypes(str, Enum):
+    Prescription = "Prescription"
+    DiagnosticReport = "Diagnostic Report"
+    OPConsultation = "OP Consultation"
+    DischargeSummary = "Discharge Summary"
+    ImmunizationRecord = "Immunization Record"
+    HealthDocumentRecord = "Record artifact"
+    WellnessRecord = "Wellness Record"
+
+
+class UploadDocument(BaseModel):
+    pmr_id: str
+    document_type: DocumentTypes
+
+
 class Advice(BaseModel):
     pmr_id: str
     advices: str

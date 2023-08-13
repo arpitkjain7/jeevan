@@ -13,6 +13,7 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.utils.fhir.op_consult import opConsultDocument
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url
 from core.utils.custom.session_helper import get_session_token
 from core import logger
@@ -41,6 +42,12 @@ class PMRController:
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
         self.CRUDCondition = CRUDCondition()
         self.CRUDPatientMedicalDocuments = CRUDPatientMedicalDocuments()
+        self.mime_type_mapping = {
+            "pdf": "application/pdf",
+            "jpeg": "image/jpg",
+            "jpg": "image/jpg",
+            "png": "image/png",
+        }
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -60,7 +67,7 @@ class PMRController:
                 request_dict = request
             else:
                 request_dict = request.dict()
-            pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
+            pmr_id = f"C360-PMR-{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
             logging.info(f"PMR: {request_dict=}")
@@ -704,19 +711,22 @@ class PMRController:
             logging.info("executing upload_document function")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             patient_id = pmr_obj.get("patient_id")
+            document_ext = document_name.split(".")[-1]
             document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
             s3_location = upload_to_s3(
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,
             )
-            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
                 **{
                     "id": document_id,
                     "pmr_id": pmr_id,
                     "document_name": document_name,
-                    "document_type": document_type,
+                    "document_mime_type": self.mime_type_mapping.get(document_ext),
+                    "document_type": document_type.name,
+                    "document_type_code": document_type.value,
                     "document_location": s3_location,
                 }
             )
@@ -764,18 +774,20 @@ class PMRController:
         try:
             logging.info("executing upload_health_document function")
             logging.info(f"{pmr_id=}")
+            document_ext = document_name.split(".")[-1]
             document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
             s3_location = upload_to_s3(
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,
             )
-            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
                 **{
                     "id": document_id,
                     "pmr_id": pmr_id,
                     "document_name": document_name,
+                    "document_mime_type": self.mime_type_mapping.get(document_ext),
                     "document_type": document_type,
                     "document_location": s3_location,
                 }
@@ -785,4 +797,18 @@ class PMRController:
             logging.error(
                 f"Error in PMRController.upload_health_document function: {error}"
             )
+            raise error
+
+    def get_fhir(self, pmr_id):
+        try:
+            logging.info("executing get_fhir function")
+            logging.info(f"{pmr_id=}")
+            bundle_id = str(uuid.uuid1())
+            return opConsultDocument(
+                bundle_name=f"OPConsultNote-{bundle_id}",
+                bundle_identifier=bundle_id,
+                pmr_id=pmr_id,
+            )
+        except Exception as error:
+            logging.error(f"Error in PMRController.get_fhir function: {error}")
             raise error

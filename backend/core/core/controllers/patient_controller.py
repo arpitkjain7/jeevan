@@ -4,6 +4,7 @@ from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_vitals_crud import CRUDVital
 from core.utils.custom.external_call import APIInterface
+from core.utils.custom.msg91_helper import otpHelper
 from core.utils.custom.session_helper import get_session_token
 from commons.auth import decodeJWT
 from core import logger
@@ -290,7 +291,7 @@ class PatientController:
                 abha_number = patient_data.get("healthIdNumber")
                 if abha_number:
                     abha_number = abha_number.replace("-", "")
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -491,6 +492,10 @@ class PatientController:
             txn_id = request.get("transactionId")
             patient_obj = request.get("patient")
             patient_id = patient_obj.get("referenceNumber")
+            patient_details = CRUDPatientDetails().read_by_patientId(
+                patient_id=patient_id
+            )
+            patient_mobile_number = patient_details.get("mobile_number")
             pmr_list = []
             for pmr in patient_obj.get("careContexts"):
                 pmr_id = pmr.get("referenceNumber")
@@ -519,6 +524,9 @@ class PatientController:
                 "error": None,
                 "resp": {"requestId": request.get("requestId")},
             }
+            otp_response = otpHelper().send_otp(
+                mobile_number=patient_mobile_number, otp=otp
+            )
             linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-init"
             resp, resp_code = APIInterface().post(
                 route=linking_on_init_url,
@@ -537,6 +545,7 @@ class PatientController:
                     "request_status": "PROCESSING",
                     "transaction_id": txn_id,
                     "gateway_metadata": {
+                        "patient_mobile_number": patient_mobile_number,
                         "otp": otp,
                         "otp_expiry": otp_expiry_time,
                         "pmr_list": pmr_list,
@@ -559,8 +568,14 @@ class PatientController:
             link_ref_num = request.get("confirmation").get("linkRefNumber")
             otp = request.get("confirmation").get("token")
             gateway_obj = self.CRUDGatewayInteraction.read(request_id=link_ref_num)
+            logging.info(f"{gateway_obj=}")
             gateway_meta = gateway_obj.get("gateway_metadata")
-            if otp == gateway_meta.get("otp"):
+            patient_mobile_number = gateway_meta.get("patient_mobile_number")
+            otp_verification_response = otpHelper().verify_otp(
+                mobile_number=patient_mobile_number, otp=otp
+            )
+            if otp_verification_response.get("type") == "success":
+                # if otp == gateway_meta.get("otp"):
                 logging.info("OTP verified")
                 logging.info("Getting Patient Record")
                 patient_obj = self.CRUDPatientDetails.read_by_patientId(
@@ -610,7 +625,7 @@ class PatientController:
                 if resp_code < 300:
                     for pmr_id in gateway_meta.get("pmr_list"):
                         self.CRUDPatientMedicalRecord.update(
-                            **{"id": pmr_id, "abdm_linked": True}
+                            pmr_id=pmr_id, **{"abdm_linked": True}
                         )
             else:
                 logging.info("Invalid OTP")
@@ -683,7 +698,7 @@ class PatientController:
                     "status": "Patient already exist",
                 }
             else:
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update(
                     {"id": patient_id, "hip_id": request_json["hip_id"]}
                 )

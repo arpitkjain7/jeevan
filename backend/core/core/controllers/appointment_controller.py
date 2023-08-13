@@ -52,6 +52,8 @@ class AppointmentsController:
                 "hip_id": request.hip_id,
                 "doc_id": doc_id,
                 "appointment_type": appointment_type,
+                "encounter_type_code": request.encounter_type.name,
+                "encounter_type": request.encounter_type.value,
                 "patient_id": patient_id,
                 "slot_id": slot_id,
             }
