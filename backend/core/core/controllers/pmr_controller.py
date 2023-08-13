@@ -1,8 +1,8 @@
 from core.crud.hims_vitals_crud import CRUDVital
-from core.crud.hims_compaint_crud import CRUDComplaint
+from core.crud.hims_examination_findings_crud import CRUDExaminationFindings
 from core.crud.hims_diagnosis_crud import CRUDDiagnosis
 from core.crud.hims_appointments_crud import CRUDAppointments
-from core.crud.hims_medicalTest_crud import CRUDMedicalTest
+from core.crud.hims_labInvestigation_crud import CRUDLabInvestigation
 from core.crud.hims_medicines_crud import CRUDMedicines
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
@@ -28,10 +28,10 @@ class PMRController:
     def __init__(self):
         self.gateway_url = os.environ["gateway_url"]
         self.cliniq_bucket = os.environ["s3_location"]
-        self.CRUDComplaint = CRUDComplaint()
+        self.CRUDExaminationFindings = CRUDExaminationFindings()
         self.CRUDDiagnosis = CRUDDiagnosis()
         self.CRUDAppointments = CRUDAppointments()
-        self.CRUDMedicalTest = CRUDMedicalTest()
+        self.CRUDLabInvestigation = CRUDLabInvestigation()
         self.CRUDMedicines = CRUDMedicines()
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
         self.CRUDPatientDetails = CRUDPatientDetails()
@@ -124,30 +124,44 @@ class PMRController:
                 self.CRUDVital.update(**vital_obj_dict, id=request.id)
             return {"pmr_id": request.pmr_id}
         except Exception as error:
-            logging.error(f"Error in PMRController.create_complaints function: {error}")
+            logging.error(
+                f"Error in PMRController.create_examination_findings function: {error}"
+            )
             raise error
 
-    def create_complaints(self, request):
+    def create_examination_findings(self, request):
         try:
-            logging.info("Creating complaint records")
-            for complaint_obj in request.data:
-                complaint_obj_dict = complaint_obj.dict()
-                complaint_obj_dict.update({"pmr_id": request.pmr_id})
-                complaint_id = self.CRUDComplaint.create(**complaint_obj_dict)
-            return {"pmr_id": request.pmr_id, "complaint_id": complaint_id}
+            logging.info("Creating examination findings records")
+            for examination_findings_obj in request.data:
+                examination_findings_obj_dict = examination_findings_obj.dict()
+                logging.info(f"{examination_findings_obj_dict=}")
+                examination_findings_obj_dict.update({"pmr_id": request.pmr_id})
+                examination_findings_id = self.CRUDExaminationFindings.create(
+                    **examination_findings_obj_dict
+                )
+            return {
+                "pmr_id": request.pmr_id,
+                "examination_findings_id": examination_findings_id,
+            }
         except Exception as error:
-            logging.error(f"Error in PMRController.create_complaints function: {error}")
+            logging.error(
+                f"Error in PMRController.create_examination_findings function: {error}"
+            )
             raise error
 
-    def update_complaints(self, request):
+    def update_examination_findings(self, request):
         try:
-            logging.info("Updating complaint records")
-            for complaint_obj in request.data:
-                complaint_obj_dict = complaint_obj.dict()
-                self.CRUDComplaint.update(**complaint_obj_dict, id=request.id)
+            logging.info("Updating examination findings records")
+            for examination_findings_obj in request.data:
+                examination_findings_obj_dict = examination_findings_obj.dict()
+                self.CRUDExaminationFindings.update(
+                    **examination_findings_obj_dict, id=request.id
+                )
             return {"pmr_id": request.pmr_id}
         except Exception as error:
-            logging.error(f"Error in PMRController.create_complaints function: {error}")
+            logging.error(
+                f"Error in PMRController.create_examination_findings function: {error}"
+            )
             raise error
 
     def create_condition(self, request):
@@ -277,16 +291,23 @@ class PMRController:
             )
             raise error
 
-    def create_medicalTest(self, request):
+    def create_labInvestigation(self, request):
         try:
-            logging.info("Creating medical tests records")
-            for medical_tests_obj in request.data:
-                medical_tests_obj_dict = medical_tests_obj.dict()
-                medical_tests_obj_dict.update({"pmr_id": request.pmr_id})
-                medicalTest_id = self.CRUDMedicalTest.create(**medical_tests_obj_dict)
-            return {"pmr_id": request.pmr_id, "medicalTest_id": medicalTest_id}
+            logging.info("Creating lab investigation records")
+            for lab_investigation_obj in request.data:
+                lab_investigation_obj_dict = lab_investigation_obj.dict()
+                lab_investigation_obj_dict.update({"pmr_id": request.pmr_id})
+                lab_investigation_id = self.CRUDLabInvestigation.create(
+                    **lab_investigation_obj_dict
+                )
+            return {
+                "pmr_id": request.pmr_id,
+                "labInvestigation_id": lab_investigation_id,
+            }
         except Exception as error:
-            logging.error(f"Error in PMRController.create_diagnosis function: {error}")
+            logging.error(
+                f"Error in PMRController.create_labInvestigation function: {error}"
+            )
             raise error
 
     def update_medicalTest(self, request):
@@ -294,10 +315,12 @@ class PMRController:
             logging.info("Updating medical test records")
             for medical_test_obj in request.data:
                 medical_test_obj_dict = medical_test_obj.dict()
-                self.CRUDMedicalTest.update(**medical_test_obj_dict, id=request.id)
+                self.CRUDLabInvestigation.update(**medical_test_obj_dict, id=request.id)
             return {"pmr_id": request.pmr_id}
         except Exception as error:
-            logging.error(f"Error in PMRController.create_complaints function: {error}")
+            logging.error(
+                f"Error in PMRController.create_labInvestigation function: {error}"
+            )
             raise error
 
     def create_medicalHistory(self, request):
@@ -329,6 +352,32 @@ class PMRController:
             return {"pmr_id": request.pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_complaints function: {error}")
+            raise error
+
+    def create_advice(self, request):
+        try:
+            logging.info("Creating advice records")
+            advice_obj_dict = request.dict()
+            advice_obj_dict.update({"id": request.pmr_id})
+            pmr_id = advice_obj_dict.pop("pmr_id")
+            logging.info(f"{advice_obj_dict=}")
+            self.CRUDPatientMedicalRecord.update(pmr_id, **advice_obj_dict)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_advice function: {error}")
+            raise error
+
+    def create_notes(self, request):
+        try:
+            logging.info("Creating notes records")
+            notes_obj_dict = request.dict()
+            notes_obj_dict.update({"id": request.pmr_id})
+            pmr_id = notes_obj_dict.pop("pmr_id")
+            logging.info(f"{notes_obj_dict=}")
+            self.CRUDPatientMedicalRecord.update(pmr_id, **notes_obj_dict)
+            return {"pmr_id": request.pmr_id}
+        except Exception as error:
+            logging.error(f"Error in PMRController.create_notes function: {error}")
             raise error
 
     def get_pmr_with_patientId(self, patient_id: str):
@@ -372,7 +421,9 @@ class PMRController:
             logging.info(f"Getting the PMR record for {pmr_id=}")
             pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             vitals_data = self.CRUDVital.read_by_pmrId(pmr_id=pmr_id)
-            complaint_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            examination_findings_data = self.CRUDExaminationFindings.read_by_pmrId(
+                pmr_id=pmr_id
+            )
             diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
             medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
@@ -383,7 +434,7 @@ class PMRController:
             pmr_metadata.update(
                 {
                     "vitals": vitals_data,
-                    "complaints": complaint_data,
+                    "examination_findings": examination_findings_data,
                     "conditions": condition,
                     "diagnosis": diagnosis_data,
                     "symptoms": symptoms,
@@ -518,15 +569,17 @@ class PMRController:
         try:
             logging.info("executing delete_pmr function")
             logging.info(f"Getting the PMR record for {pmr_id=}")
-            self.CRUDComplaint.delete()
+            self.CRUDExaminationFindings.delete()
             pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
-            complaint_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
-            diagnosis_data = self.CRUDComplaint.read_by_pmrId(pmr_id=pmr_id)
+            examination_findings_data = self.CRUDExaminationFindings.read_by_pmrId(
+                pmr_id=pmr_id
+            )
+            diagnosis_data = self.CRUDExaminationFindings.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
             medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
             pmr_metadata.update(
                 {
-                    "complaints": complaint_data,
+                    "examination_findings": examination_findings_data,
                     "diagnosis": diagnosis_data,
                     "medicines": medicine_data,
                     "medicalTests": medicalTest_data,
@@ -597,6 +650,60 @@ class PMRController:
             return {"appointment_id": appointment_id}
         except Exception as error:
             logging.error(f"Error in PMRController.update_followup function: {error}")
+            raise error
+
+    def submit_pmr(self, request):
+        """[Controller to create new pmr record]
+
+        Args:
+            request ([dict]): [create new pmr request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing submit pmr function")
+            pmr_id = request.pmr_id
+            logging.info("Submitting PMR record")
+            logging.info(f"{request=}")
+            resp = dict()
+            resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
+            resp["condition_id"] = self.create_condition(request.condition)[
+                "condition_id"
+            ]
+            resp["examination_findings_id"] = self.create_examination_findings(
+                request.examinationFindings
+            )["examination_findings_id"]
+            resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
+                "diagnosis_id"
+            ]
+            resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
+            resp["medication_id"] = self.create_medication(request.medication)[
+                "medicines_id"
+            ]
+            resp["current_medication_id"] = self.create_current_medication(
+                request.currentMedication
+            )["current_medicines_id"]
+            resp["lab_investigation_id"] = self.create_labInvestigation(
+                request.lab_investigation
+            )["labInvestigation_id"]
+            resp["medical_history_id"] = self.create_medicalHistory(
+                request.medical_history
+            )["medicalHistory_id"]
+
+            logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
+            logging.info(f"{resp=}")
+            return {
+                "pmr_id": pmr_id,
+                "response": resp,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.submit_pmr_controller function: {error}"
+            )
             raise error
 
     def upload_document(self, pmr_id, document_data, document_type, document_name):
