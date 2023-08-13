@@ -28,6 +28,7 @@ from core.apis.schemas.requests.pmr_request import (
     UpdateSymptoms,
     UpdateConsultationStatus,
     FollowUp,
+    DocumentTypes,
 )
 from core.controllers.pmr_controller import PMRController
 from core import logger
@@ -64,7 +65,7 @@ def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/submitPMR")
+@pmr_router.patch("/v1/PMR/submitPMR")
 def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/submitPMR endpoint")
@@ -882,7 +883,7 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
 @pmr_router.post("/v1/PMR/uploadDocument")
 async def uploadDocument(
     pmr_id: str,
-    document_type: str,
+    document_type: DocumentTypes,
     file: UploadFile,
     token: str = Depends(oauth2_scheme),
 ):
@@ -1043,6 +1044,31 @@ async def uploadHealthDocuments(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")
+def getFHIR(pmr_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/PMR/getFHIR/{pmr_id} endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().get_fhir(pmr_id=pmr_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/getFHIR/{pmr_id} endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/getFHIR/{pmr_id} endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
