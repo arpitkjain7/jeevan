@@ -229,8 +229,13 @@ class FollowUp(BaseModel):
 
 
 class DocumentTypes(str, Enum):
-    OPCONSULT = "OP Consult"
-    LABREPORT = "Lab Report"
+    Prescription = "Prescription"
+    DiagnosticReport = "Diagnostic Report"
+    OPConsultation = "OP Consultation"
+    DischargeSummary = "Discharge Summary"
+    ImmunizationRecord = "Immunization Record"
+    HealthDocumentRecord = "Record artifact"
+    WellnessRecord = "Wellness Record"
 
 
 class UploadDocument(BaseModel):

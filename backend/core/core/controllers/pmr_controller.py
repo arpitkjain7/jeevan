@@ -67,7 +67,7 @@ class PMRController:
                 request_dict = request
             else:
                 request_dict = request.dict()
-            pmr_id = f"C360_PMR_{str(uuid.uuid1().int)[:18]}"
+            pmr_id = f"C360-PMR-{str(uuid.uuid1().int)[:18]}"
             request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
             logging.info("Creating PMR record")
             logging.info(f"PMR: {request_dict=}")
@@ -611,7 +611,7 @@ class PMRController:
                 byte_data=document_data,
                 file_name=document_key,
             )
-            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
                 **{
                     "id": document_id,
@@ -674,7 +674,7 @@ class PMRController:
                 byte_data=document_data,
                 file_name=document_key,
             )
-            document_id = f"C360_DOC_{str(uuid.uuid1().int)[:18]}"
+            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
                 **{
                     "id": document_id,
@@ -698,10 +698,10 @@ class PMRController:
             logging.info(f"{pmr_id=}")
             bundle_id = str(uuid.uuid1())
             return opConsultDocument(
-                bundle_name=f"OPConsultNote-{pmr_id}",
+                bundle_name=f"OPConsultNote-{bundle_id}",
                 bundle_identifier=bundle_id,
                 pmr_id=pmr_id,
             )
         except Exception as error:
-            logging.error(f"Error in PMRController.get_document function: {error}")
+            logging.error(f"Error in PMRController.get_fhir function: {error}")
             raise error

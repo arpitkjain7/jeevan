@@ -144,7 +144,7 @@ def practitioner(
     practitioner_name: str,
 ):
     print("Inside Practitioner")
-    practitioner = Practitioner(resource_type="Practitioner", id=practitioner_id)
+    practitioner = Practitioner(resource_type="Practitioner")
     time_str = datetime.now(timezone).isoformat()
     meta = Meta(
         versionId=1,
@@ -779,6 +779,7 @@ def document(
 # )
 
 # practitioner(
+#     practitioner_id="wqwe",
 #     identifier_system="https://doctor.ndhm.gov.in",
 #     identifier_value="ABC",
 #     identifier_code_system="http://terminology.hl7.org/CodeSystem/v2-0203",
