@@ -11,14 +11,14 @@ class otpHelper:
         self.msg91_auth_key = os.environ["msg91_auth_key"]
         self.msg91_template_id = os.environ["msg91_template_id"]
 
-    def send_otp(self, mobile_number: str, otp: int):
+    def send_otp(self, mobile_number: str, otp: str):
         try:
             if len(mobile_number) == 10:
                 mobile_number = f"91{mobile_number}"
             send_otp_params = {
                 "template_id": self.msg91_template_id,
                 "mobile": int(mobile_number),
-                "otp": int(otp),
+                "otp": str(otp),
             }
             auth_header = {"authkey": self.msg91_auth_key}
             response, status_code = APIInterface().post_with_params(
