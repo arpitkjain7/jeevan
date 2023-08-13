@@ -1,5 +1,7 @@
 import { List, styled } from "@mui/material";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import React from "react";
+import PMRPdf from "../PMRPdf";
 
 const VisitsWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
@@ -26,6 +28,7 @@ const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
 const PrescriptionDeatils = styled("div")(({ theme }) => ({
   flex: "1",
   backgroundColor: theme.palette.primaryGrey,
+  height:"800px"
 }));
 
 const PastVisits = () => {
@@ -46,6 +49,7 @@ const PastVisits = () => {
       time: "9:30AM",
     },
   ];
+  const pdfFileName = 'custom_filename.pdf';
   return (
     <VisitsWrapper>
       <Visits>
@@ -54,7 +58,19 @@ const PastVisits = () => {
             <DiagnosisDetails>{item?.type}</DiagnosisDetails>
           ))}
         </SideList>
-        <PrescriptionDeatils></PrescriptionDeatils>
+       <PrescriptionDeatils>
+          <PDFViewer style={{ width: '100%', height: '100%' }} zoom={1}> 
+            <PMRPdf />
+          </PDFViewer>
+          <PDFDownloadLink
+        document={<PMRPdf data={['Item 1', 'Item 2', 'Item 3']} />}
+        fileName={pdfFileName}
+      >
+        {({ blob, url, loading, error }) =>
+          loading ? 'Loading document...' : 'Download PDF'
+        }
+      </PDFDownloadLink>
+        </PrescriptionDeatils>
       </Visits>
     </VisitsWrapper>
   );

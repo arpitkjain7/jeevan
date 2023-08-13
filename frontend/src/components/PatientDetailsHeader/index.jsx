@@ -47,7 +47,7 @@ const PatientDetailsHeader = ({ patientDetails }) => {
     }
   }, []);
 
-  console.log(patientData);
+  console.log(patientData, "patientData");
 
   return (
     <DetailsHeaderContainer>
