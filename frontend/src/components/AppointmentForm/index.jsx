@@ -26,6 +26,7 @@ import {
   visitType,
 } from "./constant";
 import { ScheduleAppointmentActions } from "../ScheduleAppointment/scheduleAppointment.slice";
+import PatientDetailsHeader from "../PatientDetailsHeader";
 
 const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -203,6 +204,7 @@ function AppointmentForm(props) {
             ))}
           </Grid>
         </CardContent>
+        {/* <PatientDetailsHeader /> */}
       </StyledCard>
       <StyledCard>
         <StyledCardContent>

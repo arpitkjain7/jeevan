@@ -89,11 +89,11 @@ const BookingSlots = () => {
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
+    console.log(checkDay, daysArray, "days");
     if (daysArray?.length) {
       return daysArray?.includes(checkDay?.toLowerCase());
     }
   };
-
 
   const handleDateSelect = (date) => {
     let first = Object.keys(doctorDetails)?.length ? false : true;
@@ -108,6 +108,11 @@ const BookingSlots = () => {
           appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
+          console.log(
+            res.payload?.doc_working_days,
+            getDayFromString(date),
+            "res, dayFromString"
+          );
           const doctorAvailable = checkDoctorAvailability(
             res.payload?.doc_working_days || "",
             getDayFromString(date)
@@ -180,8 +185,8 @@ const BookingSlots = () => {
 
   function convertToTimeSlots(bookedSlots) {
     // Convert the booked time slots to the format 'HH:mm-HH:mm'
-    return bookedSlots.map(slot => {
-      const [startTime, endTime] = slot.split('-');
+    return bookedSlots.map((slot) => {
+      const [startTime, endTime] = slot.split("-");
       return `${startTime.slice(0, 5)}-${endTime.slice(0, 5)}`;
     });
   }
@@ -189,12 +194,13 @@ const BookingSlots = () => {
   function removeBookedSlots(originalSlots, bookedSlots) {
     // Convert booked slots to the 'HH:mm-HH:mm' format
     const bookedSlotsFormatted = convertToTimeSlots(bookedSlots);
-  
+
     // Remove booked time slots from the original slots
-    const availableSlots = originalSlots.filter(slot => !bookedSlotsFormatted.includes(slot));
+    const availableSlots = originalSlots.filter(
+      (slot) => !bookedSlotsFormatted.includes(slot)
+    );
     return availableSlots;
   }
-  
 
   useEffect(() => {
     let filledSlots = [];
@@ -207,7 +213,7 @@ const BookingSlots = () => {
       });
       console.log("filled", filledSlots);
     }
-    const slotsBooked =convertToTimeSlots(filledSlots)
+    const slotsBooked = convertToTimeSlots(filledSlots);
     if (doctorDetails) {
       const startTime = doctorDetails?.consultation_start_time;
       const endTime = doctorDetails?.consultation_end_time;
