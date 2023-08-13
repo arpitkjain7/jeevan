@@ -14,7 +14,7 @@ class CRUDGatewayInteraction:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDUser create request")
+            logging.info("CRUDGatewayInteraction create request")
             kwargs.update(
                 {
                     "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -31,7 +31,7 @@ class CRUDGatewayInteraction:
                 transaction_session.commit()
                 transaction_session.refresh(gatway_obj)
         except Exception as error:
-            logging.error(f"Error in CRUDUser create function : {error}")
+            logging.error(f"Error in CRUDGatewayInteraction create function : {error}")
             raise error
 
     def read(self, request_id: str):
@@ -47,7 +47,7 @@ class CRUDGatewayInteraction:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDUser read request")
+            logging.info("CRUDGatewayInteraction read request")
             with session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)
@@ -59,7 +59,7 @@ class CRUDGatewayInteraction:
             else:
                 return None
         except Exception as error:
-            logging.error(f"Error in CRUDUser read function : {error}")
+            logging.error(f"Error in CRUDGatewayInteraction read function : {error}")
             raise error
 
     def read_by_transId(self, transaction_id: str, request_type: str):
@@ -75,7 +75,7 @@ class CRUDGatewayInteraction:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDUser read request")
+            logging.info("CRUDGatewayInteraction read request")
             with session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)
@@ -88,7 +88,7 @@ class CRUDGatewayInteraction:
             else:
                 return None
         except Exception as error:
-            logging.error(f"Error in CRUDUser read function : {error}")
+            logging.error(f"Error in CRUDGatewayInteraction read function : {error}")
             raise error
 
     def update(self, **kwargs):
@@ -98,7 +98,7 @@ class CRUDGatewayInteraction:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDUser update function")
+            logging.info("CRUDGatewayInteraction update function")
             kwargs.update(
                 {
                     "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -114,7 +114,7 @@ class CRUDGatewayInteraction:
                 )
                 transaction_session.commit()
         except Exception as error:
-            logging.error(f"Error in CRUDUser update function : {error}")
+            logging.error(f"Error in CRUDGatewayInteraction update function : {error}")
             raise error
 
     def delete(self, session_parameter: str):

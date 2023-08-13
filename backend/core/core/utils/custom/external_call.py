@@ -85,6 +85,7 @@ class APIInterface:
         except Exception as error:
             logging.error(f"Error in get_bytes API request: {error}")
 
+    @staticmethod
     def post_with_params(route, params=None, headers=None, data=None):
         try:
             url = route

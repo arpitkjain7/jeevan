@@ -80,6 +80,55 @@ def patient(
     return patient
 
 
+def composition(
+    composition_id: str,
+    composition_profile_id: str,
+    pmr_id: str,
+    patient_ref: dict,
+    doctor_ref: list,
+    org_ref: dict,
+    encounter_ref: dict,
+    document_ref: str,
+):
+    print("Inside Composition")
+    time_str = datetime.now(timezone).isoformat()
+    codeable_obj = CodeableConcept()
+    codeable_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "371530004",
+            "display": "Clinical consultation report",
+        }
+    ]
+    composition_obj = Composition(
+        resource_type="Composition",
+        id=composition_id,
+        language="en-IN",
+        status="final",
+        title="Consultation Report",
+        date=time_str,
+        author=doctor_ref,
+        subject=[patient_ref],
+        custodian=org_ref,
+        encounter=encounter_ref,
+        type=codeable_obj,
+    )
+    meta = Meta(versionId=1, lastUpdated=time_str, profile=[composition_profile_id])
+    identifier = Identifier()
+    identifier.system = "https://ndhm.in/phr"
+    identifier.value = pmr_id
+    composition_obj.meta = meta
+    # composition_section = CompositionSection(
+    #     resource_type="Document Reference",
+    #     title="Document Reference",
+    #     entry=[Reference(reference=document_ref)],
+    # )
+    # composition.section = composition_section
+    composition_json = composition_obj.json()
+    print(composition_json)
+    return composition_obj
+
+
 def encounter(
     encounter_id: str,
     encounter_type_code: str,
@@ -291,41 +340,56 @@ def document(
     document_display_name: str,
     patient_ref: str,
     document_mime_type: str,
-    document_bytes: str,
+    document_bytes: bytes,
 ):
-    print("Inside document")
-    attachment_obj = Attachment(
-        contentType=document_mime_type, language="en-IN", data=document_bytes
-    )
-    document_ref_obj = DocumentReferenceContent(attachment=attachment_obj)
-    document_reference = DocumentReference(
-        resource_type="DocumentReference",
-        id=document_ref_id,
-        status="current",
-        docStatus="final",
-        subject={"reference": patient_ref},
-        content=[document_ref_obj],
-    )
-    time_str = datetime.now(timezone).isoformat()
-    meta = Meta(
-        versionId=1,
-        lastUpdated=time_str,
-        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentReference"],
-    )
-    document_reference.meta = meta
-    codeable_obj = CodeableConcept()
-    codeable_obj.coding = [
-        {
-            "system": "http://snomed.info/sct",
-            "code": document_code,
-            "display": document_display_name,
-        }
-    ]
-    codeable_obj.text = document_display_name
-    document_reference.type = codeable_obj
-    document_reference_json = document_reference.json()
-    print(document_reference_json)
-    return document_reference
+    try:
+        print("Inside document")
+        # print(f"{document_ref_id=}")
+        # print(f"{document_code=}")
+        # print(f"{document_display_name=}")
+        # print(f"{patient_ref=}")
+        # print(f"{document_mime_type=}")
+        attachment_obj = Attachment(
+            contentType=document_mime_type, language="en-IN", data=document_bytes
+        )
+        # print(f"{attachment_obj=}")
+        document_ref_obj = DocumentReferenceContent(attachment=attachment_obj)
+        # print(f"{document_ref_obj=}")
+        document_reference = DocumentReference(
+            resource_type="DocumentReference",
+            id="1",
+            status="current",
+            docStatus="final",
+            subject={"reference": patient_ref},
+            content=[document_ref_obj],
+        )
+        # print(f"{document_reference=}")
+        time_str = datetime.now(timezone).isoformat()
+        meta = Meta(
+            versionId=1,
+            lastUpdated=time_str,
+            profile=[
+                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentReference"
+            ],
+        )
+        # print(f"{meta=}")
+        document_reference.meta = meta
+        codeable_obj = CodeableConcept()
+        codeable_obj.coding = [
+            {
+                "system": "http://snomed.info/sct",
+                "code": document_code,
+                "display": document_display_name,
+            }
+        ]
+        # print(f"{document_reference=}")
+        codeable_obj.text = document_display_name
+        document_reference.type = codeable_obj
+        document_reference_json = document_reference.json()
+        # print(document_reference_json)
+        return document_reference
+    except Exception as error:
+        raise error
 
 
 def condition(

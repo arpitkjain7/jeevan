@@ -285,13 +285,13 @@ class CRUDPatientMedicalRecord:
                 ):
                     pmr_obj.__dict__.update(
                         {
-                            "hip": hip_obj,
-                            "doctor": doctor_obj,
-                            "appointment": appointment_obj,
-                            "patient": patient_obj,
+                            "hip": hip_obj.__dict__,
+                            "doctor": doctor_obj.__dict__,
+                            "appointment": appointment_obj.__dict__,
+                            "patient": patient_obj.__dict__,
                         }
                     )
-                    joined_result.append(pmr_obj)
+                    joined_result.append(pmr_obj.__dict__)
             return joined_result
         except Exception as error:
             logging.error(

@@ -291,7 +291,7 @@ class PatientController:
                 abha_number = patient_data.get("healthIdNumber")
                 if abha_number:
                     abha_number = abha_number.replace("-", "")
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -568,8 +568,9 @@ class PatientController:
             link_ref_num = request.get("confirmation").get("linkRefNumber")
             otp = request.get("confirmation").get("token")
             gateway_obj = self.CRUDGatewayInteraction.read(request_id=link_ref_num)
+            logging.info(f"{gateway_obj=}")
             gateway_meta = gateway_obj.get("gateway_metadata")
-            patient_mobile_number = gateway_obj.get("patient_mobile_number")
+            patient_mobile_number = gateway_meta.get("patient_mobile_number")
             otp_verification_response = otpHelper().verify_otp(
                 mobile_number=patient_mobile_number, otp=otp
             )
@@ -624,7 +625,7 @@ class PatientController:
                 if resp_code < 300:
                     for pmr_id in gateway_meta.get("pmr_list"):
                         self.CRUDPatientMedicalRecord.update(
-                            **{"id": pmr_id, "abdm_linked": True}
+                            pmr_id=pmr_id, **{"abdm_linked": True}
                         )
             else:
                 logging.info("Invalid OTP")
@@ -697,7 +698,7 @@ class PatientController:
                     "status": "Patient already exist",
                 }
             else:
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update(
                     {"id": patient_id, "hip_id": request_json["hip_id"]}
                 )

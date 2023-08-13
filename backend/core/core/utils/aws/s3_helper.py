@@ -2,6 +2,8 @@ import boto3
 from botocore.exceptions import ClientError
 from core import logger
 from botocore.config import Config
+import json
+import base64
 
 logging = logger(__name__)
 config = Config(signature_version="v4")
@@ -83,3 +85,9 @@ def delete_s3(bucket_name: str, key: str):
     except ClientError as e:
         logging.error(e)
         return None
+
+
+def read_object(bucket_name: str, prefix: str):
+    response = s3_client.get_object(Bucket=bucket_name, Key=prefix)
+    file_bytes = response["Body"].read()
+    return base64.b64encode(file_bytes)
