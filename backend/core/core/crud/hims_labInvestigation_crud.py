@@ -1,12 +1,12 @@
 from core import session, logger
-from core.orm_models.hims_medicalTest import MedicalTest
+from core.orm_models.hims_labInvestigations import LabInvestigations
 from datetime import datetime
 from pytz import timezone
 
 logging = logger(__name__)
 
 
-class CRUDMedicalTest:
+class CRUDLabInvestigation:
     def create(self, **kwargs):
         """[CRUD function to create a new Medical Test record]
 
@@ -14,7 +14,7 @@ class CRUDMedicalTest:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDMedicalTest create request")
+            logging.info("`CRUDLabInvestigation` create request")
             kwargs.update(
                 {
                     "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -25,14 +25,14 @@ class CRUDMedicalTest:
                     ),
                 }
             )
-            medical_test = MedicalTest(**kwargs)
+            lab_investigation = LabInvestigations(**kwargs)
             with session() as transaction_session:
-                transaction_session.add(medical_test)
+                transaction_session.add(lab_investigation)
                 transaction_session.commit()
-                transaction_session.refresh(medical_test)
-            return medical_test.id
+                transaction_session.refresh(lab_investigation)
+            return lab_investigation.id
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTest create function : {error}")
+            logging.error(f"Error in CRUDLabInvestigation create function : {error}")
             raise error
 
     def read_by_pmrId(self, pmr_id: str):
@@ -48,19 +48,19 @@ class CRUDMedicalTest:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDMedicalTest read request")
+            logging.info("CRUDLabInvestigation read request")
             with session() as transaction_session:
-                obj: MedicalTest = (
-                    transaction_session.query(MedicalTest)
-                    .filter(MedicalTest.pmr_id == pmr_id)
-                    .order_by(MedicalTest.created_at.desc())
+                obj: LabInvestigations = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.pmr_id == pmr_id)
+                    .order_by(LabInvestigations.created_at.desc())
                     .all()
                 )
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTest read function : {error}")
+            logging.error(f"Error in CRUDLabInvestigation read function : {error}")
             raise error
 
     def read_all(self):
@@ -73,14 +73,16 @@ class CRUDMedicalTest:
             [list]: [all user records]
         """
         try:
-            logging.info("CRUDMedicalTest read_all request")
+            logging.info("CRUDLabInvestigation read_all request")
             with session() as transaction_session:
-                obj: MedicalTest = transaction_session.query(MedicalTest).all()
+                obj: LabInvestigations = transaction_session.query(
+                    LabInvestigations
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTest read_all function : {error}")
+            logging.error(f"Error in CRUDLabInvestigation read_all function : {error}")
             raise error
 
     def update(self, id: str, **kwargs):
@@ -90,7 +92,7 @@ class CRUDMedicalTest:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDMedicalTest update function")
+            logging.info("CRUDLabInvestigation update function")
             kwargs.update(
                 {
                     "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -99,9 +101,9 @@ class CRUDMedicalTest:
                 }
             )
             with session() as transaction_session:
-                obj: MedicalTest = (
-                    transaction_session.query(MedicalTest)
-                    .filter(MedicalTest.id == id)
+                obj: LabInvestigations = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
@@ -109,25 +111,25 @@ class CRUDMedicalTest:
             logging.error(f"Error in CRUDMedicalTest update function : {error}")
             raise error
 
-    def delete(self, medical_test_id: int):
+    def delete(self, lab_investigation_id: int):
         """[CRUD function to delete a User record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDMedicalTest delete function")
+            logging.info("CRUDLabInvestigation delete function")
             with session() as transaction_session:
-                obj: MedicalTest = (
-                    transaction_session.query(MedicalTest)
-                    .filter(MedicalTest.id == medical_test_id)
+                obj: LabInvestigations = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.id == LabInvestigations)
                     .first()
                 )
                 transaction_session.delete(obj)
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTest delete function : {error}")
+            logging.error(f"Error in CRUDLabInvestigation delete function : {error}")
             raise error
 
     def delete_all(self, pmr_id: str):
@@ -137,15 +139,17 @@ class CRUDMedicalTest:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDMedicalTest delete_all function")
+            logging.info("CRUDLabInvestigation delete_all function")
             with session() as transaction_session:
-                obj: MedicalTest = (
-                    transaction_session.query(MedicalTest)
-                    .filter(MedicalTest.pmr_id == pmr_id)
+                obj: LabInvestigations = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.pmr_id == pmr_id)
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDMedicalTest delete_all function : {error}")
+            logging.error(
+                f"Error in CRUDLabInvestigation delete_all function : {error}"
+            )
             raise error
