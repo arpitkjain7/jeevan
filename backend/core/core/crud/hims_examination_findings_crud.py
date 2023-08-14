@@ -1,20 +1,20 @@
 from core import session, logger
-from core.orm_models.hims_complaint import Complaint
+from core.orm_models.hims_examinationFindings import ExaminationFindings
 from datetime import datetime
 from pytz import timezone
 
 logging = logger(__name__)
 
 
-class CRUDComplaint:
+class CRUDExaminationFindings:
     def create(self, **kwargs):
-        """[CRUD function to create a new Complaint record]
+        """[CRUD function to create a new ExaminationFindings record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDComplaint create request")
+            logging.info("CRUDExaminationFindings create request")
             kwargs.update(
                 {
                     "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -25,18 +25,18 @@ class CRUDComplaint:
                     ),
                 }
             )
-            complaint = Complaint(**kwargs)
+            examination_findings = ExaminationFindings(**kwargs)
             with session() as transaction_session:
-                transaction_session.add(complaint)
+                transaction_session.add(examination_findings)
                 transaction_session.commit()
-                transaction_session.refresh(complaint)
-            return complaint.id
+                transaction_session.refresh(examination_findings)
+            return examination_findings.id
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint create function : {error}")
+            logging.error(f"Error in CRUDExaminationFindings create function : {error}")
             raise error
 
     def read_by_pmrId(self, pmr_id: int):
-        """[CRUD function to read a complaint record]
+        """[CRUD function to read a examination_findings record]
 
         Args:
             pmr_id (str): [Patient Medical Record Id to filter the record]
@@ -45,52 +45,56 @@ class CRUDComplaint:
             error: [Error returned from the DB layer]
 
         Returns:
-            [dict]: [Complaint record matching the criteria]
+            [dict]: [ExaminationFindings record matching the criteria]
         """
         try:
-            logging.info("CRUDComplaint read request")
+            logging.info("CRUDExaminationFindings read request")
             with session() as transaction_session:
-                obj: Complaint = (
-                    transaction_session.query(Complaint)
-                    .filter(Complaint.pmr_id == pmr_id)
-                    .order_by(Complaint.created_at.desc())
+                obj: ExaminationFindings = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.pmr_id == pmr_id)
+                    .order_by(ExaminationFindings.created_at.desc())
                     .all()
                 )
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint read function : {error}")
+            logging.error(f"Error in CRUDExaminationFindings read function : {error}")
             raise error
 
     def read_all(self):
-        """[CRUD function to read_all Complaint record]
+        """[CRUD function to read_all ExaminationFindings record]
 
         Raises:
             error: [Error returned from the DB layer]
 
         Returns:
-            [list]: [all Complaint records]
+            [list]: [all ExaminationFindings records]
         """
         try:
-            logging.info("CRUDComplaint read_all request")
+            logging.info("CRUDExaminationFindings read_all request")
             with session() as transaction_session:
-                obj: Complaint = transaction_session.query(Complaint).all()
+                obj: ExaminationFindings = transaction_session.query(
+                    ExaminationFindings
+                ).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint read_all function : {error}")
+            logging.error(
+                f"Error in CRUDExaminationFindings read_all function : {error}"
+            )
             raise error
 
     def update(self, id: str, **kwargs):
-        """[CRUD function to update a Complaint record]
+        """[CRUD function to update a ExaminationFindings record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDComplaint update function")
+            logging.info("CRUDExaminationFindings update function")
             kwargs.update(
                 {
                     "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -99,53 +103,55 @@ class CRUDComplaint:
                 }
             )
             with session() as transaction_session:
-                obj: Complaint = (
-                    transaction_session.query(Complaint)
-                    .filter(Complaint.id == id)
+                obj: ExaminationFindings = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.id == id)
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint update function : {error}")
+            logging.error(f"Error in CRUDExaminationFindings update function : {error}")
             raise error
 
-    def delete(self, complaint_id: int):
-        """[CRUD function to delete a Complaint record]
+    def delete(self, examination_findings_id: int):
+        """[CRUD function to delete a ExaminationFindings record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDComplaint delete function")
+            logging.info("CRUDExaminationFindings delete function")
             with session() as transaction_session:
-                obj: Complaint = (
-                    transaction_session.query(Complaint)
-                    .filter(Complaint.id == complaint_id)
+                obj: ExaminationFindings = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.id == examination_findings_id)
                     .first()
                 )
                 transaction_session.delete(obj)
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint delete function : {error}")
+            logging.error(f"Error in CRUDExaminationFindings delete function : {error}")
             raise error
 
     def delete_all(self, pmr_id: str):
-        """[CRUD function to delete_all  Complaint record]
+        """[CRUD function to delete_all  ExaminationFindings record]
 
         Raises:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDComplaint delete_all function")
+            logging.info("CRUDExaminationFindings delete_all function")
             with session() as transaction_session:
-                obj: Complaint = (
-                    transaction_session.query(Complaint)
-                    .filter(Complaint.pmr_id == pmr_id)
+                obj: ExaminationFindings = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.pmr_id == pmr_id)
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDComplaint delete_all function : {error}")
+            logging.error(
+                f"Error in CRUDExaminationFindings delete_all function : {error}"
+            )
             raise error

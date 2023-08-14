@@ -1,10 +1,14 @@
 from core import session, logger
 from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
-from core.orm_models.hims_complaint import Complaint
+from core.orm_models.hims_examinationFindings import ExaminationFindings
 from core.orm_models.hims_diagnosis import Diagnosis
 from core.orm_models.hims_medicines import Medicines
-from core.orm_models.hims_medicalTest import MedicalTest
+from core.orm_models.hims_labInvestigations import LabInvestigations
 from core.orm_models.hims_precautions import Precautions
+from core.orm_models.hims_hipDetails import HIPDetail
+from core.orm_models.hims_appointments import Appointments
+from core.orm_models.hims_patientDetails import PatientDetails
+from core.orm_models.hims_docDetails import DocDetails
 from datetime import datetime
 from pytz import timezone
 
@@ -70,7 +74,7 @@ class CRUDPatientMedicalRecord:
                         Medicines,
                         Diagnosis,
                         PatientMedicalRecord,
-                        MedicalTest,
+                        LabInvestigations,
                     )
                     .filter(Complaint.pmr_id == pmr_id)
                     .filter(MedicalTest.pmr_id == pmr_id)
@@ -224,6 +228,9 @@ class CRUDPatientMedicalRecord:
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
+            if obj is not None:
+                return pmr_id
+            return []
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord update function : {error}"
@@ -250,5 +257,47 @@ class CRUDPatientMedicalRecord:
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord delete function : {error}"
+            )
+            raise error
+
+    def read_details(self, pmr_id: str):
+        try:
+            logging.info("CRUDPatientMedicalRecord read_details request")
+            with session() as transaction_session:
+                joined_result = []
+                for (
+                    hip_obj,
+                    doctor_obj,
+                    appointment_obj,
+                    patient_obj,
+                    pmr_obj,
+                ) in (
+                    transaction_session.query(
+                        HIPDetail,
+                        DocDetails,
+                        Appointments,
+                        PatientDetails,
+                        PatientMedicalRecord,
+                    )
+                    .filter(HIPDetail.hip_id == PatientMedicalRecord.hip_id)
+                    .filter(DocDetails.id == PatientMedicalRecord.doc_id)
+                    .filter(Appointments.id == PatientMedicalRecord.appointment_id)
+                    .filter(PatientDetails.id == PatientMedicalRecord.patient_id)
+                    .filter(PatientMedicalRecord.id == pmr_id)
+                    .all()
+                ):
+                    pmr_obj.__dict__.update(
+                        {
+                            "hip": hip_obj.__dict__,
+                            "doctor": doctor_obj.__dict__,
+                            "appointment": appointment_obj.__dict__,
+                            "patient": patient_obj.__dict__,
+                        }
+                    )
+                    joined_result.append(pmr_obj.__dict__)
+            return joined_result
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_details function : {error}"
             )
             raise error

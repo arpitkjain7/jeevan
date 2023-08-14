@@ -6,26 +6,29 @@ from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     CreatePMR,
     PMR,
+    Advice,
+    Notes,
     CreateVital,
-    CreateComplaint,
+    CreateExaminationFindings,
     CreateDiagnosis,
     CreateCondition,
-    CreateMedicalTest,
+    CreateLabInvestigation,
     CreateMedication,
     CreateMedicalHistory,
     CreateCurrentMedication,
     CreateSymptoms,
     UpdateVital,
-    UpdateComplaint,
+    UpdateExaminationFindings,
     UpdateDiagnosis,
     UpdateCondition,
     UpdateMedication,
-    UpdateMedicalTest,
+    UpdateLabInvestigation,
     UpdateMedicalHistory,
     UpdateCurrentMedication,
     UpdateSymptoms,
     UpdateConsultationStatus,
     FollowUp,
+    DocumentTypes,
 )
 from core.controllers.pmr_controller import PMRController
 from core import logger
@@ -62,7 +65,7 @@ def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.post("/v1/PMR/submitPMR")
+@pmr_router.patch("/v1/PMR/submitPMR")
 def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/submitPMR endpoint")
@@ -222,16 +225,19 @@ def updateCondition(
         )
 
 
-@pmr_router.post("/v1/PMR/createComplaints")
-def createComplaints(
-    complaint_request: CreateComplaint, token: str = Depends(oauth2_scheme)
+@pmr_router.post("/v1/PMR/createExaminationFindings")
+def createExaminationFindings(
+    examination_findings_request: CreateExaminationFindings,
+    token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1/pmr/createComplaints endpoint")
-        logging.debug(f"Request: {complaint_request}")
+        logging.info("Calling /v1/pmr/createExaminationFindings endpoint")
+        logging.debug(f"Request: {examination_findings_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_complaints(request=complaint_request)
+            return PMRController().create_examination_findings(
+                request=examination_findings_request
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -239,10 +245,12 @@ def createComplaints(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/createComplaints endpoint: {httperror}")
+        logging.error(
+            f"Error in /v1/pmr/createExaminationFindings endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/createComplaints endpoint: {error}")
+        logging.error(f"Error in /v1/pmr/createExaminationFindings endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -250,16 +258,19 @@ def createComplaints(
         )
 
 
-@pmr_router.patch("/v1/PMR/updateComplaints")
-def updateComplaints(
-    complaint_request: UpdateComplaint, token: str = Depends(oauth2_scheme)
+@pmr_router.patch("/v1/PMR/updateExaminationFindings")
+def updateExaminationFindings(
+    examination_findings_request: UpdateExaminationFindings,
+    token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1/pmr/updateComplaints endpoint")
-        logging.debug(f"Request: {complaint_request}")
+        logging.info("Calling /v1/pmr/updateExaminationFindings endpoint")
+        logging.debug(f"Request: {examination_findings_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().update_complaints(request=complaint_request)
+            return PMRController().update_examination_findings(
+                request=examination_findings_request
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -267,10 +278,12 @@ def updateComplaints(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/updateComplaints endpoint: {httperror}")
+        logging.error(
+            f"Error in /v1/pmr/updateExaminationFindings endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/updateComplaints endpoint: {error}")
+        logging.error(f"Error in /v1/pmr/updateExaminationFindings endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -508,16 +521,19 @@ def updateCurrentMedication(
         )
 
 
-@pmr_router.post("/v1/PMR/createMedicalTest")
-def createMedicalTest(
-    medicalTest_request: CreateMedicalTest, token: str = Depends(oauth2_scheme)
+@pmr_router.post("/v1/PMR/createLabInvestigation")
+def createLabInvestigation(
+    labInvestigation_request: CreateLabInvestigation,
+    token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1/pmr/createMedicalTest endpoint")
-        logging.debug(f"Request: {medicalTest_request}")
+        logging.info("Calling /v1/pmr/createLabInvestigation endpoint")
+        logging.debug(f"Request: {labInvestigation_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_medicalTest(request=medicalTest_request)
+            return PMRController().create_labInvestigation(
+                request=labInvestigation_request
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -525,10 +541,10 @@ def createMedicalTest(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/createMedicalTest endpoint: {httperror}")
+        logging.error(f"Error in /v1/pmr/createLabInvestigation endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/createMedicalTest endpoint: {error}")
+        logging.error(f"Error in /v1/pmr/createLabInvestigation endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -538,7 +554,7 @@ def createMedicalTest(
 
 @pmr_router.patch("/v1/PMR/updateMedicalTest")
 def updateMedicalTest(
-    medicalTest_request: UpdateMedicalTest, token: str = Depends(oauth2_scheme)
+    medicalTest_request: UpdateLabInvestigation, token: str = Depends(oauth2_scheme)
 ):
     try:
         logging.info("Calling /v1/pmr/updateMedicalTest endpoint")
@@ -617,6 +633,58 @@ def updateMedicalHistory(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/pmr/updateMedicalHistory endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/addAdvice")
+def addAdvice(advice_request: Advice, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/pmr/addAdvice endpoint")
+        logging.debug(f"Request: {advice_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_advice(request=advice_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/addAdvice endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/addAdvice endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/addNotes")
+def addNotes(notes_request: Notes, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/pmr/addNotes endpoint")
+        logging.debug(f"Request: {notes_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_notes(request=notes_request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/addNotes endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/addNotes endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -815,7 +883,7 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
 @pmr_router.post("/v1/PMR/uploadDocument")
 async def uploadDocument(
     pmr_id: str,
-    document_type: str,
+    document_type: DocumentTypes,
     file: UploadFile,
     token: str = Depends(oauth2_scheme),
 ):
@@ -976,6 +1044,31 @@ async def uploadHealthDocuments(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")
+def getFHIR(pmr_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/PMR/getFHIR/{pmr_id} endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().get_fhir(pmr_id=pmr_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/getFHIR/{pmr_id} endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/getFHIR/{pmr_id} endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

@@ -15,15 +15,12 @@ class Vital(BaseModel):
     body_mass_index: str
     systolic_blood_pressure: str
     diastolic_blood_pressure: str
-    snowmed_code: str
-    snowmed_display: str
 
 
-class Complaint(BaseModel):
-    complaint_type: str
-    frequency: str
-    severity: str
+class ExaminationFindings(BaseModel):
+    disease: str
     duration: str
+    status: str
     snowmed_code: str
     snowmed_display: str
 
@@ -88,7 +85,7 @@ class MedicalHistory(BaseModel):
     snowmed_display: str
 
 
-class MedicalTests(BaseModel):
+class LabInvestigations(BaseModel):
     name: str
     snowmed_code: str
     snowmed_display: str
@@ -105,15 +102,15 @@ class UpdateVital(BaseModel):
     data: List[Vital]
 
 
-class CreateComplaint(BaseModel):
+class CreateExaminationFindings(BaseModel):
     pmr_id: str
-    data: List[Complaint]
+    data: List[ExaminationFindings]
 
 
-class UpdateComplaint(BaseModel):
+class UpdateExaminationFindings(BaseModel):
     id: str
     pmr_id: str
-    data: List[Complaint]
+    data: List[ExaminationFindings]
 
 
 class CreateCondition(BaseModel):
@@ -171,15 +168,15 @@ class UpdateCurrentMedication(BaseModel):
     data: List[CurrentMedicines]
 
 
-class CreateMedicalTest(BaseModel):
+class CreateLabInvestigation(BaseModel):
     pmr_id: str
-    data: List[MedicalTests]
+    data: List[LabInvestigations]
 
 
-class UpdateMedicalTest(BaseModel):
+class UpdateLabInvestigation(BaseModel):
     id: str
     pmr_id: str
-    data: List[MedicalTests]
+    data: List[LabInvestigations]
 
 
 class CreateMedicalHistory(BaseModel):
@@ -213,12 +210,12 @@ class PMR(BaseModel):
     pmr_id: str
     vital: CreateVital
     condition: CreateCondition
-    complaint: CreateComplaint
+    examinationFindings: CreateExaminationFindings
     diagnosis: CreateDiagnosis
     symptom: CreateSymptoms
     medication: CreateMedication
     currentMedication: CreateCurrentMedication
-    medical_test: CreateMedicalTest
+    lab_investigation: CreateLabInvestigation
     medical_history: CreateMedicalHistory
 
 
@@ -238,3 +235,28 @@ class UpdateConsultationStatus(BaseModel):
 class FollowUp(BaseModel):
     appointment_id: str
     followup_date: date
+
+
+class DocumentTypes(str, Enum):
+    Prescription = "Prescription"
+    DiagnosticReport = "Diagnostic Report"
+    OPConsultation = "OP Consultation"
+    DischargeSummary = "Discharge Summary"
+    ImmunizationRecord = "Immunization Record"
+    HealthDocumentRecord = "Record artifact"
+    WellnessRecord = "Wellness Record"
+
+
+class UploadDocument(BaseModel):
+    pmr_id: str
+    document_type: DocumentTypes
+
+
+class Advice(BaseModel):
+    pmr_id: str
+    advices: str
+
+
+class Notes(BaseModel):
+    pmr_id: str
+    notes: str
