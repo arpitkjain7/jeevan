@@ -12,7 +12,6 @@ callback_router = APIRouter()
 
 @callback_router.post("/v0.5/users/auth/on-fetch-modes")
 def on_fetch_modes(fetch_modes_request: dict):
-    pass
     try:
         logging.info("Calling /v0.5/users/auth/on-fetch-modes endpoint")
         logging.debug(f"Request: {fetch_modes_request}")
