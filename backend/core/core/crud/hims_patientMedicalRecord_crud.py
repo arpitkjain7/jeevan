@@ -47,7 +47,7 @@ class CRUDPatientMedicalRecord:
             raise error
 
     def read_new(self, pmr_id: int):
-        """[CRUD function to read a PatientMedicalRecord record]
+        """[CRUD function to read_new a PatientMedicalRecord record]
 
         Args:
             pmr_id (str): [PMR Id to filter PatientMedicalRecord]
@@ -59,7 +59,7 @@ class CRUDPatientMedicalRecord:
             [dict]: [PatientMedicalRecord record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientMedicalRecord read request")
+            logging.info("CRUDPatientMedicalRecord read_new request")
             with session() as transaction_session:
                 joined_result = []
                 for (
@@ -94,10 +94,12 @@ class CRUDPatientMedicalRecord:
                     joined_result.append(pmr_obj)
             return joined_result
         except Exception as error:
-            logging.error(f"Error in CRUDPatientMedicalRecord read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_new function : {error}"
+            )
             raise error
 
-    def read(self, pmr_id: int):
+    def read(self, pmr_id: str):
         """[CRUD function to read a PatientMedicalRecord record]
 
         Args:
@@ -137,7 +139,7 @@ class CRUDPatientMedicalRecord:
             [dict]: [PatientMedicalRecord record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientMedicalRecord read request")
+            logging.info("CRUDPatientMedicalRecord read_by_docId request")
             with session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
@@ -149,7 +151,9 @@ class CRUDPatientMedicalRecord:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDPatientMedicalRecord read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_by_docId function : {error}"
+            )
             raise error
 
     def read_by_patientId(self, patient_id: int):
@@ -165,7 +169,7 @@ class CRUDPatientMedicalRecord:
             [dict]: [PatientMedicalRecord record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientMedicalRecord read request")
+            logging.info("CRUDPatientMedicalRecord read_by_patientId request")
             with session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
@@ -177,7 +181,9 @@ class CRUDPatientMedicalRecord:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDPatientMedicalRecord read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_by_patientId function : {error}"
+            )
             raise error
 
     def read_all(self):

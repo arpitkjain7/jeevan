@@ -1074,3 +1074,21 @@ def getFHIR(pmr_id: str, token: str = Depends(oauth2_scheme)):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@pmr_router.post("/v0.5/patients/sms/on-notify")
+def patient_sms_on_notify(sms_on_notify_request: dict):
+    try:
+        logging.info("Calling /v0.5/patients/sms/on-notify endpoint")
+        logging.debug(f"Request: {sms_on_notify_request}")
+        return PMRController().deep_link_ack(request=sms_on_notify_request)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
