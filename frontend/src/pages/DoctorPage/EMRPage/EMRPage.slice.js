@@ -16,9 +16,33 @@ export const getEMRId = createAsyncThunk("getPMRId/PMRId", async (payload) => {
 });
 
 export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
-  const response = await apiRequest("POST", apis?.submitEMR, payload);
+  const response = await apiRequest("PATCH", apis?.submitEMR, payload);
   return response;
 });
+
+export const uploadPmrPdf = createAsyncThunk(
+  "uploadPMR/PMR",
+  async (pdfBlob, pmr_id, document_type) => {
+    const access_token = localStorage.getItem("accesstoken");
+    const formData = new FormData();
+    formData.append("file", pdfBlob, "document.pdf");
+    try {
+      const response = await axios.post(apis.uploadPmrPdf, formData, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+    }
+  }
+);
 
 const EMRSlice = createSlice({
   name: "SearchVitals",
@@ -26,7 +50,7 @@ const EMRSlice = createSlice({
     loading: false,
     searchedData: [],
     pmrIdData: {},
-    pmr:{}
+    pmr: {},
   },
   reducers: {
     resetSearchData: (state, value) => {
@@ -54,7 +78,7 @@ const EMRSlice = createSlice({
       })
       .addCase(getEMRId.rejected, (state, action) => {
         state.loading = false;
-      })  
+      })
       .addCase(postEMR.pending, (state) => {
         state.loading = true;
       })

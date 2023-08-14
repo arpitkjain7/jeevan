@@ -7,6 +7,8 @@ import { useDispatch } from "react-redux";
 import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { Button } from "@mui/base";
+import { PDFViewer } from "@react-pdf/renderer";
+import PMRPdf from "../../../components/PMRPdf";
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
 
@@ -120,6 +122,8 @@ const PatientEMRDetails = () => {
   const medicalHistoryRef = useRef(null);
   const patient = sessionStorage?.getItem("selectedPatient");
   const [emrId, setEMRId] = useState();
+  const [pmrFinished, setPmrFinished] = useState(false);
+  const [pdfData, setPdfData] = useState({});
 
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -597,28 +601,216 @@ const PatientEMRDetails = () => {
     });
   };
 
-  function transformObject(obj) {
-    const transformedArray = [];
+  const diseaseObject = (inputObject) => {
+    const result = [];
 
-    for (const diseaseKey in obj) {
-      if (obj.hasOwnProperty(diseaseKey)) {
-        const diseaseData = obj[diseaseKey];
-
-        const transformedItem = {
-          disease: diseaseKey,
-          duration: diseaseData.since || diseaseData.since2,
-          status: diseaseData.severity || diseaseData.severity2,
-          notes: diseaseData.notes || diseaseData.notes2,
-          snowmed_code: 123,
-          snowmed_display: 123,
-        };
-
-        transformedArray.push(transformedItem);
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
       }
+
+      if (key === "array") {
+        continue;
+      }
+      const objectDetails = inputObject[key];
+      const transformedItem = {
+        disease: key,
+        duration: objectDetails.since,
+        status: objectDetails.severity,
+        notes: objectDetails.notes,
+        snowmed_code: 123,
+        snowmed_display: 123,
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
+
+  const conditonObject = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+      const transformedItem = {
+        condition: key,
+        duration: objectDetails.since,
+        status: objectDetails.severity,
+        start_date:"2023/08/08",
+        notes: objectDetails.notes,
+        snowmed_code: 123,
+        snowmed_display: 123,
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
+
+  const symptomObj = (inputObject) => {
+    const result = [];
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+
+      result.push({
+        symptom: key,
+        duration: objectDetails.since,
+        status: objectDetails.severity,
+        notes: objectDetails.notes,
+      });
     }
 
-    return transformedArray;
-  }
+    return result;
+  };
+  const medicationObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+
+      const transformedItem = {
+        medicine_name: key,
+        frequency: "3",
+        dosage: "3",
+        time_of_day: "morning",
+        duration: objectDetails.since,
+        status: objectDetails.severity,
+        notes: objectDetails.notes,
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
+
+  const currentMedicationObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+      const objectDetails = inputObject[key];
+
+      const transformedItem = {
+        medicine_name: key,
+        start_date: "2023/08/08",
+        duration: objectDetails.since,
+        status: objectDetails.severity,
+        notes: objectDetails.notes,
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
+
+  const labInvestigationObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+
+      const transformedItem = {
+        name: key,
+        snowmed_code: 123,
+        snowmed_display: 123,
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
+
+  const medicalHistoryObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+      const transformedItem = {
+        diabetes_melitus: "yes",
+        hypertension: "yes",
+        hypothyroidism: "yes",
+        alcohol: "yes",
+        tobacco: "yes",
+        smoke: "yes",
+      };
+
+      result.push(transformedItem);
+    }
+    return result;
+  };
 
   const submitEMR = () => {
     console.log(
@@ -632,9 +824,14 @@ const PatientEMRDetails = () => {
       "---------Selected Data------------"
     );
 
-    const symptomsEMR = transformObject(symptomsSpecs);
-    const diagnosisEMR = transformObject(diagnosisSpecs);
-    console.log(symptomsEMR, "values");
+    const symptomsEMR = symptomObj(symptomsSpecs);
+    const diagnosisEMR = diseaseObject(diagnosisSpecs);
+    const conditionEMR = conditonObject(existingConditionSpecs);
+    const examinEMR = diseaseObject(examinationSpecs);
+    const medicationEMR = medicationObj(medicationsSpecs);
+    const currentMedicationEMR = currentMedicationObj();
+    const labInvestigationEMR = labInvestigationObj(labInvestigationSpecs);
+    // const medicalHistoryEMR = medicalHistoryObj(textF);
 
     // console.log(formValues, "formValues");
     const payload = {
@@ -653,36 +850,16 @@ const PatientEMRDetails = () => {
             body_mass_index: formValues?.bodyMass,
             systolic_blood_pressure: formValues?.systolicBP,
             diastolic_blood_pressure: formValues?.diastolicaBP,
-            snowmed_code: 123,
-            snowmed_display: 123,
           },
         ],
       },
       condition: {
         pmr_id: emrId,
-        data: [
-          {
-            condition: "string",
-            start_date: "string",
-            status: "string",
-            notes: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: conditionEMR,
       },
-      complaint: {
+      examFindings: {
         pmr_id: emrId,
-        data: [
-          {
-            complaint_type: "string",
-            frequency: "string",
-            severity: "string",
-            duration: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: examinEMR,
       },
       diagnosis: {
         pmr_id: emrId,
@@ -694,62 +871,27 @@ const PatientEMRDetails = () => {
       },
       medication: {
         pmr_id: emrId,
-        data: [
-          {
-            medicine_name: "string",
-            frequency: "string",
-            dosage: "string",
-            time_of_day: "string",
-            duration: "string",
-            duration_period: "string",
-            notes: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: medicationEMR,
       },
       currentMedication: {
         pmr_id: emrId,
-        data: [
-          {
-            medicine_name: "string",
-            start_date: "string",
-            status: "string",
-            notes: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: currentMedicationEMR,
       },
-      medical_test: {
+      lab_investigation: {
         pmr_id: emrId,
-        data: [
-          {
-            name: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: labInvestigationEMR,
       },
       medical_history: {
         pmr_id: emrId,
-        data: [
-          {
-            diabetes_melitus: "string",
-            hypertension: "string",
-            hypothyroidism: "string",
-            alcohol: "string",
-            tobacco: "string",
-            smoke: "string",
-            snowmed_code: "string",
-            snowmed_display: "string",
-          },
-        ],
+        data: [],
       },
     };
-    dispatch(postEMR(payload)).then(res=>{
-      console.log(res.payload,"submitted")
-    })
+    setPdfData(payload);
+    // setPmrFinished(true);
+    console.log(payload);
+    dispatch(postEMR(payload)).then((res) => {
+      console.log(res.payload, "submitted");
+    });
   };
 
   const resetEMRForm = () => {
@@ -768,6 +910,9 @@ const PatientEMRDetails = () => {
     setMedicationsSpecs({});
     setLabInvestigationSpecs({});
   };
+
+  // console.log(pdfData, "pdfData")
+
   return (
     <PatientEMRWrapper>
       <PatientDetailsHeader />
@@ -1390,6 +1535,14 @@ const PatientEMRDetails = () => {
           <PrimaryButton onClick={submitEMR}>Finish Prescription</PrimaryButton>
         </EMRFooter>
       </EMRFormWrapper>
+
+      {pmrFinished && (
+        <div style={{ height: "800px" }}>
+          <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
+            <PMRPdf pdfData={pdfData} />
+          </PDFViewer>
+        </div>
+      )}
     </PatientEMRWrapper>
   );
 };
