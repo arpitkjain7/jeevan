@@ -42,10 +42,3 @@ export const apiRequest = async (
   }
 };
 
-export const get = async (url) => {
-  return apiRequest("GET", url);
-};
-
-export const post = async (url, data) => {
-  return apiRequest("POST", url, data);
-};

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Page,
   Text,
@@ -169,7 +169,8 @@ const pmrPdfStyles = StyleSheet.create({
   },
 });
 
-const PMRPdf = () => {
+const PMRPdf = ({ pdfData }) => {
+
   const patientData = [
     {
       label: "Gender",
@@ -223,6 +224,44 @@ const PMRPdf = () => {
     { key: "duration", label: "Duration" },
     { key: "remarks", label: "Remarks" },
   ];
+
+  const transformPdfData = (inputObject) => {
+    const resultArray = [];
+
+    const sections = {
+        vital: "Vitals",
+        condition: "Conditions",
+        examinationFindings: "Examination Findings",
+        diagnosis: "Diagnosis",
+        symptom: "Symptoms",
+        medication: "Medications",
+        currentMedication: "Current Medications",
+        lab_investigation: "Lab Investigations",
+        medical_history: "Medical History"
+    };
+
+    for (const section in sections) {
+        if (inputObject[section] && inputObject[section].data && inputObject[section].data.length > 0) {
+            const heading = sections[section];
+            const data = inputObject[section].data.map(item => {
+                const label = Object.keys(item)[0];
+                const value = item[label] || "";
+                return { label, value };
+            });
+
+            resultArray.push({ heading, data });
+        }
+    }
+
+    return resultArray;
+  };
+
+  const [pmrPdfData, setPmrPdfData] = useState([]);
+
+  useEffect(() => {
+    const filteredArr = transformPdfData( pdfData);
+    setPmrPdfData(filteredArr);
+  }, []);
 
   const emrData = [
     {
@@ -414,6 +453,9 @@ const PMRPdf = () => {
     },
   ];
 
+  console.log(pmrPdfData, "engineered Data");
+
+  console.log(pdfData, "pdfData");
   return (
     <Document style={pmrPdfStyles.document}>
       <Page size="A4" style={pmrPdfStyles.page}>
@@ -445,7 +487,7 @@ const PMRPdf = () => {
           </View>
         </View>
 
-        {emrData?.map((emr) => (
+        {pmrPdfData?.map((emr) => (
           <View style={pmrPdfStyles.section}>
             <Text style={pmrPdfStyles.pdfSectionHeading}>{emr?.heading}</Text>
             <View style={pmrPdfStyles.pdfVitalsWrapper}>
