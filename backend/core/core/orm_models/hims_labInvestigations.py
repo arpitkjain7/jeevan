@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
 from core import Base
 
 
-class MedicalTest(Base):
-    __tablename__ = "medicalTest"
+class LabInvestigations(Base):
+    __tablename__ = "labInvestigations"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)

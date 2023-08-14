@@ -284,7 +284,7 @@ class HIDController:
                     },
                 )
                 abha_number = patient_data["healthIdNumber"].replace("-", "")
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -607,7 +607,7 @@ class HIDController:
                 linking_token = resp.get("token")
                 refresh_token = resp.get("refreshToken")
                 logging.info("Getting patient details")
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": resp["healthIdNumber"],

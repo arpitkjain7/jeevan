@@ -126,7 +126,7 @@ class CallbackController:
                 if address_obj is None:
                     address_obj = {}
                 logging.info(f"{patient_obj=}")
-                patient_id = f"C360_PID_{str(uuid.uuid1().int)[:18]}"
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
