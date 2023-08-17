@@ -5,73 +5,73 @@ from enum import Enum
 
 
 class Vital(BaseModel):
-    height: str
-    weight: str
-    pulse: str
-    blood_pressure: str
-    body_temperature: str
-    oxygen_saturation: str
-    respiratory_rate: str
-    body_mass_index: str
-    systolic_blood_pressure: str
-    diastolic_blood_pressure: str
+    height: str = None
+    weight: str = None
+    pulse: str = None
+    blood_pressure: str = None
+    body_temperature: str = None
+    oxygen_saturation: str = None
+    respiratory_rate: str = None
+    body_mass_index: str = None
+    systolic_blood_pressure: str = None
+    diastolic_blood_pressure: str = None
 
 
 class ExaminationFindings(BaseModel):
-    disease: str
-    duration: str
-    status: str
-    snowmed_code: str
-    snowmed_display: str
+    disease: str = None
+    duration: str = None
+    status: str = None
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class Condition(BaseModel):
-    condition: str
-    start_date: str
-    status: str
+    condition: str = None
+    start_date: str = None
+    status: str = None
     notes: str = None
-    snowmed_code: str
-    snowmed_display: str
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class Diagnosis(BaseModel):
-    disease: str
-    duration: str
-    status: str
+    disease: str = None
+    duration: str = None
+    status: str = None
     notes: str = None
-    snowmed_code: str
-    snowmed_display: str
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class Symptoms(BaseModel):
-    symptom: str
-    duration: str
-    severity: str
+    symptom: str = None
+    duration: str = None
+    severity: str = None
     notes: str = None
-    start_date: str
-    snowmed_code: str
-    snowmed_display: str
+    start_date: str = None
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class Medicines(BaseModel):
-    medicine_name: str
-    frequency: str
-    dosage: str
-    time_of_day: str
-    duration: str
-    duration_period: str
+    medicine_name: str = None
+    frequency: str = None
+    dosage: str = None
+    time_of_day: str = None
+    duration: str = None
+    duration_period: str = None
     notes: str = None
-    snowmed_code: str
-    snowmed_display: str
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class CurrentMedicines(BaseModel):
-    medicine_name: str
-    start_date: str
-    status: str
+    medicine_name: str = None
+    start_date: str = None
+    status: str = None
     notes: str = None
-    snowmed_code: str
-    snowmed_display: str
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class MedicalHistory(BaseModel):
@@ -81,14 +81,14 @@ class MedicalHistory(BaseModel):
     alcohol: str = None
     tobacco: str = None
     smoke: str = None
-    snowmed_code: str
-    snowmed_display: str
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class LabInvestigations(BaseModel):
-    name: str
-    snowmed_code: str
-    snowmed_display: str
+    name: str = None
+    snowmed_code: str = None
+    snowmed_display: str = None
 
 
 class CreateVital(BaseModel):
@@ -208,15 +208,15 @@ class CreatePMR(BaseModel):
 
 class PMR(BaseModel):
     pmr_id: str
-    vital: CreateVital
-    condition: CreateCondition
-    examinationFindings: CreateExaminationFindings
-    diagnosis: CreateDiagnosis
-    symptom: CreateSymptoms
-    medication: CreateMedication
-    currentMedication: CreateCurrentMedication
-    lab_investigation: CreateLabInvestigation
-    medical_history: CreateMedicalHistory
+    vital: CreateVital = None
+    condition: CreateCondition = None
+    examinationFindings: CreateExaminationFindings = None
+    diagnosis: CreateDiagnosis = None
+    symptom: CreateSymptoms = None
+    medication: CreateMedication = None
+    currentMedication: CreateCurrentMedication = None
+    lab_investigation: CreateLabInvestigation = None
+    medical_history: CreateMedicalHistory = None
 
 
 class ConsultationStatus(str, Enum):

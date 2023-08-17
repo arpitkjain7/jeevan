@@ -723,29 +723,38 @@ class PMRController:
             logging.info("Submitting PMR record")
             logging.info(f"{request=}")
             resp = dict()
-            resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
-            resp["condition_id"] = self.create_condition(request.condition)[
-                "condition_id"
-            ]
-            resp["examination_findings_id"] = self.create_examination_findings(
-                request.examinationFindings
-            )["examination_findings_id"]
-            resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
-                "diagnosis_id"
-            ]
-            resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
-            resp["medication_id"] = self.create_medication(request.medication)[
-                "medicines_id"
-            ]
-            resp["current_medication_id"] = self.create_current_medication(
-                request.currentMedication
-            )["current_medicines_id"]
-            resp["lab_investigation_id"] = self.create_labInvestigation(
-                request.lab_investigation
-            )["labInvestigation_id"]
-            resp["medical_history_id"] = self.create_medicalHistory(
-                request.medical_history
-            )["medicalHistory_id"]
+            if request.vital is not None:
+                resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
+            if request.condition is not None:
+                resp["condition_id"] = self.create_condition(request.condition)[
+                    "condition_id"
+                ]
+            if request.examinationFindings is not None:
+                resp["examination_findings_id"] = self.create_examination_findings(
+                    request.examinationFindings
+                )["examination_findings_id"]
+            if request.diagnosis is not None:
+                resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
+                    "diagnosis_id"
+                ]
+            if request.symptom is not None:
+                resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
+            if request.medication is not None:
+                resp["medication_id"] = self.create_medication(request.medication)[
+                    "medicines_id"
+                ]
+            if request.currentMedication is not None:
+                resp["current_medication_id"] = self.create_current_medication(
+                    request.currentMedication
+                )["current_medicines_id"]
+            if request.lab_investigation is not None:
+                resp["lab_investigation_id"] = self.create_labInvestigation(
+                    request.lab_investigation
+                )["labInvestigation_id"]
+            if request.medical_history is not None:
+                resp["medical_history_id"] = self.create_medicalHistory(
+                    request.medical_history
+                )["medicalHistory_id"]
 
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")
