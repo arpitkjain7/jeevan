@@ -1,7 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import AutoSearch from "../../../components/AutoSearch";
 import PatientDetailsHeader from "../../../components/PatientDetailsHeader";
-import { Typography, styled, TextField, Grid } from "@mui/material";
+import {
+  Typography,
+  styled,
+  TextField,
+  Grid,
+  filledInputClasses,
+} from "@mui/material";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
@@ -124,6 +130,7 @@ const PatientEMRDetails = () => {
   const [emrId, setEMRId] = useState();
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
+  const [submitEMRPayload, setSubmitEMRPayload] = useState({});
 
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -185,7 +192,7 @@ const PatientEMRDetails = () => {
         state: "active",
         semantictag: "disorder",
         acceptability: "preferred",
-        returnlimit: 50,
+        returnlimit: 5,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -193,8 +200,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -223,8 +232,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -252,8 +263,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -281,8 +294,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -310,8 +325,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -339,8 +356,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -361,7 +380,7 @@ const PatientEMRDetails = () => {
         state: "active",
         semantictag: "procedure",
         acceptability: "preferred",
-        returnlimit: 50,
+        returnlimit: 5,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -369,8 +388,10 @@ const PatientEMRDetails = () => {
         const resData = res.payload?.data;
         resData?.map((item) => {
           const customItem = {
-            label: item,
-            value: item,
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
           };
           customData.push(customItem);
         });
@@ -382,18 +403,17 @@ const PatientEMRDetails = () => {
   };
 
   const handleMedicalHistoryValue = (event, value) => {
+    console.log(value);
     if (value) {
       setShowMedicalHostory(true);
       const fieldValue = value;
+      console.log(fieldValue, "field");
       setOptionTextValues({
         ...optionTextValues,
         [value]: { since: "", severity: "", notes: "" },
       });
       setMedicalHistory([...medicalHistory, fieldValue]);
-
-      if (medicalHistoryRef.current) {
-        medicalHistoryRef.current.value = "";
-      }
+      console.log([...medicalHistory, fieldValue]);
     }
   };
   const handleExistingConditions = (event, value) => {
@@ -466,11 +486,23 @@ const PatientEMRDetails = () => {
   };
 
   const handleTextFieldChange = (option, textField, newValue) => {
+    console.log(option, textField, newValue, "valuecheck");
     setOptionTextValues({
       ...optionTextValues,
-      [option]: {
-        ...optionTextValues[option],
+      [option?.label]: {
+        ...optionTextValues[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
+      },
+    });
+    console.log({
+      ...optionTextValues,
+      [option?.label]: {
+        ...optionTextValues[option?.label],
+        [textField]: newValue,
+        snowmed_code: [option?.snowmed_code],
+        snowmed_display: [option?.snowmed_display],
       },
     });
   };
@@ -488,9 +520,11 @@ const PatientEMRDetails = () => {
   const exisitingConditionsTextChange = (option, textField, newValue) => {
     setExistingConditionsSpecs({
       ...existingConditionSpecs,
-      [option]: {
-        ...existingConditionSpecs[option],
+      [option?.label]: {
+        ...existingConditionSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -508,9 +542,11 @@ const PatientEMRDetails = () => {
   const handleSymtomsTextChange = (option, textField, newValue) => {
     setSymptomsSpecs({
       ...symptomsSpecs,
-      [option]: {
-        ...symptomsSpecs[option],
+      [option?.label]: {
+        ...symptomsSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -526,9 +562,11 @@ const PatientEMRDetails = () => {
   const handleExaminationTextChange = (option, textField, newValue) => {
     setExaminationSpecs({
       ...examinationSpecs,
-      [option]: {
-        ...examinationSpecs[option],
+      [option?.label]: {
+        ...examinationSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -546,9 +584,11 @@ const PatientEMRDetails = () => {
   const handleDiagnosisTextChange = (option, textField, newValue) => {
     setDiagnosisSpecs({
       ...diagnosisSpecs,
-      [option]: {
-        ...diagnosisSpecs[option],
+      [option?.label]: {
+        ...diagnosisSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -565,9 +605,11 @@ const PatientEMRDetails = () => {
   const handleMedicationsTextChange = (option, textField, newValue) => {
     setMedicationsSpecs({
       ...medicationsSpecs,
-      [option]: {
-        ...medicationsSpecs[option],
+      [option?.label]: {
+        ...medicationsSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -584,9 +626,11 @@ const PatientEMRDetails = () => {
   const handleLabTextChange = (option, textField, newValue) => {
     setLabInvestigationSpecs({
       ...labInvestigationSpecs,
-      [option]: {
-        ...labInvestigationSpecs[option],
+      [option?.label]: {
+        ...labInvestigationSpecs[option?.label],
         [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -622,13 +666,16 @@ const PatientEMRDetails = () => {
         duration: objectDetails.since,
         status: objectDetails.severity,
         notes: objectDetails.notes,
-        snowmed_code: 123,
-        snowmed_display: 123,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.disease !== "[object Object]"
+    );
+    return filteredResult;
   };
 
   const conditonObject = (inputObject) => {
@@ -652,15 +699,18 @@ const PatientEMRDetails = () => {
         condition: key,
         duration: objectDetails.since,
         status: objectDetails.severity,
-        start_date:"2023/08/08",
+        start_date: "2023/08/08",
         notes: objectDetails.notes,
-        snowmed_code: 123,
-        snowmed_display: 123,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.condition !== "[object Object]"
+    );
+    return filteredResult;
   };
 
   const symptomObj = (inputObject) => {
@@ -682,12 +732,17 @@ const PatientEMRDetails = () => {
       result.push({
         symptom: key,
         duration: objectDetails.since,
-        status: objectDetails.severity,
+        start_date: "2023/08/08",
+        severity: objectDetails.severity,
         notes: objectDetails.notes,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       });
     }
-
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.symptom !== "[object Object]"
+    );
+    return filteredResult;
   };
   const medicationObj = (inputObject) => {
     const result = [];
@@ -713,13 +768,19 @@ const PatientEMRDetails = () => {
         dosage: "3",
         time_of_day: "morning",
         duration: objectDetails.since,
+        duration_period: "",
         status: objectDetails.severity,
         notes: objectDetails.notes,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.medicine_name !== "[object Object]"
+    );
+    return filteredResult;
   };
 
   const currentMedicationObj = (inputObject) => {
@@ -742,14 +803,23 @@ const PatientEMRDetails = () => {
       const transformedItem = {
         medicine_name: key,
         start_date: "2023/08/08",
+        frequency: "",
+        dosage: "",
+        time_of_day: "",
+        duration_period: "2 days",
         duration: objectDetails.since,
         status: objectDetails.severity,
         notes: objectDetails.notes,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.medicine_name !== "[object Object]"
+    );
+    return filteredResult;
   };
 
   const labInvestigationObj = (inputObject) => {
@@ -772,13 +842,16 @@ const PatientEMRDetails = () => {
 
       const transformedItem = {
         name: key,
-        snowmed_code: 123,
-        snowmed_display: 123,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.name !== "[object Object]"
+    );
+    return filteredResult;
   };
 
   const medicalHistoryObj = (inputObject) => {
@@ -786,6 +859,7 @@ const PatientEMRDetails = () => {
 
     for (const key in inputObject) {
       const value = inputObject[key];
+
       if (
         JSON.stringify(value) === JSON.stringify({}) ||
         JSON.stringify(value) === "[object Object]"
@@ -796,22 +870,38 @@ const PatientEMRDetails = () => {
       if (key === "array") {
         continue;
       }
-
+      console.log(inputObject, "inputobj");
       const objectDetails = inputObject[key];
+      console.log(objectDetails, "objectdet");
       const transformedItem = {
-        diabetes_melitus: "yes",
-        hypertension: "yes",
-        hypothyroidism: "yes",
-        alcohol: "yes",
-        tobacco: "yes",
-        smoke: "yes",
+        diabetes_melitus: "",
+        hypertension: "",
+        hypothyroidism: "",
+        alcohol: "",
+        tobacco: "",
+        smoke: "",
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
       };
-
       result.push(transformedItem);
     }
-    return result;
+    const filteredResult = result.filter(
+      (item) => item.diabetes_melitus !== "[object Object]"
+    );
+    return filteredResult;
   };
 
+  const createPayload = (key, valueArr) => {
+    const payload = submitEMRPayload;
+    if (valueArr?.length) {
+      const payloadData = {
+        pmr_id: emrId,
+        data: valueArr,
+      };
+      payload[key] = payloadData;
+    }
+    setSubmitEMRPayload(payload);
+  };
   const submitEMR = () => {
     console.log(
       medicalHistory,
@@ -831,14 +921,13 @@ const PatientEMRDetails = () => {
     const medicationEMR = medicationObj(medicationsSpecs);
     const currentMedicationEMR = currentMedicationObj();
     const labInvestigationEMR = labInvestigationObj(labInvestigationSpecs);
-    // const medicalHistoryEMR = medicalHistoryObj(textF);
+    const medicalHistoryEMR = medicalHistoryObj(optionTextValues);
 
     // console.log(formValues, "formValues");
-    const payload = {
-      pmr_id: emrId,
-      vital: {
-        pmr_id: emrId,
-        data: [
+    const payloadArr = [
+      {
+        key: "vital",
+        dataArr: [
           {
             height: formValues?.bodyHeight,
             weight: formValues?.bodyWeight,
@@ -853,45 +942,53 @@ const PatientEMRDetails = () => {
           },
         ],
       },
-      condition: {
-        pmr_id: emrId,
-        data: conditionEMR,
+      {
+        key: "condition",
+        dataArr: conditionEMR,
       },
-      examFindings: {
-        pmr_id: emrId,
-        data: examinEMR,
+      {
+        key: "examinationFindings",
+        dataArr: examinEMR,
       },
-      diagnosis: {
-        pmr_id: emrId,
-        data: diagnosisEMR,
+      {
+        key: "symptom",
+        dataArr: symptomsEMR,
       },
-      symptom: {
-        pmr_id: emrId,
-        data: symptomsEMR,
+      {
+        key: "diagnosis",
+        dataArr: diagnosisEMR,
       },
-      medication: {
-        pmr_id: emrId,
-        data: medicationEMR,
+      {
+        key: "medication",
+        dataArr: medicationEMR,
       },
-      currentMedication: {
-        pmr_id: emrId,
-        data: currentMedicationEMR,
+      {
+        key: "currentMedication",
+        dataArr: [],
       },
-      lab_investigation: {
-        pmr_id: emrId,
-        data: labInvestigationEMR,
+      {
+        key: "lab_investigation",
+        dataArr: labInvestigationEMR,
       },
-      medical_history: {
-        pmr_id: emrId,
-        data: [],
+      {
+        key: "medical_history",
+        dataArr: medicalHistoryEMR,
       },
-    };
-    setPdfData(payload);
-    // setPmrFinished(true);
-    console.log(payload);
-    dispatch(postEMR(payload)).then((res) => {
-      console.log(res.payload, "submitted");
+    ];
+
+    payloadArr?.forEach((item) => {
+      createPayload(item?.key, item?.dataArr);
     });
+    setPdfData(submitEMRPayload);
+    // setPmrFinished(true);
+    console.log(symptomsEMR);
+    if (Object.keys(submitEMRPayload)?.length) {
+      const filteredPayload = submitEMRPayload;
+      filteredPayload["pmr_id"] = emrId;
+      dispatch(postEMR(submitEMRPayload)).then((res) => {
+        console.log(res.payload, "submitted");
+      });
+    }
   };
 
   const resetEMRForm = () => {
@@ -1128,11 +1225,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={optionTextValues[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleTextFieldChange(
-                        item?.label,
-                        "since",
-                        e.target.value
-                      )
+                      handleTextFieldChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1140,11 +1233,7 @@ const PatientEMRDetails = () => {
                     placeholder="Severity"
                     value={optionTextValues[item?.label]?.severity || ""}
                     onChange={(e) =>
-                      handleTextFieldChange(
-                        item?.label,
-                        "severity",
-                        e.target.value
-                      )
+                      handleTextFieldChange(item, "severity", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1152,11 +1241,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={optionTextValues[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleTextFieldChange(
-                        item?.label,
-                        "notes",
-                        e.target.value
-                      )
+                      handleTextFieldChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1186,7 +1271,7 @@ const PatientEMRDetails = () => {
                     value={existingConditionSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
                       exisitingConditionsTextChange(
-                        item?.label,
+                        item,
                         "since",
                         e.target.value
                       )
@@ -1198,7 +1283,7 @@ const PatientEMRDetails = () => {
                     value={existingConditionSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
                       exisitingConditionsTextChange(
-                        item?.label,
+                        item,
                         "severity",
                         e.target.value
                       )
@@ -1210,7 +1295,7 @@ const PatientEMRDetails = () => {
                     value={existingConditionSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
                       exisitingConditionsTextChange(
-                        item?.label,
+                        item,
                         "notes",
                         e.target.value
                       )
@@ -1244,11 +1329,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={symptomsSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleSymtomsTextChange(
-                        item?.label,
-                        "since",
-                        e.target.value
-                      )
+                      handleSymtomsTextChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1256,11 +1337,7 @@ const PatientEMRDetails = () => {
                     placeholder="Severity"
                     value={symptomsSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
-                      handleSymtomsTextChange(
-                        item?.label,
-                        "severity",
-                        e.target.value
-                      )
+                      handleSymtomsTextChange(item, "severity", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1268,11 +1345,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={symptomsSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleSymtomsTextChange(
-                        item?.label,
-                        "notes",
-                        e.target.value
-                      )
+                      handleSymtomsTextChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1301,11 +1374,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={examinationSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleExaminationTextChange(
-                        item?.label,
-                        "since",
-                        e.target.value
-                      )
+                      handleExaminationTextChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1314,7 +1383,7 @@ const PatientEMRDetails = () => {
                     value={examinationSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
                       handleExaminationTextChange(
-                        item?.label,
+                        item,
                         "severity",
                         e.target.value
                       )
@@ -1325,11 +1394,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={examinationSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleExaminationTextChange(
-                        item?.label,
-                        "notes",
-                        e.target.value
-                      )
+                      handleExaminationTextChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1358,11 +1423,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={diagnosisSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleDiagnosisTextChange(
-                        item?.label,
-                        "since",
-                        e.target.value
-                      )
+                      handleDiagnosisTextChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1371,7 +1432,7 @@ const PatientEMRDetails = () => {
                     value={diagnosisSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
                       handleDiagnosisTextChange(
-                        item?.label,
+                        item,
                         "severity",
                         e.target.value
                       )
@@ -1382,11 +1443,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={diagnosisSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleDiagnosisTextChange(
-                        item?.label,
-                        "notes",
-                        e.target.value
-                      )
+                      handleDiagnosisTextChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1415,11 +1472,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={medicationsSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleMedicationsTextChange(
-                        item?.label,
-                        "since",
-                        e.target.value
-                      )
+                      handleMedicationsTextChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1428,7 +1481,7 @@ const PatientEMRDetails = () => {
                     value={medicationsSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
                       handleMedicationsTextChange(
-                        item?.label,
+                        item,
                         "severity",
                         e.target.value
                       )
@@ -1439,11 +1492,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={medicationsSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleMedicationsTextChange(
-                        item?.label,
-                        "notes",
-                        e.target.value
-                      )
+                      handleMedicationsTextChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1472,7 +1521,7 @@ const PatientEMRDetails = () => {
                     placeholder="Since"
                     value={labInvestigationSpecs[item?.label]?.since || ""}
                     onChange={(e) =>
-                      handleLabTextChange(item?.label, "since", e.target.value)
+                      handleLabTextChange(item, "since", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1480,11 +1529,7 @@ const PatientEMRDetails = () => {
                     placeholder="Severity"
                     value={labInvestigationSpecs[item?.label]?.severity || ""}
                     onChange={(e) =>
-                      handleLabTextChange(
-                        item?.label,
-                        "severity",
-                        e.target.value
-                      )
+                      handleLabTextChange(item, "severity", e.target.value)
                     }
                     variant="outlined"
                   />
@@ -1492,7 +1537,7 @@ const PatientEMRDetails = () => {
                     placeholder="Notes"
                     value={labInvestigationSpecs[item?.label]?.notes || ""}
                     onChange={(e) =>
-                      handleLabTextChange(item?.label, "notes", e.target.value)
+                      handleLabTextChange(item, "notes", e.target.value)
                     }
                     variant="outlined"
                   />
