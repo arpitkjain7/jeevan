@@ -443,7 +443,7 @@ const PatientEMRDetails = () => {
         ...symptomsSpecs,
         [value]: { since: "", severity: "", notes: "" },
       });
-      setExamFinding([...symptoms, fieldValue]);
+      setExamFinding([...examFindings, fieldValue]);
     }
   };
   const handleDiagnosis = (event, value) => {
