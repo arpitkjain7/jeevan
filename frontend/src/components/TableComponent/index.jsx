@@ -18,7 +18,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 const TableComponentWrapper = styled("div")(({ theme }) => ({
   "&": {
     border: `1px solid ${theme.palette.primaryGrey}`,
-    backgroundColor: theme?.palette?.primaryWhite
+    backgroundColor: theme?.palette?.primaryWhite,
   },
   ".search-wrap": {
     padding: theme.spacing(4),
@@ -30,10 +30,10 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
   },
-  ".table-body-container":{
-    "&.MuiTableBody-root":{
-      backgroundColor: theme.palette.primaryWhite
-    }
+  ".table-body-container": {
+    "&.MuiTableBody-root": {
+      backgroundColor: theme.palette.primaryWhite,
+    },
   },
   ".table-component-wrapper": {},
   ".table-component-header": {
@@ -96,13 +96,18 @@ const MyTable = ({
           <TableHead className="table-component-header">
             <TableRow>
               {columns?.map((column) => (
-                <TableCell key={column.key}  classNamwe="table-header-cell">{column.header}</TableCell>
+                <TableCell key={column.key} classNamwe="table-header-cell">
+                  {column.header}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody className="table-body-container">
             {filteredData?.map((item) => (
-              <TableRow key={item.id} onClick={() => onRowClick(item)}>
+              <TableRow
+                key={item.id}
+                onClick={() => onRowClick && onRowClick(item)}
+              >
                 {columns?.map((column) => {
                   if (column.key !== "actions") {
                     return (

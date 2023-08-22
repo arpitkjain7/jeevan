@@ -5,6 +5,7 @@ import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchAppointmentList } from "./AppointmentPage.slice";
 import { convertDateFormat } from "../../utils/utils";
+import { useNavigate } from "react-router";
 
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -68,42 +69,6 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const columns = [
-  { key: "patientId", header: "Patient ID" },
-  { key: "patientDetails", header: "Patient Name" },
-  { key: "mobileNumber", header: "Contact Number" },
-  { key: "encounterType", header: "Encounter Type" },
-  { key: "docName", header: "Doctor" },
-  { key: "slotTime", header: "Slot" },
-  { key: "status", header: "Status" },
-  {
-    key: "actions",
-    header: "",
-    actions: [
-      {
-        link: "Start Visit",
-        type: "link",
-        onClick: (item) => {
-          // Handle edit action for the specific item
-        },
-      },
-    ],
-  },
-  {
-    key: "actions",
-    header: "",
-    actions: [
-      {
-        icon: <MenuIcon />,
-        type: "icon",
-        onClick: (item) => {
-          // Handle edit action for the specific item
-        },
-      },
-    ],
-  },
-];
-
 const searchInputStyle = {
   width: "200px",
   height: "40px",
@@ -115,6 +80,45 @@ const AppointmentPage = () => {
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const columns = [
+    { key: "patientId", header: "Patient ID" },
+    { key: "patientDetails", header: "Patient Name" },
+    { key: "mobileNumber", header: "Contact Number" },
+    { key: "encounterType", header: "Encounter Type" },
+    { key: "docName", header: "Doctor" },
+    { key: "slotTime", header: "Slot" },
+    { key: "status", header: "Status" },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          link: "Start Visit",
+          type: "link",
+          onClick: (item) => {
+            navigate("/patient-emr");
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+            console.log(item);
+          },
+        },
+      ],
+    },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          icon: <MenuIcon />,
+          type: "icon",
+          onClick: (item) => {
+            // Handle edit action for the specific item
+          },
+        },
+      ],
+    },
+  ];
 
   useEffect(() => {
     let currentHospital = {};
@@ -127,22 +131,24 @@ const AppointmentPage = () => {
       };
       dispatch(fetchAppointmentList(payload)).then((res) => {
         const mainList = res.payload;
-        console.log(mainList)
+        console.log(mainList);
         // let patientList = [];
         // mainList?.map((item) => {
         //   patientList?.push(item[1]);
         // });
         const formattedAppointmentList = mainList?.map((item) => {
-          const patientId = item?.patient_id
-          const patientGender = item?.patient_details?.gender.toLowerCase()?.includes("m")
+          const patientId = item?.patient_id;
+          const patientGender = item?.patient_details?.gender
+            .toLowerCase()
+            ?.includes("m")
             ? "M"
             : "F";
-          console.log(patientGender)
-          const mobileNumber = item?.patient_details?.mobile_number
-          const encounterType = item?.appointment_type
-          const docName = item?.doc_details?.doc_name
-          const slotTime = item?.slot_time
-          const status = item?.slot_details?.status
+          console.log(patientGender);
+          const mobileNumber = item?.patient_details?.mobile_number;
+          const encounterType = item?.appointment_type;
+          const docName = item?.doc_details?.doc_name;
+          const slotTime = item?.slot_time;
+          const status = item?.slot_details?.status;
 
           // const updatedDate = convertDateFormat(item?.updated_at);
           // const createdDate = convertDateFormat(item?.created_at);
@@ -153,10 +159,10 @@ const AppointmentPage = () => {
             encounterType: encounterType,
             docName: docName,
             slotTime: slotTime,
-            status: status
+            status: status,
             // updatedDate: updatedDate,
             // createdDate: createdDate,
-            // ...item,
+             ...item,
           };
         });
         console.log(formattedAppointmentList, "appointment");
@@ -167,7 +173,9 @@ const AppointmentPage = () => {
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
-        <Typography className="patientList-heading">Appointment List</Typography>
+        <Typography className="patientList-heading">
+          Appointment List
+        </Typography>
         <Typography className="patientList-desc">Description</Typography>
       </div>
       <div className="table-container">

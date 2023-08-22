@@ -127,6 +127,7 @@ const PatientPage = () => {
     dispatch(AppointmentPageActions.setSelectedPatientData(row));
     navigate("/create-appointment");
   };
+  
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
