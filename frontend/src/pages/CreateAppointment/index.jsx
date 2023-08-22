@@ -39,6 +39,7 @@ function CreateAppointment() {
       defaultTab={tab}
       onChange={handleTabChange}
       tab={tab}
+      addSteps={true}
     />
   );
 }

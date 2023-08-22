@@ -100,7 +100,22 @@ const theme = createTheme({
       fontWeight: "500",
       fontSize: "16px",
       border: "none",
+      cursor: "pointer",
     },
+    secondaryButton:{
+      padding: "14px 16px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: "4px",
+      backgroundColor: "#ffffff",
+      color: "#0089E9",
+      fontFamily: "Inter",
+      fontWeight: "500",
+      fontSize: "16px",
+      border: "none",
+      cursor: "pointer",
+    }
     // Add more typography styles as needed
   },
   spacing: 4,

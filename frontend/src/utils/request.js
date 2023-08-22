@@ -1,12 +1,26 @@
 import axios from "axios";
 
-const BASE_URL = "https://engine.cliniq360.com/v1";
+export const BASE_URL = "https://engine.cliniq360.com/v1";
+const SNOMED_URL = "https://snomed.cliniq360.com/csnoserv/api";
 
 const defaultHeader = () => {
   const access_token = localStorage.getItem("accesstoken");
   return {
     Authorization: `Bearer ${access_token}`,
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+    Accept: "application/json",
+  };
+};
+
+export const pdfUploadHeader = () => {
+  const access_token = localStorage.getItem("accesstoken");
+  return {
+    Authorization: `Bearer ${access_token}`,
+    "Content-Type": "multipart/form-data",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
     "Access-Control-Allow-Headers":
@@ -39,12 +53,4 @@ export const apiRequest = async (
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message);
   }
-};
-
-export const get = async (url) => {
-  return apiRequest("GET", url);
-};
-
-export const post = async (url, data) => {
-  return apiRequest("POST", url, data);
 };
