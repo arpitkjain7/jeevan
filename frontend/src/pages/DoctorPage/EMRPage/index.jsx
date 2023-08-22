@@ -990,7 +990,7 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     setPdfData(submitEMRPayload);
-    setPmrFinished(true);
+    //setPmrFinished(true);
     console.log(symptomsEMR);
     if (Object.keys(submitEMRPayload)?.length) {
       const filteredPayload = submitEMRPayload;
