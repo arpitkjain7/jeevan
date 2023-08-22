@@ -17,5 +17,5 @@ export const apis = {
   searchVitals: "https://snomed.cliniq360.com/csnoserv/api/search/search",
   createEMR: "PMR/createPMR",
   submitEMR: "PMR/submitPMR",
-  uploadPmrPdf : "v1/PMR/uploadDocument"
+  uploadPmrPdf: "PMR/uploadDocument",
 };

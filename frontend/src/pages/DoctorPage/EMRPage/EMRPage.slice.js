@@ -25,7 +25,7 @@ export const uploadPmrPdf = createAsyncThunk(
   async (pdfBlob, pmr_id, document_type) => {
     const access_token = localStorage.getItem("accesstoken");
     const formData = new FormData();
-    formData.append("file", pdfBlob, "document.pdf");
+    formData.append("file", pdfBlob);
     try {
       const response = await axios.post(apis.uploadPmrPdf, formData, {
         headers: {

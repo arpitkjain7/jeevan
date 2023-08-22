@@ -13,9 +13,9 @@ import { useDispatch } from "react-redux";
 import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { Button } from "@mui/base";
-import { PDFViewer } from "@react-pdf/renderer";
+import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
-
+import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
@@ -900,7 +900,17 @@ const PatientEMRDetails = () => {
       };
       payload[key] = payloadData;
     }
+
     setSubmitEMRPayload(payload);
+  };
+
+  const createPdfBlob = () => {
+    const blobPromise = pdf(<PMRPdf pdfData={pdfData} />).toBlob();
+    const blob = new Blob([<PMRPdf pdfData={pdfData} />], {
+      type: "application/pdf",
+    });
+    console.log(blob);
+    return blob;
   };
   const submitEMR = () => {
     console.log(
@@ -980,14 +990,21 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     setPdfData(submitEMRPayload);
-    // setPmrFinished(true);
+    setPmrFinished(true);
     console.log(symptomsEMR);
     if (Object.keys(submitEMRPayload)?.length) {
       const filteredPayload = submitEMRPayload;
       filteredPayload["pmr_id"] = emrId;
-      dispatch(postEMR(submitEMRPayload)).then((res) => {
-        console.log(res.payload, "submitted");
-      });
+      const pdfPayload = {
+        document_type: "Prescription",
+        pmr_id: emrId,
+      };
+      const blob = createPdfBlob();
+      dispatch(submitPdf({ blob, pdfPayload })).then(
+        dispatch(postEMR(submitEMRPayload)).then((res) => {
+          console.log(res.payload, "submitted");
+        })
+      );
     }
   };
 

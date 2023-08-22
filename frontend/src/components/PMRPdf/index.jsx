@@ -170,7 +170,6 @@ const pmrPdfStyles = StyleSheet.create({
 });
 
 const PMRPdf = ({ pdfData }) => {
-
   const patientData = [
     {
       label: "Gender",
@@ -229,28 +228,54 @@ const PMRPdf = ({ pdfData }) => {
     const resultArray = [];
 
     const sections = {
-        vital: "Vitals",
-        condition: "Conditions",
-        examinationFindings: "Examination Findings",
-        diagnosis: "Diagnosis",
-        symptom: "Symptoms",
-        medication: "Medications",
-        currentMedication: "Current Medications",
-        lab_investigation: "Lab Investigations",
-        medical_history: "Medical History"
+      vital: "Vitals",
+      condition: "Conditions",
+      examinationFindings: "Examination Findings",
+      diagnosis: "Diagnosis",
+      symptom: "Symptoms",
+      medication: "Medications",
+      currentMedication: "Current Medications",
+      lab_investigation: "Lab Investigations",
+      medical_history: "Medical History",
     };
 
     for (const section in sections) {
-        if (inputObject[section] && inputObject[section].data && inputObject[section].data.length > 0) {
-            const heading = sections[section];
-            const data = inputObject[section].data.map(item => {
-                const label = Object.keys(item)[0];
-                const value = item[label] || "";
-                return { label, value };
-            });
+      if (
+        inputObject[section] &&
+        inputObject[section].data &&
+        inputObject[section].data.length > 0
+      ) {
+        const heading = sections[section];
+        let data = [];
+        if (section === "vital") {
+          inputObject[section]?.data?.map((item) => {
+            data = Object.entries(item).map(([label, value]) => ({
+              label,
+              value,
+            }));
+          });
+          console.log(data, "data");
+        } else {
+          data = inputObject[section]?.data?.map((item) => {
+            console.log(item, "item");
+            if (section === "vital") {
+              const labelData = Object.entries(item).map(([label, value]) => ({
+                label,
+                value,
+              }));
+              console.log(labelData, "label");
+              return labelData;
+            } else {
+              const label = Object.keys(item)[0];
+              const value = item[label] || "";
 
-            resultArray.push({ heading, data });
+              return { label, value };
+            }
+          });
         }
+
+        resultArray.push({ heading, data });
+      }
     }
 
     return resultArray;
@@ -259,8 +284,9 @@ const PMRPdf = ({ pdfData }) => {
   const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
-    const filteredArr = transformPdfData( pdfData);
+    const filteredArr = transformPdfData(pdfData);
     setPmrPdfData(filteredArr);
+    console.log(filteredArr);
   }, []);
 
   const emrData = [
