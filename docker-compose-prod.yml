@@ -66,7 +66,7 @@ services:
       - lobster_mq
 
   lobster_ui:
-    image: cliniq360/lobster-ui:latest
+    image: cliniq360/lobster-ui:0.2
     container_name: lobster-ui
     ports:
       - "8082:80"
