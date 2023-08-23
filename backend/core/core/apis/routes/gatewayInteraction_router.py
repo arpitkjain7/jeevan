@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from core.controllers.gatewayInteraction_controller import GatewayController
 from core import logger
 from commons.auth import decodeJWT
+from core.crud.hims_silo_crud import CRUDSilo
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -30,6 +31,19 @@ def get_status(request_id: str, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/gatewayInteraction/{request_id} endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@gateway_router.get("/v1/test")
+def get_silo(token: str = Depends(oauth2_scheme)):
+    try:
+        return CRUDSilo().read_all()
+    except Exception as error:
+        logging.error(f"Error in /v1/test endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

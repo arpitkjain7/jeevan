@@ -1,5 +1,5 @@
 from core import session, logger
-from core.orm_models.hims_docDetails import DocDetails
+from core.orm_models.hospital_schema.docDetails import DocDetails
 from datetime import datetime
 from pytz import timezone
 

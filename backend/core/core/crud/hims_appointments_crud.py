@@ -1,8 +1,8 @@
 from core import session, logger
-from core.orm_models.hims_appointments import Appointments
-from core.orm_models.hims_slots import Slots
-from core.orm_models.hims_docDetails import DocDetails
-from core.orm_models.hims_patientDetails import PatientDetails
+from core.orm_models.hospital_schema.appointments import Appointments
+from core.orm_models.hospital_schema.slots import Slots
+from core.orm_models.hospital_schema.docDetails import DocDetails
+from core.orm_models.hospital_schema.patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
 

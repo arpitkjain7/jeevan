@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import MetaData, create_engine, DDL, event
 import os
 
@@ -9,7 +9,6 @@ import os
 
 
 class DatabaseManager:
-
     __instance = None
 
     def __setup_schema(self):
@@ -40,6 +39,7 @@ class DatabaseManager:
             self.metadata = MetaData(schema="lobster")
             self.engine = create_engine(self.db_url, pool_pre_ping=True)
             self.Base = declarative_base(metadata=self.metadata)
+            self.session = Session(bind=self.engine)
             self.SessionMaker = sessionmaker(bind=self.engine)
             self.__setup_schema()
             DatabaseManager.__instance = self

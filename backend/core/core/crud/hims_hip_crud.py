@@ -1,5 +1,5 @@
 from core import session, logger
-from core.orm_models.hims_hipDetails import HIPDetail
+from core.orm_models.lobster_schema.hipDetails import HIPDetail
 from datetime import datetime
 from pytz import timezone
 

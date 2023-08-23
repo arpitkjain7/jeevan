@@ -1,5 +1,5 @@
 from core import session, logger
-from core.orm_models.hims_condition import Condition
+from core.orm_models.hospital_schema.condition import Condition
 from datetime import datetime
 from pytz import timezone
 

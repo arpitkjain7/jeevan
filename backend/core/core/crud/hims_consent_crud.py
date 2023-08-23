@@ -1,5 +1,5 @@
 from core import session, logger
-from core.orm_models.hims_consent import Consent
+from core.orm_models.lobster_schema.consent import Consent
 from datetime import datetime
 from pytz import timezone
 
