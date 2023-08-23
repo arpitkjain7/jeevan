@@ -1,5 +1,6 @@
 import { Avatar, Typography, styled } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import { useEffect } from "react";
 
 const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   "&": {
@@ -34,6 +35,20 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
 }));
 
 const PatientDetailsHeader = ({ patientDetails }) => {
+  const patient = sessionStorage?.getItem("selectedPatient");
+  const [patientData, setPatientData] = useState({});
+
+  useEffect(() => {
+    const currentPatient = JSON.parse(patient);
+    if (currentPatient && Object.keys(currentPatient)?.length) {
+      setPatientData(currentPatient);
+    } else {
+      setPatientData({});
+    }
+  }, []);
+
+  console.log(patientData, "patientData");
+
   return (
     <DetailsHeaderContainer>
       <div className="details-header">
@@ -41,18 +56,28 @@ const PatientDetailsHeader = ({ patientDetails }) => {
           <Avatar />
         </div>
         <div className="details-Patientdetails">
-          <Typography className="details-patient-name">Patient Name</Typography>
+          <Typography className="details-patient-name">
+            {patientData?.patient_details?.name}
+          </Typography>
           <div className="details-subContainer">
-            <Typography className="details-patient-id">100032</Typography>
-            <Typography className="details-patient-id">Age 38</Typography>
-            <Typography className="details-patient-id">Male</Typography>
+            <Typography className="details-patient-id">
+              {patientData?.patientId}
+            </Typography>
+            <Typography className="details-patient-id">
+              {patientData?.age}
+            </Typography>
+            <Typography className="details-patient-id">
+              {patientData?.patient_details?.gender}
+            </Typography>
           </div>
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            abc@gmail.com
+            {patientData?.patient_details?.email}
           </Typography>
-          <Typography className="details-patient-email">123456789</Typography>
+          <Typography className="details-patient-email">
+            {patientData?.mobileNumber}
+          </Typography>
         </div>
       </div>
     </DetailsHeaderContainer>

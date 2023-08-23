@@ -18,8 +18,9 @@ import Sidebar from "../components/Sidebar";
 import PatientRegistration from "../pages/PatientRegistration";
 import AppointmentPage from "../pages/AppointmentPage";
 import CreateAppointment from "../pages/CreateAppointment";
-import PatientDetails from "../pages/DoctorPage/PatientDetails";
+import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 import RegisterationConfirmation from "../components/RegistrationConfirmation";
+import PatientDetails from "../pages/PatientDetails";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -89,12 +90,16 @@ function App() {
                         element={<CreateAppointment />}
                       />
                       <Route
-                        path="/patient-details"
-                        element={<PatientDetails />}
+                        path="/patient-emr"
+                        element={<PatientEMRDetails />}
                       />
                       <Route
                         path="/registered-patient"
                         element={<RegisterationConfirmation />}
+                      />
+                       <Route
+                        path="/patient-details"
+                        element={<PatientDetails />}
                       />
                     </>
                   ) : (

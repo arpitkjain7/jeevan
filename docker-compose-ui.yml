@@ -1,0 +1,19 @@
+version: "3.3"
+services:
+  lobster_ui:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: cliniq360/lobster-ui:0.2
+    container_name: lobster-ui
+    ports:
+      - "8082:80"
+    volumes:
+      - ./frontend/src:/app/src
+    networks:
+      - lobster
+    restart: "on-failure"
+
+networks:
+  lobster:
+    name: lobster-network
