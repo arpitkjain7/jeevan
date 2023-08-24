@@ -59,10 +59,10 @@ const columns = [
     header: "",
     actions: [
       {
-        link: "Start Visit",
+        link: "Create Appointment",
         type: "link",
         onClick: (item) => {
-          console.log(item,"item")
+          console.log(item, "item");
         },
       },
     ],
@@ -75,7 +75,7 @@ const columns = [
         icon: <img src={MenuIcon} alt="menu" />,
         type: "icon",
         onClick: (item) => {
-          console.log(item,"item")
+          console.log(item, "item");
         },
       },
     ],
@@ -127,7 +127,7 @@ const PatientPage = () => {
     dispatch(AppointmentPageActions.setSelectedPatientData(row));
     navigate("/create-appointment");
   };
-  
+
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
