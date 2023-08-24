@@ -4,12 +4,12 @@ import { Route, Routes, Redirect, useNavigate } from "react-router-dom";
 import PatientRegistration from "../pages/PatientRegistration";
 import AppointmentPage from "../pages/AppointmentPage";
 import CreateAppointment from "../pages/CreateAppointment";
-import PatientDetails from "../pages/DoctorPage/EMRPage";
+
 import SignInPage from "../pages/SignIn";
 import HospitalList from "../pages/HospitalList";
 import Dashboard from "../pages/Dashboard";
 import PatientPage from "../pages/PatientPage";
-
+import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
   const userData = useSelector((state) => state?.auth?.user);
@@ -33,7 +33,7 @@ const ProtectedRoute = ({ component: Component, ...rest }) => {
           />
           <Route path="/appointment-list" element={<AppointmentPage />} />
           <Route path="/create-appointment" element={<CreateAppointment />} />
-          <Route path="/patient-details" element={<PatientDetails />} />
+          <Route path="/patient-details" element={<PatientEMRDetails />} />
         </>
       ) : (
         navigateToLogin()
