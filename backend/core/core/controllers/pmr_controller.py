@@ -68,7 +68,19 @@ class PMRController:
             else:
                 request_dict = request.dict()
             pmr_id = f"C360-PMR-{str(uuid.uuid1().int)[:18]}"
-            request_dict.update({"id": pmr_id, "hip_id": request_dict["hip_id"]})
+            appointment_obj = self.CRUDAppointments.read(
+                appointment_id=request_dict.get("appointment_id")
+            )
+            logging.info(f"{appointment_obj=}")
+            consultation_date = appointment_obj.get("slot_details").get("date")
+            logging.info(f"{consultation_date=}")
+            request_dict.update(
+                {
+                    "id": pmr_id,
+                    "hip_id": request_dict["hip_id"],
+                    "date_of_consultation": consultation_date,
+                }
+            )
             logging.info("Creating PMR record")
             logging.info(f"PMR: {request_dict=}")
             pmr_id = self.CRUDPatientMedicalRecord.create(**request_dict)
@@ -503,7 +515,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": patient_obj.get("access_token"),
+                        "accessToken": patient_obj.get("linking_token"),
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
@@ -539,9 +551,9 @@ class PMRController:
             logging.info("Sending SMS notification")
             sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
             mobile_number = patient_obj.get("mobile_number")
-            request_id = str(uuid.uuid1())
+            deep_link_request_id = str(uuid.uuid1())
             payload = {
-                "requestId": request_id,
+                "requestId": deep_link_request_id,
                 "timestamp": datetime.now(timezone.utc).strftime(
                     "%Y-%m-%dT%H:%M:%S.%f"
                 ),
@@ -559,10 +571,51 @@ class PMRController:
                     "Authorization": f"Bearer {gateway_access_token}",
                 },
             )
+            self.CRUDGatewayInteraction.create(
+                **{
+                    "request_id": deep_link_request_id,
+                    "request_type": "DEEP_LINK_NOTIFICATION",
+                    "request_status": "PROCESSING",
+                    "transaction_id": request_id,
+                    "gateway_metadata": {
+                        "phoneNo": mobile_number,
+                        "careContextInfo": f"Consultation Record for {date_of_consultation}",
+                        "hip": {"id": hip_id},
+                    },
+                }
+            )
             logging.info(f"response code from /patients/sms/notify : {resp_code}")
-            return {"pmr_id": pmr_id}
+            return {"pmr_id": pmr_id, "request_id": request_id}
         except Exception as error:
             logging.error(f"Error in PMRController.sync_pmr function: {error}")
+            raise error
+
+    def deep_link_ack(self, request: dict):
+        try:
+            logging.info("executing  deep_link_ack function")
+            logging.info("Getting request id")
+            request_id = request.get("resp").get("requestId")
+            logging.info("Getting error message")
+            error_message = request.get("error")
+            logging.info(f"{error_message=}")
+            if error_message:
+                gateway_request = {
+                    "request_id": request_id,
+                    "callback_response": request,
+                    "request_status": "FAILED",
+                    "error_code": error_message.get("code", 000),
+                    "error_message": error_message.get("message", None),
+                }
+            else:
+                gateway_request = {
+                    "request_id": request_id,
+                    "callback_response": request,
+                    "request_status": "SUCESS",
+                }
+            self.CRUDGatewayInteraction.update(**gateway_request)
+            return {"status": "trigger success"}
+        except Exception as error:
+            logging.error(f"Error in PMRController.deep_link_ack function: {error}")
             raise error
 
     def delete_pmr(self, pmr_id):
@@ -670,29 +723,38 @@ class PMRController:
             logging.info("Submitting PMR record")
             logging.info(f"{request=}")
             resp = dict()
-            resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
-            resp["condition_id"] = self.create_condition(request.condition)[
-                "condition_id"
-            ]
-            resp["examination_findings_id"] = self.create_examination_findings(
-                request.examinationFindings
-            )["examination_findings_id"]
-            resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
-                "diagnosis_id"
-            ]
-            resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
-            resp["medication_id"] = self.create_medication(request.medication)[
-                "medicines_id"
-            ]
-            resp["current_medication_id"] = self.create_current_medication(
-                request.currentMedication
-            )["current_medicines_id"]
-            resp["lab_investigation_id"] = self.create_labInvestigation(
-                request.lab_investigation
-            )["labInvestigation_id"]
-            resp["medical_history_id"] = self.create_medicalHistory(
-                request.medical_history
-            )["medicalHistory_id"]
+            if request.vital is not None:
+                resp["vital_id"] = self.create_vital(request.vital)["vital_id"]
+            if request.condition is not None:
+                resp["condition_id"] = self.create_condition(request.condition)[
+                    "condition_id"
+                ]
+            if request.examinationFindings is not None:
+                resp["examination_findings_id"] = self.create_examination_findings(
+                    request.examinationFindings
+                )["examination_findings_id"]
+            if request.diagnosis is not None:
+                resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis)[
+                    "diagnosis_id"
+                ]
+            if request.symptom is not None:
+                resp["symptom_id"] = self.create_symptoms(request.symptom)["symptom_id"]
+            if request.medication is not None:
+                resp["medication_id"] = self.create_medication(request.medication)[
+                    "medicines_id"
+                ]
+            if request.currentMedication is not None:
+                resp["current_medication_id"] = self.create_current_medication(
+                    request.currentMedication
+                )["current_medicines_id"]
+            if request.lab_investigation is not None:
+                resp["lab_investigation_id"] = self.create_labInvestigation(
+                    request.lab_investigation
+                )["labInvestigation_id"]
+            if request.medical_history is not None:
+                resp["medical_history_id"] = self.create_medicalHistory(
+                    request.medical_history
+                )["medicalHistory_id"]
 
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")
