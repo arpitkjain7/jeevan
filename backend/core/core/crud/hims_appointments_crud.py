@@ -114,6 +114,37 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read function : {error}")
             raise error
 
+    def read(self, appointment_id: int):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDAppointments read request")
+            with session() as transaction_session:
+                for appointment_obj, slot_obj in (
+                    transaction_session.query(Appointments, Slots)
+                    .filter(Appointments.id == appointment_id)
+                    .filter(Slots.slot_id == Appointments.slot_id)
+                    .all()
+                ):
+                    if appointment_obj is not None:
+                        appointment_obj.__dict__.update(
+                            {"slot_details": slot_obj.__dict__}
+                        )
+                        return appointment_obj.__dict__
+                    return None
+        except Exception as error:
+            logging.error(f"Error in CRUDAppointments read function : {error}")
+            raise error
+
     def read_all(self, hip_id: str):
         """[CRUD function to read_all Users record]
 
