@@ -232,6 +232,7 @@ const BookingSlots = () => {
       doc_id: appointmentDetails?.doctorId,
       patient_id: selectedPatient?.id,
       appointment_type: appointmentDetails?.appointmentType,
+      encounter_type: appointmentDetails?.encounterType,
       hip_id: "123123",
       appointment_start:
         convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime,

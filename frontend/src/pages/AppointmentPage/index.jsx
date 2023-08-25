@@ -162,7 +162,7 @@ const AppointmentPage = () => {
             status: status,
             // updatedDate: updatedDate,
             // createdDate: createdDate,
-             ...item,
+            ...item,
           };
         });
         console.log(formattedAppointmentList, "appointment");
