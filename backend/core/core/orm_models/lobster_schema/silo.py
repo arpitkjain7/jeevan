@@ -15,4 +15,4 @@ class Silo(Base):
     # snowmed_display = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    __table_args__ = {"schema": "abc_healthcare"}
+    __table_args__ = {"schema": "lobster_schema"}

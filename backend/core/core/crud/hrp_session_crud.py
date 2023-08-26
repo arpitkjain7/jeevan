@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hrp_session import Session
+from core import create_session, logger
+from core.orm_models.lobster_schema.session import Session
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDSession:
                 }
             )
             session_details = Session(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(session_details)
                 transaction_session.commit()
                 transaction_session.refresh(session_details)
@@ -48,7 +48,7 @@ class CRUDSession:
         """
         try:
             logging.info("CRUDUser read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Session = (
                     transaction_session.query(Session)
                     .filter(Session.parameter == session_parameter)
@@ -73,7 +73,7 @@ class CRUDSession:
         """
         try:
             logging.info("CRUDUser read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Session = transaction_session.query(Session).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDSession:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Session = (
                     transaction_session.query(Session)
                     .filter(Session.parameter == kwargs.get("parameter"))
@@ -117,7 +117,7 @@ class CRUDSession:
         """
         try:
             logging.info("CRUDUser delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Session = (
                     transaction_session.query(Session)
                     .filter(Session.parameter == session_parameter)

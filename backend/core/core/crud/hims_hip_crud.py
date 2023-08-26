@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.lobster_schema.hipDetails import HIPDetail
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDHIP:
                 }
             )
             hip_details = HIPDetail(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(hip_details)
                 transaction_session.commit()
                 transaction_session.refresh(hip_details)
@@ -49,7 +49,7 @@ class CRUDHIP:
         """
         try:
             logging.info("CRUDUser read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIPDetail = (
                     transaction_session.query(HIPDetail)
                     .filter(HIPDetail.hip_id == hip_ip)
@@ -74,7 +74,7 @@ class CRUDHIP:
         """
         try:
             logging.info("CRUDUser read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIPDetail = transaction_session.query(HIPDetail).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -99,7 +99,7 @@ class CRUDHIP:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIPDetail = (
                     transaction_session.query(HIPDetail)
                     .filter(HIPDetail.hip_id == kwargs.get("hip_id"))
@@ -118,7 +118,7 @@ class CRUDHIP:
         """
         try:
             logging.info("CRUDUser delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIPDetail = (
                     transaction_session.query(HIPDetail)
                     .filter(HIPDetail.hip_id == hip_id)

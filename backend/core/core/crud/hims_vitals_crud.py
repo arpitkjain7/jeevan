@@ -1,8 +1,9 @@
-from core import session, logger
-from core.orm_models.hims_vitals import Vital
+from core import create_session, logger
+from core.orm_models.hospital_schema.vitals import Vital
+from core.orm_models.hospital_schema.patientMedicalRecord import PatientMedicalRecord
 from datetime import datetime
 from pytz import timezone
-from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
+
 
 logging = logger(__name__)
 
@@ -27,7 +28,7 @@ class CRUDVital:
                 }
             )
             vital = Vital(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(vital)
                 transaction_session.commit()
                 transaction_session.refresh(vital)
@@ -50,7 +51,7 @@ class CRUDVital:
         """
         try:
             logging.info("CRUDVital read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
@@ -78,7 +79,7 @@ class CRUDVital:
         """
         try:
             logging.info("CRUDVital read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(PatientMedicalRecord, Vital)
                     .join(PatientMedicalRecord, PatientMedicalRecord.id == Vital.pmr_id)
@@ -106,7 +107,7 @@ class CRUDVital:
         """
         try:
             logging.info("CRUDVital read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = transaction_session.query(Vital).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -130,7 +131,7 @@ class CRUDVital:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
                     .filter(Vital.id == id)
@@ -149,7 +150,7 @@ class CRUDVital:
         """
         try:
             logging.info("CRUDVital delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
                     .filter(Vital.id == vital_id)
@@ -170,7 +171,7 @@ class CRUDVital:
         """
         try:
             logging.info("CRUDVital delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from core.apis.schemas.requests.user_request import Register, Login
+from core.apis.schemas.requests.user_request import Register, RoleAssignment
 from core.apis.schemas.responses.user_response import (
     RegisterResponse,
     LoginResponse,
@@ -34,17 +34,38 @@ def register_user(register_user_request: Register):
         user_obj = UserManagementController().register_user_controller(
             register_user_request
         )
-        if user_obj.get("access_token") is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=user_obj["status"]
-            )
-        else:
-            return RegisterResponse(**user_obj)
+        # if user_obj.get("access_token") is None:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_400_BAD_REQUEST, detail=user_obj["status"]
+        #     )
+        # else:
+        return RegisterResponse(**user_obj)
     except HTTPException as httperror:
         logging.error(f"Error in /v1/user/signUp endpoint: {httperror}")
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/user/signUp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@user_router.post("/v1/user/roleAssignment")
+def role_assignment(role_assignment_request: RoleAssignment):
+    try:
+        logging.info("Calling /v1/user/roleAssignment endpoint")
+        logging.debug(f"Request: {role_assignment_request}")
+
+        return UserManagementController().assign_user_role_controller(
+            request=role_assignment_request
+        )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/user/roleAssignment endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/user/roleAssignment endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

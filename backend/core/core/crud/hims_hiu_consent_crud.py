@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_hiuConsent import HIUConsent
+from core import create_session, logger
+from core.orm_models.lobster_schema.hiuConsent import HIUConsent
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDHIUConsents:
                 }
             )
             consent = HIUConsent(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(consent)
                 transaction_session.commit()
                 transaction_session.refresh(consent)
@@ -48,7 +48,7 @@ class CRUDHIUConsents:
         """
         try:
             logging.info("CRUDConsents read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
                     .filter(HIUConsent.id == consent_id)
@@ -75,7 +75,7 @@ class CRUDHIUConsents:
         """
         try:
             logging.info("CRUDConsents read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
                     .filter(HIUConsent.patient == abha_address)
@@ -103,7 +103,7 @@ class CRUDHIUConsents:
         """
         try:
             logging.info("CRUDConsents read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
                     .filter(HIUConsent.patient == abha_address)
@@ -129,7 +129,7 @@ class CRUDHIUConsents:
         """
         try:
             logging.info("CRUDConsents read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = transaction_session.query(HIUConsent).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -153,7 +153,7 @@ class CRUDHIUConsents:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
                     .filter(HIUConsent.id == kwargs.get("id"))
@@ -172,7 +172,7 @@ class CRUDHIUConsents:
         """
         try:
             logging.info("CRUDConsents delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
                     .filter(HIUConsent.id == Consent_id)

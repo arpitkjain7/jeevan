@@ -18,3 +18,4 @@ from core.orm_models.hospital_schema.symptoms import *
 from core.orm_models.hospital_schema.token import *
 from core.orm_models.hospital_schema.users import *
 from core.orm_models.hospital_schema.vitals import *
+from core.orm_models.hospital_schema.userRoles import *

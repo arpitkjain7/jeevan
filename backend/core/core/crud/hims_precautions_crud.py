@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_precautions import Precautions
+from core import create_session, logger
+from core.orm_models.hospital_schema.precautions import Precautions
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDPrecautions:
                 }
             )
             precautions = Precautions(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(precautions)
                 transaction_session.commit()
                 transaction_session.refresh(precautions)
@@ -48,7 +48,7 @@ class CRUDPrecautions:
         """
         try:
             logging.info("CRUDPrecautions read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Precautions = (
                     transaction_session.query(Precautions)
                     .filter(Precautions.pmr_id == pmr_id)
@@ -73,7 +73,7 @@ class CRUDPrecautions:
         """
         try:
             logging.info("CRUDPrecautions read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Precautions = transaction_session.query(Precautions).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -97,7 +97,7 @@ class CRUDPrecautions:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Precautions = (
                     transaction_session.query(Precautions)
                     .filter(Precautions.id == kwargs.get("id"))
@@ -116,7 +116,7 @@ class CRUDPrecautions:
         """
         try:
             logging.info("CRUDPrecautions delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Precautions = (
                     transaction_session.query(Precautions)
                     .filter(Precautions.id == precaution_id)

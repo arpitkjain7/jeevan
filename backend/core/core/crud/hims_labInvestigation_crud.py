@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_labInvestigations import LabInvestigations
+from core import create_session, logger
+from core.orm_models.hospital_schema.labInvestigations import LabInvestigations
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDLabInvestigation:
                 }
             )
             lab_investigation = LabInvestigations(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(lab_investigation)
                 transaction_session.commit()
                 transaction_session.refresh(lab_investigation)
@@ -49,7 +49,7 @@ class CRUDLabInvestigation:
         """
         try:
             logging.info("CRUDLabInvestigation read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: LabInvestigations = (
                     transaction_session.query(LabInvestigations)
                     .filter(LabInvestigations.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDLabInvestigation:
         """
         try:
             logging.info("CRUDLabInvestigation read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: LabInvestigations = transaction_session.query(
                     LabInvestigations
                 ).all()
@@ -100,7 +100,7 @@ class CRUDLabInvestigation:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: LabInvestigations = (
                     transaction_session.query(LabInvestigations)
                     .filter(LabInvestigations.id == id)
@@ -119,7 +119,7 @@ class CRUDLabInvestigation:
         """
         try:
             logging.info("CRUDLabInvestigation delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: LabInvestigations = (
                     transaction_session.query(LabInvestigations)
                     .filter(LabInvestigations.id == LabInvestigations)
@@ -140,7 +140,7 @@ class CRUDLabInvestigation:
         """
         try:
             logging.info("CRUDLabInvestigation delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: LabInvestigations = (
                     transaction_session.query(LabInvestigations)
                     .filter(LabInvestigations.pmr_id == pmr_id)

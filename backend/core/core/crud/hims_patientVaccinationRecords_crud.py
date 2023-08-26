@@ -1,5 +1,7 @@
-from core import session, logger
-from core.orm_models.hims_patientVaccinationRecords import PatientVaccinationRecords
+from core import create_session, logger
+from core.orm_models.hospital_schema.patientVaccinationRecords import (
+    PatientVaccinationRecords,
+)
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +28,7 @@ class CRUDPatientVaccinationRecords:
                 }
             )
             patient_details = PatientVaccinationRecords(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(patient_details)
                 transaction_session.commit()
                 transaction_session.refresh(patient_details)
@@ -50,7 +52,7 @@ class CRUDPatientVaccinationRecords:
         """
         try:
             logging.info("CRUDPatientVaccinationRecords read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientVaccinationRecords = (
                     transaction_session.query(PatientVaccinationRecords)
                     .filter(PatientVaccinationRecords.patient_id == patient_id)
@@ -77,7 +79,7 @@ class CRUDPatientVaccinationRecords:
         """
         try:
             logging.info("CRUDPatientVaccinationRecords read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientVaccinationRecords = (
                     transaction_session.query(PatientVaccinationRecords)
                     .order_by(PatientVaccinationRecords.created_at.desc())
@@ -107,7 +109,7 @@ class CRUDPatientVaccinationRecords:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientVaccinationRecords = (
                     transaction_session.query(PatientVaccinationRecords)
                     .filter(PatientVaccinationRecords.id == kwargs.get("id"))
@@ -128,7 +130,7 @@ class CRUDPatientVaccinationRecords:
         """
         try:
             logging.info("CRUDPatientVaccinationRecords delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientVaccinationRecords = (
                     transaction_session.query(PatientVaccinationRecords)
                     .filter(PatientVaccinationRecords.id == vaccination_record_id)

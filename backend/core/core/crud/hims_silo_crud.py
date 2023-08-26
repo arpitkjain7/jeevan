@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_silo import Silo
+from core import create_session, logger
+from core.orm_models.lobster_schema.silo import Silo
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDSilo:
                 }
             )
             condition = Silo(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.connection(
                     execution_options={
                         "schema_translate_map": {"abc_healthcare": "abc_healthcare"}
@@ -51,7 +51,7 @@ class CRUDSilo:
         """
         try:
             logging.info("CRUDCondition read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.connection(
                     execution_options={
                         "schema_translate_map": {"abc_healthcare": "abc_healthcare"}

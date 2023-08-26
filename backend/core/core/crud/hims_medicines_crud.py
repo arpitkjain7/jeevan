@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_medicines import Medicines
+from core import create_session, logger
+from core.orm_models.hospital_schema.medicines import Medicines
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDMedicines:
                 }
             )
             medicines = Medicines(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(medicines)
                 transaction_session.commit()
                 transaction_session.refresh(medicines)
@@ -49,7 +49,7 @@ class CRUDMedicines:
         """
         try:
             logging.info("CRUDMedicines read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Medicines = (
                     transaction_session.query(Medicines)
                     .filter(Medicines.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDMedicines:
         """
         try:
             logging.info("CRUDMedicines read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Medicines = transaction_session.query(Medicines).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDMedicines:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Medicines = (
                     transaction_session.query(Medicines)
                     .filter(Medicines.id == id)
@@ -117,7 +117,7 @@ class CRUDMedicines:
         """
         try:
             logging.info("CRUDMedicines delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Medicines = (
                     transaction_session.query(Medicines)
                     .filter(Medicines.id == medicine_id)
@@ -138,7 +138,7 @@ class CRUDMedicines:
         """
         try:
             logging.info("CRUDMedicines delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Medicines = (
                     transaction_session.query(Medicines)
                     .filter(Medicines.pmr_id == pmr_id)

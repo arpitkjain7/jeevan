@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.hospital_schema.examinationFindings import ExaminationFindings
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDExaminationFindings:
                 }
             )
             examination_findings = ExaminationFindings(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(examination_findings)
                 transaction_session.commit()
                 transaction_session.refresh(examination_findings)
@@ -49,7 +49,7 @@ class CRUDExaminationFindings:
         """
         try:
             logging.info("CRUDExaminationFindings read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
                     .filter(ExaminationFindings.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDExaminationFindings:
         """
         try:
             logging.info("CRUDExaminationFindings read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: ExaminationFindings = transaction_session.query(
                     ExaminationFindings
                 ).all()
@@ -102,7 +102,7 @@ class CRUDExaminationFindings:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
                     .filter(ExaminationFindings.id == id)
@@ -121,7 +121,7 @@ class CRUDExaminationFindings:
         """
         try:
             logging.info("CRUDExaminationFindings delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
                     .filter(ExaminationFindings.id == examination_findings_id)
@@ -142,7 +142,7 @@ class CRUDExaminationFindings:
         """
         try:
             logging.info("CRUDExaminationFindings delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
                     .filter(ExaminationFindings.pmr_id == pmr_id)

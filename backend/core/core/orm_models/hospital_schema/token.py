@@ -9,3 +9,4 @@ class Token(Base):
     token_number = Column(Integer)
     patient_id = Column(String, ForeignKey("patientDetails.id"))
     created_at = Column(DateTime)
+    __table_args__ = {"schema": "hospital_schema"}

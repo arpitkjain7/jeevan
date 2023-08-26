@@ -15,3 +15,4 @@ class Session(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     __table_args__ = {UniqueConstraint("hip_id", "parameter", name="_hip_param_uc")}
+    __table_args__ = {"schema": "lobster_schema"}

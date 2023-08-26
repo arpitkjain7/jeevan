@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.hospital_schema.condition import Condition
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDCondition:
                 }
             )
             condition = Condition(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(condition)
                 transaction_session.commit()
                 transaction_session.refresh(condition)
@@ -49,7 +49,7 @@ class CRUDCondition:
         """
         try:
             logging.info("CRUDCondition read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Condition = (
                     transaction_session.query(Condition)
                     .filter(Condition.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDCondition:
         """
         try:
             logging.info("CRUDCondition read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Condition = transaction_session.query(Condition).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDCondition:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Condition = (
                     transaction_session.query(Condition)
                     .filter(Condition.id == id)
@@ -117,7 +117,7 @@ class CRUDCondition:
         """
         try:
             logging.info("CRUDCondition delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Condition = (
                     transaction_session.query(Condition)
                     .filter(Condition.id == condition_id)
@@ -138,7 +138,7 @@ class CRUDCondition:
         """
         try:
             logging.info("CRUDCondition delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Condition = (
                     transaction_session.query(Condition)
                     .filter(Condition.pmr_id == pmr_id)

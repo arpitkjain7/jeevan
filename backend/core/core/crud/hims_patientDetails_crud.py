@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_patientDetails import PatientDetails
+from core import create_session, logger
+from core.orm_models.hospital_schema.patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDPatientDetails:
                 }
             )
             patient_details = PatientDetails(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(patient_details)
                 transaction_session.commit()
                 transaction_session.refresh(patient_details)
@@ -48,7 +48,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.abha_number == abha_number)
@@ -75,7 +75,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.abha_number == abha_number)
@@ -104,7 +104,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.aadhar_number == aadhar_number)
@@ -131,7 +131,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.mobile_number == mobile_number)
@@ -158,7 +158,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.mobile_number == mobile_number)
@@ -185,7 +185,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.abha_address == abha_address)
@@ -212,7 +212,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.abha_address == abha_address)
@@ -239,7 +239,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.id == patient_id)
@@ -266,7 +266,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.name == name)
@@ -294,7 +294,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read_by_mobile_dob request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.mobile_number == mobile_number)
@@ -321,7 +321,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.hip_id == hip_id)
@@ -352,7 +352,7 @@ class CRUDPatientDetails:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.id == kwargs.get("id"))
@@ -371,7 +371,7 @@ class CRUDPatientDetails:
         """
         try:
             logging.info("CRUDPatientDetails delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.id == patient_id)

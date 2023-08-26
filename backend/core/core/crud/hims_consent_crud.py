@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.lobster_schema.consent import Consent
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDConsents:
                 }
             )
             consent = Consent(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(consent)
                 transaction_session.commit()
                 transaction_session.refresh(consent)
@@ -48,7 +48,7 @@ class CRUDConsents:
         """
         try:
             logging.info("CRUDConsents read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Consent = (
                     transaction_session.query(Consent)
                     .filter(Consent.id == consent_id)
@@ -75,7 +75,7 @@ class CRUDConsents:
         """
         try:
             logging.info("CRUDConsents read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Consent = (
                     transaction_session.query(Consent)
                     .filter(Consent.patient == patient_id)
@@ -100,7 +100,7 @@ class CRUDConsents:
         """
         try:
             logging.info("CRUDConsents read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Consent = transaction_session.query(Consent).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -124,7 +124,7 @@ class CRUDConsents:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Consent = (
                     transaction_session.query(Consent)
                     .filter(Consent.id == kwargs.get("id"))
@@ -143,7 +143,7 @@ class CRUDConsents:
         """
         try:
             logging.info("CRUDConsents delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Consent = (
                     transaction_session.query(Consent)
                     .filter(Consent.id == Consent_id)

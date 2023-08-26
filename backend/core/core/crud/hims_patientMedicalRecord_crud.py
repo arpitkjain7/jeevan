@@ -1,14 +1,14 @@
-from core import session, logger
-from core.orm_models.hims_patientMedicalRecord import PatientMedicalRecord
-from core.orm_models.hims_examinationFindings import ExaminationFindings
-from core.orm_models.hims_diagnosis import Diagnosis
-from core.orm_models.hims_medicines import Medicines
-from core.orm_models.hims_labInvestigations import LabInvestigations
-from core.orm_models.hims_precautions import Precautions
-from core.orm_models.hims_hipDetails import HIPDetail
-from core.orm_models.hims_appointments import Appointments
-from core.orm_models.hims_patientDetails import PatientDetails
-from core.orm_models.hims_docDetails import DocDetails
+from core import create_session, logger
+from core.orm_models.hospital_schema.patientMedicalRecord import PatientMedicalRecord
+from core.orm_models.hospital_schema.examinationFindings import ExaminationFindings
+from core.orm_models.hospital_schema.diagnosis import Diagnosis
+from core.orm_models.hospital_schema.medicines import Medicines
+from core.orm_models.hospital_schema.labInvestigations import LabInvestigations
+from core.orm_models.hospital_schema.precautions import Precautions
+from core.orm_models.lobster_schema.hipDetails import HIPDetail
+from core.orm_models.hospital_schema.appointments import Appointments
+from core.orm_models.hospital_schema.patientDetails import PatientDetails
+from core.orm_models.hospital_schema.docDetails import DocDetails
 from datetime import datetime
 from pytz import timezone
 
@@ -35,7 +35,7 @@ class CRUDPatientMedicalRecord:
                 }
             )
             pmr_record = PatientMedicalRecord(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(pmr_record)
                 transaction_session.commit()
                 transaction_session.refresh(pmr_record)
@@ -60,7 +60,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord read_new request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 joined_result = []
                 for (
                     complaint_obj,
@@ -113,7 +113,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.id == pmr_id)
@@ -140,7 +140,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord read_by_docId request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.doc_id == doc_id)
@@ -170,7 +170,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord read_by_patientId request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.patient_id == patient_id)
@@ -197,7 +197,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .order_by(PatientMedicalRecord.date_of_consultation.desc())
@@ -227,7 +227,7 @@ class CRUDPatientMedicalRecord:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.id == pmr_id)
@@ -251,7 +251,7 @@ class CRUDPatientMedicalRecord:
         """
         try:
             logging.info("CRUDPatientMedicalRecord delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.id == pmr_id)
@@ -269,7 +269,7 @@ class CRUDPatientMedicalRecord:
     def read_details(self, pmr_id: str):
         try:
             logging.info("CRUDPatientMedicalRecord read_details request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 joined_result = []
                 for (
                     hip_obj,

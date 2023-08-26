@@ -23,3 +23,4 @@ class PatientVaccinationRecords(Base):
     vaccination_metadata = Column(JSON)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "hospital_schema"}

@@ -2,6 +2,7 @@ from core.crud.hims_users_crud import CRUDUser
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_appointments_crud import CRUDAppointments
+from core.crud.hims_userRole_crud import CRUDUserRoles
 from core.crud.hims_hip_crud import CRUDHIP
 from core.apis.schemas.requests.user_request import Register
 from core.controllers.users_controller import UserManagementController
@@ -15,9 +16,11 @@ patient_id = "111-111-111-111"
 def create_admin_user(admin_user_request):
     existing_admin_user = CRUDUser().read(username=admin_user_request.username)
     if not existing_admin_user:
-        _ = UserManagementController().register_user_controller(
+        user_obj = UserManagementController().register_user_controller(
             request=admin_user_request
         )
+        return user_obj.get("user_id")
+    return existing_admin_user.get("id")
 
 
 def create_sample_doc_record(doc_request):
@@ -51,14 +54,20 @@ def create_sample_hip(hip_request):
 def main():
     admin_user_request = Register(
         username="admin@lobster.com",
+        password="P@ssw0rd",
+        mobile_number="8552012549",
         name="admin",
         hip_name="Jeevan Healthcare",
         hip_id="123123",
-        password="P@ssw0rd",
-        user_role="ADMIN",
         department="IT",
     )
-    create_admin_user(admin_user_request=admin_user_request)
+    admin_user_id = create_admin_user(admin_user_request=admin_user_request)
+    admin_roles_obj_list = CRUDUserRoles().read(user_id=admin_user_id)
+    logging.debug(f"{admin_roles_obj_list=}")
+    admin_roles = [obj.get("user_role").value for obj in admin_roles_obj_list]
+    logging.debug(f"{admin_roles=}")
+    if "ADMIN" not in admin_roles:
+        CRUDUserRoles().create(**{"user_id": admin_user_id, "user_role": "ADMIN"})
     create_sample_doc_record(
         doc_request={
             "doc_name": "Dr Arpit Jain",

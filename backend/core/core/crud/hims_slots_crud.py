@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_slots import Slots
+from core import create_session, logger
+from core.orm_models.hospital_schema.slots import Slots
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDSlots:
                 }
             )
             slots_details = Slots(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(slots_details)
                 transaction_session.commit()
                 transaction_session.refresh(slots_details)
@@ -49,7 +49,7 @@ class CRUDSlots:
         """
         try:
             logging.info("CRUDSlots read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Slots = (
                     transaction_session.query(Slots)
                     .filter(Slots.slot_id == slot_id)
@@ -77,7 +77,7 @@ class CRUDSlots:
         """
         try:
             logging.info("CRUDSlots read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Slots = (
                     transaction_session.query(Slots)
                     .filter(Slots.doc_id == doc_id)
@@ -103,7 +103,7 @@ class CRUDSlots:
         """
         try:
             logging.info("CRUDSlots read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Slots = transaction_session.query(Slots).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -128,7 +128,7 @@ class CRUDSlots:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Slots = (
                     transaction_session.query(Slots)
                     .filter(Slots.slot_id == kwargs.get("slot_id"))
@@ -147,7 +147,7 @@ class CRUDSlots:
         """
         try:
             logging.info("CRUDSlots delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Slots = (
                     transaction_session.query(Slots)
                     .filter(Slots.slot_id == slot_id)

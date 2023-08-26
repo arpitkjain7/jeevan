@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.hospital_schema.appointments import Appointments
 from core.orm_models.hospital_schema.slots import Slots
 from core.orm_models.hospital_schema.docDetails import DocDetails
@@ -29,7 +29,7 @@ class CRUDAppointments:
                 }
             )
             appointment = Appointments(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(appointment)
                 transaction_session.commit()
                 transaction_session.refresh(appointment)
@@ -52,7 +52,7 @@ class CRUDAppointments:
         """
         try:
             logging.info("CRUDAppointments read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 joined_result = []
                 for appointment_obj, slot_obj, patient_obj in (
                     transaction_session.query(Appointments, Slots, PatientDetails)
@@ -100,7 +100,7 @@ class CRUDAppointments:
         """
         try:
             logging.info("CRUDAppointments read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.patient_id == patient_id)
@@ -128,7 +128,7 @@ class CRUDAppointments:
         """
         try:
             logging.info("CRUDAppointments read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 for appointment_obj, slot_obj in (
                     transaction_session.query(Appointments, Slots)
                     .filter(Appointments.id == appointment_id)
@@ -156,7 +156,7 @@ class CRUDAppointments:
         """
         try:
             logging.info("CRUDAppointments read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 joined_result = []
                 for appointment_obj, doctor_obj, patient_obj, slot_obj in (
                     transaction_session.query(
@@ -204,7 +204,7 @@ class CRUDAppointments:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.id == id)
@@ -223,7 +223,7 @@ class CRUDAppointments:
         """
         try:
             logging.info("CRUDAppointments delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.id == appointment_id)

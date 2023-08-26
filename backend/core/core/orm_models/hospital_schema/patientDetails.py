@@ -33,3 +33,4 @@ class PatientDetails(Base):
     abha_status = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "hospital_schema"}

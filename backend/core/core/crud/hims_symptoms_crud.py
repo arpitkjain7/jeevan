@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_symptoms import Symptoms
+from core import create_session, logger
+from core.orm_models.hospital_schema.symptoms import Symptoms
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDSymptoms:
                 }
             )
             symptoms = Symptoms(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(symptoms)
                 transaction_session.commit()
                 transaction_session.refresh(symptoms)
@@ -49,7 +49,7 @@ class CRUDSymptoms:
         """
         try:
             logging.info("CRUDSymptoms read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Symptoms = (
                     transaction_session.query(Symptoms)
                     .filter(Symptoms.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDSymptoms:
         """
         try:
             logging.info("CRUDSymptoms read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Symptoms = transaction_session.query(Symptoms).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDSymptoms:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Symptoms = (
                     transaction_session.query(Symptoms)
                     .filter(Symptoms.id == id)
@@ -117,7 +117,7 @@ class CRUDSymptoms:
         """
         try:
             logging.info("CRUDSymptoms delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Symptoms = (
                     transaction_session.query(Symptoms)
                     .filter(Symptoms.id == symptoms_id)
@@ -138,7 +138,7 @@ class CRUDSymptoms:
         """
         try:
             logging.info("CRUDSymptoms delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Symptoms = (
                     transaction_session.query(Symptoms)
                     .filter(Symptoms.pmr_id == pmr_id)

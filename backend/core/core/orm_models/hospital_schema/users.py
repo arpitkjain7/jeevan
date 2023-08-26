@@ -9,8 +9,9 @@ class Users(Base):
     name = Column(String)
     username = Column(String, unique=True)
     password = Column(String)
+    mobile_number = Column(String)
     hip_details = Column(JSON)
-    user_role = Column(String)
     department = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "hospital_schema"}

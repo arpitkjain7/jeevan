@@ -16,3 +16,4 @@ class HIPDetail(Base):
     hfr_status = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "lobster_schema"}

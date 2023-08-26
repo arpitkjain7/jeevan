@@ -15,7 +15,12 @@ class DatabaseManager:
         event.listen(
             self.Base.metadata,
             "before_create",
-            DDL("CREATE SCHEMA IF NOT EXISTS lobster"),
+            DDL("CREATE SCHEMA IF NOT EXISTS lobster_schema"),
+        )
+        event.listen(
+            self.Base.metadata,
+            "before_create",
+            DDL("CREATE SCHEMA IF NOT EXISTS hospital_schema"),
         )
 
     @staticmethod
@@ -36,10 +41,14 @@ class DatabaseManager:
         else:
             self.db_url = os.environ.get("db_url")
             # self.db_url = "postgresql://postgres:postgres@localhost:5432/postgres"
-            self.metadata = MetaData(schema="lobster")
+            self.metadata = MetaData(schema="hospital_schema")
             self.engine = create_engine(self.db_url, pool_pre_ping=True)
             self.Base = declarative_base(metadata=self.metadata)
             self.session = Session(bind=self.engine)
             self.SessionMaker = sessionmaker(bind=self.engine)
+            # self.hospital_metadata = MetaData(schema="lobster_schema")
+            # self.hospital_Base = declarative_base(metadata=self.hospital_metadata)
+            # self.hospital_session = Session(bind=self.engine)
+            # self.hospital_SessionMaker = sessionmaker(bind=self.engine)
             self.__setup_schema()
             DatabaseManager.__instance = self

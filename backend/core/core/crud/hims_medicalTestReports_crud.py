@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_medicalTestReports import MedicalTestReports
+from core import create_session, logger
+from core.orm_models.hospital_schema.medicalTestReports import MedicalTestReports
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDMedicalTestReports:
                 }
             )
             medical_test_report = MedicalTestReports(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(medical_test_report)
                 transaction_session.commit()
                 transaction_session.refresh(medical_test_report)
@@ -48,7 +48,7 @@ class CRUDMedicalTestReports:
         """
         try:
             logging.info("CRUDMedicalTestReports read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalTestReports = (
                     transaction_session.query(MedicalTestReports)
                     .filter(MedicalTestReports.medical_test_id == medical_test_id)
@@ -73,7 +73,7 @@ class CRUDMedicalTestReports:
         """
         try:
             logging.info("CRUDMedicalTestReports read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalTestReports = transaction_session.query(
                     MedicalTestReports
                 ).all()
@@ -101,7 +101,7 @@ class CRUDMedicalTestReports:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalTestReports = (
                     transaction_session.query(MedicalTestReports)
                     .filter(MedicalTestReports.id == kwargs.get("id"))
@@ -120,7 +120,7 @@ class CRUDMedicalTestReports:
         """
         try:
             logging.info("CRUDMedicalTestReports delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalTestReports = (
                     transaction_session.query(MedicalTestReports)
                     .filter(MedicalTestReports.id == medical_test_report_id)

@@ -22,3 +22,4 @@ class DocDetails(Base):
     follow_up_fees = Column(Integer)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "hospital_schema"}

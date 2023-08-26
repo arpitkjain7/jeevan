@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.hospital_schema.diagnosis import Diagnosis
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDDiagnosis:
                 }
             )
             diagnosis = Diagnosis(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(diagnosis)
                 transaction_session.commit()
                 transaction_session.refresh(diagnosis)
@@ -49,7 +49,7 @@ class CRUDDiagnosis:
         """
         try:
             logging.info("CRUDDiagnosis read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDDiagnosis:
         """
         try:
             logging.info("CRUDDiagnosis read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Diagnosis = transaction_session.query(Diagnosis).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDDiagnosis:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.id == id)
@@ -117,7 +117,7 @@ class CRUDDiagnosis:
         """
         try:
             logging.info("CRUDDiagnosis delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.id == diagnosis_id)
@@ -138,7 +138,7 @@ class CRUDDiagnosis:
         """
         try:
             logging.info("CRUDDiagnosis delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.pmr_id == pmr_id)

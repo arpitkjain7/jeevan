@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hims_medicalHistory import MedicalHistory
+from core import create_session, logger
+from core.orm_models.hospital_schema.medicalHistory import MedicalHistory
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDMedicalHistory:
                 }
             )
             medicalHistory = MedicalHistory(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(medicalHistory)
                 transaction_session.commit()
                 transaction_session.refresh(medicalHistory)
@@ -49,7 +49,7 @@ class CRUDMedicalHistory:
         """
         try:
             logging.info("CRUDMedicalHistory read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalHistory = (
                     transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.pmr_id == pmr_id)
@@ -74,7 +74,7 @@ class CRUDMedicalHistory:
         """
         try:
             logging.info("CRUDMedicalHistory read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalHistory = transaction_session.query(MedicalHistory).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -98,7 +98,7 @@ class CRUDMedicalHistory:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalHistory = (
                     transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.id == id)
@@ -117,7 +117,7 @@ class CRUDMedicalHistory:
         """
         try:
             logging.info("CRUDMedicalHistory delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalHistory = (
                     transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.id == medicalHistory_id)
@@ -138,7 +138,7 @@ class CRUDMedicalHistory:
         """
         try:
             logging.info("CRUDMedicalHistory delete_all function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: MedicalHistory = (
                     transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.pmr_id == pmr_id)

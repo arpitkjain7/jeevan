@@ -1,4 +1,4 @@
-from core import session, logger
+from core import create_session, logger
 from core.orm_models.hospital_schema.docDetails import DocDetails
 from datetime import datetime
 from pytz import timezone
@@ -26,7 +26,7 @@ class CRUDDocDetails:
                 }
             )
             doc_details = DocDetails(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(doc_details)
                 transaction_session.commit()
                 transaction_session.refresh(doc_details)
@@ -50,7 +50,7 @@ class CRUDDocDetails:
         """
         try:
             logging.info("CRUDDocDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = (
                     transaction_session.query(DocDetails)
                     .filter(DocDetails.id == doc_id)
@@ -77,7 +77,7 @@ class CRUDDocDetails:
         """
         try:
             logging.info("CRUDDocDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = (
                     transaction_session.query(DocDetails)
                     .filter(DocDetails.hip_id == hip_id)
@@ -104,7 +104,7 @@ class CRUDDocDetails:
         """
         try:
             logging.info("CRUDDocDetails read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = (
                     transaction_session.query(DocDetails)
                     .filter(DocDetails.doc_department == department)
@@ -128,7 +128,7 @@ class CRUDDocDetails:
         """
         try:
             logging.info("CRUDDocDetails read_all request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = transaction_session.query(DocDetails).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
@@ -152,7 +152,7 @@ class CRUDDocDetails:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = (
                     transaction_session.query(DocDetails)
                     .filter(DocDetails.id == kwargs.get("id"))
@@ -171,7 +171,7 @@ class CRUDDocDetails:
         """
         try:
             logging.info("CRUDDocDetails delete function")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: DocDetails = (
                     transaction_session.query(DocDetails)
                     .filter(DocDetails.id == doc_id)

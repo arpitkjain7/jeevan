@@ -6,7 +6,7 @@ import datetime
 class RegisterResponse(BaseModel):
     access_token: str
     token_type: str
-    user_role: str
+    user_roles: list
     status: str
 
 
@@ -15,7 +15,7 @@ class LoginResponse(BaseModel):
     username: str
     name: str
     hip_details: dict
-    user_role: str
+    user_roles: list
     department: str
     access_token: str
     token_type: str
@@ -26,5 +26,5 @@ class UserResponse(BaseModel):
     username: str
     name: str
     hip_details: dict
-    user_role: str
+    user_roles: list
     department: str

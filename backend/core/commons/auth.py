@@ -11,10 +11,10 @@ JWT_SECRET = os.environ.get("secret")
 JWT_ALGORITHM = os.environ.get("algorithm")
 
 
-def signJWT(email: str, user_role: str, department: str, hip_id: str):
+def signJWT(email: str, user_roles: list, department: str, hip_id: str):
     payload = {
         "email_id": email,
-        "user_role": user_role,
+        "user_roles": user_roles,
         "department": department,
         "hip_id": hip_id,
         "expires": time.time() + 86400,

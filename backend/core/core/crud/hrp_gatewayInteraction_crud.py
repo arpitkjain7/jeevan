@@ -1,5 +1,5 @@
-from core import session, logger
-from core.orm_models.hrp_gatewayInteraction import GatewayInteraction
+from core import create_session, logger
+from core.orm_models.lobster_schema.gatewayInteraction import GatewayInteraction
 from datetime import datetime
 from pytz import timezone
 
@@ -26,7 +26,7 @@ class CRUDGatewayInteraction:
                 }
             )
             gatway_obj = GatewayInteraction(**kwargs)
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 transaction_session.add(gatway_obj)
                 transaction_session.commit()
                 transaction_session.refresh(gatway_obj)
@@ -48,7 +48,7 @@ class CRUDGatewayInteraction:
         """
         try:
             logging.info("CRUDGatewayInteraction read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)
                     .filter(GatewayInteraction.request_id == request_id)
@@ -76,7 +76,7 @@ class CRUDGatewayInteraction:
         """
         try:
             logging.info("CRUDGatewayInteraction read request")
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)
                     .filter(GatewayInteraction.transaction_id == transaction_id)
@@ -106,7 +106,7 @@ class CRUDGatewayInteraction:
                     )
                 }
             )
-            with session() as transaction_session:
+            with create_session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)
                     .filter(GatewayInteraction.request_id == kwargs.get("request_id"))

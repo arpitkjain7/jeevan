@@ -20,3 +20,4 @@ class Consent(Base):
     care_contexts = Column(JSON)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "lobster_schema"}

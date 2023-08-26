@@ -23,3 +23,4 @@ class HIUConsent(Base):
     patient_data_transformed = Column(JSON)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    __table_args__ = {"schema": "lobster_schema"}
