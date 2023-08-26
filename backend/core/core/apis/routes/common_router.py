@@ -15,15 +15,6 @@ logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
 common_router = APIRouter()
 
-"""listOfComplaint_router = APIRouter()
-listOfDiagnosis_router = APIRouter()
-listOfMedicalTests_router = APIRouter()
-listOfMedicines_router = APIRouter()
-"""
-
-
-# below API is not showing in API lists
-
 
 @common_router.post("/v1/deepLinkNotify")
 def deep_link_notify(mobile_no: str, token: str = Depends(oauth2_scheme)):
@@ -147,15 +138,6 @@ def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
 #### function to add external doctor
 @common_router.post("/v1/doctorDetails/addExternal")
 def create_external_doctor(request: ExternalDoc, token: str = Depends(oauth2_scheme)):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
     try:
         logging.info(f"Calling /v1/doctorDetails/addExternal")
         authenticated_user_details = decodeJWT(token=token)

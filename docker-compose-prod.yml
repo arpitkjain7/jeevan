@@ -30,10 +30,27 @@ services:
       - msg91_base_url=https://control.msg91.com/api/v5/otp
     volumes:
       - ./backend/core:/app
-      - ./backend/logs:/core/logs
+      - ./backend/core/logs:/core/logs
       - ./backend/fidelius-cli-1.2.0:/app/fidelius-cli-1.2.0
     ports:
-      - 8001:8000
+      - 8001:8001
+    depends_on:
+      - lobster_db
+    networks:
+      - lobster
+    restart: "on-failure"
+
+  lobster_gateway:
+    build: backend/gateway/.
+    image: lobster/gateway:latest
+    container_name: lobster-gateway
+    env_file: backend/gateway/env_var
+    volumes:
+      - ./backend/gateway:/app
+      - ./backend/gateway/logs:/gateway/logs
+      - ./backend/fidelius-cli-1.2.0:/app/fidelius-cli-1.2.0
+    ports:
+      - 8002:8002
     depends_on:
       - lobster_db
     networks:

@@ -7,10 +7,8 @@ from core.apis.routes.pmr_router import pmr_router
 from core.apis.routes.patient_router import patient_router
 from core.apis.routes.hip_router import hip_router
 from core.apis.routes.gatewayInteraction_router import gateway_router
-from core.apis.routes.callback_router import callback_router
 from core.apis.routes.common_router import common_router
 from core.apis.routes.hid_router import hid_router
-from core.apis.routes.dataTransfer_router import dataTransfer_router
 from core.apis.routes.appointment_router import appointment_router
 from core.apis.routes.hiu_router import hiu_router
 
@@ -49,8 +47,6 @@ app.include_router(pmr_router, tags=["Patient Medical Record"])
 app.include_router(patient_router, tags=["Patient Details"])
 app.include_router(hip_router, tags=["HIP Records"])
 app.include_router(gateway_router, tags=["Gateway Interactions"])
-app.include_router(callback_router, tags=["Callback"])
-app.include_router(dataTransfer_router, tags=["Data Transfer"])
 app.include_router(hiu_router, tags=["HIU Routers"])
 app.include_router(common_router, tags=["Common"])
 """

@@ -1,23 +1,23 @@
-from core.crud.hims_patientDetails_crud import CRUDPatientDetails
-from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
-from core.crud.hims_hip_crud import CRUDHIP
-from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
-from core.crud.hims_consent_crud import CRUDConsents
-from core.utils.custom.data_transfer_helper import send_data
-from core.utils.custom.external_call import APIInterface
-from core.utils.custom.session_helper import get_session_token
-from core import logger
+from gateway.crud.hims_patientDetails_crud import CRUDPatientDetails
+from gateway.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
+from gateway.crud.hims_hip_crud import CRUDHIP
+from gateway.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
+from gateway.crud.hims_consent_crud import CRUDConsents
+from gateway.utils.custom.data_transfer_helper import send_data
+from gateway.utils.custom.external_call import APIInterface
+from gateway.utils.custom.session_helper import get_session_token
+from gateway import logger
 from datetime import datetime, timezone
 import os
 import uuid
 from pytz import timezone as pytz_timezone
-from core import celery
+from gateway import celery
 from dateutil import parser
 
 logging = logger(__name__)
 
 
-class DataTransferController:
+class DataTransferCallbackController:
     def __init__(self):
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
