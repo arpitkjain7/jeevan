@@ -1,7 +1,8 @@
-import React from "react";
-import { Button, styled } from "@mui/material";
+import React, { useState } from "react";
+import { Button, styled, Avatar, Menu, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate } from "react-router-dom";
+import { Person } from "@mui/icons-material";
 
 const HeaderWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -11,6 +12,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     zIndex: "9999",
     height: "80px",
     borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
+    width: "100vw",
   },
   ".header-container": {
     display: "flex",
@@ -22,11 +24,6 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   ".header-logo-container": {
     display: "flex",
     alignItems: "center",
-  },
-  ".header-content": {
-    display: "flex",
-    alignItems: "center",
-    gap: "42px",
   },
   ".logo": {
     fontFamily: "Red Hat Display",
@@ -41,14 +38,40 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
+const ProfileIconWrapper = styled("div")({
+  position: "relative",
+  cursor: "pointer",
+  display: "inline-block",
+});
+
+const ProfileIcon = styled(Avatar)({
+  backgroundColor: "#000",
+});
+
+const ProfileMenu = styled(Menu)({
+  position: "absolute",
+  top: 20,
+});
+
 const Header = () => {
   const accessToken = localStorage.getItem("accesstoken");
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
-  const logout = () => {
+  const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
+    handleClose();
   };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <HeaderWrapper>
       <div className="header-container">
@@ -57,11 +80,19 @@ const Header = () => {
         </div>
         {accessToken ? (
           <div className="header-content">
-            {" "}
-            <PersonIcon
-              sx={{ fontSize: 40, width: 40, height: 40, cursor: "pointer" }}
-              onClick={logout}
-            />
+            <ProfileIconWrapper>
+              <ProfileIcon onClick={handleClick}>
+                <Person />
+              </ProfileIcon>
+              <ProfileMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>View Profile</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </ProfileMenu>
+            </ProfileIconWrapper>
           </div>
         ) : (
           <div className="header-content">
