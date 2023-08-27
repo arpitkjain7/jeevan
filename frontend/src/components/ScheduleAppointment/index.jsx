@@ -204,6 +204,14 @@ const BookingSlots = () => {
     return availableSlots;
   }
 
+  function formatDateTime(dateTimeString) {
+    const [datePart, timePart] = dateTimeString.split(" ");
+    const [hour, minute] = timePart.split(":");
+    const formattedTime = `${hour}:${minute}`;
+
+    return `${datePart} ${formattedTime}`;
+  }
+
   useEffect(() => {
     let filledSlots = [];
     if (doctorDetails?.slots) {
@@ -235,10 +243,12 @@ const BookingSlots = () => {
       appointment_type: appointmentDetails?.appointmentType,
       encounter_type: appointmentDetails?.encounterType,
       hip_id: "123123",
-      appointment_start:
-        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime,
-      appointment_end:
-        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime,
+      appointment_start: formatDateTime(
+        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime
+      ),
+      appointment_end: formatDateTime(
+        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime
+      ),
     };
     dispatch(createAppointment(payload)).then((res) => {
       if (res.payload?.appointment_id) {
