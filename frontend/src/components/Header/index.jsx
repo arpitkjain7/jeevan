@@ -39,36 +39,32 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "16px",
   },
-  ".header-btn": {
-    "&.MuiButtonBase-root": theme.typography.primaryButton,
-  },
 }));
 
 const Header = () => {
   const accessToken = localStorage.getItem("accesstoken");
   const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
   return (
     <HeaderWrapper>
       <div className="header-container">
         <div className="header-logo-container">
-          {/* <img src="/path/to/logo.png" alt="Logo" className="h-8" /> */}
           <span className="logo">Cliniq360</span>
         </div>
         {accessToken ? (
           <div className="header-content">
             {" "}
-            <Button
-              variant="contained"
-              className="header-btn"
-              onClick={() => navigate("/patient-registration")}
-            >
-              Register Now
-            </Button>
-            <PersonIcon sx={{ fontSize: 40, width: 40, height: 40 }} />
+            <PersonIcon
+              sx={{ fontSize: 40, width: 40, height: 40, cursor: "pointer" }}
+              onClick={logout}
+            />
           </div>
         ) : (
           <div className="header-content">
-            {" "}
             <span className="header-question-text">Have A Question?</span>
             <Button variant="contained" className="header-btn">
               Contact Us
