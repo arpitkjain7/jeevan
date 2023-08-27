@@ -21,6 +21,7 @@ import {
   fetchDoctorSlots,
 } from "./scheduleAppointment.slice";
 import Calendar from "../Calendar";
+import RegisterationConfirmation from "../RegistrationConfirmation";
 
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -76,6 +77,7 @@ const BookingSlots = () => {
   const [slots, setSlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
+  const [appointmentcompleted, setAppointmentCompleted] = useState(false);
 
   const doctorId = localStorage.getItem("appointment_doctor_id");
   const hospital = localStorage?.getItem("selectedHospital");
@@ -211,7 +213,6 @@ const BookingSlots = () => {
         const range = `${startTime}-${endTime}`;
         filledSlots?.push(range);
       });
-      console.log("filled", filledSlots);
     }
     const slotsBooked = convertToTimeSlots(filledSlots);
     if (doctorDetails) {
@@ -239,72 +240,78 @@ const BookingSlots = () => {
       appointment_end:
         convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime,
     };
-    dispatch(createAppointment(payload)).then((res) =>
-      console.log(res.payload)
-    );
-    console.log(payload);
+    dispatch(createAppointment(payload)).then((res) => {
+      if (res.payload?.appointment_id) {
+        setAppointmentCompleted(true);
+      }
+    });
   };
 
-  console.log(slots, "slots");
   return (
-    <SlotWrapper>
-      <StyledCard>
-        <CardContent>
-          <Grid container>
-            <Grid item xs={12}>
-              <ButtonGroup>
-                {dates?.map((date, index) => (
-                  <Button
-                    key={index}
-                    variant={selectedDate === date ? "contained" : "outlined"}
-                    color="primary"
-                    onClick={() => handleDateSelect(date)}
-                    className="date-btn"
-                  >
-                    <DateWrapper>
-                      <Typography variant="body2">{date}</Typography>
-                    </DateWrapper>
-                  </Button>
-                ))}
-                {/* <Calendar
+    <>
+      {!appointmentcompleted ? (
+        <SlotWrapper>
+          <StyledCard>
+            <CardContent>
+              <Grid container>
+                <Grid item xs={12}>
+                  <ButtonGroup>
+                    {dates?.map((date, index) => (
+                      <Button
+                        key={index}
+                        variant={
+                          selectedDate === date ? "contained" : "outlined"
+                        }
+                        color="primary"
+                        onClick={() => handleDateSelect(date)}
+                        className="date-btn"
+                      >
+                        <DateWrapper>
+                          <Typography variant="body2">{date}</Typography>
+                        </DateWrapper>
+                      </Button>
+                    ))}
+                    {/* <Calendar
                   selectedDate={calendarDate}
                   setSelectedDate={setCalendarDate}
                 /> */}
-              </ButtonGroup>
-            </Grid>
+                  </ButtonGroup>
+                </Grid>
 
-            {selectedDate && (
-              <div className="slots-container">
-                {slots?.map((slot) => (
-                  <Button
-                    key={slot}
-                    variant={selectedSlot === slot ? "contained" : "outlined"}
-                    color="primary"
-                    onClick={() => handleSlotSelect(slot)}
-                    className="slots-btn"
-                  >
-                    {convertTimeSlot(slot)}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {/* {selectedSlot && (
-        <Grid item xs={12}>
-          <Typography variant="body1">
-            Selected Slot: {selectedSlot}
-          </Typography>
-        </Grid>
-      )} */}
-          </Grid>
-        </CardContent>
-      </StyledCard>
+                {selectedDate && (
+                  <div className="slots-container">
+                    {slots?.map((slot) => (
+                      <Button
+                        key={slot}
+                        variant={
+                          selectedSlot === slot ? "contained" : "outlined"
+                        }
+                        color="primary"
+                        onClick={() => handleSlotSelect(slot)}
+                        className="slots-btn"
+                      >
+                        {convertTimeSlot(slot)}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </Grid>
+            </CardContent>
+          </StyledCard>
 
-      <div className="btn-wrapper">
-        <Button className="submit-btn" onClick={submitAppointment}>
-          Save
-        </Button>
-      </div>
-    </SlotWrapper>
+          <div className="btn-wrapper">
+            <Button className="submit-btn" onClick={submitAppointment}>
+              Save
+            </Button>
+          </div>
+        </SlotWrapper>
+      ) : (
+        <RegisterationConfirmation
+          isAppointment={true}
+          appointmentDetails={appointmentDetails}
+        />
+      )}
+    </>
   );
 };
 
