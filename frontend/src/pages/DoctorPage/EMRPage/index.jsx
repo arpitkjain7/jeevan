@@ -8,6 +8,7 @@ import {
   Grid,
   filledInputClasses,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
@@ -16,6 +17,7 @@ import { Button } from "@mui/base";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
+import { useNavigate } from "react-router-dom";
 const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
@@ -28,7 +30,6 @@ const VitalsContainer = styled("div")(({ theme }) => ({
     borderRadius: theme.spacing(1),
   },
   "& .notes-field": {
-    marginTop: theme.spacing(8),
     "&.MuiFormControl-root": {
       width: "100%",
       "& > .MuiInputBase-root ": {
@@ -51,10 +52,6 @@ const TextFieldWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const VitalsCardTitle = styled("Typography")(({ theme }) => ({
-  "&": {},
-}));
-
 const VitalValue = styled("div")(({ theme }) => ({
   "&": {
     padding: theme.spacing(3),
@@ -73,9 +70,9 @@ const CommentSection = styled("div")(({ theme }) => ({
 const FieldSpecsContainer = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
-    alignItems: "center",
-    gap: theme.spacing(6),
-    marginTop: theme.spacing(6),
+    marginTop: theme.spacing(4),
+    justifyContent: "space-between",
+    gap: theme.spacing(4),
   },
 }));
 
@@ -97,6 +94,52 @@ const PrimaryButton = styled("Button")(({ theme }) => ({
 
 const SecondaryButton = styled("Button")(({ theme }) => ({
   "&": theme.typography.secondaryButton,
+}));
+
+const SectionHeader = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.sectionBody,
+  marginBottom: theme.spacing(4),
+}));
+
+const RecordLayout = styled("div")(({ theme }) => ({
+  textAlign: "left",
+  padding: theme.spacing(3, 4),
+  border: `1px solid ${theme.palette.primaryGrey}`,
+  flex: 1,
+  height: theme.spacing(8),
+  borderRadius: theme.spacing(1.5),
+}));
+
+const TextBoxLayout = styled("div")(({ theme }) => ({
+  flex: 1,
+}));
+
+const RecordTextField = styled(TextField)(({ theme }) => ({
+  width: "100%",
+}));
+const DeleteWrapper = styled("div")(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  alignItems: "center",
+}));
+
+const SelectedRecord = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.body1,
+  marginBottom: theme.spacing(4),
+}));
+
+const DeleteField = styled(DeleteIcon)(({ theme }) => ({
+  height: "30px",
+  width: "30px",
+}));
+
+const PageTitle = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.h1,
+  marginBottom: theme.spacing(2),
+}));
+const PageSubText = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.h2,
+  marginBottom: theme.spacing(8),
 }));
 
 const PatientEMRDetails = () => {
@@ -131,6 +174,9 @@ const PatientEMRDetails = () => {
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
   const [submitEMRPayload, setSubmitEMRPayload] = useState({});
+  const [patientData, setPatientData] = useState({});
+  const [step, setStep] = useState("create");
+  const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -905,12 +951,47 @@ const PatientEMRDetails = () => {
   };
 
   const createPdfBlob = () => {
-    const blobPromise = pdf(<PMRPdf pdfData={pdfData} />).toBlob();
-    const blob = new Blob([<PMRPdf pdfData={pdfData} />], {
-      type: "application/pdf",
-    });
+    const blobPromise = pdf(
+      <PMRPdf pdfData={pdfData} patientData={patientData} />
+    ).toBlob();
+    const blob = new Blob(
+      [<PMRPdf pdfData={pdfData} patientData={patientData} />],
+      {
+        type: "application/pdf",
+      }
+    );
     console.log(blob);
     return blob;
+  };
+
+  const postPMR = () => {
+    const filteredPayload = submitEMRPayload;
+    filteredPayload["pmr_id"] = emrId;
+    const pdfPayload = {
+      document_type: "Prescription",
+      pmr_id: emrId,
+    };
+    const blob = createPdfBlob();
+    dispatch(submitPdf({ blob, pdfPayload })).then(
+      dispatch(postEMR(submitEMRPayload)).then((res) => {
+        navigate("/appointment-list");
+        sessionStorage.clear();
+      })
+    );
+  };
+
+  const filterVitals = (vitalsArr) => {
+    const filteredvital = [];
+    vitalsArr?.map((item) => {
+      const filteredEntry = {};
+      for (const key in item) {
+        if (item[key]?.length > 0) {
+          filteredEntry[key] = item[key];
+        }
+      }
+      filteredvital?.push(filteredEntry);
+    });
+    return filteredvital;
   };
   const submitEMR = () => {
     console.log(
@@ -937,7 +1018,7 @@ const PatientEMRDetails = () => {
     const payloadArr = [
       {
         key: "vital",
-        dataArr: [
+        dataArr: filterVitals([
           {
             height: formValues?.bodyHeight,
             weight: formValues?.bodyWeight,
@@ -950,7 +1031,7 @@ const PatientEMRDetails = () => {
             systolic_blood_pressure: formValues?.systolicBP,
             diastolic_blood_pressure: formValues?.diastolicaBP,
           },
-        ],
+        ]),
       },
       {
         key: "condition",
@@ -989,23 +1070,32 @@ const PatientEMRDetails = () => {
     payloadArr?.forEach((item) => {
       createPayload(item?.key, item?.dataArr);
     });
-    setPdfData(submitEMRPayload);
-    //setPmrFinished(true);
-    console.log(symptomsEMR);
-    if (Object.keys(submitEMRPayload)?.length) {
-      const filteredPayload = submitEMRPayload;
-      filteredPayload["pmr_id"] = emrId;
-      const pdfPayload = {
-        document_type: "Prescription",
-        pmr_id: emrId,
+    const hospital = localStorage?.getItem("selectedHospital");
+    const patient = sessionStorage?.getItem("selectedPatient");
+    let patientDetails = {};
+    if (hospital) {
+      const currentHospital = JSON.parse(hospital);
+      const currentPatient = JSON.parse(patient);
+      patientDetails = {
+        hospitalName: currentHospital?.name || "-",
+        patientName: currentPatient?.patient_details?.name || "-",
+        doctorName: currentPatient?.docName || "-",
+        patientEmail: currentPatient?.patient_details?.email || "-",
+        patientGender: currentPatient?.patient_details?.gender || "-",
+        patientNumber: currentPatient?.mobileNumber || "-",
+        patientId: currentPatient?.patientId || "-",
+        patientAge: "-",
       };
-      const blob = createPdfBlob();
-      dispatch(submitPdf({ blob, pdfPayload })).then(
-        dispatch(postEMR(submitEMRPayload)).then((res) => {
-          console.log(res.payload, "submitted");
-        })
-      );
     }
+    setPatientData(patientDetails);
+    setPdfData(submitEMRPayload);
+
+    console.log(symptomsEMR);
+
+    sessionStorage.setItem("patientDetailsPdf", JSON.stringify(patientDetails));
+    sessionStorage.setItem("patientEMRDetails", JSON.stringify(pdfData));
+    setPmrFinished(true);
+    setStep("preview");
   };
 
   const resetEMRForm = () => {
@@ -1023,555 +1113,675 @@ const PatientEMRDetails = () => {
     setDiagnosisSpecs({});
     setMedicationsSpecs({});
     setLabInvestigationSpecs({});
+    setPrescriptionComment(" ");
+    setAdvices(" ");
   };
 
   // console.log(pdfData, "pdfData")
 
   return (
     <PatientEMRWrapper>
-      <PatientDetailsHeader />
-      <EMRFormWrapper>
-        <VitalsContainer>
-          <Typography>Vitals</Typography>
-          <form>
-            <Grid container spacing={8}>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Pulse Rate</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="pulseRate"
-                      value={formValues.pulseRate}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>/min</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
+      {step === "create" && <PatientDetailsHeader />}
+      {step === "create" && (
+        <EMRFormWrapper>
+          <VitalsContainer>
+            <SectionHeader>Vitals</SectionHeader>
+            <form>
+              <Grid container spacing={8}>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Pulse Rate</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="pulseRate"
+                        value={formValues.pulseRate}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>/min</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">
+                    Peripheral oxygen saturation
+                  </Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="oxygenSaturation"
+                        value={formValues.oxygenSaturation}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>%</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Blood Pressure</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="bloodPressure"
+                        value={formValues.bloodPressure}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>mmHg</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Respiratory rate</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="respiratoryRate"
+                        value={formValues.respiratoryRate}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>/min</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Body Temperature</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="bodyTemp"
+                        value={formValues.bodyTemp}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>C</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Body height</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="bodyHeight"
+                        value={formValues.bodyHeight}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>Cms</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Body weight</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="bodyWeight"
+                        value={formValues.bodyWeight}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>Kgs</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">Body mass index</Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="bodyMass"
+                        value={formValues.bodyMass}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>Kg/m2</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">
+                    Systolic blood pressure
+                  </Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="systolicBP"
+                        value={formValues.systolicBP}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>mmHg</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="subtitle1">
+                    Diastolic blood pressure
+                  </Typography>
+                  <TextFieldWrapper>
+                    <Grid item xs={12} sm={10}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        name="diastolicaBP"
+                        value={formValues.diastolicaBP}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <VitalValue>mmHg</VitalValue>
+                    </Grid>
+                  </TextFieldWrapper>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">
-                  Peripheral oxygen saturation
-                </Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="oxygenSaturation"
-                      value={formValues.oxygenSaturation}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>%</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Blood Pressure</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="bloodPressure"
-                      value={formValues.bloodPressure}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>mmHg</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Respiratory rate</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="respiratoryRate"
-                      value={formValues.respiratoryRate}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>/min</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Body Temperature</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="bodyTemp"
-                      value={formValues.bodyTemp}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>C</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Body height</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="bodyHeight"
-                      value={formValues.bodyHeight}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>Cms</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Body weight</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="bodyWeight"
-                      value={formValues.bodyWeight}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>Kgs</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">Body mass index</Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="bodyMass"
-                      value={formValues.bodyMass}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>Kg/m2</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">
-                  Systolic blood pressure
-                </Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="systolicBP"
-                      value={formValues.systolicBP}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>mmHg</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="subtitle1">
-                  Diastolic blood pressure
-                </Typography>
-                <TextFieldWrapper>
-                  <Grid item xs={12} sm={10}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      name="diastolicaBP"
-                      value={formValues.diastolicaBP}
-                      onChange={handleInputChange}
-                      className="emr-input-field"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <VitalValue>mmHg</VitalValue>
-                  </Grid>
-                </TextFieldWrapper>
-              </Grid>
-            </Grid>
-          </form>
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Patient Medical History</VitalsCardTitle>
-          <CustomAutoComplete
-            options={medicalHistoryoptions}
-            handleInputChange={handleMeidcalHistoryChange}
-            setOptions={setMedicalHistoryOptions}
-            handleOptionChange={handleMedicalHistoryValue}
-            autocompleteRef={medicalHistoryRef}
-          />
-          {medicalHistory?.length > 0 && showMedicalHistory && (
-            <div>
-              {medicalHistory?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={optionTextValues[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleTextFieldChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={optionTextValues[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleTextFieldChange(item, "severity", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={optionTextValues[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleTextFieldChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleOptionRemove(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Existing Conditions</VitalsCardTitle>
-          <CustomAutoComplete
-            options={existingConditionsOpts}
-            handleInputChange={handleExistingConditionsChange}
-            setOptions={setExistingConditionOpts}
-            handleOptionChange={handleExistingConditions}
-          />
-          {existingConditions?.length > 0 && (
-            <div>
-              {existingConditions?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={existingConditionSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      exisitingConditionsTextChange(
-                        item,
-                        "since",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={existingConditionSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      exisitingConditionsTextChange(
-                        item,
-                        "severity",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={existingConditionSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      exisitingConditionsTextChange(
-                        item,
-                        "notes",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <Button
-                    onClick={handleExistingConditionsSpecDelete(item?.label)}
-                  >
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle> Symptoms</VitalsCardTitle>
-          <CustomAutoComplete
-            options={symptomsOpts}
-            handleInputChange={handleSymptompsChange}
-            setOptions={setSymptomsOpts}
-            handleOptionChange={handleSymptoms}
-          />
-          {symptoms?.length > 0 && (
-            <div>
-              {symptoms?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={symptomsSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleSymtomsTextChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={symptomsSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleSymtomsTextChange(item, "severity", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={symptomsSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleSymtomsTextChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleSymptomsSpecsDelete(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Examination Findings</VitalsCardTitle>
-          <CustomAutoComplete
-            options={examFindingsOpts}
-            handleInputChange={handleExamFindingsChange}
-            setOptions={setExamFindingsOpts}
-            handleOptionChange={handleExaminationFindings}
-          />
-          {examFindings?.length > 0 && (
-            <div>
-              {examFindings?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={examinationSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleExaminationTextChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={examinationSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleExaminationTextChange(
-                        item,
-                        "severity",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={examinationSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleExaminationTextChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleExaminationSpecsDelete(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Diagnosis</VitalsCardTitle>
-          <CustomAutoComplete
-            options={diagnosisOpts}
-            handleInputChange={handleDiagnosisChange}
-            setOptions={setDiagnosisOpts}
-            handleOptionChange={handleDiagnosis}
-          />
-          {diagnosis?.length > 0 && (
-            <div>
-              {diagnosis?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={diagnosisSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleDiagnosisTextChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={diagnosisSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleDiagnosisTextChange(
-                        item,
-                        "severity",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={diagnosisSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleDiagnosisTextChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleDiagnosisSpecsDelete(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Medications</VitalsCardTitle>
-          <CustomAutoComplete
-            options={medicationsOpts}
-            handleInputChange={handleMedicationsChange}
-            setOptions={setMedicationsOpts}
-            handleOptionChange={handleMedications}
-          />
-          {medications?.length > 0 && (
-            <div>
-              {medications?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={medicationsSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleMedicationsTextChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={medicationsSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleMedicationsTextChange(
-                        item,
-                        "severity",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={medicationsSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleMedicationsTextChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleMedicationsSpecsDelete(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <VitalsContainer>
-          <VitalsCardTitle>Lab Investigations</VitalsCardTitle>
-          <CustomAutoComplete
-            options={labInvestigationsOpts}
-            handleInputChange={handleLabInvestigationsChange}
-            setOptions={setLabInvestigationsOpts}
-            handleOptionChange={handleLabInvestigations}
-          />
-          {labInvestigation?.length > 0 && (
-            <div>
-              {labInvestigation?.map((item) => (
-                <FieldSpecsContainer>
-                  <Typography>{item?.label}</Typography>
-                  <TextField
-                    placeholder="Since"
-                    value={labInvestigationSpecs[item?.label]?.since || ""}
-                    onChange={(e) =>
-                      handleLabTextChange(item, "since", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Severity"
-                    value={labInvestigationSpecs[item?.label]?.severity || ""}
-                    onChange={(e) =>
-                      handleLabTextChange(item, "severity", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <TextField
-                    placeholder="Notes"
-                    value={labInvestigationSpecs[item?.label]?.notes || ""}
-                    onChange={(e) =>
-                      handleLabTextChange(item, "notes", e.target.value)
-                    }
-                    variant="outlined"
-                  />
-                  <Button onClick={handleLabSpecsDelete(item?.label)}>
-                    Delete
-                  </Button>
-                </FieldSpecsContainer>
-              ))}
-            </div>
-          )}
-        </VitalsContainer>
-        <Grid container spacing={2}>
+            </form>
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Patient Medical History</SectionHeader>
+            <CustomAutoComplete
+              options={medicalHistoryoptions}
+              handleInputChange={handleMeidcalHistoryChange}
+              setOptions={setMedicalHistoryOptions}
+              handleOptionChange={handleMedicalHistoryValue}
+              autocompleteRef={medicalHistoryRef}
+            />
+            {medicalHistory?.length > 0 && showMedicalHistory && (
+              <div>
+                {medicalHistory?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={optionTextValues[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleTextFieldChange(item, "since", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={optionTextValues[item?.label]?.severity || ""}
+                        onChange={(e) =>
+                          handleTextFieldChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={optionTextValues[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleTextFieldChange(item, "notes", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField onClick={handleOptionRemove(item?.label)}>
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Existing Conditions</SectionHeader>
+            <CustomAutoComplete
+              options={existingConditionsOpts}
+              handleInputChange={handleExistingConditionsChange}
+              setOptions={setExistingConditionOpts}
+              handleOptionChange={handleExistingConditions}
+            />
+            {existingConditions?.length > 0 && (
+              <div>
+                {existingConditions?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      {" "}
+                      <RecordTextField
+                        placeholder="Since"
+                        value={existingConditionSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          exisitingConditionsTextChange(
+                            item,
+                            "since",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={
+                          existingConditionSpecs[item?.label]?.severity || ""
+                        }
+                        onChange={(e) =>
+                          exisitingConditionsTextChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={existingConditionSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          exisitingConditionsTextChange(
+                            item,
+                            "notes",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleExistingConditionsSpecDelete(
+                          item?.label
+                        )}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader> Symptoms</SectionHeader>
+            <CustomAutoComplete
+              options={symptomsOpts}
+              handleInputChange={handleSymptompsChange}
+              setOptions={setSymptomsOpts}
+              handleOptionChange={handleSymptoms}
+            />
+            {symptoms?.length > 0 && (
+              <div>
+                {symptoms?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={symptomsSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleSymtomsTextChange(item, "since", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={symptomsSpecs[item?.label]?.severity || ""}
+                        onChange={(e) =>
+                          handleSymtomsTextChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={symptomsSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleSymtomsTextChange(item, "notes", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleSymptomsSpecsDelete(item?.label)}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Examination Findings</SectionHeader>
+            <CustomAutoComplete
+              options={examFindingsOpts}
+              handleInputChange={handleExamFindingsChange}
+              setOptions={setExamFindingsOpts}
+              handleOptionChange={handleExaminationFindings}
+            />
+            {examFindings?.length > 0 && (
+              <div>
+                {examFindings?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={examinationSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleExaminationTextChange(
+                            item,
+                            "since",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={examinationSpecs[item?.label]?.severity || ""}
+                        onChange={(e) =>
+                          handleExaminationTextChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={examinationSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleExaminationTextChange(
+                            item,
+                            "notes",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleExaminationSpecsDelete(item?.label)}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Diagnosis</SectionHeader>
+            <CustomAutoComplete
+              options={diagnosisOpts}
+              handleInputChange={handleDiagnosisChange}
+              setOptions={setDiagnosisOpts}
+              handleOptionChange={handleDiagnosis}
+            />
+            {diagnosis?.length > 0 && (
+              <div>
+                {diagnosis?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={diagnosisSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleDiagnosisTextChange(
+                            item,
+                            "since",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={diagnosisSpecs[item?.label]?.severity || ""}
+                        onChange={(e) =>
+                          handleDiagnosisTextChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={diagnosisSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleDiagnosisTextChange(
+                            item,
+                            "notes",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleDiagnosisSpecsDelete(item?.label)}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Medications</SectionHeader>
+            <CustomAutoComplete
+              options={medicationsOpts}
+              handleInputChange={handleMedicationsChange}
+              setOptions={setMedicationsOpts}
+              handleOptionChange={handleMedications}
+            />
+            {medications?.length > 0 && (
+              <div>
+                {medications?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={medicationsSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleMedicationsTextChange(
+                            item,
+                            "since",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={medicationsSpecs[item?.label]?.severity || ""}
+                        onChange={(e) =>
+                          handleMedicationsTextChange(
+                            item,
+                            "severity",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={medicationsSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleMedicationsTextChange(
+                            item,
+                            "notes",
+                            e.target.value
+                          )
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleMedicationsSpecsDelete(item?.label)}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Lab Investigations</SectionHeader>
+            <CustomAutoComplete
+              options={labInvestigationsOpts}
+              handleInputChange={handleLabInvestigationsChange}
+              setOptions={setLabInvestigationsOpts}
+              handleOptionChange={handleLabInvestigations}
+            />
+            {labInvestigation?.length > 0 && (
+              <div>
+                {labInvestigation?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={labInvestigationSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleLabTextChange(item, "since", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Severity"
+                        value={
+                          labInvestigationSpecs[item?.label]?.severity || ""
+                        }
+                        onChange={(e) =>
+                          handleLabTextChange(item, "severity", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={labInvestigationSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleLabTextChange(item, "notes", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField onClick={handleLabSpecsDelete(item?.label)}>
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          {/* <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <VitalsContainer>
-              <VitalsCardTitle>Notes</VitalsCardTitle>
+              <SectionHeader>Notes</SectionHeader>
               <div>
-                <TextField
+                <RecordTextField
                   placeholder="Add your notes here"
                   className="notes-field"
                   onChange={prescriptionCommentChange}
@@ -1581,9 +1791,9 @@ const PatientEMRDetails = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <VitalsContainer>
-              <VitalsCardTitle>Advices</VitalsCardTitle>
+              <SectionHeader>Advices</SectionHeader>
               <div>
-                <TextField
+                <RecordTextField
                   placeholder="Add your advices here"
                   className="notes-field"
                   onChange={adviceChange}
@@ -1591,18 +1801,30 @@ const PatientEMRDetails = () => {
               </div>
             </VitalsContainer>
           </Grid>
-        </Grid>
-        <EMRFooter>
-          <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
-          <PrimaryButton onClick={submitEMR}>Finish Prescription</PrimaryButton>
-        </EMRFooter>
-      </EMRFormWrapper>
+        </Grid> */}
+          <EMRFooter>
+            <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
+            <PrimaryButton onClick={submitEMR}>
+              Review Prescription
+            </PrimaryButton>
+          </EMRFooter>
+        </EMRFormWrapper>
+      )}
 
-      {pmrFinished && (
-        <div style={{ height: "800px" }}>
-          <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
-            <PMRPdf pdfData={pdfData} />
-          </PDFViewer>
+      {pmrFinished && step === "preview" && (
+        <div>
+          <PageTitle>Preview</PageTitle>
+          <PageSubText>
+            Closely Review the Details Before Confirming
+          </PageSubText>
+          <div style={{ height: "600px", marginBottom: "32px" }}>
+            <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
+              <PMRPdf pdfData={pdfData} patientData={patientData} />
+            </PDFViewer>
+          </div>
+          <EMRFooter>
+            <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
+          </EMRFooter>
         </div>
       )}
     </PatientEMRWrapper>

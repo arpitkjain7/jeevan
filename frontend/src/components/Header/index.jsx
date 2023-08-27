@@ -12,7 +12,9 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     zIndex: "9999",
     height: "80px",
     borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
-    width: "100vw",
+    pposition: "-webkit-sticky",
+    position: "sticky",
+    top: 0,
   },
   ".header-container": {
     display: "flex",
