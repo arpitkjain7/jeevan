@@ -38,23 +38,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      backgroundColor: theme.palette.primaryGrey,
-      "& > tr >th": {
-        color: theme.palette.primaryBlack,
-        fontFamily: "Inter",
-        fontWeight: "500",
-        fontSize: "16px",
-        lineHeight: "16px",
-      },
+      "& > tr >th": theme.typography.body2,
     },
     "& .MuiTableBody-root": {
-      "& > tr >td": {
-        color: theme.palette.primaryBlack,
-        fontFamily: "Inter",
-        fontWeight: "500",
-        fontSize: "16px",
-        lineHeight: "16px",
-      },
+      "& > tr >td": theme.typography.body1,
     },
   },
   ".search-class": {
@@ -162,7 +149,7 @@ const AppointmentPage = () => {
             status: status,
             // updatedDate: updatedDate,
             // createdDate: createdDate,
-             ...item,
+            ...item,
           };
         });
         console.log(formattedAppointmentList, "appointment");

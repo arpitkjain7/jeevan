@@ -1,8 +1,8 @@
 import { toBlob } from "@react-pdf/renderer";
 import axios from "axios";
 import { apis } from "../../utils/apis";
-import { BASE_URL, apiRequest, pdfUploadHeader } from "../../utils/request";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { BASE_URL, pdfUploadHeader } from "../../utils/request";
 
 // Assuming you have the PdfDocument component defined
 

@@ -11,7 +11,7 @@ const theme = createTheme({
     primaryBlue: "#0089E9",
     secondaryBlue: "#0561A0",
     primaryOpacityBlue: "rgba(0, 137, 233, 0.3)",
-    secondaryOpacityBlue : "rgba(5, 97, 160, 0.10)"
+    secondaryOpacityBlue: "rgba(5, 97, 160, 0.10)",
     // Add more colors as needed
   },
   typography: {
@@ -37,7 +37,7 @@ const theme = createTheme({
       lineHeight: "150%",
       color: "#171717",
     },
-    successText:{
+    successText: {
       fontSize: "20px",
       fontFamily: "Source Sans Pro",
       fontWeight: 600,
@@ -59,6 +59,14 @@ const theme = createTheme({
       color: "#171717",
       textTransform: "capitalize",
     },
+    sectionBody: {
+      fontSize: "20px",
+      fontWeight: 600,
+      lineHeight: "150%",
+      fontFamily: "Source Sans Pro",
+      color: "#171717",
+      textTransform: "capitalize",
+    },
     body3: {
       fontSize: "14px",
       fontWeight: 400,
@@ -66,7 +74,7 @@ const theme = createTheme({
       fontFamily: "Source Sans Pro",
       color: "#171717",
     },
-    body4:{
+    body4: {
       fontSize: "14px",
       fontWeight: 400,
       lineHeight: "150%",
@@ -81,7 +89,7 @@ const theme = createTheme({
       color: "#0561A0",
       textDecoration: "underline",
     },
-    customKeys:{
+    customKeys: {
       fontSize: "16px",
       fontWeight: 400,
       lineHeight: "150%",
@@ -102,7 +110,7 @@ const theme = createTheme({
       border: "none",
       cursor: "pointer",
     },
-    secondaryButton:{
+    secondaryButton: {
       padding: "14px 16px",
       display: "flex",
       justifyContent: "center",
@@ -115,7 +123,7 @@ const theme = createTheme({
       fontSize: "16px",
       border: "none",
       cursor: "pointer",
-    }
+    },
     // Add more typography styles as needed
   },
   spacing: 4,
