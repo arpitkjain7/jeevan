@@ -169,25 +169,9 @@ const pmrPdfStyles = StyleSheet.create({
   },
 });
 
-const PMRPdf = ({ pdfData }) => {
-  const patientData = [
-    {
-      label: "Gender",
-      value: "Male",
-    },
-    {
-      label: "Age",
-      value: "32yr",
-    },
-    {
-      label: "Contact Number",
-      value: "987566123",
-    },
-    {
-      label: "Email",
-      value: "name@gmail.com",
-    },
-  ];
+const PMRPdf = ({ pdfData, patientData }) => {
+  const [currentPatientData, setCurrentPatientData] = useState([]);
+
   const data = [
     {
       id: 1,
@@ -286,221 +270,248 @@ const PMRPdf = ({ pdfData }) => {
   useEffect(() => {
     const filteredArr = transformPdfData(pdfData);
     setPmrPdfData(filteredArr);
+
+    if (Object.keys(patientData)?.length) {
+      const patientDetails = [
+        {
+          label: "Gender",
+          value: patientData?.patientGender,
+        },
+        {
+          label: "Age",
+          value: patientData?.patientAge,
+        },
+        {
+          label: "Contact Number",
+          value: patientData?.patientNumber,
+        },
+        {
+          label: "Email",
+          value: patientData?.patientEmail,
+        },
+      ];
+      setCurrentPatientData(patientDetails);
+    }
     console.log(filteredArr);
   }, []);
 
-  const emrData = [
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Patient Medical History",
-      data: [
-        {
-          label: "Diabetes Mellitus",
-          value: "Active | Since 2 Years",
-        },
-        {
-          label: "HyperTension",
-          value: "Active | Since 2 Years",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-  ];
+  // const emrData = [
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Patient Medical History",
+  //     data: [
+  //       {
+  //         label: "Diabetes Mellitus",
+  //         value: "Active | Since 2 Years",
+  //       },
+  //       {
+  //         label: "HyperTension",
+  //         value: "Active | Since 2 Years",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     heading: "Vitals",
+  //     data: [
+  //       {
+  //         label: "Pulse Rate",
+  //         value: "80/min",
+  //       },
+  //       {
+  //         label: "Peripheral Oxygen Saturation",
+  //         value: "100%",
+  //       },
+  //       {
+  //         label: "Blood Pressure",
+  //         value: "129mmHg",
+  //       },
+  //       {
+  //         label: "Respiratory Rate",
+  //         value: "70/min",
+  //       },
+  //       {
+  //         label: "Body Temperature",
+  //         value: "98C",
+  //       },
+  //       {
+  //         label: "Body Height",
+  //         value: "172Cms",
+  //       },
+  //     ],
+  //   },
+  // ];
 
-  console.log(pmrPdfData, "engineered Data");
-
-  console.log(pdfData, "pdfData");
   return (
     <Document style={pmrPdfStyles.document}>
       <Page size="A4" style={pmrPdfStyles.page}>
         <View style={pmrPdfStyles.pdfHeader}>
           <View style={pmrPdfStyles.pdfHeaderLogo}>
             <Text style={pmrPdfStyles.pdflogoText}>Cliniq360</Text>
-            <Text style={pmrPdfStyles.pdfhospitalNameText}>Hospital Name</Text>
+            <Text style={pmrPdfStyles.pdfhospitalNameText}>
+              {patientData?.hospitalName}
+            </Text>
           </View>
           <View style={pmrPdfStyles.drName}>
-            <Text style={pmrPdfStyles.pdfDrNameText}>Dr. Rashmi Shah</Text>
+            <Text style={pmrPdfStyles.pdfDrNameText}>
+              {patientData?.doctorName}
+            </Text>
           </View>
         </View>
         <View style={pmrPdfStyles.pdfPatientDetails}>
           <View style={pmrPdfStyles.pdfPatientName}>
-            <Text style={pmrPdfStyles.pdfPatientNameText}>Rajesh Patel</Text>
-            <Text style={pmrPdfStyles.pdfPatientidText}>123456</Text>
+            <Text style={pmrPdfStyles.pdfPatientNameText}>
+              {patientData?.patientName}
+            </Text>
+            <Text style={pmrPdfStyles.pdfPatientidText}>
+              {patientData?.patientId}
+            </Text>
           </View>
           <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
-            {patientData?.map((item) => (
+            {currentPatientData?.map((item) => (
               <View style={pmrPdfStyles.pdfPatientOtherDetails}>
                 <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
                   {item.label}
@@ -543,7 +554,7 @@ const PMRPdf = ({ pdfData }) => {
                 </Text>
               ))}
             </View>
-            {data.map((item) => (
+            {/* {data.map((item) => (
               <View style={pmrPdfStyles.tableRow} key={item.id}>
                 {columns.map((column) => (
                   <Text
@@ -554,7 +565,7 @@ const PMRPdf = ({ pdfData }) => {
                   </Text>
                 ))}
               </View>
-            ))}
+            ))} */}
           </View>
         </View>
       </Page>

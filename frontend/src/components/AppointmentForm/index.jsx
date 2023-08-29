@@ -155,6 +155,7 @@ function AppointmentForm(props) {
   }, []);
 
   const handleEncounterTypeChange = (event) => {
+    console.log(event.target.value, "type");
     setEncounterTypeValue(event?.target?.value);
   };
 
@@ -173,6 +174,7 @@ function AppointmentForm(props) {
   const handleSubmit = () => {
     localStorage.setItem("appointment_doctor_id", doctorName);
 
+    console.log(encounterTypeValue);
     const data = {
       doctorId: doctorName,
       appointmentType: appointmentTypeValue,
@@ -180,6 +182,7 @@ function AppointmentForm(props) {
       visitType: visitTypeValue,
       billingType: billingTypeValue,
     };
+    console.log(data);
 
     dispatch(ScheduleAppointmentActions.setAppointmentDetails(data));
     props?.setTab(1);

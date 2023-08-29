@@ -1,58 +1,58 @@
 export const encounterType = [
   {
-    label: "Type 1",
-    value: "type1",
+    label: "ambulatory",
+    value: "ambulatory",
   },
   {
-    label: "Type 2",
-    value: "type2",
+    label: "emergency ",
+    value: "emergency",
   },
   {
-    label: "Type 3",
-    value: "type3",
+    label: "field",
+    value: "field",
+  },
+  {
+    label: "home health",
+    value: "home health",
+  },
+  {
+    label: "inpatient encounter",
+    value: "inpatient encounter",
+  },
+  {
+    label: "inpatient acute",
+    value: "inpatient acute",
+  },
+  {
+    label: "inpatient non-acute",
+    value: "inpatient non-acute",
+  },
+  {
+    label: "observation encounter",
+    value: "observation encounter",
+  },
+  {
+    label: "pre-admission",
+    value: "pre-admission",
+  },
+  {
+    label: "short stay",
+    value: "short stay",
+  },
+  {
+    label: "virtual",
+    value: "virtual",
   },
 ];
 
 export const appointmentType = [
   {
-    label: "Ambulatory",
-    value: "ambulatory",
+    label: "first visit",
+    value: "first visit",
   },
   {
-    label: "Emergency",
-    value: "emergency",
-  },
-  {
-    label: "Field",
-    value: "field",
-  },
-  {
-    label: "Inpatient Non-Acute",
-    value: "inpatient non-acute",
-  },
-  {
-    label: "Inpatient Acute",
-    value: "inpatient acute",
-  },
-  {
-    label: "Inpatient Encounter",
-    value: "inpatient encounter",
-  },
-  {
-    label: "Observation encounter",
-    value: "observation encounter",
-  },
-  {
-    label: "Pre Admission",
-    value: "pre-admission",
-  },
-  {
-    label: "Short Stay",
-    value: "short stay",
-  },
-  {
-    label: "Virtual",
-    value: "virtual",
+    label: "follow-up visit",
+    value: "follow-up visit",
   },
 ];
 
