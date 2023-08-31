@@ -75,6 +75,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             formData?.lastname,
           gender: formData?.gender,
           DOB: formData?.dob,
+          email: formData?.email,
           mobile_number: formData?.mobile,
           hip_id: currentHospital?.hip_id,
         };
