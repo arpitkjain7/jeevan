@@ -51,13 +51,12 @@ const RegisterationConfirmation = ({
   const doctorId = localStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const patientData =
-    Object.keys(selectedPatient)?.length > 0
+    Object.keys(selectedPatient)?.length > 0 && isAppointment
       ? selectedPatient
       : dataState.PatientRegistartion.registeredPatientDetails;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
-  const navigateToAppointment = () => {};
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
