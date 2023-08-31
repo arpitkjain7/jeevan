@@ -17,6 +17,7 @@ import {
   registerAADHAR,
   registerPhone,
   verifyAadharOTP,
+  verifyAadharPhoneOTP,
   verifyPhoneOTP,
 } from "./PatientRegistration.slice";
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
@@ -205,7 +206,7 @@ const PatientRegistration = () => {
   };
 
   const verifyOTP = (otp, type) => {
-    if (selectedOption === "aadhar") {
+    if (selectedOption === "aadhar" && type === "aadhar") {
       const payload = {
         txnId: aadharData?.txn_id,
         otp: otp,
@@ -221,7 +222,7 @@ const PatientRegistration = () => {
       if (stepTwo) {
         setStepThree(true);
       }
-    } else if (selectedOption === "phone_number") {
+    } else if (selectedOption === "phone_number" && type === "phone_number") {
       const payload = {
         txnId: phoneData?.txn_id,
         otp: otp,
@@ -233,6 +234,22 @@ const PatientRegistration = () => {
         }
         console.log(res.payload);
         setStepTwo(true);
+      });
+    } else if (selectedOption === "aadhar" && type === "phone_number") {
+      const payload = {
+        txnId: phoneData?.txn_id,
+        otp: otp,
+      };
+      dispatch(verifyAadharPhoneOTP(payload)).then((res) => {
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setShowSnackbar(true);
+          return;
+        }
+        console.log(res.payload);
+        setStepTwo(true);
+        if (stepTwo) {
+          setStepThree(true);
+        }
       });
     }
   };

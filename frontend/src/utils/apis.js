@@ -7,6 +7,7 @@ export const apis = {
   restigerNumber: "registration/mobile/generateOtp",
   registerAadharNumber: "HID/registration/aadhaar/generateMobileOTP",
   verifyOTPNumber: "registration/mobile/verifyOtp",
+  verifyAadharotp: "HID/registration/aadhaar/verifyMobileOTP",
   registerUser: "patient/register",
   registerAadharPaient: "HID/registration/aadhaar/abhaRegistration",
   registerPhonePatient: "registration/mobile/createHealthId",

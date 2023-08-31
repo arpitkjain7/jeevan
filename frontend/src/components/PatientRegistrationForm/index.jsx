@@ -16,6 +16,7 @@ import { apis } from "../../utils/apis";
 import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router";
 import CustomSnackbar from "../CustomSnackbar";
+import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
 
 const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   const hospital = localStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -57,7 +58,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           lastName: formData?.lastname,
           email: formData?.email,
           gender: formData?.gender,
-          dob: convertDateFormat(formData?.dob,"dd/MM/yyyy"),
+          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
           healthId: formData.abhaAddress,
           password: formData?.password,
           hip_id: currentHospital?.hip_id,
@@ -74,6 +75,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             formData?.lastname,
           gender: formData?.gender,
           DOB: formData?.dob,
+          email: formData?.email,
           mobile_number: formData?.mobile,
           hip_id: currentHospital?.hip_id,
         };
@@ -84,9 +86,19 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           setShowSnackbar(true);
           return;
         }
+        const userDetails = {
+          name: formData?.firstname + " " + formData?.lastname,
+          email: formData?.email,
+          gender: formData?.gender,
+          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
+          healthId: formData.abhaAddress,
+          password: formData?.password,
+          hip_id: currentHospital?.hip_id,
+        };
         console.log(res.payload);
         setUserCreated(true);
-        navigate("/registered-patient")
+        dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
+        navigate("/registered-patient");
       });
     }
   };
@@ -101,7 +113,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-       <CustomSnackbar
+      <CustomSnackbar
         message="Something went wrong"
         open={showSnackbar}
         status={"error"}

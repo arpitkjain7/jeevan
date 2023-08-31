@@ -109,19 +109,19 @@ function AppointmentForm(props) {
   const userDetails = [
     {
       label: "Name",
-      value: selectedPatient?.name || "",
+      value: selectedPatient?.name || "-",
     },
     {
       label: "Gender",
-      value: selectedPatient?.gender || "",
+      value: selectedPatient?.gender || "-",
     },
     {
       label: "Date of Birth",
-      value: selectedPatient?.DOB || "",
+      value: selectedPatient?.DOB || "-",
     },
     {
       label: "Email ID",
-      value: selectedPatient?.email || "",
+      value: selectedPatient?.email || "-",
     },
   ];
 
