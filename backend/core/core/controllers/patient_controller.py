@@ -693,27 +693,14 @@ class PatientController:
                 #     }
                 #     for patient_obj in patient_list
                 # ]
-                return {
-                    "patient_details": patient_obj,
-                    "status": "Patient already exist",
-                }
+                patient_obj.update({"status": "Patient already exist"})
+                return patient_obj
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update(
-                    {"id": patient_id, "hip_id": request_json["hip_id"]}
-                )
+                request_json.update({"id": patient_id})
                 self.CRUDPatientDetails.create(**request_json)
-                return {
-                    "patient_details": [
-                        {
-                            "name": request_json.get("name"),
-                            "patient_id": request_json.get("id"),
-                            "abha_number": None,
-                            "abha_address": None,
-                        }
-                    ],
-                    "status": "New Patient created successfully",
-                }
+                request_json.update({"status": "New Patient created successfully"})
+                return request_json
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error
