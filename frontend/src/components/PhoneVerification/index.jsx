@@ -63,7 +63,11 @@ const PhoneVerification = ({
       {!phoneNumberUsed && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>
-          <OtpInput setSixDigitOTP={setSixDigitOTP} verifyOTP={verifyOTP} />
+          <OtpInput
+            setSixDigitOTP={setSixDigitOTP}
+            verifyOTP={verifyOTP}
+            type="phone_number"
+          />
         </div>
       )}
     </PhoneVerificationWrapper>

@@ -35,6 +35,14 @@ export const verifyPhoneOTP = createAsyncThunk(
   }
 );
 
+export const verifyAadharPhoneOTP = createAsyncThunk(
+  "registration/verifyAadharPhone",
+  async (OTP) => {
+    const response = await apiRequest("POST", apis?.verifyAadharotp, OTP);
+    return response;
+  }
+);
+
 export const registerPatient = createAsyncThunk(
   "registration/registerPatient",
   async ({ payload, url }) => {
@@ -110,6 +118,17 @@ const PatientRegistartionSlice = createSlice({
         state.registeredPatientDetails = action.payload;
       })
       .addCase(registerPatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(verifyAadharPhoneOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyAadharPhoneOTP.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(verifyAadharPhoneOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

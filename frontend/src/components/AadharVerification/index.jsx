@@ -17,7 +17,7 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     gap: "24px",
   },
   ".verification-btn": {
-  "&.MuiButtonBase-root": theme.typography.primaryButton,
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
   },
   ".aadhar-text": {
     "&.MuiFormControl-root": {
@@ -67,7 +67,11 @@ const AadharVerification = ({
       </div>
       <div>
         <Typography className="otp-title">Enter OTP</Typography>
-        <OtpInput setSixDigitOTP={setSixDigitOTP} verifyOTP={verifyOTP} />
+        <OtpInput
+          setSixDigitOTP={setSixDigitOTP}
+          verifyOTP={verifyOTP}
+          type="aadhar"
+        />
       </div>
     </AadharVerificationWrapper>
   );
