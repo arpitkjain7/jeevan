@@ -142,6 +142,12 @@ const PageSubText = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(8),
 }));
 
+const PdfDisplayWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(10),
+}));
+
 const PatientEMRDetails = () => {
   const [medicalHistoryoptions, setMedicalHistoryOptions] = useState([]);
   const [existingConditionsOpts, setExistingConditionOpts] = useState([]);
@@ -1117,7 +1123,9 @@ const PatientEMRDetails = () => {
     setAdvices(" ");
   };
 
-  // console.log(pdfData, "pdfData")
+  const editPMR = () => {
+    setStep("create");
+  };
 
   return (
     <PatientEMRWrapper>
@@ -1812,20 +1820,21 @@ const PatientEMRDetails = () => {
       )}
 
       {pmrFinished && step === "preview" && (
-        <div>
-          <PageTitle>Preview</PageTitle>
+        <PdfDisplayWrapper>
+          {/* <PageTitle>Preview</PageTitle>
           <PageSubText>
             Closely Review the Details Before Confirming
-          </PageSubText>
-          <div style={{ height: "600px", marginBottom: "32px" }}>
+          </PageSubText> */}
+          <div style={{ height: "800px", marginBottom: "32px", flex: "1" }}>
             <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
               <PMRPdf pdfData={pdfData} patientData={patientData} />
             </PDFViewer>
           </div>
-          <EMRFooter>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
             <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
-          </EMRFooter>
-        </div>
+          </div>
+        </PdfDisplayWrapper>
       )}
     </PatientEMRWrapper>
   );
