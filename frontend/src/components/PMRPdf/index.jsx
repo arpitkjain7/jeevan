@@ -244,6 +244,7 @@ const PMRPdf = ({ pdfData, patientData }) => {
       (item) => item?.heading !== "Medications"
     );
     console.log(filteredArr, "filter");
+    setPmrPdfData(filteredArr);
     const medications = transformedArr?.filter(
       (item) => item?.heading === "Medications"
     );
@@ -326,16 +327,14 @@ const PMRPdf = ({ pdfData, patientData }) => {
             <View style={pmrPdfStyles.pdfVitalsWrapper}>
               {emr?.data?.map((item) => (
                 <View style={pmrPdfStyles.pdfVital}>
-                  {item.label !== "Medications" && (
-                    <>
-                      <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
-                        {item.label}
-                      </Text>
-                      <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
-                        {item?.value}
-                      </Text>
-                    </>
-                  )}
+                  <>
+                    <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                      {item.label}
+                    </Text>
+                    <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                      {item?.value}
+                    </Text>
+                  </>
                 </View>
               ))}
             </View>
