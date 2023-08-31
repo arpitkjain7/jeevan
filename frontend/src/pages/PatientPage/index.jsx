@@ -103,6 +103,7 @@ const PatientPage = () => {
     },
   ];
   useEffect(() => {
+    dispatch(AppointmentPageActions.setSelectedPatientData({}));
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);

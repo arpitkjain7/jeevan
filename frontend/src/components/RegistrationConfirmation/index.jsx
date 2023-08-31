@@ -44,6 +44,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
 const RegisterationConfirmation = ({
   appointmentDetails,
   isAppointment = false,
+  onSubmit,
 }) => {
   console.log(appointmentDetails, "details");
   const dataState = useSelector((state) => state);
@@ -67,8 +68,7 @@ const RegisterationConfirmation = ({
       { key: "Gender", value: patientData?.gender || "-" },
       { key: "Date Of Birth", value: patientData?.DOB || "-" },
       { key: "Email Address", value: patientData?.email || "-" },
-      { key: "AABHA Address", value: patientData?.aabha_address || "-" },
-      { key: "ABHA ID", value: patientData?.aabha_number || "-" },
+      { key: "AABHA Address", value: patientData?.abha_address || "-" },
     ];
     if (isAppointment) {
       const appointmentData = [
@@ -91,6 +91,7 @@ const RegisterationConfirmation = ({
     if (isAppointment) {
       navigate("/appointment-list");
     }
+    navigate("/create-appointment");
   };
   return (
     <RegisterationConfirmationWrapper>
@@ -135,7 +136,7 @@ const RegisterationConfirmation = ({
       </Box>
       <div className="btn-wrapper">
         <Button className="submit-btn" onClick={navigateToNext}>
-          {isAppointment ? "Go to appointment list" : "Success"}
+          {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
       </div>
     </RegisterationConfirmationWrapper>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   TextField,
   Radio,
@@ -13,6 +13,9 @@ import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
+import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
+import { useNavigate } from "react-router-dom";
+import CustomSnackbar from "../CustomSnackbar";
 
 const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   const [formData, setFormData] = React.useState({
@@ -25,6 +28,8 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   });
   const hospital = localStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -54,8 +59,21 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       dispatch(
         registerPatient({ payload, url: apis.registerAadharPaient })
       ).then((res) => {
-        console.log(res.payload);
-        //   setUserCreated(true);
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setShowSnackbar(true);
+          return;
+        }
+        const userDetails = {
+          name: formData?.firstname + " " + formData?.lastname,
+          email: formData?.email,
+          gender: formData?.gender,
+          healthId: formData.abhaAddress,
+          password: formData?.password,
+          hip_id: currentHospital?.hip_id,
+        };
+        setUserCreated(true);
+        dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
+        navigate("/registered-patient");
       });
     }
   };
@@ -64,8 +82,17 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
 
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
   return (
     <form onSubmit={handleSubmit}>
+      <CustomSnackbar
+        message="Something went wrong"
+        open={showSnackbar}
+        status={"error"}
+        onClose={onSnackbarClose}
+      />
       <Grid container spacing={2}>
         <Grid item xs={5}>
           <TextField
