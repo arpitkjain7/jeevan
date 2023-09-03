@@ -86,6 +86,8 @@ const BookingSlots = () => {
   const dataState = useSelector((state) => state);
   const doctorDetails = dataState?.appointmentSlots?.doctorSlotDetails;
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
+  const registeredPatient =
+    dataState?.PatientRegistartion?.registeredPatientDetails;
   const selectedPatient = dataState?.appointmentList?.patientDetails;
 
   const checkDoctorAvailability = (days, checkDay) => {
@@ -239,7 +241,7 @@ const BookingSlots = () => {
     const [startTime, endTime] = timeRange.split("-");
     const payload = {
       doc_id: appointmentDetails?.doctorId,
-      patient_id: selectedPatient?.id,
+      patient_id: selectedPatient?.id || registeredPatient?.id,
       appointment_type: appointmentDetails?.appointmentType,
       encounter_type: appointmentDetails?.encounterType,
       hip_id: "123123",

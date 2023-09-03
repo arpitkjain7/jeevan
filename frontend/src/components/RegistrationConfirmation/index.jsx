@@ -89,6 +89,7 @@ const RegisterationConfirmation = ({
   const navigateToNext = () => {
     if (isAppointment) {
       navigate("/appointment-list");
+      return;
     }
     navigate("/create-appointment");
   };

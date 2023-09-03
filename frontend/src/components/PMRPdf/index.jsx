@@ -242,7 +242,7 @@ const PMRPdf = ({ pdfData, patientData }) => {
     const transformedArr = transformPdfData(pdfData);
     const filteredArr = transformedArr?.filter(
       (item) =>
-        item?.heading !== "Medications" || item?.heading === "Medical History"
+        item?.heading !== "Medications" && item?.heading !== "Medical History"
     );
     console.log(filteredArr, "filter");
     setPmrPdfData(filteredArr);
