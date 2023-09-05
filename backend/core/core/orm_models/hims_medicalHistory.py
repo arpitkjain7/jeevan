@@ -7,6 +7,10 @@ class MedicalHistory(Base):
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
+    medical_history = Column(String)
+    since = Column(String)
+    severity = Column(String)
+    notes = Column(String)
     diabetes_melitus = Column(String)
     hypertension = Column(String)
     hypothyroidism = Column(String)

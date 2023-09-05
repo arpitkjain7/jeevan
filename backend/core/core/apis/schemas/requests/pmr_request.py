@@ -75,12 +75,10 @@ class CurrentMedicines(BaseModel):
 
 
 class MedicalHistory(BaseModel):
-    diabetes_melitus: str = None
-    hypertension: str = None
-    hypothyroidism: str = None
-    alcohol: str = None
-    tobacco: str = None
-    smoke: str = None
+    medical_history: str = None
+    since: str = None
+    severity: str = None
+    notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
