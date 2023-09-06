@@ -755,6 +755,10 @@ class PMRController:
                 resp["medical_history_id"] = self.create_medicalHistory(
                     request.medical_history
                 )["medicalHistory_id"]
+            if request.advice is not None:
+                resp["advice_id"] = self.create_advice(request.advice)
+            if request.notes is not None:
+                resp["notes_id"] = self.create_notes(request.notes)
 
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")

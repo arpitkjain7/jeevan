@@ -188,6 +188,16 @@ class UpdateMedicalHistory(BaseModel):
     data: List[MedicalHistory]
 
 
+class Advice(BaseModel):
+    pmr_id: str = None
+    advices: str = None
+
+
+class Notes(BaseModel):
+    pmr_id: str = None
+    notes: str = None
+
+
 class CreatePMR(BaseModel):
     patient_id: str
     doc_id: int
@@ -215,6 +225,8 @@ class PMR(BaseModel):
     currentMedication: CreateCurrentMedication = None
     lab_investigation: CreateLabInvestigation = None
     medical_history: CreateMedicalHistory = None
+    advice: Advice = None
+    notes: Notes = None
 
 
 class ConsultationStatus(str, Enum):
@@ -248,13 +260,3 @@ class DocumentTypes(str, Enum):
 class UploadDocument(BaseModel):
     pmr_id: str
     document_type: DocumentTypes
-
-
-class Advice(BaseModel):
-    pmr_id: str
-    advices: str
-
-
-class Notes(BaseModel):
-    pmr_id: str
-    notes: str
