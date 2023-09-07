@@ -110,7 +110,7 @@ class HIUController:
                             "name": doc_obj["doc_name"],
                             "identifier": {
                                 "type": "REGNO",
-                                "value": doc_obj["doc_reg_id"],
+                                "value": doc_obj["doc_licence_no"],
                                 "system": "https://www.mciindia.org",
                             },
                         },
