@@ -32,5 +32,3 @@ appointment = Appointment(
 )
 appointment.start = "2023-05-20T10:00:00Z"  # Replace with actual start time
 appointment.end = "2023-05-20T10:30:00Z"  # Replace with actual end time
-
-print(appointment.json())

@@ -116,5 +116,3 @@ composition.section = [section0, section1, section2]
 
 
 composition_json = composition.json()
-
-print(composition_json)

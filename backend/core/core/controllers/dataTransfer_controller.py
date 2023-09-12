@@ -7,7 +7,7 @@ from core.utils.custom.data_transfer_helper import send_data
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from core import logger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import uuid
 from pytz import timezone as pytz_timezone
@@ -102,6 +102,7 @@ class DataTransferController:
             consent_on_notify_url = f"{self.gateway_url}/v0.5/consents/hip/on-notify"
             notify_request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
+            time_now = time_now + timedelta(seconds=300)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
             _, resp_code = APIInterface().post(
                 route=consent_on_notify_url,

@@ -73,5 +73,3 @@ allergyIntolerance.note = note
 
 
 allergy_json = allergyIntolerance.json()
-
-print(allergy_json)

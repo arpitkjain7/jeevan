@@ -12,6 +12,8 @@ from core.utils.aws.s3_helper import get_object, read_object
 from core import logger
 import json
 import uuid
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 logging = logger(__name__)
 # logging = logger(__name__)
@@ -178,8 +180,11 @@ def opConsultDocument(bundle_name: str, bundle_identifier: str, pmr_id: str):
             ],
         )
         bundle.meta = meta
-        bundle_json = bundle.dict()
-        logging.info(f"{bundle_json=}")
-        return bundle_json
+        bundle_dict = bundle.__dict__
+        bundle_json = JSONResponse(content=jsonable_encoder(bundle_dict))
+        content_bytes = bundle_json.body
+        content_str = content_bytes.decode("utf-8")
+        response_dict = json.loads(content_str)
+        return response_dict
     logging.info(f"No record found for {pmr_id=}")
     return None

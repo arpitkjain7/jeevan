@@ -25,5 +25,3 @@ meta = Meta(
 )
 
 appointment_json = appointment.json()
-
-print(appointment_json)
