@@ -5,6 +5,7 @@ RUN apt-get install gcc -y \
     python3-pip \
     python3-venv -y \
     && apt-get clean
+RUN apt-get install -y openjdk-17-jdk
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
