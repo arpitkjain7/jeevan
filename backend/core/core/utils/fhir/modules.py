@@ -41,10 +41,8 @@ def patient(
     patient_abha_id: str,
     patient_name: str,
 ):
-    print("Inside Patient")
     patient = Patient(resource_type="Patient", id=patient_id)
     time_str = datetime.now(timezone).isoformat()
-    print(time_str)
     meta = Meta(
         versionId=1,
         lastUpdated=time_str,

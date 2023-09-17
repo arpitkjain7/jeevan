@@ -50,10 +50,8 @@ def patient(
     patient_name: str,
     patient_address: str = None,
 ):
-    print("Inside Patient")
     patient = Patient(resource_type="Patient", id=patient_id)
     time_str = datetime.now(timezone).isoformat()
-    print(time_str)
     meta = Meta(
         versionId=1,
         lastUpdated=time_str,
@@ -86,7 +84,6 @@ def patient(
     patient.birthDate = patient_dob
     patient.address = patient_address
     patient_json = patient.json()
-    print(patient_json)
     return patient_json
 
 
@@ -170,7 +167,7 @@ def practitioner(
     practitioner.name = [name]
     practitioner_json = practitioner.json()
     print(practitioner_json)
-    return practitioner_json
+    return practitioner
 
 
 def practitioner_role(

@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 from dateutil import parser
 from core import celery
+import ast
 
 logging = logger(__name__)
 
@@ -110,7 +111,7 @@ class HIUController:
                             "name": doc_obj["doc_name"],
                             "identifier": {
                                 "type": "REGNO",
-                                "value": doc_obj["doc_reg_id"],
+                                "value": doc_obj["doc_licence_no"],
                                 "system": "https://www.mciindia.org",
                             },
                         },
@@ -421,6 +422,8 @@ class HIUController:
             requester_key_material = consent_details.get("requester_key_material")
             logging.info(f"{requester_key_material=}")
             patient_data_list = []
+            resources_dict = {}
+            patient_data_transformed = []
             for entry in patient_data:
                 encrypted_data = entry.get("content")
                 decrypted_data = decryptData(
@@ -435,21 +438,26 @@ class HIUController:
                     }
                 )
                 logging.info(f"{decrypted_data=}")
-                logging.info(type(decrypted_data))
+                logging.info(f"{type(decrypted_data)=}")
                 decrypted_json = json.loads(decrypted_data)
                 logging.info(f"{decrypted_json=}")
-                logging.info(type(decrypted_json))
+                logging.info(f"{type(decrypted_json)=}")
                 fhir_data = decrypted_json.get("decryptedData")
-                logging.info(f"{fhir_data=}")
-                logging.info(type(fhir_data))
-                fhir_string = fhir_data.replace("'", '"')
-                fhir_json = json.loads(fhir_string)
-                logging.info(f"{fhir_json=}")
-                logging.info(type(fhir_json))
+                fhir_json = ast.literal_eval(fhir_data)
+                data_entries = fhir_json["entry"]
+                for entry in data_entries:
+                    resources_dict[entry["resource"]["resourceType"]] = entry[
+                        "resource"
+                    ]
+                patient_data_transformed.append(resources_dict)
                 patient_data_list.append(fhir_json)
             logging.info(f"{patient_data_list=}")
             self.CRUDHIUConsents.update(
-                **{"id": consent_id, "patient_data_raw": patient_data_list}
+                **{
+                    "id": consent_id,
+                    "patient_data_raw": patient_data_list,
+                    "patient_data_transformed": patient_data_transformed,
+                }
             )
             return {"satatus": "success"}
         except Exception as error:

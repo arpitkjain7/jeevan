@@ -13,7 +13,7 @@ import uuid
 from pytz import timezone as pytz_timezone
 from core import logger
 from core import celery
-import base64
+import base64, json
 
 logging = logger(__name__)
 
@@ -22,13 +22,11 @@ def prepare_data(pmr_id: str):
     try:
         logging.info(f"Preparing data to transfer for {pmr_id=}")
         bundle_id = str(uuid.uuid1())
-        op_consult_document = opConsultDocument(
+        return opConsultDocument(
             bundle_name=f"OPConsultNote-{bundle_id}",
             bundle_identifier=bundle_id,
             pmr_id=pmr_id,
         )
-        logging.debug(f"{op_consult_document=}")
-        return op_consult_document
     except Exception as error:
         logging.error(f"Error in prepare_data function: {error}")
         raise error
@@ -85,7 +83,6 @@ def send_data(
                 )
             else:
                 continue
-        # logging.info(f"{care_context_output=}")
         data_request = {
             "pageNumber": 0,
             "pageCount": 1,
@@ -102,6 +99,10 @@ def send_data(
                 "nonce": sender_key_material.get("nonce"),
             },
         }
+        # with open(
+        #     f"/app/core/utils/custom/output-{str(uuid.uuid1().int)[:18]}.json", "w"
+        # ) as json_file:
+        #     json.dump(data_request, json_file)
         _, resp_code = APIInterface().post(route=data_push_url, data=data_request)
         logging.info(f"Data push {resp_code=}")
         ack_request_id = str(uuid.uuid1())

@@ -57,5 +57,3 @@ condition.subject = subject
 
 # Convert the Patient resource to JSON
 condition_json = condition.json()
-
-print(condition_json)
