@@ -51,6 +51,15 @@ class HIUController:
             logging.error(f"Error in HIUController.list_consent function: {error}")
             raise error
 
+    def get_consent_details(self, consent_id: str):
+        try:
+            return self.CRUDHIUConsents.read(consent_id=consent_id)
+        except Exception as error:
+            logging.error(
+                f"Error in HIUController.get_consent_details function: {error}"
+            )
+            raise error
+
     def raise_consent(self, request):
         """[Controller to create new hip record]
 
@@ -437,11 +446,7 @@ class HIUController:
                         ),
                     }
                 )
-                logging.info(f"{decrypted_data=}")
-                logging.info(f"{type(decrypted_data)=}")
                 decrypted_json = json.loads(decrypted_data)
-                logging.info(f"{decrypted_json=}")
-                logging.info(f"{type(decrypted_json)=}")
                 fhir_data = decrypted_json.get("decryptedData")
                 fhir_json = ast.literal_eval(fhir_data)
                 data_entries = fhir_json["entry"]
