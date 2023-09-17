@@ -422,6 +422,8 @@ class HIUController:
             requester_key_material = consent_details.get("requester_key_material")
             logging.info(f"{requester_key_material=}")
             patient_data_list = []
+            resources_dict = {}
+            patient_data_transformed = []
             for entry in patient_data:
                 encrypted_data = entry.get("content")
                 decrypted_data = decryptData(
@@ -442,10 +444,20 @@ class HIUController:
                 logging.info(f"{type(decrypted_json)=}")
                 fhir_data = decrypted_json.get("decryptedData")
                 fhir_json = ast.literal_eval(fhir_data)
+                data_entries = fhir_json["entry"]
+                for entry in data_entries:
+                    resources_dict[entry["resource"]["resourceType"]] = entry[
+                        "resource"
+                    ]
+                patient_data_transformed.append(resources_dict)
                 patient_data_list.append(fhir_json)
             logging.info(f"{patient_data_list=}")
             self.CRUDHIUConsents.update(
-                **{"id": consent_id, "patient_data_raw": patient_data_list}
+                **{
+                    "id": consent_id,
+                    "patient_data_raw": patient_data_list,
+                    "patient_data_transformed": patient_data_transformed,
+                }
             )
             return {"satatus": "success"}
         except Exception as error:
