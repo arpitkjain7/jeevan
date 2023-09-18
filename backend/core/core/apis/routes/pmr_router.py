@@ -65,7 +65,7 @@ def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.patch("/v1/PMR/submitPMR")
+@pmr_router.post("/v1/PMR/submitPMR")
 def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/submitPMR endpoint")
@@ -91,7 +91,7 @@ def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.patch("/v1/PMR/updatePMR")
+"""@pmr_router.patch("/v1/PMR/updatePMR")
 def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updatePMR endpoint")
@@ -115,6 +115,7 @@ def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+"""
 
 
 @pmr_router.post("/v1/PMR/createVital")
@@ -143,7 +144,7 @@ def createVital(vital_request: CreateVital, token: str = Depends(oauth2_scheme))
         )
 
 
-@pmr_router.patch("/v1/PMR/updateVital")
+@pmr_router.put("/v1/PMR/updateVital")
 def updateVital(vital_request: UpdateVital, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updateVital endpoint")
@@ -169,6 +170,7 @@ def updateVital(vital_request: UpdateVital, token: str = Depends(oauth2_scheme))
         )
 
 
+"""
 @pmr_router.post("/v1/PMR/createCondition")
 def createCondition(
     condition_request: CreateCondition, token: str = Depends(oauth2_scheme)
@@ -690,6 +692,7 @@ def addNotes(notes_request: Notes, token: str = Depends(oauth2_scheme)):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+"""
 
 
 @pmr_router.post("/v1/PMR/sync/{pmr_id}")
@@ -822,7 +825,7 @@ def delete_condition(condition_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@pmr_router.patch("/v1/PMR/updateConsultationStatus")
+@pmr_router.put("/v1/PMR/updateConsultationStatus")
 def updateConsultationStatus(
     consultation_request: UpdateConsultationStatus, token: str = Depends(oauth2_scheme)
 ):
@@ -854,7 +857,7 @@ def updateConsultationStatus(
         )
 
 
-@pmr_router.patch("/v1/PMR/updateFollowUp")
+@pmr_router.put("/v1/PMR/updateFollowUp")
 def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/pmr/updateFollowUp endpoint")

@@ -75,12 +75,10 @@ class CurrentMedicines(BaseModel):
 
 
 class MedicalHistory(BaseModel):
-    diabetes_melitus: str = None
-    hypertension: str = None
-    hypothyroidism: str = None
-    alcohol: str = None
-    tobacco: str = None
-    smoke: str = None
+    medical_history: str = None
+    since: str = None
+    severity: str = None
+    notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
@@ -93,17 +91,17 @@ class LabInvestigations(BaseModel):
 
 class CreateVital(BaseModel):
     pmr_id: str
-    data: List[Vital]
+    data: Vital
 
 
 class UpdateVital(BaseModel):
     id: str
     pmr_id: str
-    data: List[Vital]
+    data: Vital
 
 
 class CreateExaminationFindings(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[ExaminationFindings]
 
 
@@ -114,7 +112,7 @@ class UpdateExaminationFindings(BaseModel):
 
 
 class CreateCondition(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[Condition]
 
 
@@ -125,7 +123,7 @@ class UpdateCondition(BaseModel):
 
 
 class CreateDiagnosis(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[Diagnosis]
 
 
@@ -136,7 +134,7 @@ class UpdateDiagnosis(BaseModel):
 
 
 class CreateSymptoms(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[Symptoms]
 
 
@@ -147,7 +145,7 @@ class UpdateSymptoms(BaseModel):
 
 
 class CreateMedication(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[Medicines]
 
 
@@ -158,7 +156,7 @@ class UpdateMedication(BaseModel):
 
 
 class CreateCurrentMedication(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[CurrentMedicines]
 
 
@@ -169,7 +167,7 @@ class UpdateCurrentMedication(BaseModel):
 
 
 class CreateLabInvestigation(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[LabInvestigations]
 
 
@@ -180,7 +178,7 @@ class UpdateLabInvestigation(BaseModel):
 
 
 class CreateMedicalHistory(BaseModel):
-    pmr_id: str
+    # pmr_id: str
     data: List[MedicalHistory]
 
 
@@ -188,6 +186,16 @@ class UpdateMedicalHistory(BaseModel):
     id: str
     pmr_id: str
     data: List[MedicalHistory]
+
+
+class Advice(BaseModel):
+    # pmr_id: str = None
+    advices: str = None
+
+
+class Notes(BaseModel):
+    # pmr_id: str = None
+    notes: str = None
 
 
 class CreatePMR(BaseModel):
@@ -208,7 +216,7 @@ class CreatePMR(BaseModel):
 
 class PMR(BaseModel):
     pmr_id: str
-    vital: CreateVital = None
+    vital: Vital = None
     condition: CreateCondition = None
     examinationFindings: CreateExaminationFindings = None
     diagnosis: CreateDiagnosis = None
@@ -217,6 +225,8 @@ class PMR(BaseModel):
     currentMedication: CreateCurrentMedication = None
     lab_investigation: CreateLabInvestigation = None
     medical_history: CreateMedicalHistory = None
+    advice: Advice = None
+    notes: Notes = None
 
 
 class ConsultationStatus(str, Enum):
@@ -250,13 +260,3 @@ class DocumentTypes(str, Enum):
 class UploadDocument(BaseModel):
     pmr_id: str
     document_type: DocumentTypes
-
-
-class Advice(BaseModel):
-    pmr_id: str
-    advices: str
-
-
-class Notes(BaseModel):
-    pmr_id: str
-    notes: str
