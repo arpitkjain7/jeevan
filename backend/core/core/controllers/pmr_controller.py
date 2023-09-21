@@ -48,6 +48,7 @@ class PMRController:
             "jpg": "image/jpg",
             "png": "image/png",
         }
+        self.abha_url = os.environ["abha_url"]
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
