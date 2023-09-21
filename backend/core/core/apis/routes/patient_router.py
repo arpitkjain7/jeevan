@@ -161,12 +161,13 @@ def auth_verifyDemographic(
 
 
 @patient_router.post("/v1.0/patients/profile/share")
-def patient_profileShare(request: Request):
+async def patient_profileShare(request: Request):
     try:
         logging.info("Calling /v1.0/patients/profile/share endpoint")
         hip_id = request.headers.get("X-HIP-ID")
-        logging.debug(f"Request: {request.dict()}")
-        return PatientController().patient_share(request=request.dict(), hip_id=hip_id)
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().patient_share(request=request_json, hip_id=hip_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v1.0/patients/profile/share endpoint: {httperror}")
         raise httperror
