@@ -703,11 +703,12 @@ class HIDController:
                             data={"refreshToken": refresh_token},
                             headers={"Authorization": f"Bearer {gateway_access_token}"},
                         )
-                        if resp.get("accessToken", None):
+                        linking_token = resp.get("accessToken", None)
+                        if linking_token:
                             self.CRUDPatientDetails.update(
                                 **{
                                     "id": patient_id,
-                                    "linking_token": resp.get("accessToken"),
+                                    "linking_token": linking_token,
                                 }
                             )
                         logging.info("Getting Abha card")
