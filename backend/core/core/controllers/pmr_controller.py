@@ -48,6 +48,7 @@ class PMRController:
             "jpg": "image/jpg",
             "png": "image/png",
         }
+        self.abha_url = os.environ["abha_url"]
 
     def create_pmr(self, request):
         """[Controller to create new pmr record]
@@ -504,6 +505,7 @@ class PMRController:
             )
             request_id = str(uuid.uuid1())
             if pmr_obj["abdm_linked"]:
+                logging.info("PMR already linked")
                 care_context_url = f"{self.gateway_url}/v0.5/links/context/notify"
                 payload = {
                     "requestId": request_id,
@@ -521,14 +523,32 @@ class PMRController:
                     },
                 }
             else:
+                logging.info("Adding PMR to gateway")
                 care_context_url = f"{self.gateway_url}/v0.5/links/link/add-contexts"
+                linking_token = patient_obj.get("linking_token")
+                refresh_token = patient_obj.get("refresh_token")
+                refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
+                logging.info("Getting linking token")
+                resp, resp_code = APIInterface().post(
+                    route=refresh_token_url,
+                    data={"refreshToken": refresh_token},
+                    headers={"Authorization": f"Bearer {gateway_access_token}"},
+                )
+                linking_token = resp.get("accessToken", None)
+                if linking_token:
+                    self.CRUDPatientDetails.update(
+                        **{
+                            "id": patient_id,
+                            "linking_token": linking_token,
+                        }
+                    )
                 payload = {
                     "requestId": request_id,
                     "timestamp": datetime.now(timezone.utc).strftime(
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": patient_obj.get("linking_token"),
+                        "accessToken": linking_token,
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),

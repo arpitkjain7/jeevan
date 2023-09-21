@@ -1,5 +1,7 @@
 from core.crud.hims_hip_crud import CRUDHIP
+from core.utils.custom.qrcode_generation import qrcode_generator
 from core import logger
+import os
 
 logging = logger(__name__)
 
@@ -7,6 +9,7 @@ logging = logger(__name__)
 class HIPController:
     def __init__(self):
         self.CRUDHIP = CRUDHIP()
+        self.hip_base_url = os.environ["hip_base_url"]
 
     def create_hip(self, request):
         """[Controller to create new hip record]
@@ -48,6 +51,21 @@ class HIPController:
             return self.CRUDHIP.read(hip_ip=hip_id)
         except Exception as error:
             logging.error(f"Error in HIPController.get_hip function: {error}")
+            raise error
+
+    def get_QR_hip(self, hip_id: str, department_id: str):
+        try:
+            logging.info("executing get_QR_hip function")
+            logging.info(f"Getting the QR for {hip_id=}")
+            if department_id:
+                hip_url = (
+                    f"{self.hip_base_url}?hip-id={hip_id}&counter-id={department_id}"
+                )
+            else:
+                hip_url = f"{self.hip_base_url}?hip-id={hip_id}"
+            return qrcode_generator(url=hip_url)
+        except Exception as error:
+            logging.error(f"Error in HIPController.get_QR_hip function: {error}")
             raise error
 
     def get_all_hip(self):

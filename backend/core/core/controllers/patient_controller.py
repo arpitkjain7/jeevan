@@ -57,11 +57,59 @@ class PatientController:
                 #     return {"available": False}
                 # return {"available": True}
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=resp,
-                    headers={"WWW-Authenticate": "Bearer"},
+                raise resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
+            raise error
+
+    def abha_address_update(self, patient_id: str, abha_address: str):
+        try:
+            logging.info("executing  abha_address_update function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            existing_abha_address = patient_obj.get("abha_address")
+            linking_token = patient_obj.get("linking_token")
+            refresh_token = patient_obj.get("refresh_token")
+            refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
+            logging.info("Getting linking token")
+            resp, resp_code = APIInterface().post(
+                route=refresh_token_url,
+                data={"refreshToken": refresh_token},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            linking_token = resp.get("accessToken", None)
+            abha_update_url = f"{self.abha_url}/v2/account/phr-linked"
+            logging.info("Updating abha_address on Gateway")
+            resp, resp_code = APIInterface().post(
+                route=abha_update_url,
+                data={"phrAddress": abha_address, "preferred": True},
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "X-Token": f"Bearer {linking_token}",
+                },
+            )
+            update_status = resp.get("status")
+            logging.info(f"{update_status=}")
+            if resp_code <= 250:
+                logging.info("Updating abha_address on database")
+                self.CRUDPatientDetails.update(
+                    **{
+                        "id": patient_id,
+                        "linking_token": linking_token,
+                        "abha_address": abha_address,
+                    }
                 )
+                return {
+                    "old_abha_address": existing_abha_address,
+                    "new_abha_address": abha_address,
+                    "update_status": update_status,
+                }
+            else:
+                raise resp
         except Exception as error:
             logging.error(f"Error in HIDController.abha_verification function: {error}")
             raise error
