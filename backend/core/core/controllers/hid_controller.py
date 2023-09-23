@@ -4,8 +4,9 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from core.utils.aws.s3_helper import upload_to_s3, get_object, create_presigned_url
+from core.utils.custom.encryption_helper import rsa_encryption
 import os
 import json
 import uuid
@@ -285,6 +286,9 @@ class HIDController:
                 )
                 abha_number = patient_data["healthIdNumber"].replace("-", "")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                time_now = datetime.now()
+                token_validity = time_now + timedelta(1440)
+                token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -306,8 +310,14 @@ class HIDController:
                     "state_code": patient_data["stateCode"],
                     "hip_id": request_json["hip_id"],
                     "auth_methods": {"authMethods": patient_data["authMethods"]},
-                    "linking_token": linking_token,
-                    "refresh_token": refresh_token,
+                    "linking_token": {
+                        "value": linking_token,
+                        "valid_till": token_validity,
+                    },
+                    "refresh_token": {
+                        "value": refresh_token,
+                        "valid_till": token_validity,
+                    },
                     "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaId(
@@ -572,7 +582,6 @@ class HIDController:
             date, month, year = dob.split("/")
             name = f"{request_json.get('firstName')} {request_json.get('lastName')}"
             token = self.CRUDGatewayInteraction.read(request_id=txn_id).get("token")
-
             request_json.update(
                 {
                     "dayOfBirth": date,
@@ -682,7 +691,7 @@ class HIDController:
                     return {"abha_url": s3_presigned_url}
                 else:
                     logging.info("Getting Abha card")
-                    linking_token = patient_obj.get("linking_token")
+                    linking_token = patient_obj.get("linking_token").get("value")
                     byte_data, resp_code = APIInterface().get_bytes(
                         route=f"{self.abha_url}/v1/account/getPngCard",
                         headers={
@@ -694,7 +703,7 @@ class HIDController:
                         logging.info(
                             "Expired Linking Token. Generating new with Refresh token"
                         )
-                        refresh_token = patient_obj.get("refresh_token")
+                        refresh_token = patient_obj.get("refresh_token").get("value")
                         refresh_token_url = (
                             f"{self.abha_url}/v1/auth/generate/access-token"
                         )
@@ -765,4 +774,73 @@ class HIDController:
             logging.error(
                 f"Error in HIDController.mobile_abha_registration function: {error}"
             )
+            raise error
+
+    def search_abha(self, abha_number: str):
+        try:
+            logging.info("executing search_abha function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            search_abha_url = f"{self.abha_url}/v1/search/searchByHealthId"
+            resp, resp_code = APIInterface().post(
+                route=search_abha_url,
+                data={"healthId": abha_number},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            return resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.search_abha function: {error}")
+            raise error
+
+    def search_mobile(self, mobile_number: str):
+        try:
+            logging.info("executing search_mobile function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            search_abha_url = f"{self.abha_url}/v1/search/searchByMobile"
+            resp, resp_code = APIInterface().post(
+                route=search_abha_url,
+                data={"mobile": mobile_number},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp.get("healthIdNumber", None):
+                return resp
+            login_abha_url = f"{self.abha_url}/v2/registration/mobile/login/generateOtp"
+            resp, resp_code = APIInterface().post(
+                route=login_abha_url,
+                data={"mobile": mobile_number},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            gateway_request = {
+                "request_id": resp.get("txnId"),
+                "request_type": "ABHA_LOGIN_OTP_GENERATION",
+                "request_status": "INIT",
+            }
+            self.CRUDGatewayInteraction.create(**gateway_request)
+            gateway_request.update({"txn_id": resp.get("txnId")})
+            return gateway_request
+        except Exception as error:
+            logging.error(f"Error in HIDController.search_mobile function: {error}")
+            raise error
+
+    def verify_login_otp(self, request):
+        try:
+            logging.info("executing verify_login_otp function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            txn_id = request.txnId
+            otp = request.otp
+            encrypted_data = rsa_encryption(data_to_encrypt=otp)
+            verify_otp_url = f"{self.abha_url}/v2/registration/mobile/login/verifyOtp"
+            resp, resp_code = APIInterface().post(
+                route=verify_otp_url,
+                data={"otp": encrypted_data, "txnId": txn_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            return resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.verify_login_otp function: {error}")
             raise error

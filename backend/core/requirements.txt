@@ -41,3 +41,4 @@ celery==5.2.3
 flower==1.0.0
 fhir.resources==7.0.2
 PyQRCode==1.2.1
+cryptography==41.0.4

@@ -72,8 +72,9 @@ class PatientController:
                 patient_id=patient_id
             )
             existing_abha_address = patient_obj.get("abha_address")
-            linking_token = patient_obj.get("linking_token")
-            refresh_token = patient_obj.get("refresh_token")
+            # linking_token = patient_obj.get("access_token").get("value")
+            linking_token = patient_obj.get("linking_token").get("value")
+            refresh_token = patient_obj.get("refresh_token").get("value")
             refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
             logging.info("Getting linking token")
             resp, resp_code = APIInterface().post(
@@ -99,7 +100,7 @@ class PatientController:
                 self.CRUDPatientDetails.update(
                     **{
                         "id": patient_id,
-                        "linking_token": linking_token,
+                        "linking_token": {"value": linking_token},
                         "abha_address": abha_address,
                     }
                 )
