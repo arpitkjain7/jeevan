@@ -496,12 +496,17 @@ class PMRController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            date_of_consultation = pmr_obj["date_of_consultation"].strftime(
+                "%Y-%m-%dT%H:%M:%S.%f"
+            )
             patient_id = pmr_obj.get("patient_id")
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            date_of_consultation = pmr_obj["date_of_consultation"].strftime(
-                "%Y-%m-%dT%H:%M:%S.%f"
+            access_token = patient_obj.get("access_token").get("value")
+            access_token_validity = patient_obj.get("access_token").get("valid_till")
+            access_token_validity = datetime.strptime(
+                access_token_validity, "%m/%d/%Y, %H:%M:%S"
             )
             request_id = str(uuid.uuid1())
             if pmr_obj["abdm_linked"]:
@@ -525,30 +530,13 @@ class PMRController:
             else:
                 logging.info("Adding PMR to gateway")
                 care_context_url = f"{self.gateway_url}/v0.5/links/link/add-contexts"
-                linking_token = patient_obj.get("linking_token")
-                refresh_token = patient_obj.get("refresh_token")
-                refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
-                logging.info("Getting linking token")
-                resp, resp_code = APIInterface().post(
-                    route=refresh_token_url,
-                    data={"refreshToken": refresh_token},
-                    headers={"Authorization": f"Bearer {gateway_access_token}"},
-                )
-                linking_token = resp.get("accessToken", None)
-                if linking_token:
-                    self.CRUDPatientDetails.update(
-                        **{
-                            "id": patient_id,
-                            "linking_token": linking_token,
-                        }
-                    )
                 payload = {
                     "requestId": request_id,
                     "timestamp": datetime.now(timezone.utc).strftime(
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": linking_token,
+                        "accessToken": access_token,
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
@@ -561,64 +549,71 @@ class PMRController:
                         },
                     },
                 }
-            resp, resp_code = APIInterface().post(
-                route=care_context_url,
-                data=payload,
-                headers={
-                    "X-CM-ID": os.environ["X-CM-ID"],
-                    "Authorization": f"Bearer {gateway_access_token}",
-                },
-            )
-            self.CRUDGatewayInteraction.create(
-                **{
+            if datetime.now() > access_token_validity:
+                return {
+                    "pmr_id": pmr_id,
                     "request_id": request_id,
-                    "request_type": "ADD_UPDATE_CARE_CONTEXT",
-                    "request_status": "PROCESSING",
-                    "transaction_id": request_id,
-                    "gateway_metadata": {
-                        "pmr_id": pmr_id,
-                        "patient_id": patient_id,
-                    },
+                    "status": "expired_token",
                 }
-            )
-            logging.info("Sending SMS notification")
-            sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
-            mobile_number = patient_obj.get("mobile_number")
-            deep_link_request_id = str(uuid.uuid1())
-            payload = {
-                "requestId": deep_link_request_id,
-                "timestamp": datetime.now(timezone.utc).strftime(
-                    "%Y-%m-%dT%H:%M:%S.%f"
-                ),
-                "notification": {
-                    "phoneNo": mobile_number,
-                    "careContextInfo": f"Consultation Record for {date_of_consultation}",
-                    "hip": {"id": hip_id},
-                },
-            }
-            resp, resp_code = APIInterface().post(
-                route=sms_notify_url,
-                data=payload,
-                headers={
-                    "X-CM-ID": os.environ["X-CM-ID"],
-                    "Authorization": f"Bearer {gateway_access_token}",
-                },
-            )
-            self.CRUDGatewayInteraction.create(
-                **{
-                    "request_id": deep_link_request_id,
-                    "request_type": "DEEP_LINK_NOTIFICATION",
-                    "request_status": "PROCESSING",
-                    "transaction_id": request_id,
-                    "gateway_metadata": {
+            else:
+                resp, resp_code = APIInterface().post(
+                    route=care_context_url,
+                    data=payload,
+                    headers={
+                        "X-CM-ID": os.environ["X-CM-ID"],
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                self.CRUDGatewayInteraction.create(
+                    **{
+                        "request_id": request_id,
+                        "request_type": "ADD_UPDATE_CARE_CONTEXT",
+                        "request_status": "PROCESSING",
+                        "transaction_id": request_id,
+                        "gateway_metadata": {
+                            "pmr_id": pmr_id,
+                            "patient_id": patient_id,
+                        },
+                    }
+                )
+                logging.info("Sending SMS notification")
+                sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
+                mobile_number = patient_obj.get("mobile_number")
+                deep_link_request_id = str(uuid.uuid1())
+                payload = {
+                    "requestId": deep_link_request_id,
+                    "timestamp": datetime.now(timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%S.%f"
+                    ),
+                    "notification": {
                         "phoneNo": mobile_number,
                         "careContextInfo": f"Consultation Record for {date_of_consultation}",
                         "hip": {"id": hip_id},
                     },
                 }
-            )
-            logging.info(f"response code from /patients/sms/notify : {resp_code}")
-            return {"pmr_id": pmr_id, "request_id": request_id}
+                resp, resp_code = APIInterface().post(
+                    route=sms_notify_url,
+                    data=payload,
+                    headers={
+                        "X-CM-ID": os.environ["X-CM-ID"],
+                        "Authorization": f"Bearer {gateway_access_token}",
+                    },
+                )
+                self.CRUDGatewayInteraction.create(
+                    **{
+                        "request_id": deep_link_request_id,
+                        "request_type": "DEEP_LINK_NOTIFICATION",
+                        "request_status": "PROCESSING",
+                        "transaction_id": request_id,
+                        "gateway_metadata": {
+                            "phoneNo": mobile_number,
+                            "careContextInfo": f"Consultation Record for {date_of_consultation}",
+                            "hip": {"id": hip_id},
+                        },
+                    }
+                )
+                logging.info(f"response code from /patients/sms/notify : {resp_code}")
+                return {"pmr_id": pmr_id, "request_id": request_id, "status": "success"}
         except Exception as error:
             logging.error(f"Error in PMRController.sync_pmr function: {error}")
             raise error

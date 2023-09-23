@@ -2,7 +2,7 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core import logger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import uuid
 
@@ -127,6 +127,9 @@ class CallbackController:
                     address_obj = {}
                 logging.info(f"{patient_obj=}")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                time_now = datetime.now()
+                token_validity = time_now + timedelta(1440)
+                token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 patient_request = {
                     "id": patient_id,
                     "abha_number": abha_number,
@@ -140,7 +143,10 @@ class CallbackController:
                     "pincode": address_obj.get("state"),
                     "state_name": address_obj.get("pincode"),
                     "hip_id": hip_id,
-                    "access_token": access_token,
+                    "access_token": {
+                        "value": access_token,
+                        "valid_till": token_validity,
+                    },
                     "abha_status": "ACTIVE",
                 }
                 if patient_obj:
