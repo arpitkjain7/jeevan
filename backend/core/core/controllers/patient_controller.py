@@ -790,12 +790,22 @@ class PatientController:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error
 
-    def get_vital(self, patient_id):
+    def get_vital(self, patient_id, vital_type):
         try:
             logging.info("Get vital records")
-            response = self.CRUDVital.read_by_patientId(patient_id)
-            logging.info(f"{response=}")
-            return response
+            responses = self.CRUDVital.read_by_patientId(patient_id)
+            values = []
+            for response in responses:
+                vital_obj = {}
+                vital_obj[f"{vital_type}"] = response[vital_type]
+                vital_obj["pmr_id"] = response["pmr_id"]
+                date = response["created_at"].strftime("%Y-%m-%d %H:%M")
+                vital_obj["created_date"] = date
+
+                values.append(vital_obj)
+                # logging.info(f"{vital_obj=}")
+                # logging.info(f"{values=}")
+            return values
         except Exception as error:
             logging.error(f"Error in PatientController.get_vital function: {error}")
             raise error
