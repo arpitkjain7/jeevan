@@ -13,11 +13,11 @@ dataTransfer_router = APIRouter()
 
 
 @dataTransfer_router.post("/v0.5/consents/hip/notify")
-def consent_notify(consent_notify_request: dict):
+def hip_notify(consent_notify_request: dict):
     try:
         logging.info("Calling /v0.5/consents/hip/notify endpoint")
         logging.debug(f"Request: {consent_notify_request}")
-        return DataTransferController().consent_notify(request=consent_notify_request)
+        return DataTransferController().hip_notify(request=consent_notify_request)
     except Exception as error:
         logging.error(f"Error in /v0.5/consents/hip/notify endpoint: {error}")
         raise HTTPException(

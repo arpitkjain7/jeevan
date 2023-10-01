@@ -387,7 +387,7 @@ class PMRController:
             logging.info(f"{advice_obj_dict=}")
             # pmr_id = advice_obj_dict.pop("pmr_id")
             logging.info(f"{advice_obj_dict=}")
-            self.CRUDPatientMedicalRecord.update(pmr_id, **advice_obj_dict)
+            self.CRUDPatientMedicalRecord.update(**advice_obj_dict)
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_advice function: {error}")
@@ -400,7 +400,7 @@ class PMRController:
             notes_obj_dict.update({"id": pmr_id})
             # pmr_id = notes_obj_dict.pop("pmr_id")
             logging.info(f"{notes_obj_dict=}")
-            self.CRUDPatientMedicalRecord.update(pmr_id, **notes_obj_dict)
+            self.CRUDPatientMedicalRecord.update(**notes_obj_dict)
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_notes function: {error}")

@@ -242,11 +242,9 @@ class HIUController:
             logging.info(f"{request=}")
             notification_obj = request.get("notification")
             consent_id = notification_obj.get("consentRequestId")
+            consent_status = notification_obj.get("status")
             logging.info("Updating consent table record")
-            consent_crud_request = {
-                "id": consent_id,
-                "status": notification_obj.get("status"),
-            }
+            consent_crud_request = {"id": consent_id, "status": consent_status}
             logging.info("Getting session access Token")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
@@ -273,7 +271,11 @@ class HIUController:
                 # self.CRUDHIUConsents.create(
                 #     **{"id": consentArtifactId, "status": "REQUESTED"}
                 # )
-            self.CRUDHIUConsents.create(**consent_crud_request)
+            # if consent_status == "GRANTED":
+            #     self.CRUDHIUConsents.create(**consent_crud_request)
+            # elif consent_status == "EXPIRED" or consent_status == "REVOKED":
+            #     logging.info(f"{consent_crud_request=}")
+            #     self.CRUDHIUConsents.update(**consent_crud_request)
         except Exception as error:
             logging.error(f"Error in HIUController.hiu_notify function: {error}")
             raise error
@@ -378,13 +380,18 @@ class HIUController:
             elif consent_status == "EXPIRED" or consent_status == "REVOKED":
                 logging.info("Consent expired or revoked")
                 logging.info("Creating consent table record")
-                consent_crud_request = {"id": consent_id, "status": consent_status}
-                self.CRUDHIUConsents.create(**consent_crud_request)
+                consent_crud_request = {
+                    "id": consent_id,
+                    "status": consent_status,
+                    "patient_data_raw": None,
+                    "patient_data_transformed": None,
+                }
+                self.CRUDHIUConsents.update(**consent_crud_request)
             elif consent_status == "DENIED":
                 logging.info("Consent denied")
                 logging.info("Creating consent table record")
                 consent_crud_request = {"id": consent_id, "status": consent_status}
-                self.CRUDHIUConsents.create(**consent_crud_request)
+                self.CRUDHIUConsents.update(**consent_crud_request)
         except Exception as error:
             logging.error(f"Error in HIUController.hiu_fetch_consent function: {error}")
             raise error

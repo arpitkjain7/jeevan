@@ -674,7 +674,7 @@ class PatientController:
                 if resp_code < 300:
                     for pmr_id in gateway_meta.get("pmr_list"):
                         self.CRUDPatientMedicalRecord.update(
-                            pmr_id=pmr_id, **{"abdm_linked": True}
+                            **{"id": pmr_id, "abdm_linked": True}
                         )
             else:
                 logging.info("Invalid OTP")

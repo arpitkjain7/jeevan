@@ -26,9 +26,9 @@ class DataTransferController:
         self.CRUDConsents = CRUDConsents()
         self.gateway_url = os.environ["gateway_url"]
 
-    def consent_notify(self, request):
+    def hip_notify(self, request):
         try:
-            logging.info("executing  consent_notify function")
+            logging.info("executing  hip_notify function")
             logging.info("Creating gateway record")
             notification_obj = request.get("notification")
             consent_status = notification_obj.get("status")
@@ -130,7 +130,7 @@ class DataTransferController:
             return gateway_request
         except Exception as error:
             logging.error(
-                f"Error in DataTransferController.consent_notify function: {error}"
+                f"Error in DataTransferController.hip_notify function: {error}"
             )
             raise error
 
