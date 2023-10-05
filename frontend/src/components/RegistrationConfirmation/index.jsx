@@ -48,7 +48,7 @@ const RegisterationConfirmation = ({
 }) => {
   console.log(appointmentDetails, "details");
   const dataState = useSelector((state) => state);
-  const doctorId = localStorage.getItem("appointment_doctor_id");
+  const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const patientData =
     Object.keys(selectedPatient)?.length > 0 && isAppointment

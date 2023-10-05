@@ -30,7 +30,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
     email: "",
     password: "",
   });
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const navigate = useNavigate();

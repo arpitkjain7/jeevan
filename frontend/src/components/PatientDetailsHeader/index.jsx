@@ -57,26 +57,26 @@ const PatientDetailsHeader = ({ patientDetails }) => {
         </div>
         <div className="details-Patientdetails">
           <Typography className="details-patient-name">
-            {patientData?.patient_details?.name}
+            {patientData?.patient_details?.name || patientData?.name}
           </Typography>
           <div className="details-subContainer">
             <Typography className="details-patient-id">
-              {patientData?.patientId}
+              {patientData?.patientId || patientData?.id}
             </Typography>
             <Typography className="details-patient-id">
-              {patientData?.age}
+              {patientData?.age || patientData?.DOB}
             </Typography>
             <Typography className="details-patient-id">
-              {patientData?.patient_details?.gender}
+              {patientData?.patient_details?.gender || patientData?.gender}
             </Typography>
           </div>
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {patientData?.patient_details?.email}
+            {patientData?.patient_details?.email || patientData?.email}
           </Typography>
           <Typography className="details-patient-email">
-            {patientData?.mobileNumber}
+            {patientData?.mobileNumber || patientData?.mobile_number}
           </Typography>
         </div>
       </div>

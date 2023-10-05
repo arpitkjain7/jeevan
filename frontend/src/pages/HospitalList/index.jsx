@@ -16,8 +16,7 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
   },
   ".hospitalList-content": {
     textAlign: "center",
-    marginBottom: theme.spacing(12)
-
+    marginBottom: theme.spacing(12),
   },
   ".hospitalList-subTitle": { "&.MuiTypography-root": theme.typography.h2 },
   ".hospitalList-container": {
@@ -37,7 +36,6 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     width: "100%",
     cursor: "pointer",
-
   },
 
   ".hospitalList-name": {
@@ -65,7 +63,7 @@ const HospitalList = () => {
   }, []);
 
   const redirectToDashboard = (hospitalData) => {
-    localStorage.setItem("selectedHospital", JSON.stringify(hospitalData));
+    sessionStorage.setItem("selectedHospital", JSON.stringify(hospitalData));
     navigate("/dashboard");
   };
 

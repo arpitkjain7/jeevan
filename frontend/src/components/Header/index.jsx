@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, styled, Avatar, Menu, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate } from "react-router-dom";
@@ -26,10 +26,21 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   ".header-logo-container": {
     display: "flex",
     alignItems: "center",
+    gap: theme.spacing(4),
+
+    ".hospital-name": {
+      "&": theme.typography.sectionBody2,
+    },
   },
   ".logo": {
     fontFamily: "Red Hat Display",
     fontSize: "24px",
+  },
+  ".logo-login": {
+    fontFamily: "Red Hat Display",
+    fontSize: "24px",
+    paddingRight: "16px",
+    borderRight: "1px solid #9e9e9e",
   },
   ".header-question-text": {
     color: theme.palette.secondaryGrey,
@@ -37,6 +48,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontWeight: "500",
     fontSize: "16px",
     lineHeight: "16px",
+    marginRight: theme.spacing(8),
   },
 }));
 
@@ -56,12 +68,15 @@ const ProfileMenu = styled(Menu)({
 });
 
 const Header = () => {
-  const accessToken = localStorage.getItem("accesstoken");
+  const accessToken = sessionStorage.getItem("accesstoken");
+  const hospital = sessionStorage?.getItem("selectedHospital");
+  const currentHospital = JSON.parse(hospital);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     navigate("/login");
     handleClose();
   };
@@ -78,7 +93,10 @@ const Header = () => {
     <HeaderWrapper>
       <div className="header-container">
         <div className="header-logo-container">
-          <span className="logo">Cliniq360</span>
+          <span className={accessToken ? `logo-login` : `logo`}>Cliniq360</span>
+          {accessToken && (
+            <span className="hospital-name">{currentHospital?.name}</span>
+          )}
         </div>
         {accessToken ? (
           <div className="header-content">
@@ -97,7 +115,7 @@ const Header = () => {
             </ProfileIconWrapper>
           </div>
         ) : (
-          <div className="header-content">
+          <div className="header-no-login">
             <span className="header-question-text">Have A Question?</span>
             <Button variant="contained" className="header-btn">
               Contact Us

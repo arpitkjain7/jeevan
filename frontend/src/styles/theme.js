@@ -51,6 +51,13 @@ const theme = createTheme({
       fontFamily: "Source Sans Pro",
       color: "#171717",
     },
+    selectedBody1: {
+      fontSize: "16px",
+      fontWeight: 600,
+      lineHeight: "150%",
+      fontFamily: "Source Sans Pro",
+      color: "#0561A0",
+    },
     body2: {
       fontSize: "16px",
       fontWeight: 600,
@@ -62,6 +69,14 @@ const theme = createTheme({
     sectionBody: {
       fontSize: "20px",
       fontWeight: 600,
+      lineHeight: "150%",
+      fontFamily: "Source Sans Pro",
+      color: "#171717",
+      textTransform: "capitalize",
+    },
+    sectionBody2: {
+      fontSize: "20px",
+      fontWeight: 300,
       lineHeight: "150%",
       fontFamily: "Source Sans Pro",
       color: "#171717",
@@ -96,6 +111,13 @@ const theme = createTheme({
       fontFamily: "Source Sans Pro",
       color: "#5a5a5a",
     },
+    bannerText: {
+      fontSize: "40px",
+      fontWeight: 300,
+      lineHeight: "150%",
+      fontFamily: "Source Sans Pro",
+      color: "#fff",
+    },
     primaryButton: {
       padding: "14px 16px",
       display: "flex",
@@ -109,6 +131,7 @@ const theme = createTheme({
       fontSize: "16px",
       border: "none",
       cursor: "pointer",
+      textTransform: "capitalize",
     },
     secondaryButton: {
       padding: "14px 16px",
@@ -123,6 +146,7 @@ const theme = createTheme({
       fontSize: "16px",
       border: "none",
       cursor: "pointer",
+      textTransform: "capitalize",
     },
     // Add more typography styles as needed
   },

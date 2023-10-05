@@ -23,7 +23,8 @@ const pmrPdfStyles = StyleSheet.create({
   page: {
     backgroundColor: "#FFFFFF",
   },
-  section: {
+  section: {},
+  prescriptionSection: {
     marginTop: "24px",
     padding: "12px 24px",
   },
@@ -45,21 +46,18 @@ const pmrPdfStyles = StyleSheet.create({
     fontFamily: "Red Hat Display",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfhospitalNameText: {
     fontFamily: "Source Sans Pro",
     color: "#ffffff",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfDrNameText: {
     fontFamily: "Source Sans Pro",
     color: "#ffffff",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientDetails: {
     backgroundColor: "#0089E9",
@@ -71,7 +69,6 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#ffffff",
     fontSize: "20px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientName: {
     display: "flex",
@@ -92,11 +89,12 @@ const pmrPdfStyles = StyleSheet.create({
     flexDirection: "row",
     padding: "12px 0px",
     gap: "8px",
+    width: "100%",
   },
   pdfVital: {
     backgroundColor: "rgba(5, 97, 160, 0.08)",
     padding: "8px",
-    minWidth: "150px",
+    minWidth: "24px",
     flex: 1,
   },
   pdfPatientOtherDetails: {
@@ -109,28 +107,24 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#ffffff",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientDetailsLabel: {
     fontFamily: "Source Sans Pro",
     color: "#171717",
     fontSize: "10px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientDetailsValue: {
     fontFamily: "Source Sans Pro Bold",
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfSectionHeading: {
     fontFamily: "Source Sans Pro",
     color: "#5A5A5A",
     fontSize: "14px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   table: {
     width: "100%", // Take up full width
@@ -158,22 +152,24 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   columnText: {
     fontFamily: "Source Sans Pro Bold",
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
+  },
+  allSections: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+    padding: "0px 24px 12px 24px",
   },
 });
 
 const PMRPdf = ({ pdfData, patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
   const [prescriptionData, setPrescriptionData] = useState([]);
-
-  console.log(pdfData, "pdfData");
 
   const columns = [
     { key: "medicine_name", label: "Medications" },
@@ -205,29 +201,13 @@ const PMRPdf = ({ pdfData, patientData }) => {
       ) {
         const heading = sections[section];
         let data = [];
-        if (section === "vital") {
-          inputObject[section]?.data?.map((item) => {
-            data = Object.entries(item).map(([label, value]) => ({
-              label,
-              value,
-            }));
-          });
-        } else {
-          data = inputObject[section]?.data?.map((item) => {
-            if (section === "vital" || section === "medication") {
-              const labelData = Object.entries(item).map(([label, value]) => ({
-                label,
-                value,
-              }));
-              return labelData;
-            } else {
-              const label = Object.keys(item)[0];
-              const value = item[label] || "";
-
-              return { label, value };
-            }
-          });
-        }
+        data = inputObject[section]?.data?.map((item) => {
+          const labelData = Object.entries(item).map(([label, value]) => ({
+            label,
+            value,
+          }));
+          return labelData;
+        });
 
         resultArray.push({ heading, data });
       }
@@ -244,7 +224,6 @@ const PMRPdf = ({ pdfData, patientData }) => {
       (item) =>
         item?.heading !== "Medications" || item?.heading === "Medical History"
     );
-    console.log(filteredArr, "filter");
     setPmrPdfData(filteredArr);
     const medications = transformedArr?.filter(
       (item) => item?.heading === "Medications"
@@ -321,27 +300,130 @@ const PMRPdf = ({ pdfData, patientData }) => {
             ))}
           </View>
         </View>
+        <View style={pmrPdfStyles.allSections}>
+          {Object.keys(pdfData)?.map(
+            (objectKey) =>
+              pdfData[objectKey]?.data && (
+                <View style={pmrPdfStyles.section}>
+                  {objectKey !== "medical_history" &&
+                    objectKey !== "medication" && (
+                      <Text style={pmrPdfStyles.pdfSectionHeading}>
+                        {objectKey?.replace("_", " ")?.toUpperCase()}
+                      </Text>
+                    )}
 
-        {pmrPdfData?.map((emr) => (
-          <View style={pmrPdfStyles.section}>
-            <Text style={pmrPdfStyles.pdfSectionHeading}>{emr?.heading}</Text>
-            <View style={pmrPdfStyles.pdfVitalsWrapper}>
-              {emr?.data?.map((item) => (
-                <View style={pmrPdfStyles.pdfVital}>
-                  <>
-                    <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
-                      {item.label}
-                    </Text>
-                    <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
-                      {item?.value}
-                    </Text>
-                  </>
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "condition" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.condition}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "diagnosis" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.disease}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                  {/* <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "diagnosis" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.disease}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                        </View>
+                      ))}
+                  </View> */}
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "examinationfindings" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.disease}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "symptom" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.symptom}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.severity}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "lab_investigation" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.name}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration || ""} | {item?.status || ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                  {/* <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                  {objectKey?.toLowerCase() === "medical_history" &&
+                    pdfData[objectKey]?.data?.map((item) => (
+                      <View style={pmrPdfStyles.pdfVital}>
+                       
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.disease}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                       
+                      </View>
+                    ))}
+                </View> */}
+                  <View style={pmrPdfStyles.pdfVitalsWrapper}>
+                    {objectKey?.toLowerCase() === "diagnosis" &&
+                      pdfData[objectKey]?.data?.map((item) => (
+                        <View style={pmrPdfStyles.pdfVital}>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                            {item?.disease}
+                          </Text>
+                          <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                            {item?.duration} | {item?.status}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
                 </View>
-              ))}
-            </View>
-          </View>
-        ))}
-        <View style={pmrPdfStyles.section}>
+              )
+          )}
+        </View>
+
+        <View style={pmrPdfStyles.prescriptionSection}>
           <Text style={pmrPdfStyles.pdfSectionHeading}>Prescription</Text>
           <View style={pmrPdfStyles.table}>
             <View style={[pmrPdfStyles.tableRow, pmrPdfStyles.tableHeader]}>

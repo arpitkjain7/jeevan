@@ -23,7 +23,7 @@ export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
 export const uploadPmrPdf = createAsyncThunk(
   "uploadPMR/PMR",
   async (pdfBlob, pmr_id, document_type) => {
-    const access_token = localStorage.getItem("accesstoken");
+    const access_token = sessionStorage.getItem("accesstoken");
     const formData = new FormData();
     formData.append("file", pdfBlob);
     try {

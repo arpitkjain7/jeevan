@@ -34,7 +34,27 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".date-btn": {
-    "&.MuiButtonBase-root": {},
+    "&.MuiButtonBase-root": {
+      "&": theme.typography.body2,
+      backgroundColor: "transparent",
+      border: "0",
+      borderBottom: `1px solid ${theme.palette.primaryGrey}`,
+      flex: 1,
+      borderRadius: "0",
+      cursor: "pointer",
+    },
+  },
+  ".selected-date-btn": {
+    "&.MuiButtonBase-root": {
+      "&": theme.typography.body2,
+      backgroundColor: "transparent",
+      border: "0",
+      borderBottom: `2px solid ${theme.palette.secondaryBlue}`,
+      flex: 1,
+      borderRadius: "0",
+      boxShadow: "none",
+      cursor: "pointer",
+    },
   },
   ".slots-container": {
     display: "flex",
@@ -44,23 +64,23 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     marginTop: "16px",
   },
   ".submit-btn": {
-    "&.MuiButtonBase-root": {
-      display: "flex",
-      float: "right",
-      justifyContent: "center",
-      alignItems: "center",
-      border: `1px solid ${theme.palette.primaryBlack}`,
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      backgroundColor: theme.palette.primaryBlack,
-      color: theme.palette.primaryWhite,
-      padding: "8px 32px",
-      height: "40px",
-      marginTop: "16px",
-      textTransform: "capitalize",
-    },
+    "&": theme.typography.primaryButton,
+    float: "right",
+    marginTop: theme.spacing(8),
+    width: "10%",
   },
+  ".btn-date-typography": {
+    "&.MuiTypography-root": theme.typography.body1,
+  },
+
+  ".selected-date-typography": {
+    "&.MuiTypography-root": theme.typography.selectedBody1,
+  },
+}));
+const DateContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
 }));
 
 const StyledCard = styled(Card)({
@@ -79,8 +99,8 @@ const BookingSlots = () => {
   const [calendarDate, setCalendarDate] = useState(null);
   const [appointmentcompleted, setAppointmentCompleted] = useState(false);
 
-  const doctorId = localStorage.getItem("appointment_doctor_id");
-  const hospital = localStorage?.getItem("selectedHospital");
+  const doctorId = sessionStorage.getItem("appointment_doctor_id");
+  const hospital = sessionStorage?.getItem("selectedHospital");
 
   const dispatch = useDispatch();
   const dataState = useSelector((state) => state);
@@ -91,7 +111,6 @@ const BookingSlots = () => {
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
-    console.log(checkDay, daysArray, "days");
     if (daysArray?.length) {
       return daysArray?.includes(checkDay?.toLowerCase());
     }
@@ -110,11 +129,6 @@ const BookingSlots = () => {
           appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
-          console.log(
-            res.payload?.doc_working_days,
-            getDayFromString(date),
-            "res, dayFromString"
-          );
           const doctorAvailable = checkDoctorAvailability(
             res.payload?.doc_working_days || "",
             getDayFromString(date)
@@ -157,7 +171,6 @@ const BookingSlots = () => {
     const today = new Date();
     const thisWeek = getDates(today);
     setDates(thisWeek);
-    console.log(thisWeek[0]);
     if (thisWeek?.length) {
       handleDateSelect(thisWeek[0]);
     }
@@ -228,8 +241,6 @@ const BookingSlots = () => {
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
-      console.log(removeBookedSlots(timeSlots, slotsBooked), "slotsTime");
-
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
   }, [doctorDetails]);
@@ -257,36 +268,46 @@ const BookingSlots = () => {
     });
   };
 
+  const formatDisplayDate = (date) => {
+    const displayArr = date?.split(" ");
+    return displayArr[0] + displayArr[1];
+  };
+
   return (
     <>
       {!appointmentcompleted ? (
         <SlotWrapper>
           <StyledCard>
-            <CardContent>
+            <CardContent sx={{ minHeight: "350px" }}>
               <Grid container>
-                <Grid item xs={12}>
-                  <ButtonGroup>
-                    {dates?.map((date, index) => (
-                      <Button
-                        key={index}
-                        variant={
-                          selectedDate === date ? "contained" : "outlined"
-                        }
-                        color="primary"
-                        onClick={() => handleDateSelect(date)}
-                        className="date-btn"
-                      >
-                        <DateWrapper>
-                          <Typography variant="body2">{date}</Typography>
-                        </DateWrapper>
-                      </Button>
-                    ))}
-                    {/* <Calendar
+                <DateContainer>
+                  {dates?.map((date, index) => (
+                    <Button
+                      key={index}
+                      color="primary"
+                      onClick={() => handleDateSelect(date)}
+                      className={
+                        selectedDate === date ? "selected-date-btn" : "date-btn"
+                      }
+                    >
+                      <DateWrapper>
+                        <Typography
+                          className={
+                            selectedDate === date
+                              ? `selected-date-typography`
+                              : `btn-date-typography`
+                          }
+                        >
+                          {formatDisplayDate(date)}
+                        </Typography>
+                      </DateWrapper>
+                    </Button>
+                  ))}
+                  {/* <Calendar
                   selectedDate={calendarDate}
                   setSelectedDate={setCalendarDate}
                 /> */}
-                  </ButtonGroup>
-                </Grid>
+                </DateContainer>
 
                 {selectedDate && (
                   <div className="slots-container">
@@ -311,7 +332,7 @@ const BookingSlots = () => {
 
           <div className="btn-wrapper">
             <Button className="submit-btn" onClick={submitAppointment}>
-              Save
+              Submit
             </Button>
           </div>
         </SlotWrapper>

@@ -1076,7 +1076,7 @@ const PatientEMRDetails = () => {
     payloadArr?.forEach((item) => {
       createPayload(item?.key, item?.dataArr);
     });
-    const hospital = localStorage?.getItem("selectedHospital");
+    const hospital = sessionStorage?.getItem("selectedHospital");
     const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {

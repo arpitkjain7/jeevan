@@ -3,6 +3,8 @@ import CustomTabs from "../../components/Tabs";
 import AppointmentForm from "../../components/AppointmentForm";
 import BookingSlots from "../../components/ScheduleAppointment";
 import { Typography, styled } from "@mui/material";
+import AppointmentIcon from "../../assets/icons/prescription-icon.svg";
+import CalendarIcon from "../../assets/icons/calendar-icon.svg";
 
 const PageTitle = styled(Typography)(({ theme }) => ({
   "&": theme.typography.h1,
@@ -26,6 +28,7 @@ function CreateAppointment() {
   const tabs = [
     {
       label: "Encounter",
+      icon: AppointmentIcon,
       content: (
         <AppointmentForm
           handleTabChange={handleTabChange}
@@ -36,6 +39,7 @@ function CreateAppointment() {
     },
     {
       label: "Select Slot",
+      icon: CalendarIcon,
       content: (
         <BookingSlots handleTabChange={handleTabChange} setTab={setTab} />
       ),

@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Button,
-  Grid,
-} from "@mui/material";
-import { format } from "date-fns";
+import { TextField, Button, Grid } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
@@ -26,7 +16,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
     email: "",
     password: "",
   });
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const navigate = useNavigate();
@@ -78,9 +68,9 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
     }
   };
 
-  const formatDob = (date) => {
-    return format(new Date(date), "yyyy-MM-dd");
-  };
+  // const formatDob = (date) => {
+  //   return format(new Date(date), "yyyy-MM-dd");
+  // };
 
   const onSnackbarClose = () => {
     setShowSnackbar(false);

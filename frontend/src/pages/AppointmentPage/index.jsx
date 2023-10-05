@@ -38,10 +38,17 @@ const ListWrapper = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": {
+        "&": theme.typography.body2,
+        padding: theme.spacing(4, 8),
+      },
     },
     "& .MuiTableBody-root": {
-      "& > tr >td": theme.typography.body1,
+      "& > tr >td": {
+        "&": theme.typography.body1,
+        cursor: "pointer",
+        padding: theme.spacing(4, 8),
+      },
     },
   },
   ".search-class": {
@@ -63,7 +70,7 @@ const searchInputStyle = {
 };
 
 const AppointmentPage = () => {
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
@@ -87,38 +94,35 @@ const AppointmentPage = () => {
           onClick: (item) => {
             navigate("/patient-emr");
             sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-            console.log(item);
           },
         },
       ],
     },
-    {
-      key: "actions",
-      header: "",
-      actions: [
-        {
-          icon: <MenuIcon />,
-          type: "icon",
-          onClick: (item) => {
-            // Handle edit action for the specific item
-          },
-        },
-      ],
-    },
+    // {
+    //   key: "actions",
+    //   header: "",
+    //   actions: [
+    //     {
+    //       icon: <MenuIcon />,
+    //       type: "icon",
+    //       onClick: (item) => {
+    //         // Handle edit action for the specific item
+    //       },
+    //     },
+    //   ],
+    // },
   ];
 
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      console.log(currentHospital);
       setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchAppointmentList(payload)).then((res) => {
         const mainList = res.payload;
-        console.log(mainList);
         // let patientList = [];
         // mainList?.map((item) => {
         //   patientList?.push(item[1]);
@@ -130,7 +134,6 @@ const AppointmentPage = () => {
             ?.includes("m")
             ? "M"
             : "F";
-          console.log(patientGender);
           const mobileNumber = item?.patient_details?.mobile_number;
           const encounterType = item?.appointment_type;
           const docName = item?.doc_details?.doc_name;
@@ -152,7 +155,6 @@ const AppointmentPage = () => {
             ...item,
           };
         });
-        console.log(formattedAppointmentList, "appointment");
         setTableData(formattedAppointmentList);
       });
     }

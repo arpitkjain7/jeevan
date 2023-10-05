@@ -6,10 +6,10 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import PersonIcon from "@mui/icons-material/Person";
-import { Dvr } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import HomeIcon from "../../assets/icons/home-icon.svg";
+import PersonIcon from "../../assets/icons/person-icon.svg";
+import AppointmentIcon from "../../assets/icons/appointment-icon.svg";
 
 const Sidebar = ({ open, onClose, list }) => {
   const navigate = useNavigate();
@@ -25,48 +25,34 @@ const Sidebar = ({ open, onClose, list }) => {
         "& .MuiDrawer-paper": {
           backgroundColor: "#fff",
           padding: "120px 0 30px 0",
+          minWidth: "100px",
         },
       }}
     >
-      <List sx={{ textAlign: "left" }}>
-        <ListItem>
-          <ListItemIcon onClick={() => redirectRoutes("/dashboard")}>
-            <HomeIcon
-              sx={{
-                fontSize: 30,
-                width: 30,
-                height: 30,
-                color: "black",
-                cursor: "pointer",
-              }}
-            />
-          </ListItemIcon>
+      <List sx={{ margin: "0 auto" }}>
+        <ListItem sx={{ marginBottom: "16px" }}>
+          <img
+            src={HomeIcon}
+            alt="Home"
+            onClick={() => redirectRoutes("/dashboard")}
+            style={{ cursor: "pointer" }}
+          />
         </ListItem>
-        <ListItem>
-          <ListItemIcon onClick={() => redirectRoutes("/patient-list")}>
-            <PersonIcon
-              sx={{
-                fontSize: 30,
-                width: 30,
-                height: 30,
-                color: "black",
-                cursor: "pointer",
-              }}
-            />
-          </ListItemIcon>
+        <ListItem sx={{ marginBottom: "16px" }}>
+          <img
+            src={PersonIcon}
+            alt="person"
+            onClick={() => redirectRoutes("/patient-list")}
+            style={{ cursor: "pointer" }}
+          />
         </ListItem>
-        <ListItem>
-          <ListItemIcon onClick={() => redirectRoutes("/appointment-list")}>
-            <Dvr
-              sx={{
-                fontSize: 30,
-                width: 30,
-                height: 30,
-                color: "black",
-                cursor: "pointer",
-              }}
-            />
-          </ListItemIcon>
+        <ListItem sx={{ marginBottom: "16px" }}>
+          <img
+            src={AppointmentIcon}
+            alt="appointment"
+            onClick={() => redirectRoutes("/appointment-list")}
+            style={{ cursor: "pointer" }}
+          />
         </ListItem>
       </List>
     </Drawer>
