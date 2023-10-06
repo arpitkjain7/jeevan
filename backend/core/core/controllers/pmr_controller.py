@@ -6,6 +6,7 @@ from core.crud.hims_labInvestigation_crud import CRUDLabInvestigation
 from core.crud.hims_medicines_crud import CRUDMedicines
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
+from core.crud.hims_medicalTestReports_crud import CRUDMedicalTestReports
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_current_medicines_crud import CRUDCurrentMedicines
 from core.utils.custom.external_call import APIInterface
@@ -37,6 +38,7 @@ class PMRController:
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDMedicalHistory = CRUDMedicalHistory()
+        self.CRUDMedicalTestReports = CRUDMedicalTestReports()
         self.CRUDVital = CRUDVital()
         self.CRUDSymptoms = CRUDSymptoms()
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
@@ -452,7 +454,9 @@ class PMRController:
             )
             diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
-            medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
+            medicalTestReport_data = self.CRUDMedicalTestReports.read_by_pmrId(
+                pmr_id=pmr_id
+            )
             medicalHistory_data = self.CRUDMedicalHistory.read_by_pmrId(pmr_id=pmr_id)
             condition = self.CRUDCondition.read_by_pmrId(pmr_id=pmr_id)
             symptoms = self.CRUDSymptoms.read_by_pmrId(pmr_id=pmr_id)
@@ -466,7 +470,7 @@ class PMRController:
                     "symptoms": symptoms,
                     "medicines": medicine_data,
                     "current_medication": current_medication,
-                    "medicalTests": medicalTest_data,
+                    "medicalTestReport": medicalTestReport_data,
                     "medicalHistory": medicalHistory_data,
                 }
             )

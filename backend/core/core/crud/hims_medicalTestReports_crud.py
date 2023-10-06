@@ -62,6 +62,34 @@ class CRUDMedicalTestReports:
             logging.error(f"Error in CRUDMedicalTestReports read function : {error}")
             raise error
 
+    def read_by_pmrId(self, pmr_id: int):
+        """[CRUD function to read a medicalHistory record]
+
+        Args:
+            pmr_id (str): [Patient Medical Record Id to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [MedicalHistory record matching the criteria]
+        """
+        try:
+            logging.info("CRUDMedicalHistory read request")
+            with session() as transaction_session:
+                obj: MedicalTestReports = (
+                    transaction_session.query(MedicalTestReports)
+                    .filter(MedicalTestReports.pmr_id == pmr_id)
+                    .order_by(MedicalTestReports.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDMedicalHistory read function : {error}")
+            raise error
+
     def read_all(self):
         """[CRUD function to read_all Users record]
 

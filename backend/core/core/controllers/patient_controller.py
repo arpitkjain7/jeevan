@@ -797,7 +797,7 @@ class PatientController:
             values = []
             for response in responses:
                 vital_obj = {}
-                vital_obj[f"{vital_type}"] = response[vital_type]
+                vital_obj["value"] = response[vital_type]
                 vital_obj["pmr_id"] = response["pmr_id"]
                 date = response["created_at"].strftime("%Y-%m-%d %H:%M")
                 vital_obj["created_date"] = date
