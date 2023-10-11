@@ -1,4 +1,5 @@
 from core.crud.hims_docDetails_crud import CRUDDocDetails
+from core.crud.hims_template_crud import CRUDTemplate
 from fastapi import APIRouter, HTTPException, status, Depends
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
@@ -15,6 +16,7 @@ class Common:
         self.s3_location = os.environ["s3_location"]
         self.gateway_url = os.environ["gateway_url"]
         self.CRUD_docDetails = CRUDDocDetails()
+        self.CRUDTemplate = CRUDTemplate()
 
     def abha_availability(self, health_id: str):
         """Verify if the abha address already exists
@@ -145,4 +147,39 @@ class Common:
             return {"doc_id": request.doc_id}
         except Exception as error:
             logging.error(f"Error in Common.update_doctor function: {error}")
+            raise error
+
+    def create_template(self, request):
+        try:
+            logging.info("Creating template record")
+            # for patient_obj in request.data:
+            template_obj_dict = request.dict()
+            logging.info(f"{template_obj_dict=}")
+            template_id = self.CRUDTemplate.create(**template_obj_dict)
+            return {"template_id": template_id}
+        except Exception as error:
+            logging.error(f"Error in Common.create_template function: {error}")
+            raise error
+
+    def get_template_by_id(self, template_id):
+        try:
+            logging.info("Creating template record")
+            # for patient_obj in request.data:
+            logging.info(f"{template_id=}")
+            template_obj = self.CRUDTemplate.read_by_template_id(
+                template_id=template_id
+            )
+            return template_obj
+        except Exception as error:
+            logging.error(f"Error in Common.create_template function: {error}")
+            raise error
+
+    def get_all_template(self):
+        try:
+            logging.info("Creating template record")
+            # for patient_obj in request.data:
+            template_obj = self.CRUDTemplate.read_all()
+            return {"template_obj": template_obj}
+        except Exception as error:
+            logging.error(f"Error in Common.create_template function: {error}")
             raise error
