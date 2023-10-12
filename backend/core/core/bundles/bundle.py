@@ -219,8 +219,7 @@ bundle_entry = [
         ),
     },
 ]
-print("\n")
+
 bundle.entry = bundle_entry
 bundle.type = "document"
 bundle_json = bundle.json()
-print(bundle_json)

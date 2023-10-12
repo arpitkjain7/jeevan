@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import CustomTabs from "../../components/Tabs";
 import AppointmentForm from "../../components/AppointmentForm";
 import BookingSlots from "../../components/ScheduleAppointment";
+import { Typography, styled } from "@mui/material";
+
+const PageTitle = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.h1,
+}));
+
+const PageSubText = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.h2,
+  marginBottom: theme.spacing(8),
+}));
 
 function CreateAppointment() {
   const [tab, setTab] = useState(0);
@@ -34,13 +44,17 @@ function CreateAppointment() {
   ];
 
   return (
-    <CustomTabs
-      tabs={tabs}
-      defaultTab={tab}
-      onChange={handleTabChange}
-      tab={tab}
-      addSteps={true}
-    />
+    <>
+      <PageTitle>New Appointment</PageTitle>
+      <PageSubText>Schedule an appointment</PageSubText>
+      <CustomTabs
+        tabs={tabs}
+        defaultTab={tab}
+        onChange={handleTabChange}
+        tab={tab}
+        addSteps={true}
+      />
+    </>
   );
 }
 

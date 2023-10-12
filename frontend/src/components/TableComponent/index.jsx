@@ -29,6 +29,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   },
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
+    cursor: "pointer",
   },
   ".table-body-container": {
     "&.MuiTableBody-root": {
@@ -84,7 +85,6 @@ const MyTable = ({
             onChange={handleSearch}
             className={searchClassName}
           />
-          <SettingsIcon />
         </div>
       )}
       <TableContainer

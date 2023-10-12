@@ -9,6 +9,7 @@ from core.apis.schemas.requests.hid_request import (
     AbhaRegistration_MobileOTP,
     MobileOTP,
     PatientData,
+    MobileNumber,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -339,6 +340,84 @@ def profile_getAbhaCard(request: PatientData, token: str = Depends(oauth2_scheme
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/profile/getAbhaCard endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/HID/searchAbha")
+def search_abha(request: HealthNumber, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/searchAbha endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().search_abha(abha_number=request.healthNumber)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/searchAbha endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/searchAbha endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/HID/searchMobile")
+def search_mobile(request: MobileNumber, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/searchMobile endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().search_mobile(mobile_number=request.mobileNumber)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/searchMobile endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/searchMobile endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/HID/verifyMobileOtp")
+def verify_mobile_otp(request: OTPVerification, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/verifyMobileOtp endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().verify_login_otp(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/verifyMobileOtp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/verifyMobileOtp endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

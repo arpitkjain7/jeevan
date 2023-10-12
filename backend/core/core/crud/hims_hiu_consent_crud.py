@@ -14,7 +14,7 @@ class CRUDHIUConsents:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDConsents create request")
+            logging.info("CRUDHIUConsents create request")
             kwargs.update(
                 {
                     "created_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -31,7 +31,7 @@ class CRUDHIUConsents:
                 transaction_session.commit()
                 transaction_session.refresh(consent)
         except Exception as error:
-            logging.error(f"Error in CRUDConsents create function : {error}")
+            logging.error(f"Error in CRUDHIUConsents create function : {error}")
             raise error
 
     def read(self, consent_id: str):
@@ -47,7 +47,7 @@ class CRUDHIUConsents:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDConsents read request")
+            logging.info("CRUDHIUConsents read request")
             with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
@@ -58,7 +58,7 @@ class CRUDHIUConsents:
                 return obj.__dict__
             return None
         except Exception as error:
-            logging.error(f"Error in CRUDConsents read function : {error}")
+            logging.error(f"Error in CRUDHIUConsents read function : {error}")
             raise error
 
     def read_by_abhaAddress(self, abha_address: str):
@@ -74,7 +74,7 @@ class CRUDHIUConsents:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDConsents read request")
+            logging.info("CRUDHIUConsents read request")
             with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
@@ -86,7 +86,7 @@ class CRUDHIUConsents:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDConsents read function : {error}")
+            logging.error(f"Error in CRUDHIUConsents read function : {error}")
             raise error
 
     def read_approved_by_abhaAddress(self, abha_address: str):
@@ -102,7 +102,7 @@ class CRUDHIUConsents:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDConsents read request")
+            logging.info("CRUDHIUConsents read request")
             with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
@@ -115,7 +115,7 @@ class CRUDHIUConsents:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDConsents read function : {error}")
+            logging.error(f"Error in CRUDHIUConsents read function : {error}")
             raise error
 
     def read_all(self):
@@ -128,14 +128,14 @@ class CRUDHIUConsents:
             [list]: [all user records]
         """
         try:
-            logging.info("CRUDConsents read_all request")
+            logging.info("CRUDHIUConsents read_all request")
             with create_session() as transaction_session:
                 obj: HIUConsent = transaction_session.query(HIUConsent).all()
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDConsents read_all function : {error}")
+            logging.error(f"Error in CRUDHIUConsents read_all function : {error}")
             raise error
 
     def update(self, **kwargs):
@@ -145,7 +145,7 @@ class CRUDHIUConsents:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDConsents update function")
+            logging.info("CRUDHIUConsents update function")
             kwargs.update(
                 {
                     "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
@@ -161,7 +161,7 @@ class CRUDHIUConsents:
                 )
                 transaction_session.commit()
         except Exception as error:
-            logging.error(f"Error in CRUDConsents update function : {error}")
+            logging.error(f"Error in CRUDHIUConsents update function : {error}")
             raise error
 
     def delete(self, Consent_id: int):
@@ -171,7 +171,7 @@ class CRUDHIUConsents:
             error: [Error returned from the DB layer]
         """
         try:
-            logging.info("CRUDConsents delete function")
+            logging.info("CRUDHIUConsents delete function")
             with create_session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
@@ -182,5 +182,5 @@ class CRUDHIUConsents:
                 transaction_session.commit()
                 return obj.__dict__
         except Exception as error:
-            logging.error(f"Error in CRUDConsents delete function : {error}")
+            logging.error(f"Error in CRUDHIUConsents delete function : {error}")
             raise error

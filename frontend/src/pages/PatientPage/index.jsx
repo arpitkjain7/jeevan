@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
-import { Typography, styled } from "@mui/material";
+import { Typography, styled, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchPatientList } from "./patientpage.slice";
 import { convertDateFormat } from "../../utils/utils";
@@ -15,6 +15,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
   "&": {},
   ".patientList-title-wrapper": {
     marginBottom: "40px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   ".patientList-heading": {
     "&.MuiTypography-root": theme.typography.h1,
@@ -46,41 +49,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
       },
     },
   },
+  ".header-btn": {
+    "&.MuiButtonBase-root": theme.typography.primaryButton,
+  },
 }));
-
-const columns = [
-  { key: "patientDetails", header: "Patient Name" },
-  { key: "abha_number", header: "Abha Id" },
-  { key: "mobile_number", header: "Contact Number" },
-  { key: "updatedDate", header: "Last Visited" },
-  { key: "createdDate", header: "Follow Up" },
-  {
-    key: "actions",
-    header: "",
-    actions: [
-      {
-        link: "Start Visit",
-        type: "link",
-        onClick: (item) => {
-          console.log(item,"item")
-        },
-      },
-    ],
-  },
-  {
-    key: "actions",
-    header: "",
-    actions: [
-      {
-        icon: <img src={MenuIcon} alt="menu" />,
-        type: "icon",
-        onClick: (item) => {
-          console.log(item,"item")
-        },
-      },
-    ],
-  },
-];
 
 const searchInputStyle = {
   width: "200px",
@@ -94,7 +66,44 @@ const PatientPage = () => {
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const columns = [
+    { key: "id", header: "Patient ID" },
+    { key: "patientDetails", header: "Patient Name" },
+    { key: "abha_number", header: "Abha Id" },
+    { key: "mobile_number", header: "Contact Number" },
+    { key: "updatedDate", header: "Last Visited" },
+    { key: "createdDate", header: "Follow Up" },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          link: "Create Appointment",
+          type: "link",
+          onClick: (item) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(item));
+            navigate("/create-appointment");
+          },
+        },
+      ],
+    },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          icon: <img src={MenuIcon} alt="menu" />,
+          type: "icon",
+          onClick: (item) => {
+            console.log(item, "item");
+          },
+        },
+      ],
+    },
+  ];
   useEffect(() => {
+    dispatch(AppointmentPageActions.setSelectedPatientData({}));
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
@@ -123,18 +132,27 @@ const PatientPage = () => {
     }
   }, []);
 
-  const onTableRowClick = (row) => {
-    dispatch(AppointmentPageActions.setSelectedPatientData(row));
-    navigate("/create-appointment");
-  };
-  
+  // const onTableRowClick = (row) => {
+  //   dispatch(AppointmentPageActions.setSelectedPatientData(row));
+  //   navigate("/create-appointment");
+  // };
+
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
-        <Typography className="patientList-heading">Patient List</Typography>
-        <Typography className="patientList-desc">
-          Manage your patient information
-        </Typography>
+        <div>
+          <Typography className="patientList-heading">Patient List</Typography>
+          <Typography className="patientList-desc">
+            Manage your patient information
+          </Typography>
+        </div>
+        <Button
+          variant="contained"
+          className="header-btn"
+          onClick={() => navigate("/patient-registration")}
+        >
+          Register Now
+        </Button>
       </div>
       <div className="table-container">
         <MyTable
@@ -144,7 +162,7 @@ const PatientPage = () => {
           searchInputStyle={searchInputStyle}
           tableClassName="table-class"
           searchClassName="search-class"
-          onRowClick={(row) => onTableRowClick(row)}
+          // onRowClick={(row) => onTableRowClick(row)}
         />
       </div>
     </ListWrapper>

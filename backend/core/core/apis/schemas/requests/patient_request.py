@@ -40,6 +40,7 @@ class RegisterWithoutABHA(BaseModel):
     DOB: str
     mobile_number: str
     hip_id: str
+    email: str = None
 
 
 class UpdatePatient(BaseModel):

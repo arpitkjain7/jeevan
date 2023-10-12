@@ -57,11 +57,60 @@ class PatientController:
                 #     return {"available": False}
                 # return {"available": True}
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=resp,
-                    headers={"WWW-Authenticate": "Bearer"},
+                raise resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
+            raise error
+
+    def abha_address_update(self, patient_id: str, abha_address: str):
+        try:
+            logging.info("executing  abha_address_update function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            existing_abha_address = patient_obj.get("abha_address")
+            # linking_token = patient_obj.get("access_token").get("value")
+            linking_token = patient_obj.get("linking_token").get("value")
+            refresh_token = patient_obj.get("refresh_token").get("value")
+            refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
+            logging.info("Getting linking token")
+            resp, resp_code = APIInterface().post(
+                route=refresh_token_url,
+                data={"refreshToken": refresh_token},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            linking_token = resp.get("accessToken", None)
+            abha_update_url = f"{self.abha_url}/v2/account/phr-linked"
+            logging.info("Updating abha_address on Gateway")
+            resp, resp_code = APIInterface().post(
+                route=abha_update_url,
+                data={"phrAddress": abha_address, "preferred": True},
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "X-Token": f"Bearer {linking_token}",
+                },
+            )
+            update_status = resp.get("status")
+            logging.info(f"{update_status=}")
+            if resp_code <= 250:
+                logging.info("Updating abha_address on database")
+                self.CRUDPatientDetails.update(
+                    **{
+                        "id": patient_id,
+                        "linking_token": {"value": linking_token},
+                        "abha_address": abha_address,
+                    }
                 )
+                return {
+                    "old_abha_address": existing_abha_address,
+                    "new_abha_address": abha_address,
+                    "update_status": update_status,
+                }
+            else:
+                raise resp
         except Exception as error:
             logging.error(f"Error in HIDController.abha_verification function: {error}")
             raise error
@@ -625,7 +674,7 @@ class PatientController:
                 if resp_code < 300:
                     for pmr_id in gateway_meta.get("pmr_list"):
                         self.CRUDPatientMedicalRecord.update(
-                            pmr_id=pmr_id, **{"abdm_linked": True}
+                            **{"id": pmr_id, "abdm_linked": True}
                         )
             else:
                 logging.info("Invalid OTP")
@@ -693,27 +742,14 @@ class PatientController:
                 #     }
                 #     for patient_obj in patient_list
                 # ]
-                return {
-                    "patient_details": patient_obj,
-                    "status": "Patient already exist",
-                }
+                patient_obj.update({"status": "Patient already exist"})
+                return patient_obj
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update(
-                    {"id": patient_id, "hip_id": request_json["hip_id"]}
-                )
+                request_json.update({"id": patient_id})
                 self.CRUDPatientDetails.create(**request_json)
-                return {
-                    "patient_details": [
-                        {
-                            "name": request_json.get("name"),
-                            "patient_id": request_json.get("id"),
-                            "abha_number": None,
-                            "abha_address": None,
-                        }
-                    ],
-                    "status": "New Patient created successfully",
-                }
+                request_json.update({"status": "New Patient created successfully"})
+                return request_json
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error

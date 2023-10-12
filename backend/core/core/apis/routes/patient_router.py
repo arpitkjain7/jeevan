@@ -48,6 +48,38 @@ def verify_ABHA(
         )
 
 
+@patient_router.post("/v1/patient/updateAbhaAddress")
+def update_abha_address(
+    patient_id: str, abha_address: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v1/patient/updateAbhaAddress endpoint")
+        logging.debug(f"Request: {abha_address=}")
+        logging.debug(f"Request: {patient_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().abha_address_update(
+                patient_id=patient_id,
+                abha_address=abha_address,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/updateAbhaAddress endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/updateAbhaAddress endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @patient_router.post("/v1/patient/fetchModes")
 def fetch_auth_modes(
     request: FetchRegisterationMode, token: str = Depends(oauth2_scheme)
@@ -153,6 +185,89 @@ def auth_verifyDemographic(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/patient/auth/verifyDemographic endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v1.0/patients/profile/share")
+async def patient_profileShare(request: Request):
+    try:
+        logging.info("Calling /v1.0/patients/profile/share endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().patient_share(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1.0/patients/profile/share endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1.0/patients/profile/share endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/care-contexts/discover")
+async def discover_patient(request: Request):
+    try:
+        logging.info("Calling /v0.5/care-contexts/discover endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().discover_patient(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/care-contexts/discover endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/links/link/init")
+async def link_patient(request: Request):
+    try:
+        logging.info("Calling /v0.5/links/link/init endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().link_patient(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/links/link/init endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/links/link/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v0.5/links/link/confirm")
+async def link_on_confirm(request: Request):
+    try:
+        logging.info("Calling /v0.5/links/link/confirm endpoint")
+        hip_id = request.headers.get("X-HIP-ID")
+        logging.debug(f"hip_id: {hip_id}")
+        request_json = await request.json()
+        logging.debug(f"Request: {request_json}")
+        return PatientController().link_confirm(request=request_json, hip_id=hip_id)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/links/link/confirm endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/links/link/confirm endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

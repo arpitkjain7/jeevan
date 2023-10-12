@@ -84,5 +84,3 @@ encounter.diagnosis = [diagnosis1]
 
 # Convert the Patient resource to JSON
 encounter_json = encounter.json()
-
-print(encounter_json)

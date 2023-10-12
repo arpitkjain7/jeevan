@@ -169,59 +169,17 @@ const pmrPdfStyles = StyleSheet.create({
   },
 });
 
-const PMRPdf = ({ pdfData }) => {
-  const patientData = [
-    {
-      label: "Gender",
-      value: "Male",
-    },
-    {
-      label: "Age",
-      value: "32yr",
-    },
-    {
-      label: "Contact Number",
-      value: "987566123",
-    },
-    {
-      label: "Email",
-      value: "name@gmail.com",
-    },
-  ];
-  const data = [
-    {
-      id: 1,
-      medications: "Paracip 500 (tablet) Paracetamol (500mg) [9 tablet]",
-      dose: "1 Tablet",
-      frequency: "1-1-1 After Meal",
-      duration: "3 days",
-      remarks: "",
-    },
-    {
-      id: 2,
-      medications: "Paracip 500 (tablet) Paracetamol (500mg) [9 tablet]",
-      dose: "1 Tablet",
-      frequency: "1-1-1 After Meal",
-      duration: "3 days",
-      remarks: "",
-    },
-    {
-      id: 3,
-      medications: "Paracip 500 (tablet) Paracetamol (500mg) [9 tablet]",
-      dose: "1 Tablet",
-      frequency: "1-1-1 After Meal",
-      duration: "3 days",
-      remarks: "",
-    },
-  ];
+const PMRPdf = ({ pdfData, patientData }) => {
+  const [currentPatientData, setCurrentPatientData] = useState([]);
+  const [prescriptionData, setPrescriptionData] = useState([]);
+
+  console.log(pdfData, "pdfData");
 
   const columns = [
-    { key: "id", label: "ID" },
-    { key: "medications", label: "Medications" },
-    { key: "dose", label: "Dose" },
-    { key: "frequency", label: "Frequency" },
+    { key: "medicine_name", label: "Medications" },
+    { key: "status", label: "Frequency" },
     { key: "duration", label: "Duration" },
-    { key: "remarks", label: "Remarks" },
+    { key: "notes", label: "Remarks" },
   ];
 
   const transformPdfData = (inputObject) => {
@@ -254,16 +212,13 @@ const PMRPdf = ({ pdfData }) => {
               value,
             }));
           });
-          console.log(data, "data");
         } else {
           data = inputObject[section]?.data?.map((item) => {
-            console.log(item, "item");
-            if (section === "vital") {
+            if (section === "vital" || section === "medication") {
               const labelData = Object.entries(item).map(([label, value]) => ({
                 label,
                 value,
               }));
-              console.log(labelData, "label");
               return labelData;
             } else {
               const label = Object.keys(item)[0];
@@ -284,223 +239,77 @@ const PMRPdf = ({ pdfData }) => {
   const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
-    const filteredArr = transformPdfData(pdfData);
+    const transformedArr = transformPdfData(pdfData);
+    const filteredArr = transformedArr?.filter(
+      (item) =>
+        item?.heading !== "Medications" || item?.heading === "Medical History"
+    );
+    console.log(filteredArr, "filter");
     setPmrPdfData(filteredArr);
-    console.log(filteredArr);
+    const medications = transformedArr?.filter(
+      (item) => item?.heading === "Medications"
+    );
+    let outputArray = [];
+    medications[0]?.data?.map((item) => {
+      const outputObject = {};
+      item?.map((medicine) => {
+        outputObject[medicine.label] = medicine.value;
+      });
+      outputArray?.push(outputObject);
+    });
+
+    setPrescriptionData(outputArray);
+
+    if (Object.keys(patientData)?.length) {
+      const patientDetails = [
+        {
+          label: "Gender",
+          value: patientData?.patientGender,
+        },
+        {
+          label: "Age",
+          value: patientData?.patientAge,
+        },
+        {
+          label: "Contact Number",
+          value: patientData?.patientNumber,
+        },
+        {
+          label: "Email",
+          value: patientData?.patientEmail,
+        },
+      ];
+      setCurrentPatientData(patientDetails);
+    }
   }, []);
 
-  const emrData = [
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Patient Medical History",
-      data: [
-        {
-          label: "Diabetes Mellitus",
-          value: "Active | Since 2 Years",
-        },
-        {
-          label: "HyperTension",
-          value: "Active | Since 2 Years",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-    {
-      heading: "Vitals",
-      data: [
-        {
-          label: "Pulse Rate",
-          value: "80/min",
-        },
-        {
-          label: "Peripheral Oxygen Saturation",
-          value: "100%",
-        },
-        {
-          label: "Blood Pressure",
-          value: "129mmHg",
-        },
-        {
-          label: "Respiratory Rate",
-          value: "70/min",
-        },
-        {
-          label: "Body Temperature",
-          value: "98C",
-        },
-        {
-          label: "Body Height",
-          value: "172Cms",
-        },
-      ],
-    },
-  ];
-
-  console.log(pmrPdfData, "engineered Data");
-
-  console.log(pdfData, "pdfData");
   return (
     <Document style={pmrPdfStyles.document}>
       <Page size="A4" style={pmrPdfStyles.page}>
         <View style={pmrPdfStyles.pdfHeader}>
           <View style={pmrPdfStyles.pdfHeaderLogo}>
             <Text style={pmrPdfStyles.pdflogoText}>Cliniq360</Text>
-            <Text style={pmrPdfStyles.pdfhospitalNameText}>Hospital Name</Text>
+            <Text style={pmrPdfStyles.pdfhospitalNameText}>
+              {patientData?.hospitalName}
+            </Text>
           </View>
           <View style={pmrPdfStyles.drName}>
-            <Text style={pmrPdfStyles.pdfDrNameText}>Dr. Rashmi Shah</Text>
+            <Text style={pmrPdfStyles.pdfDrNameText}>
+              {patientData?.doctorName}
+            </Text>
           </View>
         </View>
         <View style={pmrPdfStyles.pdfPatientDetails}>
           <View style={pmrPdfStyles.pdfPatientName}>
-            <Text style={pmrPdfStyles.pdfPatientNameText}>Rajesh Patel</Text>
-            <Text style={pmrPdfStyles.pdfPatientidText}>123456</Text>
+            <Text style={pmrPdfStyles.pdfPatientNameText}>
+              {patientData?.patientName}
+            </Text>
+            <Text style={pmrPdfStyles.pdfPatientidText}>
+              {patientData?.patientId}
+            </Text>
           </View>
           <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
-            {patientData?.map((item) => (
+            {currentPatientData?.map((item) => (
               <View style={pmrPdfStyles.pdfPatientOtherDetails}>
                 <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
                   {item.label}
@@ -519,12 +328,14 @@ const PMRPdf = ({ pdfData }) => {
             <View style={pmrPdfStyles.pdfVitalsWrapper}>
               {emr?.data?.map((item) => (
                 <View style={pmrPdfStyles.pdfVital}>
-                  <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
-                    {item.label}
-                  </Text>
-                  <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
-                    {item?.value}
-                  </Text>
+                  <>
+                    <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
+                      {item.label}
+                    </Text>
+                    <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
+                      {item?.value}
+                    </Text>
+                  </>
                 </View>
               ))}
             </View>
@@ -543,7 +354,7 @@ const PMRPdf = ({ pdfData }) => {
                 </Text>
               ))}
             </View>
-            {data.map((item) => (
+            {prescriptionData?.map((item) => (
               <View style={pmrPdfStyles.tableRow} key={item.id}>
                 {columns.map((column) => (
                   <Text
