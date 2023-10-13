@@ -91,6 +91,62 @@ class CRUDTemplate:
             logging.error(f"Error in CRUDTemplate read function : {error}")
             raise error
 
+    def read_by_type(self, type: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            template_id (int): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDTemplate read request")
+            with session() as transaction_session:
+                obj: Template = (
+                    transaction_session.query(Template)
+                    .filter(Template.template_type == type)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            else:
+                return []
+        except Exception as error:
+            logging.error(f"Error in CRUDTemplate read function : {error}")
+            raise error
+
+    def read_by_name(self, name: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            template_id (int): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDTemplate read request")
+            with session() as transaction_session:
+                obj: Template = (
+                    transaction_session.query(Template)
+                    .filter(Template.template_name == name)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            else:
+                return []
+        except Exception as error:
+            logging.error(f"Error in CRUDTemplate read function : {error}")
+            raise error
+
     def read_all(self):
         """[CRUD function to read_all Users record]
 

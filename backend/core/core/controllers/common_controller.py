@@ -171,7 +171,23 @@ class Common:
             )
             return template_obj
         except Exception as error:
-            logging.error(f"Error in Common.create_template function: {error}")
+            logging.error(f"Error in Common.get_template_by_id function: {error}")
+            raise error
+
+    def get_template_by_type(self, name, type):
+        try:
+            logging.info("Get template record")
+            # for patient_obj in request.data:
+            logging.info(f"{name=}")
+            logging.info(f"{type=}")
+            if name is not None:
+                template_obj = self.CRUDTemplate.read_by_name(name=name)
+            elif type is not None:
+                template_obj = self.CRUDTemplate.read_by_type(type=type)
+            logging.info(f"{template_obj=}")
+            return template_obj
+        except Exception as error:
+            logging.error(f"Error in Common.get_template_by_type function: {error}")
             raise error
 
     def get_all_template(self):
@@ -181,5 +197,5 @@ class Common:
             template_obj = self.CRUDTemplate.read_all()
             return {"template_obj": template_obj}
         except Exception as error:
-            logging.error(f"Error in Common.create_template function: {error}")
+            logging.error(f"Error in Common.get_all_template function: {error}")
             raise error
