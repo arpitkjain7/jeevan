@@ -91,7 +91,7 @@ class CRUDTemplate:
             logging.error(f"Error in CRUDTemplate read function : {error}")
             raise error
 
-    def read_by_type(self, type: str):
+    def read_by_type(self, type: str, doc_id: int):
         """[CRUD function to read a User record]
 
         Args:
@@ -108,6 +108,7 @@ class CRUDTemplate:
             with session() as transaction_session:
                 obj: Template = (
                     transaction_session.query(Template)
+                    .filter(Template.doc_id == doc_id)
                     .filter(Template.template_type == type)
                     .all()
                 )
@@ -119,7 +120,7 @@ class CRUDTemplate:
             logging.error(f"Error in CRUDTemplate read function : {error}")
             raise error
 
-    def read_by_name(self, name: str):
+    def read_by_name(self, name: str, doc_id: int):
         """[CRUD function to read a User record]
 
         Args:
@@ -136,6 +137,7 @@ class CRUDTemplate:
             with session() as transaction_session:
                 obj: Template = (
                     transaction_session.query(Template)
+                    .filter(Template.doc_id == doc_id)
                     .filter(Template.template_name == name)
                     .all()
                 )
@@ -147,7 +149,7 @@ class CRUDTemplate:
             logging.error(f"Error in CRUDTemplate read function : {error}")
             raise error
 
-    def read_all(self):
+    def read_all(self, doc_id: int):
         """[CRUD function to read_all Users record]
 
         Raises:
@@ -159,7 +161,12 @@ class CRUDTemplate:
         try:
             logging.info("CRUDTemplate read_all request")
             with session() as transaction_session:
-                obj: Template = transaction_session.query(Template).all()
+                obj: Template = (
+                    transaction_session.query(Template)
+                    .filter(Template.doc_id == doc_id)
+                    .all()
+                )
+                logging.info(f"{obj=}")
             if obj is not None:
                 return [row.__dict__ for row in obj]
             else:

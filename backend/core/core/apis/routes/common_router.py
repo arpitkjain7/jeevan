@@ -195,7 +195,9 @@ def create_template(request: TemplateDetails, token: str = Depends(oauth2_scheme
         logging.info(f"Calling /v1/createTemplate")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().create_template(request=request)
+            logging.info(f"{authenticated_user_details=}")
+            doc_id = authenticated_user_details["doc_id"]
+            return Common().create_template(request=request, doc_id=doc_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -267,7 +269,10 @@ def get_template_by_type(
         logging.info(f"Calling /v1/get_template_by_type")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().get_template_by_type(type=template_type, name=template_name)
+            doc_id = authenticated_user_details["doc_id"]
+            return Common().get_template_by_type(
+                type=template_type, name=template_name, doc_id=doc_id
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -301,7 +306,8 @@ def get_all_template(token: str = Depends(oauth2_scheme)):
         logging.info(f"Calling /v1/get_all_template")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().get_all_template()
+            doc_id = authenticated_user_details["doc_id"]
+            return Common().get_all_template(doc_id=doc_id)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

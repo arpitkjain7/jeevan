@@ -14,6 +14,5 @@ class Template(BaseModel):
 
 class TemplateDetails(BaseModel):
     template_name: str
-    doc_id: str = None
     template_type: str = None
     values: List[Template]

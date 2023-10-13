@@ -149,11 +149,12 @@ class Common:
             logging.error(f"Error in Common.update_doctor function: {error}")
             raise error
 
-    def create_template(self, request):
+    def create_template(self, request, doc_id):
         try:
             logging.info("Creating template record")
             # for patient_obj in request.data:
             template_obj_dict = request.dict()
+            template_obj_dict.update({"doc_id": doc_id})
             logging.info(f"{template_obj_dict=}")
             template_id = self.CRUDTemplate.create(**template_obj_dict)
             return {"template_id": template_id}
@@ -174,27 +175,27 @@ class Common:
             logging.error(f"Error in Common.get_template_by_id function: {error}")
             raise error
 
-    def get_template_by_type(self, name, type):
+    def get_template_by_type(self, name, type, doc_id):
         try:
             logging.info("Get template record")
             # for patient_obj in request.data:
             logging.info(f"{name=}")
             logging.info(f"{type=}")
             if name is not None:
-                template_obj = self.CRUDTemplate.read_by_name(name=name)
+                template_obj = self.CRUDTemplate.read_by_name(name=name, doc_id=doc_id)
             elif type is not None:
-                template_obj = self.CRUDTemplate.read_by_type(type=type)
+                template_obj = self.CRUDTemplate.read_by_type(type=type, doc_id=doc_id)
             logging.info(f"{template_obj=}")
             return template_obj
         except Exception as error:
             logging.error(f"Error in Common.get_template_by_type function: {error}")
             raise error
 
-    def get_all_template(self):
+    def get_all_template(self, doc_id):
         try:
             logging.info("Creating template record")
             # for patient_obj in request.data:
-            template_obj = self.CRUDTemplate.read_all()
+            template_obj = self.CRUDTemplate.read_all(doc_id=doc_id)
             return {"template_obj": template_obj}
         except Exception as error:
             logging.error(f"Error in Common.get_all_template function: {error}")
