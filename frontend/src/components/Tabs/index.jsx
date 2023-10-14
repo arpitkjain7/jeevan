@@ -58,7 +58,8 @@ const CustomTabs = ({ tabs, defaultTab, onChange, tab, addSteps = false }) => {
             disabled={tab?.disable ? tab?.disable : false}
             label={
               <div className="tab-container">
-                <img src={tab?.icon} alt={tab?.label} />
+                {tab?.icon && <img src={tab?.icon} alt={tab?.label} />}
+
                 <div style={{ textAlign: "left" }}>
                   {addSteps && <Typography>Step {index + 1}</Typography>}
                   <Typography>{tab?.label}</Typography>

@@ -140,9 +140,9 @@ const PatientPage = () => {
   }, []);
 
   const onTableRowClick = (row) => {
-    // dispatch(AppointmentPageActions.setSelectedPatientData(row));
-    // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-    // navigate("/patient-details");
+    dispatch(AppointmentPageActions.setSelectedPatientData(row));
+    sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+    navigate("/patient-details");
   };
 
   return (

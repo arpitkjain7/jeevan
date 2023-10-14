@@ -19,6 +19,6 @@ export const apis = {
   createEMR: "PMR/createPMR",
   submitEMR: "PMR/submitPMR",
   uploadPmrPdf: "PMR/uploadDocument",
-  // getVitalDetail: "patient/getVitals",
-  getVitalDetail: "https://mocki.io/v1/b2939fed-efbe-4082-8222-7ef5ba52bd1b",
+  getVitalDetail: "patient/getVitals",
+  listConsent: "HIU/listConsent",
 };
