@@ -71,7 +71,7 @@ const VitalsDetails = () => {
   const [tableData, setTableData] = useState([]);
   const dataState = useSelector((state) => state);
   const dispatch = useDispatch();
-  const selectedPatient = dataState?.appointmentList?.patientDetails;
+  const patient = sessionStorage?.getItem("selectedPatient");
   const list = [
     {
       type: "Body Height",
@@ -103,18 +103,23 @@ const VitalsDetails = () => {
     },
   ];
 
-  // HT, WT, PLS, BP, BT, OS, RR, BMI, SBP, DBP
-
   useEffect(() => {
-    if (selectedVital) {
+    const currentPatient = JSON.parse(patient);
+    if (
+      currentPatient &&
+      Object.keys(currentPatient)?.length &&
+      selectedVital
+    ) {
       const payload = {
-        patient_id: "1",
+        patient_id: currentPatient?.id,
         vital_type: selectedVital,
       };
       dispatch(fetchVitalDetails(payload)).then((res) => {
         const vitalData = res.payload;
         setTableData(vitalData);
       });
+    }
+    if (selectedVital) {
     }
   }, [selectedVital]);
   const columns = [
