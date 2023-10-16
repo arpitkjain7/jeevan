@@ -20,6 +20,12 @@ def create_admin_user(admin_user_request):
         )
 
 
+def create_doctor_user(doc_request):
+    existing_user = CRUDUser().read(username=doc_request.username)
+    if not existing_user:
+        _ = UserManagementController().register_user_controller(request=doc_request)
+
+
 def create_sample_doc_record(doc_request):
     existing_doc_record = CRUDDocDetails().read_by_docId(doc_id=2)
     if not existing_doc_record:
@@ -59,6 +65,17 @@ def main():
         department="IT",
     )
     create_admin_user(admin_user_request=admin_user_request)
+    doc_request = Register(
+        username="arpitjain@lobster.com",
+        name="Dr. Arpit Jain",
+        hip_name="Jeevan Healthcare",
+        hip_id="123123",
+        password="P@ssw0rd",
+        user_role="Doctor",
+        department="Doctor",
+        doc_id=1,
+    )
+    create_doctor_user(doc_request)
     create_sample_doc_record(
         doc_request={
             "doc_name": "Dr Arpit Jain",

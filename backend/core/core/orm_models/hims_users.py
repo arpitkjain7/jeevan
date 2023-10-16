@@ -12,5 +12,6 @@ class Users(Base):
     hip_details = Column(JSON)
     user_role = Column(String)
     department = Column(String)
+    doc_id = Column(Integer)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

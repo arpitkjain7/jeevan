@@ -23,3 +23,4 @@ from core.orm_models.hims_currentMedicines import *
 from core.orm_models.hims_condition import *
 from core.orm_models.hims_hiuConsent import *
 from core.orm_models.hims_patientMedicalDocuments import *
+from core.orm_models.hims_template import *
