@@ -12,6 +12,14 @@ const ConsentListContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(8, 6),
 }));
 
+const ConsentDataWrapper = styled("div")(({ theme }) => ({}));
+
+const ConsentTableContainer = styled("div")(({ theme }) => ({
+  maxHeight: "600px",
+  overflow: "auto",
+  border: "1px solid rgba(224, 224, 224, 1)",
+}));
+
 const TabsContainer = styled("div")(({ theme }) => ({
   "&": {
     backgroundColor: theme.palette.primaryWhite,
@@ -37,9 +45,15 @@ const TabsContainer = styled("div")(({ theme }) => ({
     },
   },
 }));
-
+const ButtonWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 6),
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  marginTop: theme.spacing(8),
+}));
 const CustomButton = styled(Button)(({ theme }) => ({
-  "&": theme.typography.secondaryButton,
+  "&": theme.typography.tertiaryButton,
 }));
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -94,35 +108,51 @@ const ConsentList = () => {
   };
 
   const purposeOptions = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    // Add more options as needed
+    { label: "Care Management", value: "Care Management" },
+    { label: "Break the Glass", value: "Break the Glass" },
+    { label: "Public Health", value: "Public Health" },
+    { label: "Healthcare Payment", value: "Healthcare Payment" },
+    {
+      label: "Disease Specific Healthcare Research",
+      value: "Disease Specific Healthcare Research",
+    },
+    { label: "Self Requested", value: "Self Requested" },
   ];
 
   const infoTypeOptions = [
-    { label: "Type A", value: "typeA" },
-    { label: "Type B", value: "typeB" },
-    // Add more options as needed
+    { label: "Prescription", value: "Prescription" },
+    { label: "Diagnostic Report", value: "DiagnosticReport" },
+    { label: "OP Consultation", value: "OPConsultation" },
+    { label: "Discharge Summary", value: "DischargeSummary" },
+    { label: "Immunization Record", value: "ImmunizationRecord" },
+    { label: "Record artifact", value: "HealthDocumentRecord" },
+    { label: "Wellness Record", value: "WellnessRecord" },
   ];
 
   return (
     <ConsentListContainer>
-      <ConsentModal
-        open={modalOpen}
-        handleClose={handleModalClose}
-        purposeOptions={purposeOptions}
-        infoTypeOptions={infoTypeOptions}
-      />
-      {tableData?.length && (
-        <MyTable
-          columns={columns}
-          data={tableData}
-          tableStyle={tableStyle}
-          tableClassName="table-class"
-          showSearch={false}
+      <ConsentDataWrapper>
+        <ConsentModal
+          open={modalOpen}
+          handleClose={handleModalClose}
+          purposeOptions={purposeOptions}
+          infoTypeOptions={infoTypeOptions}
         />
-      )}
-      <CustomButton onClick={handleModalOpen}>Request Consent</CustomButton>
+        <ConsentTableContainer>
+          {tableData?.length && (
+            <MyTable
+              columns={columns}
+              data={tableData}
+              tableStyle={tableStyle}
+              tableClassName="table-class"
+              showSearch={false}
+            />
+          )}
+        </ConsentTableContainer>
+      </ConsentDataWrapper>
+      <ButtonWrapper>
+        <CustomButton onClick={handleModalOpen}>Request Consent</CustomButton>
+      </ButtonWrapper>
     </ConsentListContainer>
   );
 };

@@ -48,7 +48,10 @@ const VitalsDetailsContainer = styled("div")(({ theme }) => ({
 }));
 
 const VitalsList = styled("ListItem")(({ theme }) => ({}));
-
+const VisitDate = styled("p")(({ theme }) => ({
+  "&": theme.typography.customKeys,
+  margin: "0",
+}));
 const Vitals = styled("div")(({ theme }) => ({
   flex: "1",
   backgroundColor: theme.palette.primaryWhite,
@@ -82,10 +85,18 @@ const VitalsListContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  width: "250px",
 
   "&.selected-vital": {
     border: `1px solid ${theme.palette.primaryBlue}`,
   },
+}));
+
+const VisitListContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(1),
+  alignItems: "center",
 }));
 
 const tableStyle = {
@@ -139,9 +150,13 @@ const PastVisits = () => {
               className={pmrId === item?.id ? "selected-vital" : ""}
               onClick={() => selectVisit(item)}
             >
-              <VitalsList>
-                {convertDateFormat(item?.date_of_consultation, "dd-MM-yyyy")}
-              </VitalsList>
+              <VisitListContainer>
+                <VitalsList>Diagnosis</VitalsList>
+                <VisitDate>
+                  {convertDateFormat(item?.date_of_consultation, "dd-MM-yyyy")}
+                </VisitDate>
+              </VisitListContainer>
+
               <img
                 src={ArrowRight}
                 alt={`select-${item.date_of_consultation}`}

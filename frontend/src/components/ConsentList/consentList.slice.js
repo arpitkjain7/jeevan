@@ -32,6 +32,14 @@ export const fetchConsentDetails = createAsyncThunk(
   }
 );
 
+export const postConsentRequest = createAsyncThunk(
+  "post/consentRequest",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.submitConsentReq, payload);
+    return response;
+  }
+);
+
 // Create the slice
 const ConsentListSlice = createSlice({
   name: "list",

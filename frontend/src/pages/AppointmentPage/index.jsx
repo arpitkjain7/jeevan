@@ -98,19 +98,6 @@ const AppointmentPage = () => {
         },
       ],
     },
-    // {
-    //   key: "actions",
-    //   header: "",
-    //   actions: [
-    //     {
-    //       icon: <MenuIcon />,
-    //       type: "icon",
-    //       onClick: (item) => {
-    //         // Handle edit action for the specific item
-    //       },
-    //     },
-    //   ],
-    // },
   ];
 
   useEffect(() => {

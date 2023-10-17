@@ -8,8 +8,13 @@ import {
   Grid,
   FormControl,
   InputLabel,
+  Typography,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Close } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
+import { postConsentRequest } from "../ConsentList/consentList.slice";
 
 const ModalContainer = styled("div")({
   position: "absolute",
@@ -20,7 +25,7 @@ const ModalContainer = styled("div")({
   padding: "20px",
   borderRadius: "8px",
   outline: "none",
-  width: "40%",
+  width: "50%",
 });
 
 const Form = styled("form")({
@@ -30,6 +35,25 @@ const Form = styled("form")({
 const FormRow = styled("div")({
   marginBottom: "20px",
 });
+const ModalTitle = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.h4,
+  borderBottom: "1px solid #9e9e9e",
+  padding: theme.spacing(2, 6),
+  marginBottom: theme.spacing(4),
+}));
+const ModalFooter = styled("div")(({ theme }) => ({
+  padding: theme.spacing(2, 6),
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+}));
+const CustomButton = styled(Button)(({ theme }) => ({
+  "&": theme.typography.primaryButton,
+}));
+
+const FormLabel = styled(Typography)(({ theme }) => ({
+  "&": theme.typography.body1,
+}));
 
 const ConsentModal = ({
   open,
@@ -45,6 +69,8 @@ const ConsentModal = ({
     healthInfoType: "",
     consentExpiryDate: "",
   });
+  const hospital = sessionStorage?.getItem("selectedHospital");
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,18 +79,57 @@ const ConsentModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add your submit logic here
+    if (hospital) {
+      const currentHospital = JSON.parse(hospital);
+      const payload = {
+        abha_address: formData?.patientIdentifier,
+        purpose: formData?.purposeOfRequest,
+        hi_type: [formData?.healthInfoType],
+        date_from: formData?.healthInfoFromDate,
+        date_to: formData?.healthInfoToDate,
+        expiry: formData?.consentExpiryDate,
+        hip_id: currentHospital?.hip_id,
+        doc_id: "1",
+      };
+      dispatch(postConsentRequest(payload)).then((res) => {
+        setFormData({
+          patientIdentifier: "",
+          purposeOfRequest: "",
+          healthInfoFromDate: "",
+          healthInfoToDate: "",
+          healthInfoType: "",
+          consentExpiryDate: "",
+        });
+        handleClose();
+      });
+    }
+
     console.log(formData);
   };
 
   return (
     <Modal open={open} onClose={handleClose}>
-      <ModalContainer>
-        <Form onSubmit={handleSubmit}>
-          <Grid container spacing={4} sx={{ marginBottom: "16px" }}>
+      <ModalContainer sx={{ padding: "0" }}>
+        <ModalTitle
+          component="div"
+          id="modal-title"
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Modal Header
+          <IconButton onClick={handleClose}>
+            <Close sx={{ width: "32px", height: "32px" }} />
+          </IconButton>
+        </ModalTitle>
+        <Form onSubmit={handleSubmit} sx={{ padding: "24px" }}>
+          <Grid container spacing={4} sx={{ marginBottom: "32px" }}>
             <Grid item xs={6}>
+              <FormLabel>Patient Identifier</FormLabel>
               <TextField
-                label="Patient Identifier"
+                placeholder="Patient Identifier"
                 fullWidth
                 name="patientIdentifier"
                 value={formData.patientIdentifier}
@@ -72,12 +137,13 @@ const ConsentModal = ({
               />
             </Grid>
             <Grid item xs={6}>
+              <FormLabel>Purpose of request</FormLabel>
               <FormControl fullWidth>
-                <InputLabel>Purpose of Request</InputLabel>
                 <Select
                   name="purposeOfRequest"
                   value={formData.purposeOfRequest}
                   onChange={handleChange}
+                  placeholder="Select purpose"
                 >
                   {purposeOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -88,10 +154,11 @@ const ConsentModal = ({
               </FormControl>
             </Grid>
           </Grid>
-          <Grid container spacing={4} sx={{ marginBottom: "16px" }}>
+          <Grid container spacing={4} sx={{ marginBottom: "32px" }}>
             <Grid item xs={6}>
+              <FormLabel>Health Info From</FormLabel>
               <TextField
-                label="Health Info From Date"
+                placeholder="Select from date"
                 fullWidth
                 type="date"
                 name="healthInfoFromDate"
@@ -103,8 +170,8 @@ const ConsentModal = ({
               />
             </Grid>
             <Grid item xs={6}>
+              <FormLabel>Health Info To</FormLabel>
               <TextField
-                label="Health Info To Date"
                 fullWidth
                 type="date"
                 name="healthInfoToDate"
@@ -116,11 +183,10 @@ const ConsentModal = ({
               />
             </Grid>
           </Grid>
-          <Grid container spacing={4} sx={{ marginBottom: "16px" }}>
+          <Grid container spacing={4} sx={{ marginBottom: "32px" }}>
             <Grid item xs={6}>
-              {" "}
+              <FormLabel>Health Info Type</FormLabel>
               <FormControl fullWidth>
-                <InputLabel>Health Info Type</InputLabel>
                 <Select
                   name="healthInfoType"
                   value={formData.healthInfoType}
@@ -135,9 +201,8 @@ const ConsentModal = ({
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              {" "}
+              <FormLabel>Consent Expiry</FormLabel>
               <TextField
-                label="Consent Expiry Date"
                 fullWidth
                 type="date"
                 name="consentExpiryDate"
@@ -149,9 +214,24 @@ const ConsentModal = ({
               />
             </Grid>
           </Grid>
-          <Button variant="contained" color="primary" type="submit">
-            Submit
-          </Button>
+          <ModalFooter>
+            {" "}
+            <CustomButton
+              disabled={
+                !(
+                  formData?.patientIdentifier?.length &&
+                  formData?.purposeOfRequest?.length &&
+                  formData?.healthInfoFromDate?.length &&
+                  formData?.healthInfoToDate?.length &&
+                  formData?.healthInfoType?.length &&
+                  formData?.consentExpiryDate?.length
+                )
+              }
+              type="submit"
+            >
+              Request Consent
+            </CustomButton>
+          </ModalFooter>
         </Form>
       </ModalContainer>
     </Modal>

@@ -25,4 +25,5 @@ export const apis = {
   getPmrList: "PMR/list",
   getPmrDocs: "PMR/listDocuments",
   getDoc: "PMR/getDocument",
+  submitConsentReq: "HIU/consentInit",
 };
