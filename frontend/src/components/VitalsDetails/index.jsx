@@ -119,8 +119,6 @@ const VitalsDetails = () => {
         setTableData(vitalData);
       });
     }
-    if (selectedVital) {
-    }
   }, [selectedVital]);
   const columns = [
     { key: "created_date", header: "Date" },

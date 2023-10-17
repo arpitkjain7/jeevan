@@ -1,17 +1,24 @@
-// ConsentListSlice.js
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
 
-// Define the async thunk for fetching data
-export const fetchConsentList = createAsyncThunk(
-  "list/fetchConsentList",
+export const fetchVistList = createAsyncThunk("list/pmr", async (payload) => {
+  const response = await apiRequest(
+    "GET",
+    apis?.getPmrList + "/" + payload,
+    null,
+    null
+  );
+  return response;
+});
+
+export const fetchPMRList = createAsyncThunk(
+  "list/pmr-docs",
   async (payload) => {
     const response = await apiRequest(
       "GET",
-      apis?.listConsent + "/" + payload,
+      apis?.getPmrDocs + "/" + payload,
       null,
       null
     );
@@ -19,12 +26,12 @@ export const fetchConsentList = createAsyncThunk(
   }
 );
 
-export const fetchConsentDetails = createAsyncThunk(
-  "list/fetchConsentDetails",
+export const getDocument = createAsyncThunk(
+  "list/document",
   async (payload) => {
     const response = await apiRequest(
       "GET",
-      apis?.consentDetails + "/" + payload,
+      apis?.getDoc + "/" + payload,
       null,
       null
     );
@@ -32,39 +39,38 @@ export const fetchConsentDetails = createAsyncThunk(
   }
 );
 
-// Create the slice
-const ConsentListSlice = createSlice({
-  name: "list",
+const PastVisitSlice = createSlice({
+  name: "list-PMR",
   initialState: {
-    consentList: [],
-    consentDetails: {},
+    pmrData: [],
+    docData: [],
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchConsentList.pending, (state) => {
+      .addCase(fetchVistList.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchConsentList.fulfilled, (state, action) => {
+      .addCase(fetchVistList.fulfilled, (state, action) => {
         state.loading = false;
-        state.consentList = action.payload;
+        state.pmrData = action.payload;
       })
-      .addCase(fetchConsentList.rejected, (state, action) => {
+      .addCase(fetchVistList.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(fetchConsentDetails.pending, (state) => {
+      .addCase(fetchPMRList.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchConsentDetails.fulfilled, (state, action) => {
+      .addCase(fetchPMRList.fulfilled, (state, action) => {
         state.loading = false;
-        state.consentDetails = action.payload;
+        state.docData = action.payload;
       })
-      .addCase(fetchConsentDetails.rejected, (state, action) => {
+      .addCase(fetchPMRList.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
@@ -72,5 +78,5 @@ const ConsentListSlice = createSlice({
 });
 
 // Export the async thunk and reducer
-export const { reducer } = ConsentListSlice;
-export default ConsentListSlice;
+export const { reducer } = PastVisitSlice;
+export default PastVisitSlice;

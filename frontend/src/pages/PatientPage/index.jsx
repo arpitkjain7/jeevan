@@ -75,8 +75,22 @@ const PatientPage = () => {
   const navigate = useNavigate();
 
   const columns = [
+    {
+      key: "actions",
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          key: "name",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ],
+    },
     { key: "id", header: "Patient ID" },
-    { key: "patientDetails", header: "Patient Name" },
     { key: "abha_number", header: "Abha Id" },
     { key: "mobile_number", header: "Contact Number" },
     { key: "updatedDate", header: "Last Visited" },
@@ -139,11 +153,7 @@ const PatientPage = () => {
     }
   }, []);
 
-  const onTableRowClick = (row) => {
-    dispatch(AppointmentPageActions.setSelectedPatientData(row));
-    sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-    navigate("/patient-details");
-  };
+  const onTableRowClick = (row) => {};
 
   return (
     <ListWrapper>

@@ -1,10 +1,12 @@
-import { styled } from "@mui/material";
+import { Button, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import MyTable from "../TableComponent";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchConsentList } from "./consentList.slice";
 import RightArrow from "../../assets/arrows/arrow-right.svg";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ConsentModal from "../ConsentModal";
 
 const ConsentListContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(8, 6),
@@ -36,6 +38,9 @@ const TabsContainer = styled("div")(({ theme }) => ({
   },
 }));
 
+const CustomButton = styled(Button)(({ theme }) => ({
+  "&": theme.typography.secondaryButton,
+}));
 const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
@@ -43,9 +48,12 @@ const tableStyle = {
 const ConsentList = () => {
   const patient = sessionStorage?.getItem("selectedPatient");
   const [tableData, setTableData] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    sessionStorage.removeItem("consentSelected");
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
       const patientId = currentPatient?.id;
@@ -68,17 +76,43 @@ const ConsentList = () => {
         {
           type: "icon",
           icon: <img src={RightArrow} alt="details" />,
-          // onClick: (item) => {
-          //   dispatch(AppointmentPageActions.setSelectedPatientData(item));
-          //   navigate("/create-appointment");
-          // },
+          onClick: (item) => {
+            sessionStorage.setItem("consentSelected", JSON.stringify(item));
+            navigate("/consent-detail");
+          },
         },
       ],
     },
   ];
 
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const purposeOptions = [
+    { label: "Option 1", value: "option1" },
+    { label: "Option 2", value: "option2" },
+    // Add more options as needed
+  ];
+
+  const infoTypeOptions = [
+    { label: "Type A", value: "typeA" },
+    { label: "Type B", value: "typeB" },
+    // Add more options as needed
+  ];
+
   return (
     <ConsentListContainer>
+      <ConsentModal
+        open={modalOpen}
+        handleClose={handleModalClose}
+        purposeOptions={purposeOptions}
+        infoTypeOptions={infoTypeOptions}
+      />
       {tableData?.length && (
         <MyTable
           columns={columns}
@@ -88,6 +122,7 @@ const ConsentList = () => {
           showSearch={false}
         />
       )}
+      <CustomButton onClick={handleModalOpen}>Request Consent</CustomButton>
     </ConsentListContainer>
   );
 };

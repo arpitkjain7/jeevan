@@ -89,6 +89,20 @@ const StyledCard = styled(Card)({
   padding: "",
 });
 
+const DateButton = styled(Button)(({ theme }) => ({
+  "&": theme.typography.body1,
+  width: "200px",
+  border: `1px solid ${theme.palette.primaryGrey}`,
+  padding: theme.spacing(1, 3),
+  borderRadius: theme.spacing(1),
+  textAlign: "center",
+  backgroundColor: theme.palette.primaryWhite,
+  "&.selected-btn": {
+    backgroundColor: theme.palette.secondaryOpacityBlue,
+    border: `1px solid ${theme.palette.secondaryBlue}`,
+  },
+}));
+
 const DateWrapper = styled("div")(({ theme }) => ({}));
 
 const BookingSlots = () => {
@@ -248,24 +262,29 @@ const BookingSlots = () => {
   const submitAppointment = () => {
     const timeRange = selectedSlot;
     const [startTime, endTime] = timeRange.split("-");
-    const payload = {
-      doc_id: appointmentDetails?.doctorId,
-      patient_id: selectedPatient?.id,
-      appointment_type: appointmentDetails?.appointmentType,
-      encounter_type: appointmentDetails?.encounterType,
-      hip_id: "123123",
-      appointment_start: formatDateTime(
-        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime
-      ),
-      appointment_end: formatDateTime(
-        convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime
-      ),
-    };
-    dispatch(createAppointment(payload)).then((res) => {
-      if (res.payload?.appointment_id) {
-        setAppointmentCompleted(true);
-      }
-    });
+    let currentHospital = {};
+    if (hospital) {
+      currentHospital = JSON.parse(hospital);
+
+      const payload = {
+        doc_id: appointmentDetails?.doctorId,
+        patient_id: selectedPatient?.id,
+        appointment_type: appointmentDetails?.appointmentType,
+        encounter_type: appointmentDetails?.encounterType,
+        hip_id: currentHospital?.hip_id,
+        appointment_start: formatDateTime(
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime
+        ),
+        appointment_end: formatDateTime(
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime
+        ),
+      };
+      dispatch(createAppointment(payload)).then((res) => {
+        if (res.payload?.appointment_id) {
+          setAppointmentCompleted(true);
+        }
+      });
+    }
   };
 
   const formatDisplayDate = (date) => {
@@ -312,17 +331,14 @@ const BookingSlots = () => {
                 {selectedDate && (
                   <div className="slots-container">
                     {slots?.map((slot) => (
-                      <Button
+                      <DateButton
                         key={slot}
-                        variant={
-                          selectedSlot === slot ? "contained" : "outlined"
-                        }
                         color="primary"
                         onClick={() => handleSlotSelect(slot)}
-                        className="slots-btn"
+                        className={selectedSlot === slot ? "selected-btn" : ""}
                       >
                         {convertTimeSlot(slot)}
-                      </Button>
+                      </DateButton>
                     ))}
                   </div>
                 )}

@@ -14,6 +14,7 @@ import CreateAppointment from "../pages/CreateAppointment";
 import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 import RegisterationConfirmation from "../components/RegistrationConfirmation";
 import PatientDetails from "../pages/PatientDetails";
+import ConsentDocumentPage from "../pages/ConsentDocumentPage";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -96,6 +97,10 @@ function App() {
                       <Route
                         path="/patient-details"
                         element={<PatientDetails />}
+                      />
+                      <Route
+                        path="/consent-detail"
+                        element={<ConsentDocumentPage />}
                       />
                     </>
                   ) : (

@@ -1,5 +1,9 @@
 import React, { useEffect } from "react";
 import pdfjs from "pdfjs-dist/build/pdf";
+import { styled } from "@mui/material";
+import { useState } from "react";
+import { useRef } from "react";
+import ArrowRight from "../../assets/arrows/arrow-right.svg";
 
 const DocViewerContainer = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
@@ -7,8 +11,13 @@ const DocViewerContainer = styled("div")(({ theme }) => ({
 }));
 const Views = styled("div")(({ theme }) => ({
   display: "flex",
-  gap: theme.spacing(4),
+  gap: theme.spacing(8),
   padding: theme.spacing(8, 0),
+  minHeight: "600px",
+}));
+const PdfContainer = styled("div")(({ theme }) => ({
+  flex: "1",
+  height: "100%",
 }));
 const SideList = styled("List")(({ theme }) => ({
   display: "flex",
@@ -17,46 +26,55 @@ const SideList = styled("List")(({ theme }) => ({
 }));
 
 const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
-  padding: theme.spacing(2, 4),
+  padding: theme.spacing(4),
   borderRadius: theme.spacing(1),
   border: `1px solid ${theme.palette.primaryGrey}`,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+
+  "&.selected-vital": {
+    border: `1px solid ${theme.palette.primaryBlue}`,
+  },
 }));
-const DocViewer = ({ list }) => {
-  //list should be : {id, document, name,...extra params}
+const DocList = styled("p")(({ theme }) => ({
+  margin: "0",
+}));
+
+const DocViewer = ({ docData }) => {
+  console.log(docData, "docData");
   const [byteCode, setByteCode] = useState("");
+  const [selectedDocument, setSelectedDocument] = useState("");
   const pdfViewerRef = useRef(null);
   const onDocClick = (selectedItem) => {
-    setByteCode(selectedItem?.document);
+    setByteCode(selectedItem?.documentContent);
+    setSelectedDocument(selectedItem?.id);
   };
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  const convertToDoc = () => {};
 
   useEffect(() => {
-    const loadPdf = async () => {
-      const pdfData = new Uint8Array(byteCode);
-      const loadingTask = pdfjs.getDocument(pdfData);
-      const pdf = await loadingTask.promise;
+    setByteCode(docData[0]?.documentContent);
+  }, []);
 
-      // Assuming you have a single page PDF, if not, you may loop through pages here.
-      const pageNumber = 1;
-      const page = await pdf.getPage(pageNumber);
-
-      const scale = 1.5; // Adjust as needed
-      const viewport = page.getViewport({ scale });
-
-      const canvas = pdfViewerRef.current;
-      const context = canvas.getContext("2d");
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-
-      await page.render(renderContext);
-    };
-
+  useEffect(() => {
     if (byteCode) {
-      loadPdf();
+      const decodedByteCode = atob(byteCode);
+      const byteNumbers = new Array(decodedByteCode.length);
+      for (let i = 0; i < decodedByteCode.length; i++) {
+        byteNumbers[i] = decodedByteCode.charCodeAt(i);
+      }
+      const blob = new Blob([new Uint8Array(byteNumbers)], {
+        type: "application/pdf",
+      });
+
+      const pdfUrl = URL.createObjectURL(blob);
+      setPdfUrl(pdfUrl);
+      return () => {
+        URL.revokeObjectURL(pdfUrl);
+      };
     }
   }, [byteCode]);
 
@@ -64,12 +82,30 @@ const DocViewer = ({ list }) => {
     <DocViewerContainer>
       <Views>
         <SideList>
-          {list.map((item) => (
-            <DiagnosisDetails onClick={() => onDocClick(item)}>
-              {item?.type}
-            </DiagnosisDetails>
-          ))}
+          {docData?.length &&
+            docData?.map(
+              (item) =>
+                item?.id && (
+                  <DiagnosisDetails
+                    onClick={() => onDocClick(item)}
+                    className={
+                      selectedDocument === item?.id ? "selected-vital" : ""
+                    }
+                  >
+                    <DocList>{item?.id}</DocList>
+                    <img src={ArrowRight} alt={`select-${item.type}`} />
+                  </DiagnosisDetails>
+                )
+            )}
         </SideList>
+        <PdfContainer>
+          <embed
+            src={pdfUrl}
+            type="application/pdf"
+            width="100%"
+            height="700px"
+          />
+        </PdfContainer>
       </Views>
     </DocViewerContainer>
   );
