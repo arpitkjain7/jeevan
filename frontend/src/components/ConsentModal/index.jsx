@@ -119,7 +119,7 @@ const ConsentModal = ({
             alignItems: "center",
           }}
         >
-          Modal Header
+          Request Consent
           <IconButton onClick={handleClose}>
             <Close sx={{ width: "32px", height: "32px" }} />
           </IconButton>
