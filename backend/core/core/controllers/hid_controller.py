@@ -287,7 +287,7 @@ class HIDController:
                 abha_number = patient_data["healthIdNumber"].replace("-", "")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 time_now = datetime.now()
-                token_validity = time_now + timedelta(1440)
+                token_validity = time_now + timedelta(minutes=1440)
                 token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 patient_request = {
                     "id": patient_id,
@@ -613,6 +613,9 @@ class HIDController:
                     "callback_response": resp,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                time_now = datetime.now()
+                token_validity = time_now + timedelta(minutes=1440)
+                token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 linking_token = resp.get("token")
                 refresh_token = resp.get("refreshToken")
                 logging.info("Getting patient details")
@@ -633,8 +636,14 @@ class HIDController:
                     "state_code": resp["stateCode"],
                     "auth_methods": {"authMethods": resp["authMethods"]},
                     "hip_id": request_json["hip_id"],
-                    "linking_token": linking_token,
-                    "refresh_token": refresh_token,
+                    "linking_token": {
+                        "value": linking_token,
+                        "valid_till": token_validity,
+                    },
+                    "refresh_token": {
+                        "value": refresh_token,
+                        "valid_till": token_validity,
+                    },
                     "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaAddress(

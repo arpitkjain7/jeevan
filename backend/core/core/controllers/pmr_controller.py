@@ -507,10 +507,10 @@ class PMRController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            access_token = patient_obj.get("access_token").get("value")
-            access_token_validity = patient_obj.get("access_token").get("valid_till")
-            access_token_validity = datetime.strptime(
-                access_token_validity, "%m/%d/%Y, %H:%M:%S"
+            linking_token = patient_obj.get("linking_token").get("value")
+            linking_token_validity = patient_obj.get("linking_token").get("valid_till")
+            linking_token_validity = datetime.strptime(
+                linking_token_validity, "%m/%d/%Y, %H:%M:%S"
             )
             request_id = str(uuid.uuid1())
             if pmr_obj["abdm_linked"]:
@@ -540,7 +540,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": access_token,
+                        "accessToken": linking_token,
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
@@ -553,7 +553,7 @@ class PMRController:
                         },
                     },
                 }
-            if datetime.now() > access_token_validity:
+            if datetime.now() > linking_token_validity:
                 return {
                     "pmr_id": pmr_id,
                     "request_id": request_id,

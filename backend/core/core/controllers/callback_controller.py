@@ -128,7 +128,7 @@ class CallbackController:
                 logging.info(f"{patient_obj=}")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 time_now = datetime.now()
-                token_validity = time_now + timedelta(1440)
+                token_validity = time_now + timedelta(minutes=1440)
                 token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 patient_request = {
                     "id": patient_id,
@@ -143,7 +143,7 @@ class CallbackController:
                     "pincode": address_obj.get("state"),
                     "state_name": address_obj.get("pincode"),
                     "hip_id": hip_id,
-                    "access_token": {
+                    "linking_token": {
                         "value": access_token,
                         "valid_till": token_validity,
                     },
