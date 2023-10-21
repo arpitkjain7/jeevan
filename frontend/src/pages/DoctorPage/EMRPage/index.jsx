@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { Button } from "@mui/base";
@@ -176,10 +176,11 @@ const PatientEMRDetails = () => {
   const [labInvestigationSpecs, setLabInvestigationSpecs] = useState({});
   const medicalHistoryRef = useRef(null);
   const patient = sessionStorage?.getItem("selectedPatient");
-  const [emrId, setEMRId] = useState();
+  const [emrId, setEMRId] = useState("");
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
   const [submitEMRPayload, setSubmitEMRPayload] = useState({});
+  const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
   const navigate = useNavigate();
@@ -220,7 +221,7 @@ const PatientEMRDetails = () => {
     });
 
     const currentPatient = JSON.parse(patient);
-    if (currentPatient && Object.keys(currentPatient)?.length) {
+    if (!sessionStorage.getItem("pmrID")) {
       console.log(currentPatient, "patientData");
       const emrPayload = {
         patient_id: currentPatient?.patientId,
@@ -229,7 +230,8 @@ const PatientEMRDetails = () => {
         hip_id: currentPatient?.hip_id,
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
-        setEMRId(res.payload.pmr_id);
+        setEMRId(res.payload?.pmr_id);
+        sessionStorage.setItem("pmrID", res.payload?.pmr_id);
       });
     }
   }, []);
@@ -749,7 +751,6 @@ const PatientEMRDetails = () => {
       const objectDetails = inputObject[key];
       const transformedItem = {
         condition: key,
-        duration: objectDetails.since,
         status: objectDetails.severity,
         start_date: "2023/08/08",
         notes: objectDetails.notes,
@@ -816,12 +817,11 @@ const PatientEMRDetails = () => {
 
       const transformedItem = {
         medicine_name: key,
-        frequency: "3",
+        frequency: objectDetails.severity,
         dosage: "3",
         time_of_day: "morning",
         duration: objectDetails.since,
         duration_period: "",
-        status: objectDetails.severity,
         notes: objectDetails.notes,
         snowmed_code: objectDetails?.snowmed_code,
         snowmed_display: objectDetails?.snowmed_display,
@@ -855,11 +855,6 @@ const PatientEMRDetails = () => {
       const transformedItem = {
         medicine_name: key,
         start_date: "2023/08/08",
-        frequency: "",
-        dosage: "",
-        time_of_day: "",
-        duration_period: "2 days",
-        duration: objectDetails.since,
         status: objectDetails.severity,
         notes: objectDetails.notes,
         snowmed_code: objectDetails?.snowmed_code,
@@ -926,14 +921,12 @@ const PatientEMRDetails = () => {
       const objectDetails = inputObject[key];
       console.log(objectDetails, "objectdet");
       const transformedItem = {
-        diabetes_melitus: "",
-        hypertension: "",
-        hypothyroidism: "",
-        alcohol: "",
-        tobacco: "",
-        smoke: "",
-        snowmed_code: objectDetails?.snowmed_code,
-        snowmed_display: objectDetails?.snowmed_display,
+        medical_history: key,
+        severity: objectDetails.severity,
+        since: objectDetails.since,
+        notes: objectDetails.since,
+        snowmed_code: objectDetails?.snowmed_code || "",
+        snowmed_display: objectDetails?.snowmed_display || "",
       };
       result.push(transformedItem);
     }
@@ -945,12 +938,14 @@ const PatientEMRDetails = () => {
 
   const createPayload = (key, valueArr) => {
     const payload = submitEMRPayload;
-    if (valueArr?.length) {
+    if (valueArr?.length && key !== "vital") {
       const payloadData = {
-        pmr_id: emrId,
         data: valueArr,
       };
       payload[key] = payloadData;
+    }
+    if (key === "vital") {
+      payload[key] = valueArr;
     }
 
     setSubmitEMRPayload(payload);
@@ -971,17 +966,24 @@ const PatientEMRDetails = () => {
   };
 
   const postPMR = () => {
-    const filteredPayload = submitEMRPayload;
+    const filteredPayload = pdfData;
     filteredPayload["pmr_id"] = emrId;
+    filteredPayload["advice"] = {
+      advices: advices,
+    };
+    filteredPayload["notes"] = {
+      notes: prescriptionComment,
+    };
+
     const pdfPayload = {
       document_type: "Prescription",
       pmr_id: emrId,
     };
     const blob = createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload })).then(
-      dispatch(postEMR(submitEMRPayload)).then((res) => {
+      dispatch(postEMR(filteredPayload)).then((res) => {
+        sessionStorage.removeItem("pmrID");
         navigate("/appointment-list");
-        sessionStorage.clear();
       })
     );
   };
@@ -1020,24 +1022,23 @@ const PatientEMRDetails = () => {
     const labInvestigationEMR = labInvestigationObj(labInvestigationSpecs);
     const medicalHistoryEMR = medicalHistoryObj(optionTextValues);
 
-    // console.log(formValues, "formValues");
+    console.log(formValues, "formValues");
+
     const payloadArr = [
       {
         key: "vital",
-        dataArr: filterVitals([
-          {
-            height: formValues?.bodyHeight,
-            weight: formValues?.bodyWeight,
-            pulse: formValues?.pulseRate,
-            blood_pressure: formValues?.bloodPressure,
-            body_temperature: formValues?.bodyTemp,
-            oxygen_saturation: formValues?.oxygenSaturation,
-            respiratory_rate: formValues?.respiratoryRate,
-            body_mass_index: formValues?.bodyMass,
-            systolic_blood_pressure: formValues?.systolicBP,
-            diastolic_blood_pressure: formValues?.diastolicaBP,
-          },
-        ]),
+        dataArr: {
+          height: formValues?.bodyHeight,
+          weight: formValues?.bodyWeight,
+          pulse: formValues?.pulseRate,
+          blood_pressure: formValues?.bloodPressure,
+          body_temperature: formValues?.bodyTemp,
+          oxygen_saturation: formValues?.oxygenSaturation,
+          respiratory_rate: formValues?.respiratoryRate,
+          body_mass_index: formValues?.bodyMass,
+          systolic_blood_pressure: formValues?.systolicBP,
+          diastolic_blood_pressure: formValues?.diastolicaBP,
+        },
       },
       {
         key: "condition",
@@ -1096,12 +1097,132 @@ const PatientEMRDetails = () => {
     setPatientData(patientDetails);
     setPdfData(submitEMRPayload);
 
-    console.log(symptomsEMR);
+    console.log(submitEMRPayload, "payload");
 
     sessionStorage.setItem("patientDetailsPdf", JSON.stringify(patientDetails));
-    sessionStorage.setItem("patientEMRDetails", JSON.stringify(pdfData));
+    sessionStorage.setItem(
+      "patientEMRDetails",
+      JSON.stringify(submitEMRPayload)
+    );
     setPmrFinished(true);
     setStep("preview");
+  };
+  const dummy = {
+    pmr_id: "string",
+    vital: {
+      height: "string",
+      weight: "string",
+      pulse: "string",
+      blood_pressure: "string",
+      body_temperature: "string",
+      oxygen_saturation: "string",
+      respiratory_rate: "string",
+      body_mass_index: "string",
+      systolic_blood_pressure: "string",
+      diastolic_blood_pressure: "string",
+    },
+    condition: {
+      data: [
+        {
+          condition: "string",
+          start_date: "string",
+          status: "string",
+          notes: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    examinationFindings: {
+      data: [
+        {
+          disease: "string",
+          duration: "string",
+          status: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    diagnosis: {
+      data: [
+        {
+          disease: "string",
+          duration: "string",
+          status: "string",
+          notes: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    symptom: {
+      data: [
+        {
+          symptom: "string",
+          duration: "string",
+          severity: "string",
+          notes: "string",
+          start_date: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    medication: {
+      data: [
+        {
+          medicine_name: "string",
+          frequency: "string",
+          dosage: "string",
+          time_of_day: "string",
+          duration: "string",
+          duration_period: "string",
+          notes: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    currentMedication: {
+      data: [
+        {
+          medicine_name: "string",
+          start_date: "string",
+          status: "string",
+          notes: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    lab_investigation: {
+      data: [
+        {
+          name: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    medical_history: {
+      data: [
+        {
+          medical_history: "string",
+          since: "string",
+          severity: "string",
+          notes: "string",
+          snowmed_code: "string",
+          snowmed_display: "string",
+        },
+      ],
+    },
+    advice: {
+      advices: "string",
+    },
+    notes: {
+      notes: "string",
+    },
   };
 
   const resetEMRForm = () => {
@@ -1784,32 +1905,32 @@ const PatientEMRDetails = () => {
               </div>
             )}
           </VitalsContainer>
-          {/* <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <VitalsContainer>
-              <SectionHeader>Notes</SectionHeader>
-              <div>
-                <RecordTextField
-                  placeholder="Add your notes here"
-                  className="notes-field"
-                  onChange={prescriptionCommentChange}
-                />
-              </div>
-            </VitalsContainer>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <VitalsContainer>
+                <SectionHeader>Notes</SectionHeader>
+                <div>
+                  <RecordTextField
+                    placeholder="Add your notes here"
+                    className="notes-field"
+                    onChange={prescriptionCommentChange}
+                  />
+                </div>
+              </VitalsContainer>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <VitalsContainer>
+                <SectionHeader>Advices</SectionHeader>
+                <div>
+                  <RecordTextField
+                    placeholder="Add your advices here"
+                    className="notes-field"
+                    onChange={adviceChange}
+                  />
+                </div>
+              </VitalsContainer>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <VitalsContainer>
-              <SectionHeader>Advices</SectionHeader>
-              <div>
-                <RecordTextField
-                  placeholder="Add your advices here"
-                  className="notes-field"
-                  onChange={adviceChange}
-                />
-              </div>
-            </VitalsContainer>
-          </Grid>
-        </Grid> */}
           <EMRFooter>
             <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
             <PrimaryButton onClick={submitEMR}>
@@ -1818,7 +1939,7 @@ const PatientEMRDetails = () => {
           </EMRFooter>
         </EMRFormWrapper>
       )}
-
+      <PMRPdf pdfData={dummy} patientData={patientData} />
       {pmrFinished && step === "preview" && (
         <PdfDisplayWrapper>
           {/* <PageTitle>Preview</PageTitle>
@@ -1827,7 +1948,7 @@ const PatientEMRDetails = () => {
           </PageSubText> */}
           <div style={{ height: "800px", marginBottom: "32px", flex: "1" }}>
             <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
-              <PMRPdf pdfData={pdfData} patientData={patientData} />
+              <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />
             </PDFViewer>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
