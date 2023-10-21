@@ -103,6 +103,7 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
             dispatch(AppointmentPageActions.setSelectedPatientData(item));
             navigate("/create-appointment");
           },

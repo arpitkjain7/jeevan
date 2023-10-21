@@ -50,10 +50,12 @@ const RegisterationConfirmation = ({
   const dataState = useSelector((state) => state);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
+  const registeredPatient =
+    dataState.PatientRegistartion.registeredPatientDetails;
   const patientData =
     Object.keys(selectedPatient)?.length > 0 && isAppointment
       ? selectedPatient
-      : dataState.PatientRegistartion.registeredPatientDetails;
+      : registeredPatient;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -89,8 +91,13 @@ const RegisterationConfirmation = ({
   const navigateToNext = () => {
     if (isAppointment) {
       navigate("/appointment-list");
+    } else {
+      navigate("/create-appointment");
+      sessionStorage.setItem(
+        "selectedPatient",
+        JSON.stringify(registeredPatient)
+      );
     }
-    navigate("/create-appointment");
   };
   return (
     <RegisterationConfirmationWrapper>

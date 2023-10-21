@@ -16,7 +16,7 @@ export const getEMRId = createAsyncThunk("getPMRId/PMRId", async (payload) => {
 });
 
 export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
-  const response = await apiRequest("PATCH", apis?.submitEMR, payload);
+  const response = await apiRequest("POST", apis?.submitEMR, payload);
   return response;
 });
 

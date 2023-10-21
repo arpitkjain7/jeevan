@@ -120,7 +120,7 @@ const BookingSlots = () => {
   const dataState = useSelector((state) => state);
   const doctorDetails = dataState?.appointmentSlots?.doctorSlotDetails;
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
-  const selectedPatient = dataState?.appointmentList?.patientDetails;
+  const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
 
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());

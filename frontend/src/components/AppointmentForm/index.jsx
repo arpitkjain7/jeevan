@@ -74,7 +74,9 @@ function AppointmentForm(props) {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
   const dataState = useSelector((state) => state);
-  const selectedPatient = dataState?.appointmentList?.patientDetails;
+  const selectedPatient = JSON.parse(
+    sessionStorage?.getItem("selectedPatient")
+  );
   const userDetails = [
     {
       label: "Name",
