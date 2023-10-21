@@ -221,8 +221,7 @@ const PatientEMRDetails = () => {
     });
 
     const currentPatient = JSON.parse(patient);
-    if (!sessionStorage.getItem("pmrID")) {
-      console.log(currentPatient, "patientData");
+    if (Object.keys(currentPatient)?.length) {
       const emrPayload = {
         patient_id: currentPatient?.patientId,
         doc_id: currentPatient?.doc_id,
