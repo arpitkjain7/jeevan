@@ -507,10 +507,10 @@ class PMRController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            linking_token = patient_obj.get("linking_token").get("value")
-            linking_token_validity = patient_obj.get("linking_token").get("valid_till")
-            linking_token_validity = datetime.strptime(
-                linking_token_validity, "%m/%d/%Y, %H:%M:%S"
+            access_token = patient_obj.get("access_token").get("value")
+            access_token_validity = patient_obj.get("access_token").get("valid_till")
+            access_token_validity = datetime.strptime(
+                access_token_validity, "%m/%d/%Y, %H:%M:%S"
             )
             request_id = str(uuid.uuid1())
             if pmr_obj["abdm_linked"]:
@@ -540,7 +540,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
-                        "accessToken": linking_token,
+                        "accessToken": access_token,
                         "patient": {
                             "referenceNumber": patient_id,
                             "display": patient_obj.get("name"),
@@ -553,7 +553,7 @@ class PMRController:
                         },
                     },
                 }
-            if datetime.now() > linking_token_validity:
+            if datetime.now() > access_token_validity:
                 return {
                     "pmr_id": pmr_id,
                     "request_id": request_id,
@@ -581,11 +581,11 @@ class PMRController:
                         },
                     }
                 )
-                if not pmr_obj["abdm_linked"]:
-                    logging.info("Updating abdm linked flag on PMR")
-                    self.CRUDPatientMedicalRecord.update(
-                        pmr_id=pmr_id, **{"abdm_linked": True}
-                    )
+                # if not pmr_obj["abdm_linked"]:
+                #     logging.info("Updating abdm linked flag on PMR")
+                #     self.CRUDPatientMedicalRecord.update(
+                #         pmr_id=pmr_id, **{"abdm_linked": True}
+                #     )
                 logging.info("Sending SMS notification")
                 sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
                 mobile_number = patient_obj.get("mobile_number")

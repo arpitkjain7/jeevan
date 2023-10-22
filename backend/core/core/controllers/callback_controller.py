@@ -143,7 +143,7 @@ class CallbackController:
                     "pincode": address_obj.get("state"),
                     "state_name": address_obj.get("pincode"),
                     "hip_id": hip_id,
-                    "linking_token": {
+                    "access_token": {
                         "value": access_token,
                         "valid_till": token_validity,
                     },
@@ -196,11 +196,12 @@ class CallbackController:
                 gateway_metadata = gateway_obj.get("gateway_metadata")
                 logging.info(f"{gateway_metadata=}")
                 pmr_request = {
-                    "id": gateway_metadata.get("pmr_id"),
                     "abdm_linked": True,
                 }
                 logging.info(f"{pmr_request=}")
-                self.CRUDPatientMedicalRecord.update(**pmr_request)
+                self.CRUDPatientMedicalRecord.update(
+                    pmr_id=gateway_metadata.get("pmr_id"), **pmr_request
+                )
                 gateway_request = {
                     "request_id": request_id,
                     "callback_response": request,
