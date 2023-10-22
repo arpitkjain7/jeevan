@@ -297,8 +297,6 @@ const PMRPdf = ({ patientData }) => {
     }
   }, []);
 
-  console.log(pdfData, "data");
-
   return (
     <Document style={pmrPdfStyles.document}>
       <Page size="A4" style={pmrPdfStyles.page}>

@@ -950,21 +950,17 @@ const PatientEMRDetails = () => {
     setSubmitEMRPayload(payload);
   };
 
-  const createPdfBlob = () => {
-    const blobPromise = pdf(
-      <PMRPdf pdfData={pdfData} patientData={patientData} />
-    ).toBlob();
-    const blob = new Blob(
-      [<PMRPdf pdfData={pdfData} patientData={patientData} />],
-      {
-        type: "application/pdf",
-      }
-    );
-    console.log(blob);
-    return blob;
+  const createPdfBlob = async () => {
+    const pdfBlob = await pdf(<PMRPdf patientData={patientData} />).toBlob();
+
+    const pdfFile = new File([pdfBlob], "patient_record.pdf", {
+      type: "application/pdf",
+    });
+
+    return pdfFile;
   };
 
-  const postPMR = () => {
+  const postPMR = async () => {
     const filteredPayload = pdfData;
     filteredPayload["pmr_id"] = emrId;
     filteredPayload["advice"] = {
@@ -978,7 +974,7 @@ const PatientEMRDetails = () => {
       document_type: "Prescription",
       pmr_id: emrId,
     };
-    const blob = createPdfBlob();
+    const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload })).then(
       dispatch(postEMR(filteredPayload)).then((res) => {
         sessionStorage.removeItem("pmrID");
@@ -1938,7 +1934,6 @@ const PatientEMRDetails = () => {
           </EMRFooter>
         </EMRFormWrapper>
       )}
-      <PMRPdf pdfData={dummy} patientData={patientData} />
       {pmrFinished && step === "preview" && (
         <PdfDisplayWrapper>
           {/* <PageTitle>Preview</PageTitle>
