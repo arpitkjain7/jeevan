@@ -72,7 +72,6 @@ class PatientController:
                 patient_id=patient_id
             )
             existing_abha_address = patient_obj.get("abha_address")
-            # linking_token = patient_obj.get("access_token").get("value")
             linking_token = patient_obj.get("linking_token").get("value")
             refresh_token = patient_obj.get("refresh_token").get("value")
             refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
@@ -95,6 +94,7 @@ class PatientController:
             )
             update_status = resp.get("status")
             logging.info(f"{update_status=}")
+            logging.info(f"{resp_code=}")
             if resp_code <= 250:
                 logging.info("Updating abha_address on database")
                 self.CRUDPatientDetails.update(
@@ -109,6 +109,70 @@ class PatientController:
                     "new_abha_address": abha_address,
                     "update_status": update_status,
                 }
+            else:
+                raise resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_verification function: {error}")
+            raise error
+
+    def abha_address_update_v1(self, patient_id: str, abha_address: str):
+        try:
+            logging.info("executing  abha_address_update function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            existing_abha_address = patient_obj.get("abha_address")
+            # linking_token = patient_obj.get("access_token").get("value")
+            linking_token = patient_obj.get("linking_token").get("value")
+            refresh_token = patient_obj.get("refresh_token").get("value")
+            refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
+            logging.info("Getting linking token")
+            resp, resp_code = APIInterface().post(
+                route=refresh_token_url,
+                data={"refreshToken": refresh_token},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            linking_token = resp.get("accessToken", None)
+            # abha_update_url = f"{self.abha_url}/v2/account/phr-linked"
+            abha_update_url = f"{self.abha_url}/v1/account/profile"
+            logging.info("Updating abha_address on Gateway")
+            # resp, resp_code = APIInterface().post(
+            #     route=abha_update_url,
+            #     data={"phrAddress": abha_address, "preferred": True},
+            #     headers={
+            #         "Authorization": f"Bearer {gateway_access_token}",
+            #         "X-Token": f"Bearer {linking_token}",
+            #     },
+            # )
+            resp, resp_code = APIInterface().post(
+                route=abha_update_url,
+                data={"healthId": abha_address},
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "X-Token": f"Bearer {linking_token}",
+                },
+            )
+            # update_status = resp.get("status")
+            # logging.info(f"{update_status=}")
+            logging.info(f"{resp_code=}")
+            if resp_code <= 250:
+                logging.info("Updating abha_address on database")
+                self.CRUDPatientDetails.update(
+                    **{
+                        "id": patient_id,
+                        "linking_token": {"value": linking_token},
+                        "abha_address": abha_address,
+                    }
+                )
+                # return {
+                #     "old_abha_address": existing_abha_address,
+                #     "new_abha_address": abha_address,
+                #     "update_status": update_status,
+                # }
+                return resp
             else:
                 raise resp
         except Exception as error:
@@ -138,17 +202,18 @@ class PatientController:
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            fetch_mode_request = {
+                "requestId": request_id,
+                "timestamp": time_now,
+                "query": {
+                    "id": request_dict.get("abha_number"),
+                    "purpose": request_dict.get("purpose"),
+                    "requester": {"type": "HIP", "id": request_dict["hip_id"]},
+                },
+            }
             _, resp_code = APIInterface().post(
                 route=fetch_modes_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "query": {
-                        "id": request_dict.get("abha_number"),
-                        "purpose": request_dict.get("purpose"),
-                        "requester": {"type": "HIP", "id": request_dict["hip_id"]},
-                    },
-                },
+                data=fetch_mode_request,
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",

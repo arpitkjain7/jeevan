@@ -3,6 +3,7 @@ from core.crud.hrp_session_crud import CRUDSession
 import os
 from datetime import datetime, timedelta
 from core import logger
+from pytz import timezone
 
 logging = logger(__name__)
 
@@ -17,17 +18,27 @@ def get_session_token(session_parameter: str):
         session_obj = CRUDSession().read(session_parameter=session_parameter)
         logging.info(f"{session_obj=}")
         time_now = datetime.now()
+        logging.info(f"{time_now=}")
+        ist_tz = timezone("Asia/Kolkata")
+        time_now_tz = datetime.now(ist_tz)
+        logging.info(f"{time_now_tz=}")
         if session_obj:
             valid_till = session_obj.get("valid_till")
-            if time_now > valid_till:
+            valid_till_tz = ist_tz.localize(valid_till)
+            logging.info(f"{valid_till=}")
+            logging.info(f"{valid_till_tz=}")
+            if time_now_tz > valid_till_tz:
                 logging.info(f"Token expired, generating new access Token")
                 resp_json, _ = APIInterface().post(
                     route=session_url,
                     data={"clientId": client_id, "clientSecret": client_secret},
                 )
-                new_valid_till = time_now + timedelta(
+                new_valid_till = time_now_tz + timedelta(
                     seconds=resp_json.get("expiresIn")
                 )
+                logging.info(f"{new_valid_till=}")
+                new_valid_till = new_valid_till.strftime("%Y-%m-%d %H:%M:%S.%f")
+                logging.info(f"{new_valid_till=}")
                 logging.info(f"Updating database with new generated token")
                 CRUDSession().update(
                     **{
@@ -48,7 +59,10 @@ def get_session_token(session_parameter: str):
                 route=session_url,
                 data={"clientId": client_id, "clientSecret": client_secret},
             )
-            new_valid_till = time_now + timedelta(seconds=resp_json.get("expiresIn"))
+            new_valid_till = time_now_tz + timedelta(seconds=resp_json.get("expiresIn"))
+            logging.info(f"{new_valid_till=}")
+            new_valid_till = new_valid_till.strftime("%Y-%m-%d %H:%M:%S.%f")
+            logging.info(f"{new_valid_till=}")
             logging.info(f"Creating new database record for generated token")
             CRUDSession().create(
                 **{

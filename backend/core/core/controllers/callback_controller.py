@@ -142,6 +142,7 @@ class CallbackController:
                     "district": address_obj.get("district"),
                     "pincode": address_obj.get("state"),
                     "state_name": address_obj.get("pincode"),
+                    "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
                     "hip_id": hip_id,
                     "access_token": {
                         "value": access_token,
