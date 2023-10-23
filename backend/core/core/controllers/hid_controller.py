@@ -726,7 +726,7 @@ class HIDController:
                             self.CRUDPatientDetails.update(
                                 **{
                                     "id": patient_id,
-                                    "linking_token": linking_token,
+                                    "linking_token": {"value": linking_token},
                                 }
                             )
                         logging.info("Getting Abha card")
