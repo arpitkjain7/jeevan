@@ -15,6 +15,33 @@ export const getEMRId = createAsyncThunk("getPMRId/PMRId", async (payload) => {
   return response;
 });
 
+export const getPatientAuth = createAsyncThunk(
+  "fetchModes/patient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.authInit, payload);
+    return response;
+  }
+);
+
+export const verifyPatientOTP = createAsyncThunk(
+  "patient/verifySyncOtp",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifySyncOtp, payload);
+    return response;
+  }
+);
+
+export const syncPMR = createAsyncThunk(
+  "patient/verifySyncOtp",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      `${apis?.syncPMREndpoint}/${payload.pmr_id}?hip_id=${payload.hip_id}`,
+      payload
+    );
+    return response;
+  }
+);
 export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
   const response = await apiRequest("POST", apis?.submitEMR, payload);
   return response;

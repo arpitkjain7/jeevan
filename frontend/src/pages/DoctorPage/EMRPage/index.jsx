@@ -11,13 +11,19 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
+import {
+  getEMRId,
+  getPatientAuth,
+  postEMR,
+  searchVitalsDetails,
+} from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { Button } from "@mui/base";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
+import SyncAabha from "../SyncAabha";
 const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
@@ -183,6 +189,8 @@ const PatientEMRDetails = () => {
   const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
+  const [showSync, setShowSync] = useState("");
+  const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
@@ -960,6 +968,10 @@ const PatientEMRDetails = () => {
     return pdfFile;
   };
 
+  const handleModalClose = () => {
+    setShowSync(false);
+  };
+
   const postPMR = async () => {
     const filteredPayload = pdfData;
     filteredPayload["pmr_id"] = emrId;
@@ -977,10 +989,26 @@ const PatientEMRDetails = () => {
     const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload })).then(
       dispatch(postEMR(filteredPayload)).then((res) => {
-        sessionStorage.removeItem("pmrID");
-        navigate("/appointment-list");
+        if (
+          !(
+            currentPatient?.patient_details?.abha_number &&
+            currentPatient?.patient_details?.abha_number !== ""
+          )
+        ) {
+          navigate("/appointment-list");
+          sessionStorage.removeItem("pmrId")("/appointment-list");
+        }
       })
     );
+    const currentPatient = JSON.parse(
+      sessionStorage.getItem("selectedPatient")
+    );
+    if (
+      currentPatient?.patient_details?.abha_number &&
+      currentPatient?.patient_details?.abha_number !== ""
+    ) {
+      setShowSync(true);
+    }
   };
 
   const filterVitals = (vitalsArr) => {
@@ -1940,6 +1968,12 @@ const PatientEMRDetails = () => {
           <PageSubText>
             Closely Review the Details Before Confirming
           </PageSubText> */}
+          <SyncAabha
+            showSync={showSync}
+            handleModalClose={handleModalClose}
+            setSelectedAuthOption={setSelectedAuthOption}
+            selectedAuthOption={selectedAuthOption}
+          />
           <div style={{ height: "800px", marginBottom: "32px", flex: "1" }}>
             <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
               <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />

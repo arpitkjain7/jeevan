@@ -10,7 +10,7 @@ const OtpInputWrapperWrapper = styled("div")(({ theme }) => ({
     },
   },
 }));
-const OtpInput = ({ verifyOTP, type }) => {
+const OtpInput = ({ verifyOTP, type, isSync = "false" }) => {
   const dispatch = useDispatch();
   const [otp, setOTP] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
@@ -19,7 +19,11 @@ const OtpInput = ({ verifyOTP, type }) => {
     const isOTPComplete = otp.every((value) => value !== "");
     if (isOTPComplete) {
       const otpString = otp.join("");
-      verifyOTP(otpString, type);
+      if (type && !isSync) {
+        verifyOTP(otpString, type);
+      } else {
+        verifyOTP(otpString);
+      }
     }
   }, [otp, dispatch]);
 

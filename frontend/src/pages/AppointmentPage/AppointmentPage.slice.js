@@ -7,7 +7,12 @@ import { apis } from "../../utils/apis";
 export const fetchAppointmentList = createAsyncThunk(
   "list/fetchAppointmentList",
   async (payload) => {
-    const response = await apiRequest("GET", apis?.listAppointments, null, payload);
+    const response = await apiRequest(
+      "GET",
+      apis?.listAppointments,
+      null,
+      payload
+    );
     return response;
   }
 );

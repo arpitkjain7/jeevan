@@ -26,4 +26,8 @@ export const apis = {
   getPmrDocs: "PMR/listDocuments",
   getDoc: "PMR/getDocument",
   submitConsentReq: "HIU/consentInit",
+  fetchModes: "patient/fetchModes",
+  authInit: "patient/auth/init",
+  verifySyncOtp: "patient/auth/verifyOtp",
+  syncPMREndpoint: "PMR/sync",
 };
