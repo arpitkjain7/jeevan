@@ -6,5 +6,5 @@ client_id="SBX_002789"
 client_secret="15b6e353-7521-41c5-90ae-178bfe5114f0"
 s3_location="cliniq360-lobster"
 X-CM-ID=sbx
-data_push_url=https://e83f-2402-e280-3e33-1da-4437-d85e-ace7-6e24.ngrok-free.app/v1/HIU/receiveData
+data_push_url=https://engine.cliniq360.com/v1/HIU/receiveData
 hip_base_url=https://phrsbx.abdm.gov.in/share-profile
