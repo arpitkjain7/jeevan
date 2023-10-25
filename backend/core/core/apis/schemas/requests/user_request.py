@@ -10,7 +10,6 @@ class Register(BaseModel):
     hip_id: str
     user_role: str
     department: str
-    doc_id: int = None
 
 
 class Login(BaseModel):
