@@ -86,7 +86,6 @@ def composition(
     doctor_ref: list,
     org_ref: dict,
     encounter_ref: dict,
-    document_ref: str,
 ):
     print("Inside Composition")
     time_str = datetime.now(timezone).isoformat()
@@ -106,7 +105,7 @@ def composition(
         title="Consultation Report",
         date=time_str,
         author=doctor_ref,
-        subject=[patient_ref],
+        subject=patient_ref,
         custodian=org_ref,
         encounter=encounter_ref,
         type=codeable_obj,
@@ -116,12 +115,6 @@ def composition(
     identifier.system = "https://ndhm.in/phr"
     identifier.value = pmr_id
     composition_obj.meta = meta
-    # composition_section = CompositionSection(
-    #     resource_type="Document Reference",
-    #     title="Document Reference",
-    #     entry=[Reference(reference=document_ref)],
-    # )
-    # composition.section = composition_section
     composition_json = composition_obj.json()
     print(composition_json)
     return composition_obj

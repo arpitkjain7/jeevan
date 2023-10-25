@@ -7,7 +7,7 @@ from core.utils.custom.external_call import APIInterface
 from datetime import datetime, timezone, timedelta
 from core.utils.custom.session_helper import get_session_token
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
-from core.utils.fhir.op_consult import opConsultDocument
+from core.utils.fhir.op_consult import opConsultUnstructured
 import os
 import uuid
 from pytz import timezone as pytz_timezone
@@ -22,7 +22,7 @@ def prepare_data(pmr_id: str):
     try:
         logging.info(f"Preparing data to transfer for {pmr_id=}")
         bundle_id = str(uuid.uuid1())
-        return opConsultDocument(
+        return opConsultUnstructured(
             bundle_name=f"OPConsultNote-{bundle_id}",
             bundle_identifier=bundle_id,
             pmr_id=pmr_id,
