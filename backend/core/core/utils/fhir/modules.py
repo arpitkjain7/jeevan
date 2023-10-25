@@ -348,7 +348,10 @@ def document(
         # print(f"{patient_ref=}")
         # print(f"{document_mime_type=}")
         attachment_obj = Attachment(
-            contentType=document_mime_type, language="en-IN", data=document_bytes
+            contentType=document_mime_type,
+            language="en-IN",
+            data=document_bytes,
+            id=document_ref_id,
         )
         # print(f"{attachment_obj=}")
         document_ref_obj = DocumentReferenceContent(attachment=attachment_obj)

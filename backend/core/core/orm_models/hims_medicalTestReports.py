@@ -6,6 +6,7 @@ class MedicalTestReports(Base):
     __tablename__ = "medicalTestReports"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     medical_test_id = Column(Integer, ForeignKey("labInvestigations.id"))
     report_path = Column(String)
     report_metadata = Column(JSON)

@@ -10,6 +10,8 @@ from core.apis.schemas.requests.hid_request import (
     MobileOTP,
     PatientData,
     MobileNumber,
+    AbhaAuth,
+    AbhaAuthConfirm,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -418,6 +420,58 @@ def verify_mobile_otp(request: OTPVerification, token: str = Depends(oauth2_sche
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/HID/verifyMobileOtp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/HID/authInit")
+def abha_auth_init(request: AbhaAuth, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/authInit endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().abha_auth_init(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/authInit endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/authInit endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v1/HID/authConfirm")
+def abha_auth_confirm(request: AbhaAuthConfirm, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/authConfirm endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().abha_auth_confirm(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/authConfirm endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/authConfirm endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

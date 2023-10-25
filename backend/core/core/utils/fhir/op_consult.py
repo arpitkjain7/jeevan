@@ -129,6 +129,7 @@ def opConsultDocument(bundle_name: str, bundle_identifier: str, pmr_id: str):
                 document_mime_type=pmr_document_obj["document_mime_type"],
                 document_bytes=document_content,
             )
+            logging.info(f"{document_bundle.resource=}")
         # Creating Composition
         logging.info(f"Creating Composition Entry")
         composition_bundle = BundleEntry()

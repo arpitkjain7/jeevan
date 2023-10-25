@@ -9,7 +9,7 @@ from core.utils.aws.s3_helper import upload_to_s3, get_object, create_presigned_
 from core.utils.custom.encryption_helper import rsa_encryption
 import os
 import json
-import uuid
+import uuid, pytz
 
 logging = logger(__name__)
 
@@ -287,7 +287,7 @@ class HIDController:
                 abha_number = patient_data["healthIdNumber"].replace("-", "")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 time_now = datetime.now()
-                token_validity = time_now + timedelta(1440)
+                token_validity = time_now + timedelta(minutes=1440)
                 token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 patient_request = {
                     "id": patient_id,
@@ -613,6 +613,9 @@ class HIDController:
                     "callback_response": resp,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
+                time_now = datetime.now()
+                token_validity = time_now + timedelta(minutes=1440)
+                token_validity = token_validity.strftime("%m/%d/%Y, %H:%M:%S")
                 linking_token = resp.get("token")
                 refresh_token = resp.get("refreshToken")
                 logging.info("Getting patient details")
@@ -633,8 +636,14 @@ class HIDController:
                     "state_code": resp["stateCode"],
                     "auth_methods": {"authMethods": resp["authMethods"]},
                     "hip_id": request_json["hip_id"],
-                    "linking_token": linking_token,
-                    "refresh_token": refresh_token,
+                    "linking_token": {
+                        "value": linking_token,
+                        "valid_till": token_validity,
+                    },
+                    "refresh_token": {
+                        "value": refresh_token,
+                        "valid_till": token_validity,
+                    },
                     "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaAddress(
@@ -717,7 +726,7 @@ class HIDController:
                             self.CRUDPatientDetails.update(
                                 **{
                                     "id": patient_id,
-                                    "linking_token": linking_token,
+                                    "linking_token": {"value": linking_token},
                                 }
                             )
                         logging.info("Getting Abha card")
@@ -805,6 +814,7 @@ class HIDController:
                 data={"mobile": mobile_number},
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
+            logging.info(f"/v1/search/searchByMobile {resp_code=}")
             if resp.get("healthIdNumber", None):
                 return resp
             login_abha_url = f"{self.abha_url}/v2/registration/mobile/login/generateOtp"
@@ -843,4 +853,83 @@ class HIDController:
             return resp
         except Exception as error:
             logging.error(f"Error in HIDController.verify_login_otp function: {error}")
+            raise error
+
+    def abha_auth_init(self, request):
+        try:
+            logging.info("executing abha_auth_init function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_id = request.patientId
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            health_id = patient_obj.get("abha_number")
+            auth_method = request.authMethod
+            verify_otp_url = f"{self.abha_url}/v1/auth/init"
+            resp, resp_code = APIInterface().post(
+                route=verify_otp_url,
+                data={"authMethod": auth_method, "healthid": health_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            return resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_auth_init function: {error}")
+            raise error
+
+    def abha_auth_confirm(self, request):
+        try:
+            logging.info("executing abha_auth_confirm function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            txn_id = request.txnId
+            otp = request.otp
+            pid = request.patientId
+            auth_mode = request.authMode
+            if auth_mode == "AADHAAR_OTP":
+                verify_otp_url = f"{self.abha_url}/v1/auth/confirmWithAadhaarOtp"
+            elif auth_mode == "MOBILE_OTP":
+                verify_otp_url = f"{self.abha_url}/v1/auth/confirmWithMobileOTP"
+            else:
+                return {"status": "failed", "details": "invalid auth mode"}
+            resp, resp_code = APIInterface().post(
+                route=verify_otp_url,
+                data={"otp": otp, "txnId": txn_id},
+                headers={"Authorization": f"Bearer {gateway_access_token}"},
+            )
+            if resp_code <= 250:
+                linking_token = resp.get("token")
+                refresh_token = resp.get("refreshToken")
+                ist_timezone = pytz.timezone("Asia/Kolkata")
+                time_now = datetime.now(ist_timezone)
+                linking_token_validity = time_now + timedelta(
+                    seconds=resp.get("expiresIn")
+                )
+                linking_token_validity = linking_token_validity.strftime(
+                    "%m/%d/%Y, %H:%M:%S"
+                )
+                refresh_token_validity = time_now + timedelta(
+                    seconds=resp.get("refreshExpiresIn")
+                )
+                refresh_token_validity = refresh_token_validity.strftime(
+                    "%m/%d/%Y, %H:%M:%S"
+                )
+                self.CRUDPatientDetails.update(
+                    **{
+                        "id": pid,
+                        "linking_token": {
+                            "value": linking_token,
+                            "valid_till": linking_token_validity,
+                        },
+                        "refresh_token": {
+                            "value": refresh_token,
+                            "valid_till": refresh_token_validity,
+                        },
+                    }
+                )
+            return resp
+        except Exception as error:
+            logging.error(f"Error in HIDController.abha_auth_confirm function: {error}")
             raise error
