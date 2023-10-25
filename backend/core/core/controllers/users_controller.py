@@ -28,7 +28,6 @@ class UserManagementController:
             user_obj = self.CRUDUser.read(username=request_json.get("username"))
             inp_hip_id = request_json.pop("hip_id")
             inp_hip_name = request_json.pop("hip_name")
-            inp_doc_id = request_json.pop("doc_id")
             if user_obj is not None:
                 hip_details = user_obj.get("hip_details")
                 hip_list = list(hip_details.keys())
@@ -42,11 +41,7 @@ class UserManagementController:
                 else:
                     hip_details.update({inp_hip_id: inp_hip_name})
                     request_json.update(
-                        {
-                            "password": password_hash,
-                            "hip_details": hip_details,
-                            "doc_id": inp_doc_id,
-                        }
+                        {"password": password_hash, "hip_details": hip_details}
                     )
                     self.CRUDUser.update(**request_json)
                     access_token = signJWT(
@@ -54,7 +49,6 @@ class UserManagementController:
                         user_role=request_json.get("user_role"),
                         department=request_json.get("department"),
                         hip_id=hip_details,
-                        doc_id=inp_doc_id,
                     )
                     return {
                         "access_token": access_token,
@@ -67,7 +61,6 @@ class UserManagementController:
                     {
                         "password": password_hash,
                         "hip_details": {inp_hip_id: inp_hip_name},
-                        "doc_id": inp_doc_id,
                     }
                 )
                 self.CRUDUser.create(**request_json)
@@ -76,7 +69,6 @@ class UserManagementController:
                     user_role=request_json.get("user_role"),
                     department=request_json.get("department"),
                     hip_id={inp_hip_id: inp_hip_name},
-                    doc_id=inp_doc_id,
                 )
                 return {
                     "access_token": access_token,
@@ -113,7 +105,6 @@ class UserManagementController:
                         user_role=user_obj.get("user_role"),
                         department=user_obj.get("department"),
                         hip_id=user_obj.get("hip_details"),
-                        doc_id=user_obj.get("doc_id"),
                     )
                     logging.info(f"{user_obj=}")
                     del user_obj["password"]
