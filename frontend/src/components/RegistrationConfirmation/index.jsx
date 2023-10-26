@@ -58,18 +58,18 @@ const RegisterationConfirmation = ({
       : registeredPatient;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
-
+  const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"))
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
       {
         key: "Patient Id",
-        value: patientData?.id || "-",
+        value: patientData?.id || currentPatient?.id || "-",
       },
-      { key: "Gender", value: patientData?.gender || "-" },
-      { key: "Date Of Birth", value: patientData?.DOB || "-" },
+      { key: "Gender", value: patientData?.gender || currentPatient?.gender || "-" },
+      { key: "Date Of Birth", value: patientData?.DOB || currentPatient?.DOB || "-" },
       { key: "Email Address", value: patientData?.email || "-" },
-      { key: "AABHA Address", value: patientData?.abha_address || "-" },
+      { key: "AABHA Address", value: patientData?.abha_address || currentPatient?.abha_address || "-" },
     ];
     if (isAppointment) {
       const appointmentData = [

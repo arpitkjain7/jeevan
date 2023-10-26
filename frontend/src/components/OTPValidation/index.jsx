@@ -10,7 +10,7 @@ const OtpInputWrapperWrapper = styled("div")(({ theme }) => ({
     },
   },
 }));
-const OtpInput = ({ verifyOTP, type, isSync = "false" }) => {
+const OtpInput = ({ verifyOTP, type, isSync = false }) => {
   const dispatch = useDispatch();
   const [otp, setOTP] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
