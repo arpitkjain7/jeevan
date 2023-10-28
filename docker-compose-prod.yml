@@ -66,7 +66,7 @@ services:
       - lobster_mq
 
   lobster_ui:
-    image: cliniq360/lobster-ui:0.7
+    image: cliniq360/lobster-ui:0.8
 
     container_name: lobster-ui
     ports:
