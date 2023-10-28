@@ -197,12 +197,11 @@ class CallbackController:
                 gateway_metadata = gateway_obj.get("gateway_metadata")
                 logging.info(f"{gateway_metadata=}")
                 pmr_request = {
+                    "id": gateway_metadata.get("pmr_id"),
                     "abdm_linked": True,
                 }
                 logging.info(f"{pmr_request=}")
-                self.CRUDPatientMedicalRecord.update(
-                    pmr_id=gateway_metadata.get("pmr_id"), **pmr_request
-                )
+                self.CRUDPatientMedicalRecord.update(**pmr_request)
                 gateway_request = {
                     "request_id": request_id,
                     "callback_response": request,
