@@ -15,7 +15,14 @@ def on_subscribe(on_subscribe_request: OnSubscribe):
     try:
         logging.info("Calling /v1/on_subscribe endpoint")
         logging.debug(f"Request: {on_subscribe_request}")
-        return OndcFsController().on_subscribe_decypt(request=on_subscribe_request)
+        ondc_public_key = "MCowBQYDK2VuAyEAduMuZgmtpjdCuxv+Nc49K0cB6tL/Dj3HZetvVN7ZekM="
+        enc_private_key = (
+            "MC4CAQAwBQYDK2VuBCIEIAixt1l8nWtgbAHV714v09pRXapX6oFi2/uN9Vkp5mFD"
+        )
+        logging.info(f"{enc_private_key=}")
+        return OndcFsController().on_subscribe_decypt(
+            ondc_public_key, enc_private_key, request=on_subscribe_request
+        )
     except Exception as error:
         logging.error(f"Error in /v1/on_subscribe endpoint: {error}")
         raise HTTPException(

@@ -18,25 +18,24 @@ class OndcFsController:
     def __init__(self):
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
 
-    def decrypt(enc_public_key, enc_private_key, cipherstring):
+    def decrypt(self, enc_public_key, enc_private_key, cipherstring):
         private_key = serialization.load_der_private_key(
             base64.b64decode(enc_private_key), password=None
         )
+        logging.info(f"{private_key=}")
         public_key = serialization.load_der_public_key(base64.b64decode(enc_public_key))
+        logging.info(f"{public_key=}")
         shared_key = private_key.exchange(public_key)
+        logging.info(f"{shared_key=}")
         cipher = AES.new(shared_key, AES.MODE_ECB)
+        logging.info(f"{cipher=}")
         ciphertxt = base64.b64decode(cipherstring)
+        logging.info(f"{ciphertxt=}")
         return unpad(cipher.decrypt(ciphertxt), AES.block_size).decode("utf-8")
 
-    def on_subscribe_decypt(self, request):
+    def on_subscribe_decypt(self, ondc_public_key, enc_private_key, request):
         try:
             logging.info("executing on_subscribe_decypt function")
-            ondc_public_key = (
-                "MCowBQYDK2VuAyEAduMuZgmtpjdCuxv+Nc49K0cB6tL/Dj3HZetvVN7ZekM="
-            )
-            enc_private_key = (
-                "MC4CAQAwBQYDK2VuBCIEIAixt1l8nWtgbAHV714v09pRXapX6oFi2/uN9Vkp5mFD"
-            )
             logging.info(f"{request.subscriber_id=}")
             question = request.challenge
             logging.info(f"{question=}")
