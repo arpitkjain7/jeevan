@@ -1,4 +1,6 @@
 FROM debian:bookworm
+FROM nginx:alpine
+COPY ondc-site-verification.html /usr/share/nginx/html/
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install gcc -y \
     python3 \
