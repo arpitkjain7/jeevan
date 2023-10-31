@@ -1,26 +1,14 @@
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core import logger
 from datetime import datetime, timezone, timedelta
-import os
-import uuid
-import json
-import time
-import os
 import base64
-import datetime
 import json
-import nacl.encoding
-import nacl.hash
-from nacl.signing import SigningKey
 from cryptography.hazmat.primitives import serialization
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import unpad
 from flask import Flask, request
-import requests
+
 import uuid
-import multiprocessing
-import threading
-import pytz
 
 
 logging = logger(__name__)
@@ -42,7 +30,7 @@ class OndcFsController:
 
     def on_subscribe_decypt(self, request):
         try:
-            logging.info("executing  on_subscribe_decypt function")
+            logging.info("executing on_subscribe_decypt function")
             ondc_public_key = (
                 "MCowBQYDK2VuAyEAduMuZgmtpjdCuxv+Nc49K0cB6tL/Dj3HZetvVN7ZekM="
             )
@@ -50,8 +38,9 @@ class OndcFsController:
                 "MC4CAQAwBQYDK2VuBCIEIAixt1l8nWtgbAHV714v09pRXapX6oFi2/uN9Vkp5mFD"
             )
             logging.info(f"{request.subscriber_id=}")
-            logging.info(f"{request.challenge=}")
-            answer = self.decrypt(ondc_public_key, enc_private_key, request.challenge)
+            question = request.challenge
+            logging.info(f"{question=}")
+            answer = self.decrypt(ondc_public_key, enc_private_key, question)
             logging.info(f"{answer=}")
             return {"answer": answer}
         except Exception as error:
