@@ -1,6 +1,5 @@
 FROM debian:bookworm
 FROM nginx:alpine
-COPY ondc-site-verification.html /usr/share/nginx/html/
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install gcc -y \
     python3 \
@@ -13,6 +12,7 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+COPY ondc-site-verification.html /usr/share/nginx/html/
 COPY . /app
 WORKDIR /app
 ENV PATH="/venv/bin:$PATH"
