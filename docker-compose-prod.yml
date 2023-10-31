@@ -32,8 +32,6 @@ services:
       - ./backend/core:/app
       - ./backend/logs:/core/logs
       - ./backend/fidelius-cli-1.2.0:/app/fidelius-cli-1.2.0
-      - ./backnd/core/ondc-site-verification.html:/usr/share/nginx/html/ondc-site-verification.html
-
     ports:
       - 8001:8000
     depends_on:
@@ -75,6 +73,18 @@ services:
       - "8082:80"
     volumes:
       - ./frontend/src:/app/src
+    networks:
+      - lobster
+    restart: "on-failure"
+
+  ondc_nginx:
+    build: ondc/.
+    image: ondc_nginx:latest
+    container_name: ondc-nginx
+    volumes:
+      - ./ondc:/usr/share/nginx/html
+    ports:
+      - 8200:80
     networks:
       - lobster
     restart: "on-failure"

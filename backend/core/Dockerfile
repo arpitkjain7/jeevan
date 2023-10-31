@@ -11,8 +11,6 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-FROM nginx:alpine
-COPY ondc-site-verification.html /usr/share/nginx/html/
 COPY . /app
 WORKDIR /app
 ENV PATH="/venv/bin:$PATH"
