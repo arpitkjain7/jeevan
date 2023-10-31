@@ -13,6 +13,7 @@ from core.apis.routes.hid_router import hid_router
 from core.apis.routes.dataTransfer_router import dataTransfer_router
 from core.apis.routes.appointment_router import appointment_router
 from core.apis.routes.hiu_router import hiu_router
+from core.apis.routes.ondcFs_router import ondcFs_router
 
 """
 from core.apis.routes.listOfComplaints_router import listOfComplaint_router
@@ -53,6 +54,7 @@ app.include_router(callback_router, tags=["Callback"])
 app.include_router(dataTransfer_router, tags=["Data Transfer"])
 app.include_router(hiu_router, tags=["HIU Routers"])
 app.include_router(common_router, tags=["Common"])
+app.include_router(ondcFs_router, tags=["Ondc FS"])
 """
 app.include_router(listOfComplaint_router, tags=["Common"])
 app.include_router(listOfDiagnosis_router, tags=["Common"])
