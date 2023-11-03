@@ -6,6 +6,7 @@ import { apis } from "../../utils/apis";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
 import { useNavigate } from "react-router-dom";
 import CustomSnackbar from "../CustomSnackbar";
+import { validateAbhaAddress } from "../../utils/utils";
 
 const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   const [formData, setFormData] = React.useState({
@@ -20,6 +21,8 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const navigate = useNavigate();
+  const [abhaAddressError, setAbhaAddressError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -32,7 +35,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-
+    if (!validateAbhaAddress(formData.abhaAddress)) {
+      setAbhaAddressError(true);
+      setShowSnackbar(true);
+      setErrorMessage("Invalid ABHA Address");
+      return;
+    }
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = {
@@ -78,7 +86,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   return (
     <form onSubmit={handleSubmit}>
       <CustomSnackbar
-        message="Something went wrong"
+        message={errorMessage || "Something went wrong"}
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
@@ -132,6 +140,8 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             onChange={handleChange}
             required
             fullWidth
+            error={abhaAddressError}
+            helperText={abhaAddressError ? "Invalid ABHA Address." : ""}
           />
         </Grid>
         <Grid item xs={5}>

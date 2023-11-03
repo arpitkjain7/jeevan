@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
-import { convertDateFormat } from "../../utils/utils";
+import { convertDateFormat, validateAbhaAddress } from "../../utils/utils";
 import { useNavigate } from "react-router";
 import CustomSnackbar from "../CustomSnackbar";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
@@ -33,6 +33,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [abhaAddressError, setAbhaAddressError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -46,7 +48,12 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-
+    if (!validateAbhaAddress(formData.abhaAddress)) {
+      setAbhaAddressError(true);
+      setShowSnackbar(true);
+      setErrorMessage("Invalid ABHA Address");
+      return;
+    }
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       let url = "";
@@ -114,7 +121,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   return (
     <form onSubmit={handleSubmit}>
       <CustomSnackbar
-        message="Something went wrong"
+        message={errorMessage || "Something went wrong"}
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
@@ -221,6 +228,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
                 onChange={handleChange}
                 required
                 fullWidth
+                error={abhaAddressError}
+                helperText={abhaAddressError ? "Invalid ABHA Address." : ""}
               />
             </Grid>
             <Grid item xs={5}>
