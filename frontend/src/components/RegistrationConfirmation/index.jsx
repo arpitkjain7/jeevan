@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, styled, Button } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { downloadAabha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -46,6 +47,7 @@ const RegisterationConfirmation = ({
   isAppointment = false,
   onSubmit,
 }) => {
+  const dispatch = useDispatch();
   console.log(appointmentDetails, "details");
   const dataState = useSelector((state) => state);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
@@ -58,7 +60,7 @@ const RegisterationConfirmation = ({
       : registeredPatient;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
-  const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"))
+  const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
@@ -87,6 +89,18 @@ const RegisterationConfirmation = ({
 
     setData(pageData);
   }, [patientData]);
+
+  const downloadAbha = () => {
+      console.log("Aabha");
+      console.log(patientData);
+      dispatch(downloadAabha({patient_Id: "C360-PID-782879735214353090"})).then((res) => {
+        console.log(res);
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+          console.log("Download Aabha failed");
+          return;
+        }
+      })
+  }
 
   const navigateToNext = () => {
     if (isAppointment) {
@@ -140,9 +154,12 @@ const RegisterationConfirmation = ({
           ))}
         </Grid>
       </Box>
-      <div className="btn-wrapper">
+      <div className="btn-wrapper">    
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
+        </Button>
+        <Button className="submit-btn" onClick={downloadAbha}>
+         Download Aabha
         </Button>
       </div>
     </RegisterationConfirmationWrapper>

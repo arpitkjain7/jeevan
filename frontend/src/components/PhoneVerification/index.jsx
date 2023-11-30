@@ -38,28 +38,53 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
 const PhoneVerification = ({
   number,
   handleNumberChange,
+  isMobileError,
   handleSubmit,
+  PhoneDisabled,
   setSixDigitOTP,
   verifyOTP,
   phoneNumberUsed,
+  seconds
 }) => {
   return (
     <PhoneVerificationWrapper>
       <div className="validate-phone-form">
         <TextField
-          type="text"
+          type="number"
           value={number}
           onChange={handleNumberChange}
+          error={isMobileError}
           className="phone-text"
         />
+        {seconds > 0 || seconds < 0 ? (
         <Button
+          disabled={PhoneDisabled}
           onClick={() => handleSubmit("phone_number")}
           variant="contained"
           className="verification-btn"
         >
           Verify
+        </Button>         
+        ) : (
+          <Button
+          disabled={seconds > 0 || seconds < 0}
+          style={{
+            color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+          }}
+          variant="contained"
+          className="verification-btn"
+          onClick={() => handleSubmit("phone_number")}
+        >
+          Resend OTP
         </Button>
+        )}
       </div>
+      {seconds > 0 || seconds < 0 ? (
+        null
+     ) : ( <p>
+      Resend OTP in: 00:
+      {seconds < 10 ? `0${seconds}` : seconds}
+    </p>)}
       {!phoneNumberUsed && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>
@@ -68,6 +93,7 @@ const PhoneVerification = ({
             verifyOTP={verifyOTP}
             type="phone_number"
           />
+       
         </div>
       )}
     </PhoneVerificationWrapper>

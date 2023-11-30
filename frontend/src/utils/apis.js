@@ -11,6 +11,7 @@ export const apis = {
   registerUser: "patient/register",
   registerAadharPaient: "HID/registration/aadhaar/abhaRegistration",
   registerPhonePatient: "registration/mobile/createHealthId",
+  downloadAabhaCard: "profile/getAbhaCard",
   listAllDoctors: "listAllDoctors",
   doctorSlotsDetails: "slots",
   createAppointment: "appointment/create",

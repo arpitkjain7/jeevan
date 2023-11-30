@@ -1,12 +1,5 @@
 import {
-  Button,
-  Checkbox,
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-  styled,
+  styled
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
@@ -23,6 +16,7 @@ import {
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
 import VerificationSelection from "../../components/VerificationSelection";
 import AadharVerification from "../../components/AadharVerification";
+import AadharConsent from "../../components/AadharConsent";
 import PhoneVerification from "../../components/PhoneVerification";
 import RegisterationConfirmation from "../../components/RegistrationConfirmation";
 import { apis } from "../../utils/apis";
@@ -89,7 +83,7 @@ const PatientRegistration = () => {
   const [verifyNumber, setVerifyNumber] = useState(true);
   const [userDetailsForm, setUserDeatilsForm] = useState(true);
   const [sixDigitOTP, setSixDigitOTP] = useState("");
-  const [number, setNumber] = useState("");
+  const [number, setNumber] = useState();
   const dataState = useSelector((state) => state);
   const aadharData = dataState?.PatientRegistartion?.registerAadhar;
   const phoneData = dataState?.PatientRegistartion?.registerPhone;
@@ -102,6 +96,16 @@ const PatientRegistration = () => {
   const [userCreated, setUserCreated] = useState(false);
   const [phoneNumberUsed, setPhoneNumberUsed] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('Something went wrong');
+  const [isMobileError, setIsMobileError] = useState(false);
+  const [isAadharError, setIsAadharError] = useState(false);
+  const [isAadharValid, setIsAadharValid] = useState(false);
+  const [aadharOTP, setAadharOTP] = useState(false);
+  const [PhoneDisabled, setPhoneDisabled] = useState(true);
+  const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
+  const [seconds, setSeconds] = useState(-1);
+  const [open, setOpen] = useState(false);
+  const scroll = 'paper';
 
   const modes = [
     {
@@ -128,7 +132,13 @@ const PatientRegistration = () => {
     setVerifyAadhar(true);
     setRegistration(true);
     setCheckedOption(null);
+    setIsAadharValid(false);
+    setAadharOTP(false);
+    setAadharOTPSeconds(-1);
+    setSeconds(-1);
   };
+
+  const aadhar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
   const handleOptionChange = (event) => {
     if (selectedOption?.length) {
       resetFields();
@@ -143,65 +153,120 @@ const PatientRegistration = () => {
 
   const handleAadharChange = (event) => {
     const inputValue = event.target.value;
-    const numericValue = parseInt(inputValue);
-    // Check if the input value is a valid number or empty string
-    if (!isNaN(numericValue) || inputValue === "") {
+    // Check if the input value is empty string
+    if (inputValue !== null) {
       setAadhar(inputValue);
+      console.log(aadhar_regex.test(event.target.value));
+      if (!aadhar_regex.test(event.target.value)) {
+        setIsAadharError(true);
+        setIsAadharValid(false);
+        setAadharOTP(false)
+      } else {
+        setIsAadharError(false);
+        setIsAadharValid(true);
+        setAadharOTP(true)
+      }
     }
+  
+    // if (isNaN(numericValue) || inputValue === "") {
+    //   console.log(isNaN(numericValue));
+    //   setErrorMessage('Please enter valid Aadhar number!');
+    // } else {    
+    //   setAadhar(inputValue);
+    // }
   };
 
   const handleNumberChange = (event) => {
     const inputValue = event.target.value;
     const numericValue = parseInt(inputValue);
-    // Check if the input value is a valid number or empty string
-    if (!isNaN(numericValue) || inputValue === "") {
-      setNumber(inputValue);
+    if (isNaN(numericValue) || numericValue !== "") 
+      setNumber(numericValue)
+    let new_Number_length = inputValue.length;
+    if (new_Number_length > 10 || new_Number_length < 10) {
+      // setErrorMessage("Please enter valid number")
+      setIsMobileError(true);
+      setPhoneDisabled(true);
+    } else if (new_Number_length === 10) {
+      setIsMobileError(false);
+      setPhoneDisabled(false);
     }
+    // const numericValue = parseInt(inputValue);
+    // Check if the input value is a valid number or empty string
+    // if (!isNaN(numericValue) || inputValue === "") {
+    //   setNumber(inputValue);
+    // }
+  };
+
+  const handleClose = () => {
+    console.log(open);
+    setOpen(false);
   };
 
   const handleSubmit = (type) => {
     // Handle the form submission
     if (type === "aadhar") {
+    
+    //validation
+    if (aadhar_regex.test(aadhar)){
+      setIsAadharValid(false);
+      setAadharOTPSeconds(30);
+      setAadharOTP(true);
       console.log("Form submitted:", aadhar);
-      const payload = {
-        aadhaarNumber: aadhar,
-      };
-      dispatch(registerAADHAR(payload)).then((res) => {
-        if (res?.error && Object.keys(res?.error)?.length > 0) {
-          setShowSnackbar(true);
-          return;
-        }
-        console.log(res?.payload);
-      });
+        const payload = {
+          aadhaarNumber: (aadhar).replace(/\D/g, ""),
+        };
+        dispatch(registerAADHAR(payload)).then((res) => {
+          console.log(res);
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setShowSnackbar(true);
+            return;
+          }
+          console.log(res?.payload);
+        });
+      } else {
+        console.log("Failed");
+        setErrorMessage("Please enter a correct Aadhar Number");
+        setShowSnackbar(true);
+      }
     } else if (type === "phone_number") {
-      console.log("Form submitted:", number);
-      const payload =
-        selectedOption === "aadhar"
-          ? {
-              txnId: aadharData?.txn_id,
-              mobileNumber: number,
-            }
-          : {
-              mobileNumber: number,
-            };
-      const url =
-        selectedOption === "aadhar"
-          ? apis?.registerAadharNumber
-          : apis?.restigerNumber;
-      dispatch(registerPhone({ payload, url })).then((res) => {
-        if (res?.error && Object.keys(res?.error)?.length > 0) {
-          setShowSnackbar(true);
-          return;
-        }
-        const resData = res?.payload;
-        console.log(res, "responsePhone");
-        if (resData?.mobileLinked && selectedOption === "aadhar") {
-          setPhoneNumberUsed(resData?.mobileLinked);
-          setStepThree(true);
-        } else {
-          setPhoneNumberUsed(false);
-        }
-      });
+      const mobile_pattern = new RegExp(/^[0-9]{10}$/);
+      if (mobile_pattern.test(number)){
+       
+        setPhoneDisabled(true);
+        const payload =
+          selectedOption === "aadhar"
+            ? {
+                txnId: aadharData?.txn_id,
+                mobileNumber: number,
+              }
+            : {
+                mobileNumber: number,
+              };
+        const url =
+          selectedOption === "aadhar"
+            ? apis?.registerAadharNumber
+            : apis?.restigerNumber;
+        dispatch(registerPhone({ payload, url })).then((res) => {
+          console.log(res);
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setShowSnackbar(true);
+            return;
+          }
+          const resData = res?.payload;
+         
+          if (resData?.mobileLinked && selectedOption === "aadhar") {
+            setPhoneNumberUsed(resData?.mobileLinked);
+            setStepThree(true);
+          } else {
+            setSeconds(30);
+            setPhoneNumberUsed(false);
+          }
+        });
+      } else {
+        console.log("Failed");
+        setErrorMessage("Please enter valid Number");
+        setShowSnackbar(true);
+      }
     }
   };
 
@@ -213,10 +278,11 @@ const PatientRegistration = () => {
       };
       dispatch(verifyAadharOTP(payload)).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setErrorMessage("Please enter correct OTP");
           setShowSnackbar(true);
+          setStepTwo(false);
           return;
         }
-        console.log(res.payload);
       });
       setStepTwo(true);
       if (stepTwo) {
@@ -228,12 +294,16 @@ const PatientRegistration = () => {
         otp: otp,
       };
       dispatch(verifyPhoneOTP(payload)).then((res) => {
+        console.log(res);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
+          setErrorMessage("Please enter correct OTP");
+          setStepTwo(false);
           return;
         }
-        console.log(res.payload);
-        setStepTwo(true);
+        // else {
+          setStepTwo(true);
+        // }
       });
     } else if (selectedOption === "aadhar" && type === "phone_number") {
       const payload = {
@@ -245,7 +315,7 @@ const PatientRegistration = () => {
           setShowSnackbar(true);
           return;
         }
-        console.log(res.payload);
+        console.log(res);
         setStepTwo(true);
         if (stepTwo) {
           setStepThree(true);
@@ -258,7 +328,7 @@ const PatientRegistration = () => {
     if (stepOne) {
       setRegistration(false);
       if (selectedOption === "aadhar") {
-        setVerifyAadhar(true);
+        setVerifyAadhar(true);       
       }
       if (selectedOption === "phone_number" && checkedOption) {
         setUserDeatilsForm(true);
@@ -288,19 +358,50 @@ const PatientRegistration = () => {
       setVerifyNumber(false);
       setUserDeatilsForm(true);
     }
-  }, [stepOne, stepTwo, setStepThree, stepFour, selectedOption]);
+  }, [stepOne, stepTwo, stepThree, stepFour, selectedOption]);
 
-  console.log(
-    (selectedOption === "aadhar" && stepTwo && !checkedOption) ||
-      (selectedOption === "phone_number" && stepOne && !checkedOption),
-    "check"
-  );
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (seconds > 0) {
+        setSeconds(seconds - 1);
+      }
+  
+      if (seconds === 0) {
+        clearInterval(interval);       
+      }
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [seconds]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (aadharOTPseconds > 0) {
+        setAadharOTPSeconds(aadharOTPseconds - 1);
+      }
+  
+      if (aadharOTPseconds === 0) {
+        clearInterval(interval);       
+      }
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [aadharOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if (selectedOption) {
+    if(selectedOption == "aadhar") {
+      setOpen(true);
+    } else {
       setStepOne(true);
     }
   };
+
+  const handleConsentConfirmation = () => {
+    setStepOne(true);
+    setOpen(false);
+  }
 
   const onSnackbarClose = () => {
     setShowSnackbar(false);
@@ -309,11 +410,21 @@ const PatientRegistration = () => {
   return (
     <PatientRegisterWrapper>
       <CustomSnackbar
-        message="Something went wrong"
+        message={errorMessage}
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
       />
+       
+        <AadharConsent
+          open={open}
+          handleClose={handleClose}
+          scroll={scroll}
+          handleConsentConfirmation={handleConsentConfirmation}
+          aria-labelledby="scroll-dialog-title"
+          aria-describedby="scroll-dialog-description"
+        >
+        </AadharConsent>
       <ExpandableCard
         title={`Mode of Registration ${
           selectedOption ? "|" + " " + selectedOption?.replace("_", " ") : ""
@@ -331,6 +442,7 @@ const PatientRegistration = () => {
           handleConfirmSelection={handleConfirmSelection}
         />
       </ExpandableCard>
+     
       {selectedOption === "aadhar" && stepOne && !checkedOption && (
         <ExpandableCard
           title="AADHAR Verfication"
@@ -341,33 +453,57 @@ const PatientRegistration = () => {
           <AadharVerification
             aadhar={aadhar}
             handleAadharChange={handleAadharChange}
+            isAadharError={isAadharError}
             handleSubmit={handleSubmit}
+            isAadharValid={isAadharValid}
+            aadharOTP={aadharOTP}
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
-          />
+            seconds={aadharOTPseconds}
+          /> 
         </ExpandableCard>
       )}
-      {(selectedOption === "aadhar" && stepTwo && !checkedOption) ||
-      (selectedOption === "phone_number" && stepOne && checkedOption) ? (
+      {(selectedOption === "aadhar" && stepTwo && !checkedOption &&
+         <ExpandableCard
+         title="Mobile Number Verification"
+         expanded={verifyNumber}
+         setExpanded={setVerifyNumber}
+         completed={(selectedOption === "aadhar" && stepThree)}
+       >
+         <PhoneVerification
+           number={number}
+           handleNumberChange={handleNumberChange}
+           error={isMobileError}
+           handleSubmit={handleSubmit}
+           PhoneDisabled={PhoneDisabled}
+           setSixDigitOTP={setSixDigitOTP}
+           verifyOTP={verifyOTP}
+           seconds={seconds}
+           phoneNumberUsed={phoneNumberUsed}
+         /> <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+       </ExpandableCard>
+      )}
+      {(selectedOption === "phone_number" && stepOne && checkedOption &&
         <ExpandableCard
           title="Mobile Number Verification"
           expanded={verifyNumber}
           setExpanded={setVerifyNumber}
-          completed={
-            (selectedOption === "aadhar" && stepThree) ||
-            (selectedOption === "phone_number" && stepTwo)
-          }
+          completed={(selectedOption === "phone_number" && stepTwo)}
         >
           <PhoneVerification
             number={number}
             handleNumberChange={handleNumberChange}
+            error={isMobileError}
             handleSubmit={handleSubmit}
+            PhoneDisabled={PhoneDisabled}
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
+            seconds={seconds}
             phoneNumberUsed={phoneNumberUsed}
-          />
+          /> <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
         </ExpandableCard>
-      ) : null}
+      )}
+
       {(selectedOption === "phone_number" && checkedOption && stepTwo) ||
       (selectedOption === "aadhar" && stepThree && !checkedOption) ||
       (!checkedOption && stepOne && selectedOption === "phone_number") ? (
@@ -404,6 +540,7 @@ const PatientRegistration = () => {
           </div>
         </ExpandableCard>
       )} */}
+      
     </PatientRegisterWrapper>
   );
 };

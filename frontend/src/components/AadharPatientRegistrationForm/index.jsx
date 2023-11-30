@@ -30,6 +30,11 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       ...prevData,
       [name]: value,
     }));
+    if(!validateAbhaAddress(value)) {
+      setAbhaAddressError(true);
+    } else {
+      setAbhaAddressError(false)
+    }
   };
 
   const handleSubmit = (event) => {
@@ -136,12 +141,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
           <TextField
             placeholder="Enter ABHA Address"
             name="abhaAddress"
+            error={abhaAddressError}
             value={formData.abhaAddress}
             onChange={handleChange}
             required
             fullWidth
-            error={abhaAddressError}
-            helperText={abhaAddressError ? "Invalid ABHA Address." : ""}
+            helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
           />
         </Grid>
         <Grid item xs={5}>

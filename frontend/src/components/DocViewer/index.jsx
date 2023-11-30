@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import pdfjs from "pdfjs-dist/build/pdf";
+// import pdfjs from "pdfjs-dist/build/pdf";
 import { styled } from "@mui/material";
 import { useState } from "react";
 import { useRef } from "react";
