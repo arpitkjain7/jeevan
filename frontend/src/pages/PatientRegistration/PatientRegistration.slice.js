@@ -56,7 +56,6 @@ export const downloadAabha = createAsyncThunk(
   "registration/downloadAabha",
   async (patient_Id) => {
     console.log(patient_Id);
-    // + "/?patient_Id=" +
     const response = await apiRequest("POST", apis?.downloadAabhaCard, patient_Id);
     return response;
   }
