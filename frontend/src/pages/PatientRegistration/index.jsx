@@ -22,6 +22,7 @@ import RegisterationConfirmation from "../../components/RegistrationConfirmation
 import { apis } from "../../utils/apis";
 import AadharPatientRegForm from "../../components/AadharPatientRegistrationForm";
 import CustomSnackbar from "../../components/CustomSnackbar";
+import CustomLoader from "../../components/CustomLoader";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -96,6 +97,7 @@ const PatientRegistration = () => {
   const [userCreated, setUserCreated] = useState(false);
   const [phoneNumberUsed, setPhoneNumberUsed] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Something went wrong');
   const [isMobileError, setIsMobileError] = useState(false);
   const [isAadharError, setIsAadharError] = useState(false);
@@ -160,11 +162,9 @@ const PatientRegistration = () => {
       if (!aadhar_regex.test(event.target.value)) {
         setIsAadharError(true);
         setIsAadharValid(false);
-        setAadharOTP(false)
       } else {
         setIsAadharError(false);
         setIsAadharValid(true);
-        setAadharOTP(true)
       }
     }
   
@@ -204,8 +204,9 @@ const PatientRegistration = () => {
 
   const handleSubmit = (type) => {
     // Handle the form submission
+     setShowLoader(true);
     if (type === "aadhar") {
-    
+      
     //validation
     if (aadhar_regex.test(aadhar)){
       setIsAadharValid(false);
@@ -217,6 +218,7 @@ const PatientRegistration = () => {
         };
         dispatch(registerAADHAR(payload)).then((res) => {
           console.log(res);
+          setShowLoader(false);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             setShowSnackbar(true);
             return;
@@ -229,10 +231,14 @@ const PatientRegistration = () => {
         setShowSnackbar(true);
       }
     } else if (type === "phone_number") {
+     
       const mobile_pattern = new RegExp(/^[0-9]{10}$/);
       if (mobile_pattern.test(number)){
-       
         setPhoneDisabled(true);
+        if(selectedOption === "phone_number"){
+          setSeconds(30);
+          setPhoneNumberUsed(false);
+        }
         const payload =
           selectedOption === "aadhar"
             ? {
@@ -248,6 +254,7 @@ const PatientRegistration = () => {
             : apis?.restigerNumber;
         dispatch(registerPhone({ payload, url })).then((res) => {
           console.log(res);
+          setShowLoader(false);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             setShowSnackbar(true);
             return;
@@ -257,7 +264,7 @@ const PatientRegistration = () => {
           if (resData?.mobileLinked && selectedOption === "aadhar") {
             setPhoneNumberUsed(resData?.mobileLinked);
             setStepThree(true);
-          } else {
+          } else if(!resData?.mobileLinked && selectedOption === "aadhar"){
             setSeconds(30);
             setPhoneNumberUsed(false);
           }
@@ -283,8 +290,9 @@ const PatientRegistration = () => {
           setStepTwo(false);
           return;
         }
+        else setStepTwo(true);
       });
-      setStepTwo(true);
+     
       if (stepTwo) {
         setStepThree(true);
       }
@@ -407,6 +415,10 @@ const PatientRegistration = () => {
     setShowSnackbar(false);
   };
 
+  const onLoaderClose = () => {
+    setShowLoader(false);
+  };
+
   return (
     <PatientRegisterWrapper>
       <CustomSnackbar
@@ -414,6 +426,10 @@ const PatientRegistration = () => {
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
+      />
+       <CustomLoader
+        open={showLoader}
+        onClose={onLoaderClose}
       />
        
         <AadharConsent

@@ -49,6 +49,7 @@ const RegisterationConfirmation = ({
 }) => {
   const dispatch = useDispatch();
   console.log(appointmentDetails, "details");
+  const [isAabhaDisabled, setIsAabhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
@@ -91,13 +92,17 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   const downloadAbha = () => {
-      console.log("Aabha");
-      console.log(patientData);
-      dispatch(downloadAabha({patient_Id: "C360-PID-782879735214353090"})).then((res) => {
-        console.log(res);
+      console.log("Downloading Aabha");
+      setIsAabhaDisabled(true);
+      dispatch(downloadAabha({patientId: patientData.id})).then((res) => {
+        setIsAabhaDisabled(false);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           console.log("Download Aabha failed");
           return;
+        }
+        else {
+          const abha_url = res?.payload.abha_url;
+          window.location.replace(abha_url);
         }
       })
   }
@@ -158,7 +163,11 @@ const RegisterationConfirmation = ({
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
-        <Button className="submit-btn" onClick={downloadAbha}>
+        <Button disabled={isAabhaDisabled} 
+          style={{
+                backgroundColor: isAabhaDisabled ? "#9e9e9e" : "",
+              }}
+          className="submit-btn" onClick={downloadAbha}>
          Download Aabha
         </Button>
       </div>

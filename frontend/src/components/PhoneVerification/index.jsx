@@ -79,12 +79,12 @@ const PhoneVerification = ({
         </Button>
         )}
       </div>
-      {seconds > 0 || seconds < 0 ? (
+      {seconds < 0 ? (
         null
-     ) : ( <p>
+     ) : ( <h5>
       Resend OTP in: 00:
       {seconds < 10 ? `0${seconds}` : seconds}
-    </p>)}
+    </h5>)}
       {!phoneNumberUsed && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>

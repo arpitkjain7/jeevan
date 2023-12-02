@@ -85,15 +85,16 @@ const AadharVerification = ({
             </Button>
             )}
       </div>
-      {seconds > 0 || seconds < 0 ? (
-        null
-      ):( <p>
-        Resend OTP in: 00:
-        {seconds < 10 ? `0${seconds}` : seconds}
-      </p>)}
       <div style={{ marginBottom: "24px"}} >
         <span style={{ color: 'red', marginBottom: "24px"}}>{isAadharError ? "Please enter correct Aadhar Number" : ""}</span>
       </div>
+      {seconds < 0 ? (
+        null
+      ):( <h4>
+        Resend OTP in: 00:
+        {seconds < 10 ? `0${seconds}` : seconds}
+      </h4>)}
+     
       {aadharOTP && (
       <div>
         <Typography className="otp-title">Enter OTP</Typography>

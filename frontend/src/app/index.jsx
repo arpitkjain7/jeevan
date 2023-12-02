@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { styled } from "@mui/material";
+import { Backdrop, CircularProgress, styled } from "@mui/material";
 import Header from "../components/Header";
 import "./global.scss";
 import SignInPage from "../pages/SignIn";
@@ -40,6 +40,7 @@ const MainWrapper = styled("div")(({ theme }) => ({
 function App() {
   const dataState = useSelector((state) => state);
   const isAuthenticated = sessionStorage.getItem("accesstoken");
+
   // const navigate = useNavigate();
   useEffect(() => {
     console.log("reduxStore", dataState);
@@ -67,6 +68,7 @@ function App() {
                 minHeight: "90vh",
               }}
             >
+
               <div style={{ flex: 1, padding: "46px 32px" }}>
                 <Routes>
                   <Route path="/login" element={<SignInPage />} />

@@ -3,6 +3,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
+import React, {useState} from 'react';
 
 export const registerAADHAR = createAsyncThunk(
   "registration/aadharregisterAADHAR",
@@ -55,6 +56,7 @@ export const downloadAabha = createAsyncThunk(
   "registration/downloadAabha",
   async (patient_Id) => {
     console.log(patient_Id);
+    // + "/?patient_Id=" +
     const response = await apiRequest("POST", apis?.downloadAabhaCard, patient_Id);
     return response;
   }
