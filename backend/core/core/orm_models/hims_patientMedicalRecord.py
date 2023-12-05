@@ -13,6 +13,7 @@ class PatientMedicalRecord(Base):
     patient_id = Column(String, ForeignKey("patientDetails.id"))
     advices = Column(String)
     notes = Column(String)
+    follow_up = Column(DateTime)
     affiliated = Column(Boolean)
     abdm_linked = Column(Boolean)
     created_at = Column(DateTime)

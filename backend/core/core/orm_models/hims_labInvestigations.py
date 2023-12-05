@@ -8,6 +8,7 @@ class LabInvestigations(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
+    notes = Column(String)
     snowmed_code = Column(String)
     snowmed_display = Column(String)
     created_at = Column(DateTime)
