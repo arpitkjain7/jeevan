@@ -35,12 +35,12 @@ const OtpInput = ({ verifyOTP, type, isSync = false }) => {
         newOTP[index] = value;
         return newOTP;
       });
-
-      if (value !== "") {
-        focusNextInput(index);
-      } else {
-        focusPreviousInput(index);
-      }
+        if (value !== "") {
+          focusNextInput(index);
+        }
+        // else {
+        //   focusPreviousInput(index);
+        // }
     }
   };
 
@@ -50,11 +50,16 @@ const OtpInput = ({ verifyOTP, type, isSync = false }) => {
     }
   };
 
-  const focusPreviousInput = (index) => {
-    if (index > 0) {
+  // const focusPreviousInput = (index) => {
+  //   if (index > 0) {
+  //     inputRefs.current[index - 1].focus();
+  //   }
+  // };
+  const handleKeyChange = (event, index) => {
+    if(event.key == "Backspace" && index > 0){
       inputRefs.current[index - 1].focus();
     }
-  };
+  }
 
   const handleInputPaste = (event) => {
     event.preventDefault();
@@ -74,6 +79,7 @@ const OtpInput = ({ verifyOTP, type, isSync = false }) => {
           type="text"
           value={value}
           onChange={(event) => handleInputChange(event, index)}
+          onKeyUp={(event) => handleKeyChange(event, index)}
           onPaste={handleInputPaste}
           inputRef={(el) => (inputRefs.current[index] = el)}
           inputProps={{ maxLength: 1 }}

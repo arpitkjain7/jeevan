@@ -73,7 +73,7 @@ const AadharVerification = ({
           </Button>
             ) : (
               <Button
-              disabled={seconds > 0 || seconds < 0}
+              disabled={!isAadharValid }
               style={{
                 color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
               }}

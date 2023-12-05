@@ -189,6 +189,7 @@ const PatientRegistration = () => {
     } else if (new_Number_length === 10) {
       setIsMobileError(false);
       setPhoneDisabled(false);
+      
     }
     // const numericValue = parseInt(inputValue);
     // Check if the input value is a valid number or empty string
@@ -210,20 +211,21 @@ const PatientRegistration = () => {
     //validation
     if (aadhar_regex.test(aadhar)){
       setIsAadharValid(false);
-      setAadharOTPSeconds(30);
-      setAadharOTP(true);
       console.log("Form submitted:", aadhar);
         const payload = {
           aadhaarNumber: (aadhar).replace(/\D/g, ""),
         };
         dispatch(registerAADHAR(payload)).then((res) => {
-          console.log(res);
+          console.log(res?.payload);
           setShowLoader(false);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setErrorMessage("Please enter valid Aadhar Number");
             setShowSnackbar(true);
             return;
           }
-          console.log(res?.payload);
+          setAadharOTPSeconds(30);
+          setAadharOTP(true);
+          setIsAadharValid(true);
         });
       } else {
         console.log("Failed");
@@ -235,10 +237,6 @@ const PatientRegistration = () => {
       const mobile_pattern = new RegExp(/^[0-9]{10}$/);
       if (mobile_pattern.test(number)){
         setPhoneDisabled(true);
-        if(selectedOption === "phone_number"){
-          setSeconds(30);
-          setPhoneNumberUsed(false);
-        }
         const payload =
           selectedOption === "aadhar"
             ? {
@@ -267,6 +265,11 @@ const PatientRegistration = () => {
           } else if(!resData?.mobileLinked && selectedOption === "aadhar"){
             setSeconds(30);
             setPhoneNumberUsed(false);
+            setPhoneDisabled(false);
+          } else if(selectedOption === "phone_number"){
+            setSeconds(30);
+            setPhoneNumberUsed(false);
+            setPhoneDisabled(false);
           }
         });
       } else {
@@ -489,14 +492,14 @@ const PatientRegistration = () => {
          <PhoneVerification
            number={number}
            handleNumberChange={handleNumberChange}
-           error={isMobileError}
+           isMobileError={isMobileError}
            handleSubmit={handleSubmit}
            PhoneDisabled={PhoneDisabled}
            setSixDigitOTP={setSixDigitOTP}
            verifyOTP={verifyOTP}
            seconds={seconds}
            phoneNumberUsed={phoneNumberUsed}
-         /> <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+         /> 
        </ExpandableCard>
       )}
       {(selectedOption === "phone_number" && stepOne && checkedOption &&
@@ -509,14 +512,14 @@ const PatientRegistration = () => {
           <PhoneVerification
             number={number}
             handleNumberChange={handleNumberChange}
-            error={isMobileError}
+            isMobileError={isMobileError}
             handleSubmit={handleSubmit}
             PhoneDisabled={PhoneDisabled}
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
             seconds={seconds}
             phoneNumberUsed={phoneNumberUsed}
-          /> <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+          /> 
         </ExpandableCard>
       )}
 

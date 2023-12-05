@@ -6,7 +6,7 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
   ".validate-phone-form": {
     display: "flex",
     alignItems: "center",
-    marginBottom: "24px",
+    marginBottom: "4px",
     gap: "24px",
   },
   ".verification-btn": {
@@ -46,6 +46,7 @@ const PhoneVerification = ({
   phoneNumberUsed,
   seconds
 }) => {
+  console.log(isMobileError);
   return (
     <PhoneVerificationWrapper>
       <div className="validate-phone-form">
@@ -67,7 +68,7 @@ const PhoneVerification = ({
         </Button>         
         ) : (
           <Button
-          disabled={seconds > 0 || seconds < 0}
+          disabled={PhoneDisabled}
           style={{
             color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
           }}
@@ -78,6 +79,9 @@ const PhoneVerification = ({
           Resend OTP
         </Button>
         )}
+      </div>
+      <div>
+        <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
       </div>
       {seconds < 0 ? (
         null
