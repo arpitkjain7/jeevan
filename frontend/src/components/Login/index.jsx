@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const LogInWrapper = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
-    flexDirection:"column",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -22,11 +22,10 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     "& > .MuiFormControl-root": {
       marginBottom: "32px",
     },
-
   },
   ".login-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
-},
+  },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,
   },
@@ -37,11 +36,11 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     "&.MuiTypography-root": theme.typography.body1,
     marginBottom: theme.spacing(2),
   },
-  ".login-text-field":{
-    "&.MuiFormControl-root > .MuiInputBase-root > input":{
-      width:"410px"
-    }
-  }
+  ".login-text-field": {
+    "&.MuiFormControl-root > .MuiInputBase-root > input": {
+      width: "410px",
+    },
+  },
 }));
 
 const LoginPage = (props) => {
@@ -74,8 +73,8 @@ const LoginPage = (props) => {
       const resData = response?.payload;
       console.log(resData, "data");
       if (resData?.access_token) {
-        localStorage.setItem("accesstoken", resData?.access_token);
-        localStorage.setItem("userRole", resData?.user_role);
+        sessionStorage.setItem("accesstoken", resData?.access_token);
+        sessionStorage.setItem("userRole", resData?.user_role);
         props?.setIndex(1);
       }
     });
@@ -86,7 +85,7 @@ const LoginPage = (props) => {
       <div className="login-content">
         <div className="login-heading">
           <Typography variant="h2" align="center" className="login-title">
-            Welcome Back
+            Welcome to CliniQ360
           </Typography>
           <Typography
             variant="subtitle1"

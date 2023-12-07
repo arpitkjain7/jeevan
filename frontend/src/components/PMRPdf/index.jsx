@@ -20,15 +20,15 @@ const pmrPdfStyles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
+  pdfContainer: {
+    padding: "8px 24px",
+  },
   page: {
     backgroundColor: "#FFFFFF",
   },
-  section: {
-    marginTop: "24px",
-    padding: "12px 24px",
-  },
   pdfHeader: {
     display: "flex",
+    flexDirection: "row",
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: "#0089E9",
@@ -38,6 +38,7 @@ const pmrPdfStyles = StyleSheet.create({
   pdfHeaderLogo: {
     display: "flex",
     flexDirection: "row",
+    flexDirection: "row",
     gap: "16px",
   },
   pdflogoText: {
@@ -45,21 +46,18 @@ const pmrPdfStyles = StyleSheet.create({
     fontFamily: "Red Hat Display",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfhospitalNameText: {
     fontFamily: "Source Sans Pro",
     color: "#ffffff",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfDrNameText: {
     fontFamily: "Source Sans Pro",
     color: "#ffffff",
     fontSize: "16px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientDetails: {
     backgroundColor: "#0089E9",
@@ -71,7 +69,6 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#ffffff",
     fontSize: "20px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   pdfPatientName: {
     display: "flex",
@@ -80,6 +77,7 @@ const pmrPdfStyles = StyleSheet.create({
   },
   pdfPatientOtherDetailsWrapper: {
     display: "flex",
+    flexDirection: "row",
     flexWrap: "wrap",
     flexDirection: "row",
     padding: "12px 0px",
@@ -88,15 +86,17 @@ const pmrPdfStyles = StyleSheet.create({
   },
   pdfVitalsWrapper: {
     display: "flex",
+    flexDirection: "row",
     flexWrap: "wrap",
     flexDirection: "row",
     padding: "12px 0px",
     gap: "8px",
+    width: "100%",
   },
   pdfVital: {
     backgroundColor: "rgba(5, 97, 160, 0.08)",
     padding: "8px",
-    minWidth: "150px",
+    minWidth: "24px",
     flex: 1,
   },
   pdfPatientOtherDetails: {
@@ -109,30 +109,29 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#ffffff",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
-  pdfPatientDetailsLabel: {
+  dataLabel: {
     fontFamily: "Source Sans Pro",
     color: "#171717",
     fontSize: "10px",
     fontWeight: "400",
-    lineHeight: "160%",
+    textTransform: "capitalize",
   },
-  pdfPatientDetailsValue: {
+  dataValue: {
     fontFamily: "Source Sans Pro Bold",
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
-  pdfSectionHeading: {
+  dataTitle: {
     fontFamily: "Source Sans Pro",
     color: "#5A5A5A",
     fontSize: "14px",
     fontWeight: "400",
-    lineHeight: "160%",
+    marginBottom: "16px",
   },
   table: {
+    display: "table",
     width: "100%", // Take up full width
     borderStyle: "solid",
     borderWidth: 1,
@@ -147,37 +146,67 @@ const pmrPdfStyles = StyleSheet.create({
   tableRow: {
     flexDirection: "row",
     alignItems: "center",
+    margin: "auto",
   },
   tableCell: {
-    width: "33%", // Distribute columns evenly
+    width: "25%", // Distribute columns evenly
     padding: 5,
     textAlign: "center",
+    fontFamily: "Source Sans Pro Bold",
+    color: "#171717",
+    fontSize: "12px",
+    fontWeight: "400",
+  },
+  rowCell: {
+    width: "25%", // Distribute columns evenly
+    padding: 5,
+    textAlign: "center",
+    fontFamily: "Source Sans Pro",
+    color: "#171717",
+    fontSize: "12px",
+    fontWeight: "400",
   },
   rowText: {
     fontFamily: "Source Sans Pro",
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
   },
   columnText: {
     fontFamily: "Source Sans Pro Bold",
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
-    lineHeight: "160%",
+  },
+  dataWrapper: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap",
+  },
+  dataBox: {
+    backgroundColor: "rgba(5, 97, 160, 0.08)",
+    padding: "6px 8px",
+    maxHeight: "50px",
+    minWidth: "150px",
+  },
+  subDataContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "2px",
   },
 });
 
-const PMRPdf = ({ pdfData, patientData }) => {
+const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
   const [prescriptionData, setPrescriptionData] = useState([]);
-
-  console.log(pdfData, "pdfData");
+  const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
 
   const columns = [
     { key: "medicine_name", label: "Medications" },
-    { key: "status", label: "Frequency" },
+    { key: "frequency", label: "Frequency" },
     { key: "duration", label: "Duration" },
     { key: "notes", label: "Remarks" },
   ];
@@ -205,29 +234,13 @@ const PMRPdf = ({ pdfData, patientData }) => {
       ) {
         const heading = sections[section];
         let data = [];
-        if (section === "vital") {
-          inputObject[section]?.data?.map((item) => {
-            data = Object.entries(item).map(([label, value]) => ({
-              label,
-              value,
-            }));
-          });
-        } else {
-          data = inputObject[section]?.data?.map((item) => {
-            if (section === "vital" || section === "medication") {
-              const labelData = Object.entries(item).map(([label, value]) => ({
-                label,
-                value,
-              }));
-              return labelData;
-            } else {
-              const label = Object.keys(item)[0];
-              const value = item[label] || "";
-
-              return { label, value };
-            }
-          });
-        }
+        data = inputObject[section]?.data?.map((item) => {
+          const labelData = Object.entries(item).map(([label, value]) => ({
+            label,
+            value,
+          }));
+          return labelData;
+        });
 
         resultArray.push({ heading, data });
       }
@@ -239,26 +252,27 @@ const PMRPdf = ({ pdfData, patientData }) => {
   const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
-    const transformedArr = transformPdfData(pdfData);
-    const filteredArr = transformedArr?.filter(
-      (item) =>
-        item?.heading !== "Medications" || item?.heading === "Medical History"
-    );
-    console.log(filteredArr, "filter");
-    setPmrPdfData(filteredArr);
-    const medications = transformedArr?.filter(
-      (item) => item?.heading === "Medications"
-    );
-    let outputArray = [];
-    medications[0]?.data?.map((item) => {
-      const outputObject = {};
-      item?.map((medicine) => {
-        outputObject[medicine.label] = medicine.value;
-      });
-      outputArray?.push(outputObject);
-    });
+    const rowData = pdfData?.medication?.data;
+    setPrescriptionData(rowData);
+    // const transformedArr = transformPdfData(pdfData);
+    // const filteredArr = transformedArr?.filter(
+    //   (item) =>
+    //     item?.heading !== "Medications" || item?.heading === "Medical History"
+    // );
+    // setPmrPdfData(filteredArr);
+    // const medications = transformedArr?.filter(
+    //   (item) => item?.heading === "Medications"
+    // );
+    // let outputArray = [];
+    // medications[0]?.data?.map((item) => {
+    //   const outputObject = {};
+    //   item?.map((medicine) => {
+    //     outputObject[medicine.label] = medicine.value;
+    //   });
+    //   outputArray?.push(outputObject);
+    // });
 
-    setPrescriptionData(outputArray);
+    // setPrescriptionData(outputArray);
 
     if (Object.keys(patientData)?.length) {
       const patientDetails = [
@@ -311,45 +325,155 @@ const PMRPdf = ({ pdfData, patientData }) => {
           <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
             {currentPatientData?.map((item) => (
               <View style={pmrPdfStyles.pdfPatientOtherDetails}>
-                <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
-                  {item.label}
-                </Text>
-                <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
-                  {item?.value}
-                </Text>
+                <Text style={pmrPdfStyles.dataLabel}>{item.label}</Text>
+                <Text style={pmrPdfStyles.dataValue}>{item?.value}</Text>
               </View>
             ))}
           </View>
         </View>
-
-        {pmrPdfData?.map((emr) => (
-          <View style={pmrPdfStyles.section}>
-            <Text style={pmrPdfStyles.pdfSectionHeading}>{emr?.heading}</Text>
-            <View style={pmrPdfStyles.pdfVitalsWrapper}>
-              {emr?.data?.map((item) => (
-                <View style={pmrPdfStyles.pdfVital}>
-                  <>
-                    <Text style={pmrPdfStyles.pdfPatientDetailsLabel}>
-                      {item.label}
+        <View style={pmrPdfStyles.pdfContainer}>
+          {pdfData?.vital && (
+            <View style={pmrPdfStyles?.dataContainer}>
+              <Text style={pmrPdfStyles.dataTitle}>Vitals</Text>
+              <View style={pmrPdfStyles?.dataWrapper}>
+                {Object.entries(pdfData?.vital).map(([key, value]) => (
+                  <View style={pmrPdfStyles?.dataBox}>
+                    <Text style={pmrPdfStyles?.dataLabel}>
+                      {key.replace("_", " ")}
                     </Text>
-                    <Text style={pmrPdfStyles.pdfPatientDetailsValue}>
-                      {item?.value}
-                    </Text>
-                  </>
-                </View>
-              ))}
+                    <Text style={pmrPdfStyles?.dataValue}>{value || "-"}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+        {pdfData?.medical_history?.data?.length ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles?.dataContainer}>
+              <Text style={pmrPdfStyles?.dataTitle}>Meidcal History</Text>
+              <View style={pmrPdfStyles?.dataWrapper}>
+                {pdfData?.medical_history?.data?.map(
+                  (item) =>
+                    item?.medical_history !== "[object Object]" && (
+                      <View style={pmrPdfStyles?.dataBox}>
+                        <Text style={pmrPdfStyles?.dataLabel}>
+                          {item?.medical_history}
+                        </Text>
+                        <View style={pmrPdfStyles?.subDataContainer}>
+                          <Text style={pmrPdfStyles?.dataValue}>
+                            {item.severity}
+                          </Text>
+                          <Text style={pmrPdfStyles?.dataValue}>|</Text>
+                          <Text style={pmrPdfStyles?.dataValue}>
+                            {item.since}
+                          </Text>
+                        </View>
+                      </View>
+                    )
+                )}
+              </View>
             </View>
           </View>
-        ))}
-        <View style={pmrPdfStyles.section}>
-          <Text style={pmrPdfStyles.pdfSectionHeading}>Prescription</Text>
+        ) : (
+          <View></View>
+        )}
+        {pdfData?.symptom?.data?.length ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles.dataContainer}>
+              <Text style={pmrPdfStyles.dataTitle}>Symptoms</Text>
+              <View style={pmrPdfStyles.dataWrapper}>
+                {pdfData.symptom?.data?.map((item) => (
+                  <View style={pmrPdfStyles.dataBox}>
+                    <Text style={pmrPdfStyles.dataLabel}>{item?.symptom}</Text>
+                    <View style={pmrPdfStyles.subDataContainer}>
+                      <Text style={pmrPdfStyles.dataValue}>
+                        {item?.severity}
+                      </Text>
+                      <Text style={pmrPdfStyles.dataValue}>|</Text>
+                      <Text style={pmrPdfStyles.dataValue}>
+                        {item?.duration}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+        {pdfData?.diagnosis?.data?.length ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles.dataContainer}>
+              <Text style={pmrPdfStyles.dataTitle}>Diagnosis</Text>
+              <View style={pmrPdfStyles.dataWrapper}>
+                {pdfData.diagnosis?.data?.map((item) => (
+                  <View style={pmrPdfStyles.dataBox}>
+                    <Text style={pmrPdfStyles.dataLabel}>{item?.disease}</Text>
+                    <View style={pmrPdfStyles.subDataContainer}>
+                      <Text style={pmrPdfStyles.dataValue}>
+                        {item?.severity}
+                      </Text>
+                      <Text style={pmrPdfStyles.dataValue}>|</Text>
+                      <Text style={pmrPdfStyles.dataValue}>
+                        {item?.duration}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+        {pdfData?.condition?.data?.length ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles.dataContainer}>
+              <Text style={pmrPdfStyles.dataTitle}>Condition</Text>
+              <View style={pmrPdfStyles.dataWrapper}>
+                {pdfData.condition?.data?.map((item) => (
+                  <View style={pmrPdfStyles.dataBox}>
+                    <Text style={pmrPdfStyles.dataLabel}>
+                      {item?.condition}
+                    </Text>
+                    <View style={pmrPdfStyles.subDataContainer}>
+                      <Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+        {pdfData?.examinationFindings?.data?.length ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles.dataContainer}>
+              <Text style={pmrPdfStyles.dataTitle}>Examination Findings</Text>
+              <View style={pmrPdfStyles.dataWrapper}>
+                {pdfData.examinationFindings?.data?.map((item) => (
+                  <View style={pmrPdfStyles.dataBox}>
+                    <Text style={pmrPdfStyles.dataLabel}>{item?.disease}</Text>
+                    <View style={pmrPdfStyles.subDataContainer}>
+                      <Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+        <View style={pmrPdfStyles?.pdfContainer}>
+          <Text style={pmrPdfStyles.dataTitle}>Prescription</Text>
           <View style={pmrPdfStyles.table}>
-            <View style={[pmrPdfStyles.tableRow, pmrPdfStyles.tableHeader]}>
+            <View style={pmrPdfStyles.tableHeader}>
               {columns.map((column) => (
-                <Text
-                  style={[pmrPdfStyles.tableCell, pmrPdfStyles.columnText]}
-                  key={column.key}
-                >
+                <Text style={pmrPdfStyles.tableCell} key={column.key}>
                   {column.label}
                 </Text>
               ))}
@@ -357,10 +481,7 @@ const PMRPdf = ({ pdfData, patientData }) => {
             {prescriptionData?.map((item) => (
               <View style={pmrPdfStyles.tableRow} key={item.id}>
                 {columns.map((column) => (
-                  <Text
-                    style={[pmrPdfStyles.tableCell, pmrPdfStyles.rowText]}
-                    key={column.key}
-                  >
+                  <Text style={pmrPdfStyles.rowCell} key={column.key}>
                     {item[column.key]}
                   </Text>
                 ))}

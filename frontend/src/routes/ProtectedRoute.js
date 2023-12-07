@@ -13,7 +13,7 @@ import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
   const userData = useSelector((state) => state?.auth?.user);
-  const isAuthenticated = localStorage.getItem("accesstoken");
+  const isAuthenticated = sessionStorage.getItem("accesstoken");
   const navigate = useNavigate();
 
   const navigateToLogin = () => {

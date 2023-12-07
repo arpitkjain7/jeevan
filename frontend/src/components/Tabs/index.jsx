@@ -9,6 +9,9 @@ const TabsWrapper = styled("div")(({ theme }) => ({
     "&.MuiTabs-root": {
       borderRadius: "6px",
     },
+    "& .MuiTab-root": {
+      alignItems: "flex-start",
+    },
     "& .MuiTabs-indicator": {
       backgroundColor: "#0561a0",
     },
@@ -55,10 +58,11 @@ const CustomTabs = ({ tabs, defaultTab, onChange, tab, addSteps = false }) => {
             disabled={tab?.disable ? tab?.disable : false}
             label={
               <div className="tab-container">
-                <div>{tab?.icon}</div>
-                <div>
+                {tab?.icon && <img src={tab?.icon} alt={tab?.label} />}
+
+                <div style={{ textAlign: "left" }}>
                   {addSteps && <Typography>Step {index + 1}</Typography>}
-                  <Typography>{tab.label}</Typography>
+                  <Typography>{tab?.label}</Typography>
                 </div>
               </div>
             }

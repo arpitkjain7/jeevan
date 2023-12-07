@@ -5,14 +5,11 @@ import {
   CardContent,
   FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
-  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
   Select,
-  TextField,
   Typography,
   styled,
 } from "@mui/material";
@@ -26,7 +23,6 @@ import {
   visitType,
 } from "./constant";
 import { ScheduleAppointmentActions } from "../ScheduleAppointment/scheduleAppointment.slice";
-import PatientDetailsHeader from "../PatientDetailsHeader";
 
 const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -44,23 +40,11 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".field-title": {
     "&.MuiTypography-root": theme.typography.body2,
   },
+
   ".submit-btn": {
-    "&.MuiButtonBase-root": {
-      display: "flex",
-      float: "right",
-      justifyContent: "center",
-      alignItems: "center",
-      border: `1px solid ${theme.palette.primaryBlack}`,
-      fontFamily: "Inter",
-      fontWeight: "500",
-      fontSize: "16px",
-      backgroundColor: theme.palette.primaryBlack,
-      color: theme.palette.primaryWhite,
-      padding: "8px 32px",
-      height: "40px",
-      marginTop: "16px",
-      textTransform: "capitalize",
-    },
+    "&": theme.typography.primaryButton,
+    float: "right",
+    marginTop: theme.spacing(8),
   },
 }));
 
@@ -69,30 +53,15 @@ const StyledCard = styled(Card)({
   marginTop: "24px",
 });
 
-const StyledTitle = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.body3,
-}));
 const StyledCardContent = styled(CardContent)({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   rowGap: "32px",
 });
 
-const StyledFormControl = styled(FormControl)({
-  margin: "16px",
-});
-
 const RadioFormControl = styled("div")({
   display: "flex",
   alignItems: "center",
-});
-
-const StyledFormLabel = styled(FormLabel)({
-  marginBottom: "8px",
-});
-
-const KeyValueContainer = styled(Grid)({
-  // marginTop: (props) => props.theme.palette.spacing(2),
 });
 
 function AppointmentForm(props) {
@@ -102,10 +71,12 @@ function AppointmentForm(props) {
   const [visitTypeValue, setVisitTypeValue] = useState("");
   const [billingTypeValue, setBillingTypeValue] = useState("");
   const dispatch = useDispatch();
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
   const dataState = useSelector((state) => state);
-  const selectedPatient = dataState?.appointmentList?.patientDetails;
+  const selectedPatient = JSON.parse(
+    sessionStorage?.getItem("selectedPatient")
+  );
   const userDetails = [
     {
       label: "Name",
@@ -155,7 +126,6 @@ function AppointmentForm(props) {
   }, []);
 
   const handleEncounterTypeChange = (event) => {
-    console.log(event.target.value, "type");
     setEncounterTypeValue(event?.target?.value);
   };
 
@@ -172,9 +142,7 @@ function AppointmentForm(props) {
   };
 
   const handleSubmit = () => {
-    localStorage.setItem("appointment_doctor_id", doctorName);
-
-    console.log(encounterTypeValue);
+    sessionStorage.setItem("appointment_doctor_id", doctorName);
     const data = {
       doctorId: doctorName,
       appointmentType: appointmentTypeValue,
@@ -182,14 +150,11 @@ function AppointmentForm(props) {
       visitType: visitTypeValue,
       billingType: billingTypeValue,
     };
-    console.log(data);
-
     dispatch(ScheduleAppointmentActions.setAppointmentDetails(data));
     props?.setTab(1);
     props?.setCompleted(true);
   };
 
-  console.log(selectedPatient);
   return (
     <AppointmentFormWrapper>
       <StyledCard>
@@ -243,25 +208,22 @@ function AppointmentForm(props) {
               </Select>
             </FormControl>
           </div>
-          <div className="">
+          <div className="doctorName-dd">
             <Typography className="field-title">Encounter Type</Typography>
             <FormControl>
-              <RadioFormControl component="fieldset">
-                <RadioGroup
-                  row
+              <FormControl>
+                <Select
                   value={encounterTypeValue}
                   onChange={handleEncounterTypeChange}
+                  placeholder="Encounte rType"
                 >
                   {encounterType?.map((option) => (
-                    <FormControlLabel
-                      key={option.value}
-                      value={option.value}
-                      control={<Radio />}
-                      label={option.label}
-                    />
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
                   ))}
-                </RadioGroup>
-              </RadioFormControl>
+                </Select>
+              </FormControl>
             </FormControl>
           </div>
           <div className="">

@@ -30,6 +30,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
     cursor: "pointer",
+    textAlign: "left",
   },
   ".table-body-container": {
     "&.MuiTableBody-root": {
@@ -140,9 +141,7 @@ const MyTable = ({
                                 onClick={() => action.onClick(item)}
                                 className="linkTypography"
                               >
-                                {action?.key
-                                  ? column[action?.key]
-                                  : action?.link}
+                                {action?.key ? item[action?.key] : action?.link}
                               </Typography>
                             );
                           }

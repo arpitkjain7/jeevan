@@ -11,3 +11,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.Mui-disabled.confirm-verification-btn, .Mui-disabled.verification-btn {
+  background-color: #1976d294 !important;
+}
+
+.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
+  max-height: calc(100% - 240px) !important;
+  max-width: 650px !important;
+}
+
+.ok_btn{
+  border: 1px solid !important;
+  background-color: #1976d2 !important;
+  color: #fff !important;
+}
+
+.cancel_btn {
+ border: 1px solid !important;
+}
+

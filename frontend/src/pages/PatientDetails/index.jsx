@@ -4,6 +4,7 @@ import PatientDetailsHeader from "../../components/PatientDetailsHeader";
 import CustomTabs from "../../components/Tabs";
 import PastVisits from "../../components/PastVisits";
 import VitalsDetails from "../../components/VitalsDetails";
+import ConsentList from "../../components/ConsentList";
 
 const PatientDetailsWrapper = styled("div")(({ theme }) => ({}));
 
@@ -41,8 +42,8 @@ const PatientDetails = () => {
       content: <VitalsDetails />,
     },
     {
-      label: "Medical Records",
-      content: <h1>Medical Records</h1>,
+      label: "Consent List",
+      content: <ConsentList />,
     },
   ];
   return (

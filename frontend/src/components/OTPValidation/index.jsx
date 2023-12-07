@@ -10,7 +10,7 @@ const OtpInputWrapperWrapper = styled("div")(({ theme }) => ({
     },
   },
 }));
-const OtpInput = ({ verifyOTP, type }) => {
+const OtpInput = ({ verifyOTP, type, isSync = false }) => {
   const dispatch = useDispatch();
   const [otp, setOTP] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
@@ -19,7 +19,11 @@ const OtpInput = ({ verifyOTP, type }) => {
     const isOTPComplete = otp.every((value) => value !== "");
     if (isOTPComplete) {
       const otpString = otp.join("");
-      verifyOTP(otpString, type);
+      if (type && !isSync) {
+        verifyOTP(otpString, type);
+      } else {
+        verifyOTP(otpString);
+      }
     }
   }, [otp, dispatch]);
 
@@ -31,12 +35,12 @@ const OtpInput = ({ verifyOTP, type }) => {
         newOTP[index] = value;
         return newOTP;
       });
-
-      if (value !== "") {
-        focusNextInput(index);
-      } else {
-        focusPreviousInput(index);
-      }
+        if (value !== "") {
+          focusNextInput(index);
+        }
+        // else {
+        //   focusPreviousInput(index);
+        // }
     }
   };
 
@@ -46,11 +50,16 @@ const OtpInput = ({ verifyOTP, type }) => {
     }
   };
 
-  const focusPreviousInput = (index) => {
-    if (index > 0) {
+  // const focusPreviousInput = (index) => {
+  //   if (index > 0) {
+  //     inputRefs.current[index - 1].focus();
+  //   }
+  // };
+  const handleKeyChange = (event, index) => {
+    if(event.key == "Backspace" && index > 0){
       inputRefs.current[index - 1].focus();
     }
-  };
+  }
 
   const handleInputPaste = (event) => {
     event.preventDefault();
@@ -70,6 +79,7 @@ const OtpInput = ({ verifyOTP, type }) => {
           type="text"
           value={value}
           onChange={(event) => handleInputChange(event, index)}
+          onKeyUp={(event) => handleKeyChange(event, index)}
           onPaste={handleInputPaste}
           inputRef={(el) => (inputRefs.current[index] = el)}
           inputProps={{ maxLength: 1 }}

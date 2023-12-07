@@ -29,10 +29,17 @@ const ListWrapper = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": {
+        "&": theme.typography.body2,
+        padding: theme.spacing(4, 8),
+      },
     },
     "& .MuiTableBody-root": {
-      "& > tr >td": theme.typography.body1,
+      "& > tr >td": {
+        "&": theme.typography.body1,
+        cursor: "pointer",
+        padding: theme.spacing(4, 8),
+      },
     },
   },
   ".search-class": {
@@ -61,15 +68,29 @@ const searchInputStyle = {
 };
 
 const PatientPage = () => {
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const columns = [
+    {
+      key: "actions",
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          key: "name",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ],
+    },
     { key: "id", header: "Patient ID" },
-    { key: "patientDetails", header: "Patient Name" },
     { key: "abha_number", header: "Abha Id" },
     { key: "mobile_number", header: "Contact Number" },
     { key: "updatedDate", header: "Last Visited" },
@@ -82,25 +103,26 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
             dispatch(AppointmentPageActions.setSelectedPatientData(item));
             navigate("/create-appointment");
           },
         },
       ],
     },
-    {
-      key: "actions",
-      header: "",
-      actions: [
-        {
-          icon: <img src={MenuIcon} alt="menu" />,
-          type: "icon",
-          onClick: (item) => {
-            console.log(item, "item");
-          },
-        },
-      ],
-    },
+    // {
+    //   key: "actions",
+    //   header: "",
+    //   actions: [
+    //     {
+    //       icon: <img src={MenuIcon} alt="menu" />,
+    //       type: "icon",
+    //       onClick: (item) => {
+    //         console.log(item, "item");
+    //       },
+    //     },
+    //   ],
+    // },
   ];
   useEffect(() => {
     dispatch(AppointmentPageActions.setSelectedPatientData({}));
@@ -132,10 +154,7 @@ const PatientPage = () => {
     }
   }, []);
 
-  // const onTableRowClick = (row) => {
-  //   dispatch(AppointmentPageActions.setSelectedPatientData(row));
-  //   navigate("/create-appointment");
-  // };
+  const onTableRowClick = (row) => {};
 
   return (
     <ListWrapper>
@@ -151,7 +170,7 @@ const PatientPage = () => {
           className="header-btn"
           onClick={() => navigate("/patient-registration")}
         >
-          Register Now
+          Register New Patient
         </Button>
       </div>
       <div className="table-container">
@@ -162,7 +181,7 @@ const PatientPage = () => {
           searchInputStyle={searchInputStyle}
           tableClassName="table-class"
           searchClassName="search-class"
-          // onRowClick={(row) => onTableRowClick(row)}
+          onRowClick={(row) => onTableRowClick(row)}
         />
       </div>
     </ListWrapper>
