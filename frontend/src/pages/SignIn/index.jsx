@@ -2,31 +2,60 @@ import React, { useEffect, useState } from "react";
 import StepperComponent from "../../components/CustomStepper";
 import LoginPage from "../../components/Login";
 import HospitalList from "../HospitalList";
-import banner from "../../assets/side-banner-login.jpg";
 import { styled } from "@mui/material";
+import banner from "../../assets/sidebar-login.png";
 
 const LoginPageWrapper = styled("div")(({ theme }) => ({
-  // "&": {
-  //   padding: theme.spacing(20),
-
-
-
-  // },
-  // ".login-page-container": {
-  //   display: "flex",
-  //   gap: theme.spacing(10)
-    
-
-  // },
-  // ".login-left-banner": {
-  //   flex: "0.4",
-  // },
+  "&": {
+    paddingTop: theme.spacing(20),
+    height: "70vh",
+  },
+  ".login-page-container": {
+    display: "flex",
+    gap: theme.spacing(10),
+    height: "100%",
+    maxWidth: "1440px",
+    margin: "0 auto",
+  },
+  ".login-left-banner": {
+    backgroundColor: "#0089E9",
+    backgroundImage: `url(${banner})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    maxWidth: "550px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    padding: theme.spacing(8),
+    flex: "0.5",
+  },
+  ".sign-in-image": {
+    height: "100%",
+  },
+  ".login-right-form": {
+    flex: "0.5",
+    margin: "0 auto",
+  },
 }));
+
+const LogoText = styled("h1")(({ theme }) => ({
+  fontFamily: "Red Hat Display",
+  fontSize: "28px",
+  fontWeight: 400,
+  color: theme.palette.primaryWhite,
+}));
+
+const BannerInfo = styled("h1")(({ theme }) => ({
+  "&": theme.typography.bannerText,
+  margin: 0,
+}));
+
+const StyledDiv = styled("div")``;
 
 function SignInPage() {
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    const token = localStorage.getItem("accesstoken");
+    const token = sessionStorage.getItem("accesstoken");
     if (token) {
       setIndex(1);
     } else {
@@ -37,10 +66,14 @@ function SignInPage() {
   return (
     <LoginPageWrapper>
       <div className="login-page-container">
-        {/* <div className="login-left-banner">
-          <img src={banner} />
-        </div> */}
-        <div>
+        <div className="login-left-banner">
+          <LogoText>cliniQ360</LogoText>
+          <BannerInfo>
+            Elevate patient care with a seamless experience and innovative
+            technology
+          </BannerInfo>
+        </div>
+        <div className="login-right-form">
           {index === 0 && <LoginPage setIndex={setIndex} />}
           {index === 1 && <HospitalList setIndex={setIndex} />}
         </div>

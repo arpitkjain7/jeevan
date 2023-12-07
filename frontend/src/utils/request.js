@@ -1,10 +1,9 @@
 import axios from "axios";
 
 export const BASE_URL = "https://engine.cliniq360.com/v1";
-const SNOMED_URL = "https://snomed.cliniq360.com/csnoserv/api";
 
 const defaultHeader = () => {
-  const access_token = localStorage.getItem("accesstoken");
+  const access_token = sessionStorage.getItem("accesstoken");
   return {
     Authorization: `Bearer ${access_token}`,
     "Content-Type": "application/json",
@@ -17,7 +16,7 @@ const defaultHeader = () => {
 };
 
 export const pdfUploadHeader = () => {
-  const access_token = localStorage.getItem("accesstoken");
+  const access_token = sessionStorage.getItem("accesstoken");
   return {
     Authorization: `Bearer ${access_token}`,
     "Content-Type": "multipart/form-data",

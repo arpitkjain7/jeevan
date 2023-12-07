@@ -1,21 +1,12 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Button,
-  Grid,
-} from "@mui/material";
-import { format } from "date-fns";
+import { TextField, Button, Grid } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
 import { useNavigate } from "react-router-dom";
 import CustomSnackbar from "../CustomSnackbar";
+import { validateAbhaAddress } from "../../utils/utils";
 
 const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   const [formData, setFormData] = React.useState({
@@ -26,10 +17,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
     email: "",
     password: "",
   });
-  const hospital = localStorage?.getItem("selectedHospital");
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const navigate = useNavigate();
+  const [abhaAddressError, setAbhaAddressError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -37,12 +30,22 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       ...prevData,
       [name]: value,
     }));
+    if(!validateAbhaAddress(value)) {
+      setAbhaAddressError(true);
+    } else {
+      setAbhaAddressError(false)
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-
+    if (!validateAbhaAddress(formData.abhaAddress)) {
+      setAbhaAddressError(true);
+      setShowSnackbar(true);
+      setErrorMessage("Invalid ABHA Address");
+      return;
+    }
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = {
@@ -78,9 +81,9 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
     }
   };
 
-  const formatDob = (date) => {
-    return format(new Date(date), "yyyy-MM-dd");
-  };
+  // const formatDob = (date) => {
+  //   return format(new Date(date), "yyyy-MM-dd");
+  // };
 
   const onSnackbarClose = () => {
     setShowSnackbar(false);
@@ -88,7 +91,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   return (
     <form onSubmit={handleSubmit}>
       <CustomSnackbar
-        message="Something went wrong"
+        message={errorMessage || "Something went wrong"}
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
@@ -138,10 +141,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
           <TextField
             placeholder="Enter ABHA Address"
             name="abhaAddress"
+            error={abhaAddressError}
             value={formData.abhaAddress}
             onChange={handleChange}
             required
             fullWidth
+            helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
           />
         </Grid>
         <Grid item xs={5}>

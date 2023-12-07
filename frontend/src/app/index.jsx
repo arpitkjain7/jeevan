@@ -1,16 +1,9 @@
 import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-import { makeStyles, styled } from "@mui/material";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Backdrop, CircularProgress, styled } from "@mui/material";
 import Header from "../components/Header";
 import "./global.scss";
 import SignInPage from "../pages/SignIn";
-import HospitalList from "../pages/HospitalList";
-import ProtectedRoute from "../routes/ProtectedRoute";
 import { useSelector } from "react-redux";
 import Dashboard from "../pages/Dashboard";
 import PatientPage from "../pages/PatientPage";
@@ -21,6 +14,7 @@ import CreateAppointment from "../pages/CreateAppointment";
 import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 import RegisterationConfirmation from "../components/RegistrationConfirmation";
 import PatientDetails from "../pages/PatientDetails";
+import ConsentDocumentPage from "../pages/ConsentDocumentPage";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -35,16 +29,18 @@ const AppWrapper = styled("div")(({ theme }) => ({
     flex: 1,
     position: "relative",
   },
-  "app-content": {},
-  // ".main-wrapper": {
-  //   maxWidth: "1440px",
-  //   margin: "0 auto",
-  // },
+}));
+
+const MainWrapper = styled("div")(({ theme }) => ({
+  flex: 1,
+  maxWidth: "1440px",
+  margin: "0 auto",
 }));
 
 function App() {
   const dataState = useSelector((state) => state);
-  const isAuthenticated = localStorage.getItem("accesstoken");
+  const isAuthenticated = sessionStorage.getItem("accesstoken");
+
   // const navigate = useNavigate();
   useEffect(() => {
     console.log("reduxStore", dataState);
@@ -52,24 +48,27 @@ function App() {
 
   // const navigateToLogin = () => {
   //   navigate("/");
-  // };
+  // };ƒ
   return (
     <Router>
       <AppWrapper>
         <Header />
         <div style={{ display: "flex" }}>
-          <div style={{ flex: 0.05 }}>
-            <Sidebar />
-          </div>
+          {isAuthenticated && (
+            <div style={{ flex: 0.05 }}>
+              <Sidebar />
+            </div>
+          )}
 
-          <div style={{ flex: 1 }}>
+          <MainWrapper>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                minHeight: "100vh",
+                minHeight: "90vh",
               }}
             >
+
               <div style={{ flex: 1, padding: "46px 32px" }}>
                 <Routes>
                   <Route path="/login" element={<SignInPage />} />
@@ -97,9 +96,13 @@ function App() {
                         path="/registered-patient"
                         element={<RegisterationConfirmation />}
                       />
-                       <Route
+                      <Route
                         path="/patient-details"
                         element={<PatientDetails />}
+                      />
+                      <Route
+                        path="/consent-detail"
+                        element={<ConsentDocumentPage />}
                       />
                     </>
                   ) : (
@@ -110,7 +113,7 @@ function App() {
                 </Routes>
               </div>
             </div>
-          </div>
+          </MainWrapper>
         </div>
       </AppWrapper>
     </Router>

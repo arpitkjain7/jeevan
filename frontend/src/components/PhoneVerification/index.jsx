@@ -6,7 +6,7 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
   ".validate-phone-form": {
     display: "flex",
     alignItems: "center",
-    marginBottom: "24px",
+    marginBottom: "4px",
     gap: "24px",
   },
   ".verification-btn": {
@@ -38,28 +38,57 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
 const PhoneVerification = ({
   number,
   handleNumberChange,
+  isMobileError,
   handleSubmit,
+  PhoneDisabled,
   setSixDigitOTP,
   verifyOTP,
   phoneNumberUsed,
+  seconds
 }) => {
+  console.log(isMobileError);
   return (
     <PhoneVerificationWrapper>
       <div className="validate-phone-form">
         <TextField
-          type="text"
+          type="number"
           value={number}
           onChange={handleNumberChange}
+          error={isMobileError}
           className="phone-text"
         />
+        {seconds > 0 || seconds < 0 ? (
         <Button
+          disabled={PhoneDisabled}
           onClick={() => handleSubmit("phone_number")}
           variant="contained"
           className="verification-btn"
         >
           Verify
+        </Button>         
+        ) : (
+          <Button
+          disabled={PhoneDisabled}
+          style={{
+            color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+          }}
+          variant="contained"
+          className="verification-btn"
+          onClick={() => handleSubmit("phone_number")}
+        >
+          Resend OTP
         </Button>
+        )}
       </div>
+      <div>
+        <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+      </div>
+      {seconds < 0 ? (
+        null
+     ) : ( <h5>
+      Resend OTP in: 00:
+      {seconds < 10 ? `0${seconds}` : seconds}
+    </h5>)}
       {!phoneNumberUsed && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>
@@ -68,6 +97,7 @@ const PhoneVerification = ({
             verifyOTP={verifyOTP}
             type="phone_number"
           />
+       
         </div>
       )}
     </PhoneVerificationWrapper>

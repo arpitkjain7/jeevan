@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
-import { convertDateFormat } from "../../utils/utils";
+import { convertDateFormat, validateAbhaAddress } from "../../utils/utils";
 import { useNavigate } from "react-router";
 import CustomSnackbar from "../CustomSnackbar";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
@@ -25,14 +25,17 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
     middlename: "",
     gender: "",
     dob: "",
-    mobile: "",
     abhaAddress: "",
     email: "",
     password: "",
   });
-  const hospital = localStorage?.getItem("selectedHospital");
+  const [mobile, setMobile] = useState()
+  const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [abhaAddressError, setAbhaAddressError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isMobileError, setIsMobileError] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -41,17 +44,45 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
       ...prevData,
       [name]: value,
     }));
+
+    if (name === "abhaAddress"){
+      if(!validateAbhaAddress(value)) {
+        setAbhaAddressError(true);
+      } else {
+        setAbhaAddressError(false)
+      }
+    }
+
+  };
+
+  const handleNumberChange = (event) => {
+    const value = event.target.value;
+    setMobile(value);
+
+    let new_Number_length = value.length;
+    if (new_Number_length > 10 || new_Number_length < 10) {
+      // setErrorMessage("Please enter valid number")
+      setIsMobileError(true);
+    } else if (new_Number_length == 10) {
+      setIsMobileError(false);
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-
+   
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       let url = "";
       let payload = {};
       if (isForAabha) {
+        if (!validateAbhaAddress(formData.abhaAddress)) {
+          setAbhaAddressError(true);
+          setShowSnackbar(true);
+          setErrorMessage("Invalid ABHA Address");
+          return;
+        } console.log(formData);
         payload = {
           firstName: formData?.firstname,
           middleName: formData?.middlename,
@@ -114,7 +145,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   return (
     <form onSubmit={handleSubmit}>
       <CustomSnackbar
-        message="Something went wrong"
+        message={errorMessage || "Something went wrong"}
         open={showSnackbar}
         status={"error"}
         onClose={onSnackbarClose}
@@ -204,12 +235,15 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             <TextField
               placeholder="Mobile Number"
               name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
+              type="number"
+              value={mobile}
+              error={isMobileError}
+              onChange={handleNumberChange}
               required
               fullWidth
             />
           </Grid>
+          
         )}
         {isForAabha && (
           <>
@@ -217,12 +251,14 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
               <TextField
                 placeholder="Enter ABHA Address"
                 name="abhaAddress"
+                error={abhaAddressError}
                 value={formData.abhaAddress}
                 onChange={handleChange}
                 required
-                fullWidth
+                fullWidth        
+                helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
               />
-            </Grid>
+            </Grid>  <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
             <Grid item xs={5}>
               <TextField
                 placeholder="Enter Password"
