@@ -7,6 +7,7 @@ import {
   TextField,
   Grid,
   filledInputClasses,
+  Autocomplete,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
@@ -24,6 +25,7 @@ import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import SyncAabha from "../SyncAabha";
+import { calculateBMI } from "../../../utils/utils";
 const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
@@ -180,6 +182,7 @@ const PatientEMRDetails = () => {
   const [diagnosisSpecs, setDiagnosisSpecs] = useState({});
   const [medicationsSpecs, setMedicationsSpecs] = useState({});
   const [labInvestigationSpecs, setLabInvestigationSpecs] = useState({});
+  const [bodyMassIndex, setBodyMassIndex] = useState("");
   const medicalHistoryRef = useRef(null);
   const patient = sessionStorage?.getItem("selectedPatient");
   const [emrId, setEMRId] = useState("");
@@ -191,6 +194,8 @@ const PatientEMRDetails = () => {
   const [step, setStep] = useState("create");
   const [showSync, setShowSync] = useState("");
   const [selectedAuthOption, setSelectedAuthOption] = useState("");
+  const [number, setNumber] = useState("");
+  const [dose, setDose] = useState("");
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
@@ -502,9 +507,11 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setExaminationSpecs({
         ...symptomsSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value]: { notes: "" },
       });
+
       setExamFinding([...examFindings, fieldValue]);
+      handleExaminationTextChange(value, "notes", "");
     }
   };
   const handleDiagnosis = (event, value) => {
@@ -535,6 +542,7 @@ const PatientEMRDetails = () => {
         [value]: { since: "", severity: "", notes: "" },
       });
       setLabInvestigation([...labInvestigation, fieldValue]);
+      handleLabTextChange(value, "notes", "");
     }
   };
 
@@ -630,6 +638,18 @@ const PatientEMRDetails = () => {
         snowmed_display: option?.snowmed_display,
       },
     });
+    console.log(
+      {
+        ...examinationSpecs,
+        [option?.label]: {
+          ...examinationSpecs[option?.label],
+          [textField]: newValue,
+          snowmed_code: option?.snowmed_code,
+          snowmed_display: option?.snowmed_display,
+        },
+      },
+      "EXAM"
+    );
   };
 
   const handleExaminationSpecsDelete = (optionToRemove) => () => {
@@ -673,6 +693,15 @@ const PatientEMRDetails = () => {
         snowmed_display: option?.snowmed_display,
       },
     });
+    console.log("MEDICATIONS", {
+      ...medicationsSpecs,
+      [option?.label]: {
+        ...medicationsSpecs[option?.label],
+        [textField]: newValue,
+        snowmed_code: option?.snowmed_code,
+        snowmed_display: option?.snowmed_display,
+      },
+    });
   };
 
   const handleMedicationsSpecsDelete = (optionToRemove) => () => {
@@ -706,6 +735,39 @@ const PatientEMRDetails = () => {
     });
   };
 
+  const diagnosisObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+      const objectDetails = inputObject[key];
+      const transformedItem = {
+        disease: key,
+        status: objectDetails.since,
+        diagnosis_type: objectDetails.severity,
+        notes: objectDetails.notes,
+        snowmed_code: objectDetails?.snowmed_code,
+        snowmed_display: objectDetails?.snowmed_display,
+      };
+
+      result.push(transformedItem);
+    }
+    const filteredResult = result.filter(
+      (item) => item.disease !== "[object Object]"
+    );
+    return filteredResult;
+  };
+
   const diseaseObject = (inputObject) => {
     const result = [];
 
@@ -724,8 +786,6 @@ const PatientEMRDetails = () => {
       const objectDetails = inputObject[key];
       const transformedItem = {
         disease: key,
-        duration: objectDetails.since,
-        status: objectDetails.severity,
         notes: objectDetails.notes,
         snowmed_code: objectDetails?.snowmed_code,
         snowmed_display: objectDetails?.snowmed_display,
@@ -738,7 +798,6 @@ const PatientEMRDetails = () => {
     );
     return filteredResult;
   };
-
   const conditonObject = (inputObject) => {
     const result = [];
 
@@ -825,20 +884,22 @@ const PatientEMRDetails = () => {
       const transformedItem = {
         medicine_name: key,
         frequency: objectDetails.severity,
-        dosage: "3",
-        time_of_day: "morning",
+        dosage: objectDetails.dose,
+        time_of_day: objectDetails.timing,
         duration: objectDetails.since,
-        duration_period: "",
         notes: objectDetails.notes,
         snowmed_code: objectDetails?.snowmed_code,
         snowmed_display: objectDetails?.snowmed_display,
       };
 
       result.push(transformedItem);
+      console.log("transformedItem", transformedItem);
     }
+
     const filteredResult = result.filter(
       (item) => item.medicine_name !== "[object Object]"
     );
+    console.log("transformedItem", filteredResult);
     return filteredResult;
   };
 
@@ -929,16 +990,16 @@ const PatientEMRDetails = () => {
       console.log(objectDetails, "objectdet");
       const transformedItem = {
         medical_history: key,
-        severity: objectDetails.severity,
+        relationship: objectDetails.relationship,
         since: objectDetails.since,
-        notes: objectDetails.since,
+        notes: objectDetails.notes,
         snowmed_code: objectDetails?.snowmed_code || "",
         snowmed_display: objectDetails?.snowmed_display || "",
       };
       result.push(transformedItem);
     }
     const filteredResult = result.filter(
-      (item) => item.diabetes_melitus !== "[object Object]"
+      (item) => item.medical_history !== "[object Object]"
     );
     return filteredResult;
   };
@@ -1037,7 +1098,7 @@ const PatientEMRDetails = () => {
     );
 
     const symptomsEMR = symptomObj(symptomsSpecs);
-    const diagnosisEMR = diseaseObject(diagnosisSpecs);
+    const diagnosisEMR = diagnosisObj(diagnosisSpecs);
     const conditionEMR = conditonObject(existingConditionSpecs);
     const examinEMR = diseaseObject(examinationSpecs);
     const medicationEMR = medicationObj(medicationsSpecs);
@@ -1058,7 +1119,6 @@ const PatientEMRDetails = () => {
           body_temperature: formValues?.bodyTemp,
           oxygen_saturation: formValues?.oxygenSaturation,
           respiratory_rate: formValues?.respiratoryRate,
-          body_mass_index: formValues?.bodyMass,
           systolic_blood_pressure: formValues?.systolicBP,
           diastolic_blood_pressure: formValues?.diastolicaBP,
         },
@@ -1130,123 +1190,6 @@ const PatientEMRDetails = () => {
     setPmrFinished(true);
     setStep("preview");
   };
-  const dummy = {
-    pmr_id: "string",
-    vital: {
-      height: "string",
-      weight: "string",
-      pulse: "string",
-      blood_pressure: "string",
-      body_temperature: "string",
-      oxygen_saturation: "string",
-      respiratory_rate: "string",
-      body_mass_index: "string",
-      systolic_blood_pressure: "string",
-      diastolic_blood_pressure: "string",
-    },
-    condition: {
-      data: [
-        {
-          condition: "string",
-          start_date: "string",
-          status: "string",
-          notes: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    examinationFindings: {
-      data: [
-        {
-          disease: "string",
-          duration: "string",
-          status: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    diagnosis: {
-      data: [
-        {
-          disease: "string",
-          duration: "string",
-          status: "string",
-          notes: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    symptom: {
-      data: [
-        {
-          symptom: "string",
-          duration: "string",
-          severity: "string",
-          notes: "string",
-          start_date: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    medication: {
-      data: [
-        {
-          medicine_name: "string",
-          frequency: "string",
-          dosage: "string",
-          time_of_day: "string",
-          duration: "string",
-          duration_period: "string",
-          notes: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    currentMedication: {
-      data: [
-        {
-          medicine_name: "string",
-          start_date: "string",
-          status: "string",
-          notes: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    lab_investigation: {
-      data: [
-        {
-          name: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    medical_history: {
-      data: [
-        {
-          medical_history: "string",
-          since: "string",
-          severity: "string",
-          notes: "string",
-          snowmed_code: "string",
-          snowmed_display: "string",
-        },
-      ],
-    },
-    advice: {
-      advices: "string",
-    },
-    notes: {
-      notes: "string",
-    },
-  };
 
   const resetEMRForm = () => {
     setMedicalHistory([]);
@@ -1269,6 +1212,57 @@ const PatientEMRDetails = () => {
 
   const editPMR = () => {
     setStep("create");
+  };
+  const relationshipOptions = ["father", "mother", "sister", "daughter"];
+  const diagnosisStatusOpts = ["Suspected", "Confirmed", "Ruled out"];
+  const diagnosisTypeOpts = ["Primary Diagnosis", "Differential Diagnosis"];
+  const timeOptions = ["Days", "Weeks", "Months"];
+  const doseOptions = ["Tablet"];
+
+  const handleRelationshipChange = (option, newValue) => {
+    handleTextFieldChange(option, "relationship", newValue);
+    console.log(newValue);
+  };
+
+  const handleDiganosisOptionChange = (option, newValue, key) => {
+    console.log("diagnosis", option, newValue, key);
+    handleDiagnosisTextChange(option, key, newValue);
+    console.log(newValue);
+  };
+
+  useEffect(() => {
+    if (formValues?.bodyHeight !== "" && formValues.bodyWeight !== "") {
+      const bmi = calculateBMI(formValues?.bodyHeight, formValues.bodyWeight);
+      if (typeof bmi === "number") {
+        setBodyMassIndex(bmi.toFixed(2));
+      } else {
+        setBodyMassIndex("");
+      }
+    }
+  }, [formValues?.bodyHeight, formValues.bodyWeight]);
+
+  const handleNumberOptions = (event, value) => {
+    setNumber(value);
+  };
+
+  const handleDoseOptions = (event, value) => {
+    setDose(value);
+  };
+
+  const generateOptions = (number) => {
+    if (!number) return [];
+    return timeOptions?.map((option) => `${number}${option}`);
+  };
+
+  const generateDoseOptions = (number) => {
+    if (!number) return [];
+    return doseOptions?.map((option) => `${number}${option}`);
+  };
+
+  const handleMedicationOptionsChange = (option, newValue, key) => {
+    console.log("options", option, newValue, key);
+
+    handleMedicationsTextChange(option, key, newValue);
   };
 
   return (
@@ -1412,62 +1406,65 @@ const PatientEMRDetails = () => {
                   <Typography variant="subtitle1">Body mass index</Typography>
                   <TextFieldWrapper>
                     <Grid item xs={12} sm={10}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        name="bodyMass"
-                        value={formValues.bodyMass}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
+                      <VitalValue>{bodyMassIndex}</VitalValue>
                     </Grid>
                     <Grid item xs={12} sm={2}>
                       <VitalValue>Kg/m2</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography variant="subtitle1">
-                    Systolic blood pressure
-                  </Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        name="systolicBP"
-                        value={formValues.systolicBP}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <VitalValue>mmHg</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography variant="subtitle1">
-                    Diastolic blood pressure
-                  </Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        name="diastolicaBP"
-                        value={formValues.diastolicaBP}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <VitalValue>mmHg</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
               </Grid>
             </form>
+          </VitalsContainer>
+          <VitalsContainer>
+            <SectionHeader>Complaints</SectionHeader>
+            <CustomAutoComplete
+              options={symptomsOpts}
+              handleInputChange={handleSymptompsChange}
+              setOptions={setSymptomsOpts}
+              handleOptionChange={handleSymptoms}
+            />
+            {symptoms?.length > 0 && (
+              <div>
+                {symptoms?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Since"
+                        value={symptomsSpecs[item?.label]?.since || ""}
+                        onChange={(e) =>
+                          handleSymtomsTextChange(item, "since", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <Typography>Dropdown</Typography>
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={symptomsSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleSymtomsTextChange(item, "notes", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField
+                        onClick={handleSymptomsSpecsDelete(item?.label)}
+                      >
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
           </VitalsContainer>
           <VitalsContainer>
             <SectionHeader>Patient Medical History</SectionHeader>
@@ -1496,17 +1493,21 @@ const PatientEMRDetails = () => {
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
-                        value={optionTextValues[item?.label]?.severity || ""}
-                        onChange={(e) =>
-                          handleTextFieldChange(
-                            item,
-                            "severity",
-                            e.target.value
-                          )
+                      <Autocomplete
+                        options={relationshipOptions}
+                        value={
+                          optionTextValues[item?.label]?.relationship || ""
                         }
-                        variant="outlined"
+                        onChange={(e, newValue) =>
+                          handleRelationshipChange(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Relationship"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1530,141 +1531,6 @@ const PatientEMRDetails = () => {
             )}
           </VitalsContainer>
           <VitalsContainer>
-            <SectionHeader>Existing Conditions</SectionHeader>
-            <CustomAutoComplete
-              options={existingConditionsOpts}
-              handleInputChange={handleExistingConditionsChange}
-              setOptions={setExistingConditionOpts}
-              handleOptionChange={handleExistingConditions}
-            />
-            {existingConditions?.length > 0 && (
-              <div>
-                {existingConditions?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      {" "}
-                      <RecordTextField
-                        placeholder="Since"
-                        value={existingConditionSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          exisitingConditionsTextChange(
-                            item,
-                            "since",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
-                        value={
-                          existingConditionSpecs[item?.label]?.severity || ""
-                        }
-                        onChange={(e) =>
-                          exisitingConditionsTextChange(
-                            item,
-                            "severity",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={existingConditionSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          exisitingConditionsTextChange(
-                            item,
-                            "notes",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleExistingConditionsSpecDelete(
-                          item?.label
-                        )}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader> Symptoms</SectionHeader>
-            <CustomAutoComplete
-              options={symptomsOpts}
-              handleInputChange={handleSymptompsChange}
-              setOptions={setSymptomsOpts}
-              handleOptionChange={handleSymptoms}
-            />
-            {symptoms?.length > 0 && (
-              <div>
-                {symptoms?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Since"
-                        value={symptomsSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleSymtomsTextChange(item, "since", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
-                        value={symptomsSpecs[item?.label]?.severity || ""}
-                        onChange={(e) =>
-                          handleSymtomsTextChange(
-                            item,
-                            "severity",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={symptomsSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleSymtomsTextChange(item, "notes", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleSymptomsSpecsDelete(item?.label)}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
             <SectionHeader>Examination Findings</SectionHeader>
             <CustomAutoComplete
               options={examFindingsOpts}
@@ -1679,34 +1545,6 @@ const PatientEMRDetails = () => {
                     <RecordLayout>
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Since"
-                        value={examinationSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleExaminationTextChange(
-                            item,
-                            "since",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
-                        value={examinationSpecs[item?.label]?.severity || ""}
-                        onChange={(e) =>
-                          handleExaminationTextChange(
-                            item,
-                            "severity",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
                     <TextBoxLayout>
                       <RecordTextField
                         placeholder="Notes"
@@ -1749,31 +1587,39 @@ const PatientEMRDetails = () => {
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
                     <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Since"
+                      <Autocomplete
+                        options={diagnosisStatusOpts}
                         value={diagnosisSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleDiagnosisTextChange(
-                            item,
-                            "since",
-                            e.target.value
-                          )
+                        onChange={(e, newValue) =>
+                          handleDiganosisOptionChange(item, newValue, "since")
                         }
-                        variant="outlined"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Status"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
+                      <Autocomplete
+                        options={diagnosisTypeOpts}
                         value={diagnosisSpecs[item?.label]?.severity || ""}
-                        onChange={(e) =>
-                          handleDiagnosisTextChange(
+                        onChange={(e, newValue) =>
+                          handleDiganosisOptionChange(
                             item,
-                            "severity",
-                            e.target.value
+                            newValue,
+                            "severity"
                           )
                         }
-                        variant="outlined"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Type"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1819,21 +1665,7 @@ const PatientEMRDetails = () => {
                     </RecordLayout>
                     <TextBoxLayout>
                       <RecordTextField
-                        placeholder="Since"
-                        value={medicationsSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleMedicationsTextChange(
-                            item,
-                            "since",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
+                        placeholder="Frequency"
                         value={medicationsSpecs[item?.label]?.severity || ""}
                         onChange={(e) =>
                           handleMedicationsTextChange(
@@ -1847,16 +1679,56 @@ const PatientEMRDetails = () => {
                     </TextBoxLayout>
                     <TextBoxLayout>
                       <RecordTextField
-                        placeholder="Notes"
-                        value={medicationsSpecs[item?.label]?.notes || ""}
+                        placeholder="Timing"
+                        value={medicationsSpecs[item?.label]?.timing || ""}
                         onChange={(e) =>
                           handleMedicationsTextChange(
                             item,
-                            "notes",
+                            "timing",
                             e.target.value
                           )
                         }
                         variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <Autocomplete
+                        options={generateDoseOptions(dose)}
+                        value={medicationsSpecs[item?.label]?.dose || ""}
+                        onChange={(e, newValue) =>
+                          handleMedicationOptionsChange(item, newValue, "dose")
+                        }
+                        inputValue={dose}
+                        onInputChange={(e, newVal) =>
+                          handleDoseOptions(e, newVal)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Dose"
+                            variant="outlined"
+                          />
+                        )}
+                      />
+                    </TextBoxLayout>
+                    <TextBoxLayout>
+                      <Autocomplete
+                        options={generateOptions(number)}
+                        value={medicationsSpecs[item?.label]?.since || ""}
+                        onChange={(e, newValue) =>
+                          handleMedicationOptionsChange(item, newValue, "since")
+                        }
+                        inputValue={number}
+                        onInputChange={(e, newValue) =>
+                          handleNumberOptions(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Duration"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <DeleteWrapper>
@@ -1886,28 +1758,6 @@ const PatientEMRDetails = () => {
                     <RecordLayout>
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Since"
-                        value={labInvestigationSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleLabTextChange(item, "since", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Severity"
-                        value={
-                          labInvestigationSpecs[item?.label]?.severity || ""
-                        }
-                        onChange={(e) =>
-                          handleLabTextChange(item, "severity", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
                     <TextBoxLayout>
                       <RecordTextField
                         placeholder="Notes"
