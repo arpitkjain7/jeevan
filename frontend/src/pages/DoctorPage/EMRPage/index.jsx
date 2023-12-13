@@ -1442,9 +1442,6 @@ const PatientEMRDetails = () => {
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
-                      <Typography>Dropdown</Typography>
-                    </TextBoxLayout>
-                    <TextBoxLayout>
                       <RecordTextField
                         placeholder="Notes"
                         value={symptomsSpecs[item?.label]?.notes || ""}
