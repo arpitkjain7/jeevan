@@ -195,6 +195,7 @@ const PatientEMRDetails = () => {
   const [showSync, setShowSync] = useState("");
   const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [number, setNumber] = useState("");
+  const [symptomNumber, setSymptomNumber] = useState("");
   const [dose, setDose] = useState("");
   const navigate = useNavigate();
 
@@ -1218,6 +1219,21 @@ const PatientEMRDetails = () => {
   const diagnosisTypeOpts = ["Primary Diagnosis", "Differential Diagnosis"];
   const timeOptions = ["Days", "Weeks", "Months"];
   const doseOptions = ["Tablet"];
+  const timingOptions = [
+    "After Meal",
+    "Before Meal",
+    "With Meal",
+    "Empty Stomach",
+    "before breakfast",
+    "After breakfast",
+    "Before lunch",
+    "After lunch",
+    "Before dinner",
+    "After dinner",
+    "Along with food",
+    "At bed time",
+    "On waking up",
+  ];
 
   const handleRelationshipChange = (option, newValue) => {
     handleTextFieldChange(option, "relationship", newValue);
@@ -1242,11 +1258,25 @@ const PatientEMRDetails = () => {
   }, [formValues?.bodyHeight, formValues.bodyWeight]);
 
   const handleNumberOptions = (event, value) => {
-    setNumber(value);
+    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    if (isValidInput) {
+      setNumber(value);
+    }
+  };
+
+  const handleSymptomNumberOptions = (event, value) => {
+    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    if (isValidInput) {
+      // Update the state or perform any other necessary actions
+      setSymptomNumber(value);
+    }
   };
 
   const handleDoseOptions = (event, value) => {
-    setDose(value);
+    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    if (isValidInput) {
+      setDose(value);
+    }
   };
 
   const generateOptions = (number) => {
@@ -1254,6 +1284,15 @@ const PatientEMRDetails = () => {
     return timeOptions?.map((option) => `${number}${option}`);
   };
 
+  const generateSymptomsOptions = (number) => {
+    if (!number) return [];
+    return timeOptions?.map((option) => `${number}${option}`);
+  };
+
+  const generateSymptomsOptionChange = (option, newValue, key) => {
+    console.log("options", option, newValue, key);
+    handleSymtomsTextChange(option, key, newValue);
+  };
   const generateDoseOptions = (number) => {
     if (!number) return [];
     return doseOptions?.map((option) => `${number}${option}`);
@@ -1320,7 +1359,7 @@ const PatientEMRDetails = () => {
                         fullWidth
                         variant="outlined"
                         name="bloodPressure"
-                        value={formValues.bloodPressure}
+                        value={`${formValues.systolicBP} / ${formValues.diastolicaBP}`}
                         onChange={handleInputChange}
                         className="emr-input-field"
                       />
@@ -1432,13 +1471,23 @@ const PatientEMRDetails = () => {
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
                     <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Since"
+                      <Autocomplete
+                        options={generateSymptomsOptions(symptomNumber)}
                         value={symptomsSpecs[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleSymtomsTextChange(item, "since", e.target.value)
+                        onChange={(e, newValue) =>
+                          generateSymptomsOptionChange(item, newValue, "since")
                         }
-                        variant="outlined"
+                        inputValue={symptomNumber}
+                        onInputChange={(e, newValue) =>
+                          handleSymptomNumberOptions(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Since"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1675,17 +1724,19 @@ const PatientEMRDetails = () => {
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Timing"
-                        value={medicationsSpecs[item?.label]?.timing || ""}
-                        onChange={(e) =>
-                          handleMedicationsTextChange(
-                            item,
-                            "timing",
-                            e.target.value
-                          )
+                      <Autocomplete
+                        options={timingOptions} // Replace with your actual timing options
+                        value={medicationsSpecs[item?.label]?.timing || null}
+                        onChange={(event, newValue) =>
+                          handleMedicationsTextChange(item, "timing", newValue)
                         }
-                        variant="outlined"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Timing"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
