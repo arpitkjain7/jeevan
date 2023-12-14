@@ -104,7 +104,7 @@ const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
 
-const PastVisits = (isPatientHistory) => {
+const PastVisits = ({isPatientHistory}) => {
   const [tableData, setTableData] = useState([]);
   const dataState = useSelector((state) => state);
   const [base64data, setbase64data] = useState("");
