@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
+import { useTheme } from '@mui/material/styles';
 import {
   Table,
   TableBody,
@@ -11,8 +13,15 @@ import {
   IconButton,
   styled,
   Typography,
+  TableFooter,
+  TablePagination,
+  Box
 } from "@mui/material";
-import { Class, Search as SearchIcon } from "@mui/icons-material";
+import { Class, Search as SearchIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight } from "@mui/icons-material";
+  import FirstPageIcon from '@mui/icons-material/FirstPage';
+  import LastPageIcon from '@mui/icons-material/LastPage';
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
@@ -45,6 +54,68 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
+function TablePaginationActions(props) {
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
+
+
 const MyTable = ({
   columns,
   data,
@@ -55,22 +126,37 @@ const MyTable = ({
   onRowClick,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return columns.some((column) =>
       item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
     );
   });
+   // Avoid a layout jump when reaching the last page with empty rows.
+   const emptyRows =
+   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+ 
 
   return (
     <TableComponentWrapper>
       {showSearch && (
-        <div className="search-wrap">
+        <div style={{backgroundColor: '#fff'}} className="search-wrap">
           <TextField
             variant="outlined"
             fullWidth
@@ -90,11 +176,12 @@ const MyTable = ({
       )}
       <TableContainer
         component={Paper}
-        style={tableStyle}
+        // style={tableStyle}
         className={tableClassName}
+        // sx={{ maxHeight: 540 }}
       >
-        <Table className="table-component-wrapper">
-          <TableHead className="table-component-header">
+        <Table  sx={{ minWidth: 500 }} className="table-component-wrapper">
+          <TableHead className="table-component-header" >
             <TableRow>
               {columns?.map((column) => (
                 <TableCell key={column.key} classNamwe="table-header-cell">
@@ -104,7 +191,9 @@ const MyTable = ({
             </TableRow>
           </TableHead>
           <TableBody className="table-body-container">
-            {filteredData?.map((item) => (
+          {(rowsPerPage > 0
+            ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            : filteredData).map((item) => (
               <TableRow
                 key={item.id}
                 onClick={() => onRowClick && onRowClick(item)}
@@ -152,7 +241,32 @@ const MyTable = ({
                 })}
               </TableRow>
             ))}
+              {emptyRows > 0 && (
+            <TableRow style={{ height: 53 * emptyRows }}>
+              <TableCell colSpan={7} />
+            </TableRow>
+          )}
           </TableBody>
+          <TableFooter>
+          <TableRow>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+              colSpan={3}
+              count={filteredData.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              SelectProps={{
+                inputProps: {
+                  'aria-label': 'rows per page',
+                },
+                native: true,
+              }}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              ActionsComponent={TablePaginationActions}
+            />
+          </TableRow>
+        </TableFooter>
         </Table>
       </TableContainer>
     </TableComponentWrapper>

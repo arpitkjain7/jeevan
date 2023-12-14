@@ -6,10 +6,10 @@ import { Person } from "@mui/icons-material";
 
 const HeaderWrapper = styled("div")(({ theme }) => ({
   "&": {
-    // maxWidth: "1440px",
+    // width: "100%",
     // margin: "0 auto",
     backgroundColor: theme.palette.primaryWhite,
-    zIndex: "9999",
+    zIndex: "1201",
     height: "80px",
     borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
     pposition: "-webkit-sticky",
@@ -49,7 +49,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "16px",
     marginRight: theme.spacing(8),
-  },
+  }
 }));
 
 const ProfileIconWrapper = styled("div")({
@@ -59,7 +59,7 @@ const ProfileIconWrapper = styled("div")({
 });
 
 const ProfileIcon = styled(Avatar)({
-  backgroundColor: "#000",
+  backgroundColor: "#000"
 });
 
 const ProfileMenu = styled(Menu)({

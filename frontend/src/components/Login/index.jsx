@@ -16,7 +16,7 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     marginBottom: "48px",
   },
   ".login-content": {
-    marginTop: "10%",
+    marginTop: "10%%",
   },
   ".login-form": {
     "& > .MuiFormControl-root": {
