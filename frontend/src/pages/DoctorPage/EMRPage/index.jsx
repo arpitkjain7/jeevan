@@ -54,15 +54,22 @@ const TextFieldWrapper = styled("div")(({ theme }) => ({
   },
   ".emr-input-field": {
     "&.MuiFormControl-root  > .MuiInputBase-root": {
-      height: "48px",
+      height: "54px",
       borderRadius: "0",
     },
   },
 }));
 
+const BPTextFieldWrapper = styled("div")(({ theme }) => ({
+  "&": {
+    display: "flex",
+    alignItems: "center",
+  },
+}));
+
 const VitalValue = styled("div")(({ theme }) => ({
   "&": {
-    padding: theme.spacing(3),
+    padding: theme.spacing(4),
     border: `1px solid ${theme.palette.primaryGrey}`,
     textAlign: "center",
   },
@@ -154,6 +161,38 @@ const PdfDisplayWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(10),
+}));
+
+const BPWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  border: "1px solid rgba(0,0,0,0.23)",
+  height: "51px",
+  textAlign: "center",
+}));
+const RowWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: theme.spacing(4),
+}));
+const DiastolicTextField = styled(TextField)(({ theme }) => ({
+  "&.MuiFormControl-root > .MuiInputBase-root > fieldset": {
+    border: "none",
+  },
+}));
+
+const SystolicTextField = styled(TextField)(({ theme }) => ({
+  "&.MuiFormControl-root > .MuiInputBase-root > fieldset": {
+    border: "none",
+  },
+}));
+
+const Divider = styled("div")(({ theme }) => ({
+  padding: "10px",
+  display: "flex",
+  alignItems: "center",
+  fontSize: "18px",
+  fontWeight: "bold",
 }));
 
 const PatientEMRDetails = () => {
@@ -1258,49 +1297,76 @@ const PatientEMRDetails = () => {
   }, [formValues?.bodyHeight, formValues.bodyWeight]);
 
   const handleNumberOptions = (event, value) => {
-    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    const isValidInput = /^([1-9]\d{0,2}(Days|Weeks|Months)?)?$/.test(value);
     if (isValidInput) {
       setNumber(value);
     }
   };
 
   const handleSymptomNumberOptions = (event, value) => {
-    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    const isValidInput = /^([1-9]\d{0,2}(Days|Weeks|Months)?)?$/.test(value);
     if (isValidInput) {
-      // Update the state or perform any other necessary actions
       setSymptomNumber(value);
     }
   };
 
   const handleDoseOptions = (event, value) => {
-    const isValidInput = /^([1-9]\d{0,2})?$/.test(value);
+    const isValidInput = /^([1-9]\d{0,2}(Tablet)?)?$/.test(value);
     if (isValidInput) {
       setDose(value);
     }
   };
 
-  const generateOptions = (number) => {
-    if (!number) return [];
-    return timeOptions?.map((option) => `${number}${option}`);
+  const generateOptions = (number, item) => {
+    const parsedNumber = parseInt(number, 10);
+    if (isNaN(parsedNumber) || !item?.label) {
+      return [];
+    }
+    const sinceValue = medicationsSpecs[item?.label]?.since;
+    if (sinceValue === "" || !isNaN(parsedNumber)) {
+      return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
+    }
+    return [];
   };
 
-  const generateSymptomsOptions = (number) => {
-    if (!number) return [];
-    return timeOptions?.map((option) => `${number}${option}`);
+  const generateSymptomsOptions = (number, item) => {
+    const parsedNumber = parseInt(number, 10);
+
+    if (isNaN(parsedNumber) || !item?.label) {
+      return [];
+    }
+
+    const sinceValue = symptomsSpecs[item.label]?.since;
+
+    if (sinceValue === "" || !isNaN(parsedNumber)) {
+      return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
+    }
+
+    return [];
   };
 
   const generateSymptomsOptionChange = (option, newValue, key) => {
     console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
   };
-  const generateDoseOptions = (number) => {
-    if (!number) return [];
-    return doseOptions?.map((option) => `${number}${option}`);
+
+  const generateDoseOptions = (number, item) => {
+    const parsedNumber = parseInt(number, 10);
+
+    if (isNaN(parsedNumber) || !item?.label) {
+      return [];
+    }
+
+    const sinceValue = medicationsSpecs[item?.label]?.dose || "";
+
+    if (sinceValue === "" || !isNaN(parsedNumber)) {
+      return doseOptions?.map((option) => `${parsedNumber}${option}`) || [];
+    }
+
+    return [];
   };
 
   const handleMedicationOptionsChange = (option, newValue, key) => {
-    console.log("options", option, newValue, key);
-
     handleMedicationsTextChange(option, key, newValue);
   };
 
@@ -1353,21 +1419,28 @@ const PatientEMRDetails = () => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <Typography variant="subtitle1">Blood Pressure</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
-                      <TextField
+                  <BPTextFieldWrapper>
+                    <BPWrapper>
+                      <DiastolicTextField
                         fullWidth
                         variant="outlined"
-                        name="bloodPressure"
-                        value={`${formValues.systolicBP} / ${formValues.diastolicaBP}`}
+                        name="diastolicaBP"
+                        value={formValues.diastolicaBP}
                         onChange={handleInputChange}
                         className="emr-input-field"
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <VitalValue>mmHg</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
+                      <Divider>/</Divider>
+                      <SystolicTextField
+                        fullWidth
+                        variant="outlined"
+                        name="systolicBP"
+                        value={formValues.systolicBP}
+                        onChange={handleInputChange}
+                        className="emr-input-field"
+                      />
+                    </BPWrapper>
+                    <VitalValue>mmHg</VitalValue>
+                  </BPTextFieldWrapper>
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <Typography variant="subtitle1">Respiratory rate</Typography>
@@ -1445,7 +1518,9 @@ const PatientEMRDetails = () => {
                   <Typography variant="subtitle1">Body mass index</Typography>
                   <TextFieldWrapper>
                     <Grid item xs={12} sm={10}>
-                      <VitalValue>{bodyMassIndex}</VitalValue>
+                      <BPWrapper>
+                        <RowWrapper>{bodyMassIndex}</RowWrapper>
+                      </BPWrapper>
                     </Grid>
                     <Grid item xs={12} sm={2}>
                       <VitalValue>Kg/m2</VitalValue>
@@ -1472,7 +1547,7 @@ const PatientEMRDetails = () => {
                     </RecordLayout>
                     <TextBoxLayout>
                       <Autocomplete
-                        options={generateSymptomsOptions(symptomNumber)}
+                        options={generateSymptomsOptions(symptomNumber, item)}
                         value={symptomsSpecs[item?.label]?.since || ""}
                         onChange={(e, newValue) =>
                           generateSymptomsOptionChange(item, newValue, "since")
@@ -1695,6 +1770,41 @@ const PatientEMRDetails = () => {
             )}
           </VitalsContainer>
           <VitalsContainer>
+            <SectionHeader>Lab Investigations</SectionHeader>
+            <CustomAutoComplete
+              options={labInvestigationsOpts}
+              handleInputChange={handleLabInvestigationsChange}
+              setOptions={setLabInvestigationsOpts}
+              handleOptionChange={handleLabInvestigations}
+            />
+            {labInvestigation?.length > 0 && (
+              <div>
+                {labInvestigation?.map((item) => (
+                  <FieldSpecsContainer>
+                    <RecordLayout>
+                      <SelectedRecord>{item?.label}</SelectedRecord>
+                    </RecordLayout>
+                    <TextBoxLayout>
+                      <RecordTextField
+                        placeholder="Notes"
+                        value={labInvestigationSpecs[item?.label]?.notes || ""}
+                        onChange={(e) =>
+                          handleLabTextChange(item, "notes", e.target.value)
+                        }
+                        variant="outlined"
+                      />
+                    </TextBoxLayout>
+                    <DeleteWrapper>
+                      <DeleteField onClick={handleLabSpecsDelete(item?.label)}>
+                        Delete
+                      </DeleteField>
+                    </DeleteWrapper>
+                  </FieldSpecsContainer>
+                ))}
+              </div>
+            )}
+          </VitalsContainer>
+          <VitalsContainer>
             <SectionHeader>Medications</SectionHeader>
             <CustomAutoComplete
               options={medicationsOpts}
@@ -1741,7 +1851,7 @@ const PatientEMRDetails = () => {
                     </TextBoxLayout>
                     <TextBoxLayout>
                       <Autocomplete
-                        options={generateDoseOptions(dose)}
+                        options={generateDoseOptions(dose, item)}
                         value={medicationsSpecs[item?.label]?.dose || ""}
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "dose")
@@ -1761,7 +1871,7 @@ const PatientEMRDetails = () => {
                     </TextBoxLayout>
                     <TextBoxLayout>
                       <Autocomplete
-                        options={generateOptions(number)}
+                        options={generateOptions(number, item)}
                         value={medicationsSpecs[item?.label]?.since || ""}
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "since")
@@ -1791,41 +1901,7 @@ const PatientEMRDetails = () => {
               </div>
             )}
           </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Lab Investigations</SectionHeader>
-            <CustomAutoComplete
-              options={labInvestigationsOpts}
-              handleInputChange={handleLabInvestigationsChange}
-              setOptions={setLabInvestigationsOpts}
-              handleOptionChange={handleLabInvestigations}
-            />
-            {labInvestigation?.length > 0 && (
-              <div>
-                {labInvestigation?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={labInvestigationSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleLabTextChange(item, "notes", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField onClick={handleLabSpecsDelete(item?.label)}>
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
+
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <VitalsContainer>
