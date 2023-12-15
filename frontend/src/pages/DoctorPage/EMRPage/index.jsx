@@ -24,7 +24,9 @@ import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import SyncAabha from "../SyncAabha";
-const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
+const PatientEMRWrapper = styled("div")(({ theme }) => ({
+  padding: "40px 10px 10px"
+}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
 

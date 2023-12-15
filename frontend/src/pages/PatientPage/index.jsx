@@ -12,9 +12,11 @@ const tableStyle = {
 };
 
 const ListWrapper = styled("div")(({ theme }) => ({
-  "&": {},
+  "&": {
+    padding: "40px 10px 10px"
+  },
   ".patientList-title-wrapper": {
-    marginBottom: "40px",
+    marginBottom: "20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
