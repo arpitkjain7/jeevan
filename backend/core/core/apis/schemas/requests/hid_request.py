@@ -19,6 +19,18 @@ class OTPVerification(BaseModel):
     txnId: str
 
 
+class AbhaAuth(BaseModel):
+    authMethod: str
+    patientId: str
+
+
+class AbhaAuthConfirm(BaseModel):
+    otp: str
+    txnId: str
+    patientId: str
+    authMode: str
+
+
 class MobileOTP(BaseModel):
     mobileNumber: str
     txnId: str

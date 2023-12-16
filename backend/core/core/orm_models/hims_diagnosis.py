@@ -8,7 +8,7 @@ class Diagnosis(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     disease = Column(String)
-    duration = Column(String)
+    diagnosis_type = Column(String)
     status = Column(String)
     notes = Column(String)
     start_date = Column(DateTime)

@@ -174,13 +174,12 @@ const MyTable = ({
           />
         </div>
       )}
+      <Paper>
       <TableContainer
-        component={Paper}
         // style={tableStyle}
         className={tableClassName}
-        // sx={{ maxHeight: 540 }}
       >
-        <Table  sx={{ minWidth: 500 }} className="table-component-wrapper">
+        <Table sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
           <TableHead className="table-component-header" >
             <TableRow>
               {columns?.map((column) => (
@@ -249,9 +248,15 @@ const MyTable = ({
           </TableBody>
           <TableFooter>
           <TableRow>
-            <TablePagination
+           
+          </TableRow>
+        </TableFooter>
+        </Table>
+      </TableContainer>
+      <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              colSpan={3}
+              component="div"
+              colSpan={8}
               count={filteredData.length}
               rowsPerPage={rowsPerPage}
               page={page}
@@ -265,10 +270,7 @@ const MyTable = ({
               onRowsPerPageChange={handleChangeRowsPerPage}
               ActionsComponent={TablePaginationActions}
             />
-          </TableRow>
-        </TableFooter>
-        </Table>
-      </TableContainer>
+        </Paper>
     </TableComponentWrapper>
   );
 };

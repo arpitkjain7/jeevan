@@ -58,6 +58,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
       flex: 0.3,
       padding: 0,
       margin: 0,
+      [theme.breakpoints.down('sm')]: {
+        flex: "1 "
+      },
       "& .MuiInputBase-input": {
         padding: "12px 16px",
       },

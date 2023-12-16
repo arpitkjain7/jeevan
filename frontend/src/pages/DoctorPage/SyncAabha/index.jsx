@@ -157,7 +157,7 @@ const SyncAabha = ({
           </RadioGroup>
         </FormControl>
         <OTPWrapper>
-          {txnId !== "" && <OtpInput verifyOTP={verifyOTP} isSync={true} />}
+          {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
         </OTPWrapper>
         <ModalFooter>
           <SecondaryButton onClick={clearData}>Clear</SecondaryButton>

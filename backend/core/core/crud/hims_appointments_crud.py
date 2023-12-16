@@ -166,6 +166,7 @@ class CRUDAppointments:
                     .filter(DocDetails.id == Appointments.doc_id)
                     .filter(PatientDetails.id == Appointments.patient_id)
                     .filter(Slots.slot_id == Appointments.slot_id)
+                    .order_by(Slots.start_time.asc())
                     .all()
                 ):
                     start_time = slot_obj.start_time.strftime("%H:%M")

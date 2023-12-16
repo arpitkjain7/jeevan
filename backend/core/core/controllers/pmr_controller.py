@@ -6,6 +6,7 @@ from core.crud.hims_labInvestigation_crud import CRUDLabInvestigation
 from core.crud.hims_medicines_crud import CRUDMedicines
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
+from core.crud.hims_medicalTestReports_crud import CRUDMedicalTestReports
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_current_medicines_crud import CRUDCurrentMedicines
 from core.utils.custom.external_call import APIInterface
@@ -13,7 +14,7 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
-from core.utils.fhir.op_consult import opConsultDocument
+from core.utils.fhir.op_consult import opConsultUnstructured
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url
 from core.utils.custom.session_helper import get_session_token
 from core import logger
@@ -37,6 +38,7 @@ class PMRController:
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDMedicalHistory = CRUDMedicalHistory()
+        self.CRUDMedicalTestReports = CRUDMedicalTestReports()
         self.CRUDVital = CRUDVital()
         self.CRUDSymptoms = CRUDSymptoms()
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
@@ -387,7 +389,7 @@ class PMRController:
             logging.info(f"{advice_obj_dict=}")
             # pmr_id = advice_obj_dict.pop("pmr_id")
             logging.info(f"{advice_obj_dict=}")
-            self.CRUDPatientMedicalRecord.update(pmr_id, **advice_obj_dict)
+            self.CRUDPatientMedicalRecord.update(**advice_obj_dict)
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_advice function: {error}")
@@ -400,7 +402,7 @@ class PMRController:
             notes_obj_dict.update({"id": pmr_id})
             # pmr_id = notes_obj_dict.pop("pmr_id")
             logging.info(f"{notes_obj_dict=}")
-            self.CRUDPatientMedicalRecord.update(pmr_id, **notes_obj_dict)
+            self.CRUDPatientMedicalRecord.update(**notes_obj_dict)
             return {"pmr_id": pmr_id}
         except Exception as error:
             logging.error(f"Error in PMRController.create_notes function: {error}")
@@ -452,7 +454,9 @@ class PMRController:
             )
             diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
             medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
-            medicalTest_data = self.CRUDMedicalTest.read_by_pmrId(pmr_id=pmr_id)
+            medicalTestReport_data = self.CRUDMedicalTestReports.read_by_pmrId(
+                pmr_id=pmr_id
+            )
             medicalHistory_data = self.CRUDMedicalHistory.read_by_pmrId(pmr_id=pmr_id)
             condition = self.CRUDCondition.read_by_pmrId(pmr_id=pmr_id)
             symptoms = self.CRUDSymptoms.read_by_pmrId(pmr_id=pmr_id)
@@ -466,7 +470,7 @@ class PMRController:
                     "symptoms": symptoms,
                     "medicines": medicine_data,
                     "current_medication": current_medication,
-                    "medicalTests": medicalTest_data,
+                    "medicalTestReport": medicalTestReport_data,
                     "medicalHistory": medicalHistory_data,
                 }
             )
@@ -564,6 +568,7 @@ class PMRController:
                         "Authorization": f"Bearer {gateway_access_token}",
                     },
                 )
+
                 self.CRUDGatewayInteraction.create(
                     **{
                         "request_id": request_id,
@@ -576,6 +581,11 @@ class PMRController:
                         },
                     }
                 )
+                # if not pmr_obj["abdm_linked"]:
+                #     logging.info("Updating abdm linked flag on PMR")
+                #     self.CRUDPatientMedicalRecord.update(
+                #         pmr_id=pmr_id, **{"abdm_linked": True}
+                #     )
                 logging.info("Sending SMS notification")
                 sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
                 mobile_number = patient_obj.get("mobile_number")
@@ -755,15 +765,11 @@ class PMRController:
                 resp["vital_id"] = self.create_vital_pmr(request.vital, pmr_id)[
                     "vital_id"
                 ]
-            if request.diagnosis is not None:
-                resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis, pmr_id)[
-                    "diagnosis_id"
-                ]
-            if request.condition is not None:
-                # logging.info(type(request.condition))
-                resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
-                    "condition_id"
-                ]
+            # if request.condition is not None:
+            #     # logging.info(type(request.condition))
+            #     resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
+            #         "condition_id"
+            #     ]
             if request.examinationFindings is not None:
                 resp["examination_findings_id"] = self.create_examination_findings(
                     request.examinationFindings, pmr_id
@@ -792,11 +798,18 @@ class PMRController:
                 resp["medical_history_id"] = self.create_medicalHistory(
                     request.medical_history, pmr_id
                 )["medicalHistory_id"]
-            if request.advice is not None:
-                resp["advice_id"] = self.create_advice(request.advice, pmr_id)
-            if request.notes is not None:
-                resp["notes_id"] = self.create_notes(request.notes, pmr_id)
-
+            # if request.advice is not None:
+            #     resp["advice_id"] = self.create_advice(request.advice, pmr_id)
+            # if request.notes is not None:
+            #     resp["notes_id"] = self.create_notes(request.notes, pmr_id)
+            self.CRUDPatientMedicalRecord.update(
+                **{
+                    "id": pmr_id,
+                    "follow_up": request.follow_up,
+                    "advices": request.advice,
+                    "notes": request.notes,
+                }
+            )
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")
             return {
@@ -907,7 +920,7 @@ class PMRController:
             logging.info("executing get_fhir function")
             logging.info(f"{pmr_id=}")
             bundle_id = str(uuid.uuid1())
-            return opConsultDocument(
+            return opConsultUnstructured(
                 bundle_name=f"OPConsultNote-{bundle_id}",
                 bundle_identifier=bundle_id,
                 pmr_id=pmr_id,

@@ -19,7 +19,7 @@ const PatientDocuments = ({handleClickOpen, open, handleClose}) => {
   const isPatientHistory = true;
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen} style={{ alignSelf: 'right' }}>
+      <Button variant="outlined" onClick={handleClickOpen} >
       <AssignmentIcon />&nbsp; Documents
       </Button>
       <Dialog

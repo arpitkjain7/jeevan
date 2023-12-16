@@ -20,8 +20,6 @@ import MuiAppBar from '@mui/material/AppBar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import HospitalList from "../pages/HospitalList";
-import PdfFromDocumentBytes from "../components/PdfFromDocumentBytes";
 
 const drawerWidth = 235;
 
@@ -105,8 +103,7 @@ function App() {
 
   return (
     <Router> 
-    
-      <Box sx={{ display: 'flex' }}>
+      <Box>
         {isAuthenticated ? (
           <>
           <CssBaseline />
@@ -140,52 +137,52 @@ function App() {
           <Sidebar />
         </Drawer>
       )}
-       {/* p: 3, */}
-   <div component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }}>
-     <DrawerHeader/>
-       {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
-        <Routes>
-          <Route path="/login" element={<SignInPage />} />
-            {isAuthenticated ? (
-              <> 
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/patient-list" element={<PatientPage />} />
-                <Route 
-                  path="/patient-registration"
-                  element={<PatientRegistration />}
-                />
-                <Route
-                  path="/appointment-list"
-                  element={<AppointmentPage />}
-                />
-                <Route
-                  path="/create-appointment"
-                  element={<CreateAppointment />}
-                />
-                <Route 
-                  path="/patient-emr"
-                  element={<PatientEMRDetails />}
-                />
-                <Route
-                  path="/registered-patient"
-                  element={<RegisterationConfirmation />}
-                />
-                <Route
-                  path="/patient-details"
-                  element={<PatientDetails />}
-                />
-                <Route
-                  path="/consent-detail"
-                  element={<ConsentDocumentPage />}
-                />
-              </>
-            ) : (
-              <Route path="*" element={<SignInPage />} />
-            )}
-            <Route path="/" element={<SignInPage />} />
+      
+      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ p:3, overflow: "auto" }}>
+        <DrawerHeader/>
+        {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
+          <Routes>
+            <Route path="/login" element={<SignInPage />} />
+              {isAuthenticated ? (
+                <> 
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/patient-list" element={<PatientPage />} />
+                  <Route 
+                    path="/patient-registration"
+                    element={<PatientRegistration />}
+                  />
+                  <Route
+                    path="/appointment-list"
+                    element={<AppointmentPage />}
+                  />
+                  <Route
+                    path="/create-appointment"
+                    element={<CreateAppointment />}
+                  />
+                  <Route 
+                    path="/patient-emr"
+                    element={<PatientEMRDetails />}
+                  />
+                  <Route
+                    path="/registered-patient"
+                    element={<RegisterationConfirmation />}
+                  />
+                  <Route
+                    path="/patient-details"
+                    element={<PatientDetails />}
+                  />
+                  <Route
+                    path="/consent-detail"
+                    element={<ConsentDocumentPage />}
+                  />
+                </>
+              ) : (
+                <Route path="*" element={<SignInPage />} />
+              )}
+              <Route path="/" element={<SignInPage />} />
           </Routes>
         {/* </div> */}
-        </div>
+        </Box>
       </Box>
     </Router>
   );  
