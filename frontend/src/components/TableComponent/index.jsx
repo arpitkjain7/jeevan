@@ -256,7 +256,7 @@ const MyTable = ({
       <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
               component="div"
-              colSpan={8}
+              colSpan={columns.length}
               count={filteredData.length}
               rowsPerPage={rowsPerPage}
               page={page}
