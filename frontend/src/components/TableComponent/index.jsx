@@ -198,7 +198,7 @@ const MyTable = ({
                 onClick={() => onRowClick && onRowClick(item)}
               >
                 {columns?.map((column) => {
-                  if (column.key !== "actions") {
+                  if (column.key !== "actions" && column.key !== "p_name") {
                     return (
                       <TableCell key={`${item?.id}-${column?.key}`}>
                         {column?.render
@@ -222,16 +222,29 @@ const MyTable = ({
                               </IconButton>
                             );
                           } else if (action?.type === "link") {
-                            return (
-                              <Typography
-                                key={index}
-                                size="small"
-                                onClick={() => action.onClick(item)}
-                                className="linkTypography"
-                              >
-                                {action?.key ? item[action?.key] : action?.link}
-                              </Typography>
-                            );
+                            if(column.key === "p_name") {
+                              return (
+                                <Typography
+                                  key={index}
+                                  size="small"
+                                  onClick={() => action.onClick(item)}
+                                  className="linkTypography"
+                                >
+                                   {item[column?.key]}
+                                </Typography>
+                              );
+                            } else {
+                              return (
+                                <Typography
+                                  key={index}
+                                  size="small"
+                                  onClick={() => action.onClick(item)}
+                                  className="linkTypography"
+                                >
+                                  {action?.key ? item[action?.key] : action?.link}
+                                </Typography>
+                              );
+                            } 
                           }
                         })}
                       </TableCell>
@@ -256,7 +269,7 @@ const MyTable = ({
       <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
               component="div"
-              colSpan={8}
+              colSpan={columns.length}
               count={filteredData.length}
               rowsPerPage={rowsPerPage}
               page={page}

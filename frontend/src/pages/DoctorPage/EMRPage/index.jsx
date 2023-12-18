@@ -1561,7 +1561,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           generateSymptomsOptionChange(item, newValue, "since")
                         }
-                        inputValue={symptomNumber}
+                        // inputValue={symptomNumber}
                         onInputChange={(e, newValue) =>
                           handleSymptomNumberOptions(item, newValue)
                         }
@@ -1614,13 +1614,31 @@ const PatientEMRDetails = () => {
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
                     <TextBoxLayout>
-                      <RecordTextField
+                      {/* <RecordTextField
                         placeholder="Since"
                         value={optionTextValues[item?.label]?.since || ""}
                         onChange={(e) =>
                           handleTextFieldChange(item, "since", e.target.value)
                         }
                         variant="outlined"
+                      /> */}
+                       <Autocomplete
+                        options={generateSymptomsOptions(symptomNumber, item)}
+                        value={symptomsSpecs[item?.label]?.since || ""}
+                        onChange={(e, newValue) =>
+                          generateSymptomsOptionChange(item, newValue, "since")
+                        }
+                        // inputValue={symptomNumber}
+                        onInputChange={(e, newValue) =>
+                          handleSymptomNumberOptions(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Since"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1871,7 +1889,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "dose")
                         }
-                        inputValue={dose}
+                        // inputValue={dose}
                         onInputChange={(e, newVal) =>
                           handleDoseOptions(e, newVal)
                         }
@@ -1891,7 +1909,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "since")
                         }
-                        inputValue={number}
+                        // inputValue={number}
                         onInputChange={(e, newValue) =>
                           handleNumberOptions(item, newValue)
                         }

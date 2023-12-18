@@ -45,7 +45,6 @@ const ConsentDocumentPage = () => {
   const createDocumentData = (data) => {
     const doclist = [];
     data?.map((item) => {
-      console.log(item, "item");
       const docObj = {
         documentContent: item?.attachment?.data,
         type: item?.attachment?.contentType,

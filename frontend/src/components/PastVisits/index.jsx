@@ -151,7 +151,7 @@ const PastVisits = ({isPatientHistory}) => {
   };
 
   const openDoc = (row) => {
-    if(isPatientHistory){
+    // if(isPatientHistory){
       dispatch(getDocumentBytes(row?.id)).then((res) => {
        console.log(res);
        if(res.payload != undefined ){
@@ -161,12 +161,12 @@ const PastVisits = ({isPatientHistory}) => {
         console.log("Error retrieving data");
       }
       })
-    } else {
-      dispatch(getDocument(row?.id)).then((res) => {
-        const documentData = res.payload;
-        window.open(documentData?.document_url, "_blank");
-      });
-    }
+    // } else {
+    //   dispatch(getDocument(row?.id)).then((res) => {
+    //     const documentData = res.payload;
+    //     window.open(documentData?.document_url, "_blank");
+    //   });
+    // }
   };
 
   return (
