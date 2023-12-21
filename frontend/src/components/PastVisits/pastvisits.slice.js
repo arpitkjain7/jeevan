@@ -39,6 +39,19 @@ export const getDocument = createAsyncThunk(
   }
 );
 
+export const getDocumentBytes = createAsyncThunk(
+  "PMR/getDocumentBytes",
+  async (payload) => {
+    const response = await apiRequest(
+      "GET",
+      apis?.getDocBytes + "/" + payload,
+      null,
+      null
+    );
+    return response;
+  }
+)
+
 const PastVisitSlice = createSlice({
   name: "list-PMR",
   initialState: {
