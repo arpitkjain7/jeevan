@@ -71,7 +71,6 @@ const LoginPage = (props) => {
 
   const handleSignIn = () => {
     // Handle sign-in logic here
-    console.log(password, email, "password");
     // let urlencoded = new URLSearchParams();
     // urlencoded.append("username", email);
     // urlencoded.append("password", password);

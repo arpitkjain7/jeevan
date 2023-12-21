@@ -50,7 +50,6 @@ const DocList = styled("p")(({ theme }) => ({
 }));
 
 const DocViewer = ({ docData }) => {
-  console.log(docData, "docData");
   const [byteCode, setByteCode] = useState("");
   const [selectedDocument, setSelectedDocument] = useState("");
   const pdfViewerRef = useRef(null);

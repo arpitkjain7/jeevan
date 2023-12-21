@@ -240,7 +240,7 @@ const PatientEMRDetails = () => {
   const [dose, setDose] = useState("");
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
-
+  const currentPatient = JSON.parse(patient);
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -276,7 +276,7 @@ const PatientEMRDetails = () => {
       console.log("vitals:", res);
     });
 
-    const currentPatient = JSON.parse(patient);
+  
     if (Object.keys(currentPatient)?.length) {
       const emrPayload = {
         patient_id: currentPatient?.patientId,
@@ -1104,9 +1104,9 @@ const PatientEMRDetails = () => {
         }
       })
     );
-    const currentPatient = JSON.parse(
-      sessionStorage.getItem("selectedPatient")
-    );
+    // const currentPatient = JSON.parse(
+    //   sessionStorage.getItem("selectedPatient")
+    // );
     if (
       currentPatient?.patient_details?.abha_number &&
       currentPatient?.patient_details?.abha_number !== ""
@@ -1204,11 +1204,11 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     const hospital = sessionStorage?.getItem("selectedHospital");
-    const patient = sessionStorage?.getItem("selectedPatient");
+    // const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
-      const currentPatient = JSON.parse(patient);
+      // const currentPatient = JSON.parse(patient);
       patientDetails = {
         hospitalName: currentHospital?.name || "-",
         patientName: currentPatient?.patient_details?.name || "-",
@@ -1561,7 +1561,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           generateSymptomsOptionChange(item, newValue, "since")
                         }
-                        inputValue={symptomNumber}
+                        // inputValue={symptomNumber}
                         onInputChange={(e, newValue) =>
                           handleSymptomNumberOptions(item, newValue)
                         }
@@ -1614,13 +1614,31 @@ const PatientEMRDetails = () => {
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
                     <TextBoxLayout>
-                      <RecordTextField
+                      {/* <RecordTextField
                         placeholder="Since"
                         value={optionTextValues[item?.label]?.since || ""}
                         onChange={(e) =>
                           handleTextFieldChange(item, "since", e.target.value)
                         }
                         variant="outlined"
+                      /> */}
+                       <Autocomplete
+                        options={generateSymptomsOptions(symptomNumber, item)}
+                        value={symptomsSpecs[item?.label]?.since || ""}
+                        onChange={(e, newValue) =>
+                          generateSymptomsOptionChange(item, newValue, "since")
+                        }
+                        // inputValue={symptomNumber}
+                        onInputChange={(e, newValue) =>
+                          handleSymptomNumberOptions(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Since"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1871,7 +1889,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "dose")
                         }
-                        inputValue={dose}
+                        // inputValue={dose}
                         onInputChange={(e, newVal) =>
                           handleDoseOptions(e, newVal)
                         }
@@ -1891,7 +1909,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "since")
                         }
-                        inputValue={number}
+                        // inputValue={number}
                         onInputChange={(e, newValue) =>
                           handleNumberOptions(item, newValue)
                         }

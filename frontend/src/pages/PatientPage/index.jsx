@@ -32,7 +32,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": {
-        "&": theme.typography.body2,
+        "&": theme.typography.h3,
+        [theme.breakpoints.down('md')]: {
+          "&": theme.typography.body2
+        },
         padding: theme.spacing(4, 8),
       },
     },
@@ -81,12 +84,11 @@ const PatientPage = () => {
 
   const columns = [
     {
-      key: "actions",
+      key: "p_name",
       header: "Patient Name",
       actions: [
         {
           type: "link",
-          key: "name",
           onClick: (row) => {
             dispatch(AppointmentPageActions.setSelectedPatientData(row));
             sessionStorage.setItem("selectedPatient", JSON.stringify(row));
@@ -149,6 +151,7 @@ const PatientPage = () => {
           const createdDate = convertDateFormat(item?.created_at, "dd-MM-yyyy");
           return {
             patientDetails: `${item.name || ""} | ${patientGender || ""}`,
+            p_name: `${item.name}`,
             updatedDate: updatedDate,
             createdDate: createdDate,
             ...item,

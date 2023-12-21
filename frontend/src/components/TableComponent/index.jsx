@@ -46,10 +46,16 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
       backgroundColor: theme.palette.primaryWhite,
     },
   },
+  ".table-body-container tr td": {
+      border: "1px solid #e0e0e0"
+  },
   ".table-component-wrapper": {},
   ".table-component-header": {
-    "&.MuiTableHead-root": {
-      backgroundColor: theme.palette.primaryOpacityBlue,
+    // "&.MuiTableHead-root": {
+    //   backgroundColor: theme.palette.primaryOpacityBlue,
+    // },
+    "& > tr >th": {
+      backgroundColor: '#bde4ff',
     },
   },
 }));
@@ -174,12 +180,13 @@ const MyTable = ({
           />
         </div>
       )}
-      <Paper>
+      <Paper sx={{ overflow: 'hidden' }} >
       <TableContainer
         // style={tableStyle}
         className={tableClassName}
+         sx={{ maxHeight: 540 }}
       >
-        <Table sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
+        <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
           <TableHead className="table-component-header" >
             <TableRow>
               {columns?.map((column) => (
@@ -198,7 +205,18 @@ const MyTable = ({
                 onClick={() => onRowClick && onRowClick(item)}
               >
                 {columns?.map((column) => {
-                  if (column.key !== "actions") {
+                  if (column.key == "consentStatus"){
+                    return (
+                      <TableCell key={`${item?.id}-${column?.key}`}>
+                         <Typography
+                              style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
+                            >
+                              {item.status}
+                          </Typography>
+                      </TableCell>
+                    );
+                  }
+                  if (column.key !== "actions" && column.key !== "p_name") {
                     return (
                       <TableCell key={`${item?.id}-${column?.key}`}>
                         {column?.render
@@ -222,16 +240,29 @@ const MyTable = ({
                               </IconButton>
                             );
                           } else if (action?.type === "link") {
-                            return (
-                              <Typography
-                                key={index}
-                                size="small"
-                                onClick={() => action.onClick(item)}
-                                className="linkTypography"
-                              >
-                                {action?.key ? item[action?.key] : action?.link}
-                              </Typography>
-                            );
+                            if(column.key === "p_name") {
+                              return (
+                                <Typography
+                                  key={index}
+                                  size="small"
+                                  onClick={() => action.onClick(item)}
+                                  className="linkTypography"
+                                >
+                                   {item[column?.key]}
+                                </Typography>
+                              );
+                            } else {
+                              return (
+                                <Typography
+                                  key={index}
+                                  size="small"
+                                  onClick={() => action.onClick(item)}
+                                  className="linkTypography"
+                                >
+                                  {action?.key ? item[action?.key] : action?.link}
+                                </Typography>
+                              );
+                            } 
                           }
                         })}
                       </TableCell>
