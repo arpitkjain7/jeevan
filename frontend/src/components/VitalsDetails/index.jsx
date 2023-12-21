@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { ListItem, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import MyTable from "../TableComponent";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
@@ -21,7 +21,7 @@ const SideList = styled("List")(({ theme }) => ({
   gap: theme.spacing(8),
 }));
 
-const VitalsList = styled("ListItem")(({ theme }) => ({}));
+// const VitalsList = styled("ListItem")(({ theme }) => ({}));
 
 const Vitals = styled("div")(({ theme }) => ({
   flex: "1",
@@ -138,7 +138,7 @@ const VitalsDetails = () => {
               className={selectedVital === item?.code ? "selected-vital" : ""}
               onClick={() => setVitalsData(item?.code)}
             >
-              <VitalsList>{item?.type}</VitalsList>
+              <ListItem>{item?.type}</ListItem>
               <img src={ArrowRight} alt={`select-${item.type}`} />
             </VitalsListContainer>
           ))}

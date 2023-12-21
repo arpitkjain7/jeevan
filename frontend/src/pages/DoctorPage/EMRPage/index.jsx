@@ -191,6 +191,7 @@ const PatientEMRDetails = () => {
   const [step, setStep] = useState("create");
   const [showSync, setShowSync] = useState("");
   const [selectedAuthOption, setSelectedAuthOption] = useState("");
+  const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
@@ -1273,8 +1274,10 @@ const PatientEMRDetails = () => {
 
   return (
     <PatientEMRWrapper>
-      {step === "create" && <PatientDetailsHeader />}
+      {step === "create" && <PatientDetailsHeader 
+      documents={documents}/>}
       {step === "create" && (
+        
         <EMRFormWrapper>
           <VitalsContainer>
             <SectionHeader>Vitals</SectionHeader>

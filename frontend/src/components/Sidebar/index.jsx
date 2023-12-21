@@ -24,33 +24,33 @@ const Sidebar = ({ open, onClose, list }) => {
       sx={{
         "& .MuiDrawer-paper": {
           backgroundColor: "#fff",
-          padding: "120px 0 30px 0",
-          minWidth: "100px",
+          padding: "100px 0 30px 0",
+          minWidth: "80px",
         },
       }}
     >
       <List sx={{ margin: "0 auto" }}>
-        <ListItem sx={{ marginBottom: "16px" }}>
+        <ListItem sx={{ marginBottom: "16px" }}
+          onClick={() => redirectRoutes("/dashboard")}>
           <img
             src={HomeIcon}
             alt="Home"
-            onClick={() => redirectRoutes("/dashboard")}
             style={{ cursor: "pointer" }}
-          />
+          /> 
         </ListItem>
-        <ListItem sx={{ marginBottom: "16px" }}>
+        <ListItem sx={{ marginBottom: "16px" }}
+            onClick={() => redirectRoutes("/patient-list")}>
           <img
             src={PersonIcon}
             alt="person"
-            onClick={() => redirectRoutes("/patient-list")}
             style={{ cursor: "pointer" }}
           />
         </ListItem>
-        <ListItem sx={{ marginBottom: "16px" }}>
+        <ListItem sx={{ marginBottom: "16px" }}
+            onClick={() => redirectRoutes("/appointment-list")}>
           <img
             src={AppointmentIcon}
             alt="appointment"
-            onClick={() => redirectRoutes("/appointment-list")}
             style={{ cursor: "pointer" }}
           />
         </ListItem>

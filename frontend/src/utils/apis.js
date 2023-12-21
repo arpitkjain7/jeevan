@@ -26,9 +26,10 @@ export const apis = {
   getPmrList: "PMR/list",
   getPmrDocs: "PMR/listDocuments",
   getDoc: "PMR/getDocument",
+  getDocBytes: "PMR/getDocumentBytes",
   submitConsentReq: "HIU/consentInit",
   fetchModes: "patient/fetchModes",
   authInit: "patient/auth/init",
   verifySyncOtp: "patient/auth/verifyOtp",
-  syncPMREndpoint: "PMR/sync",
+  syncPMREndpoint: "PMR/sync"
 };
