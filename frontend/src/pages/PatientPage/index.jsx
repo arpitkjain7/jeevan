@@ -12,9 +12,11 @@ const tableStyle = {
 };
 
 const ListWrapper = styled("div")(({ theme }) => ({
-  "&": {},
+  "&": {
+    padding: "40px 10px 10px"
+  },
   ".patientList-title-wrapper": {
-    marginBottom: "40px",
+    marginBottom: "20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -30,7 +32,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": {
-        "&": theme.typography.body2,
+        "&": theme.typography.h3,
+        [theme.breakpoints.down('md')]: {
+          "&": theme.typography.body2
+        },
         padding: theme.spacing(4, 8),
       },
     },
@@ -47,6 +52,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
       flex: 0.3,
       padding: 0,
       margin: 0,
+      [theme.breakpoints.down('sm')]: {
+        flex: "1 "
+      },
       "& .MuiInputBase-input": {
         padding: "12px 16px",
         backgroundColor: theme.palette.primaryWhite,
@@ -76,12 +84,11 @@ const PatientPage = () => {
 
   const columns = [
     {
-      key: "actions",
+      key: "p_name",
       header: "Patient Name",
       actions: [
         {
           type: "link",
-          key: "name",
           onClick: (row) => {
             dispatch(AppointmentPageActions.setSelectedPatientData(row));
             sessionStorage.setItem("selectedPatient", JSON.stringify(row));
@@ -144,6 +151,7 @@ const PatientPage = () => {
           const createdDate = convertDateFormat(item?.created_at, "dd-MM-yyyy");
           return {
             patientDetails: `${item.name || ""} | ${patientGender || ""}`,
+            p_name: `${item.name}`,
             updatedDate: updatedDate,
             createdDate: createdDate,
             ...item,

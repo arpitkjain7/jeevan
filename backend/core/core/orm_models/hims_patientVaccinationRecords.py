@@ -1,14 +1,5 @@
 from enum import unique
-from sqlalchemy import (
-    Column,
-    String,
-    Integer,
-    ForeignKey,
-    JSON,
-    DateTime,
-    Float,
-    VARCHAR,
-)
+from sqlalchemy import Column, String, Integer, ForeignKey, JSON, DateTime
 from core import Base
 
 

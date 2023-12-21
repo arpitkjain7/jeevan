@@ -67,3 +67,25 @@ export const validateAbhaAddress = (address) => {
     !/^[._]|[._]$/.test(address)
   );
 };
+
+export const calculateBMI = (bodyHeight, bodyWeight) => {
+  console.log("typeof", typeof bodyHeight, typeof bodyWeight);
+  // Check if bodyHeight and bodyWeight are numbers
+  const height = Number(bodyHeight);
+  const weight = Number(bodyWeight);
+  if (
+    typeof height !== "number" ||
+    isNaN(height) ||
+    typeof weight !== "number" ||
+    isNaN(weight)
+  ) {
+    console.error(
+      "Invalid input. Please enter valid numbers for body height and weight."
+    );
+    return null;
+  }
+
+  const bodyHeightM = height / 100;
+  const bmi = weight / Math.pow(bodyHeightM, 2);
+  return bmi;
+};

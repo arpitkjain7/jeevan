@@ -6,7 +6,9 @@ import PastVisits from "../../components/PastVisits";
 import VitalsDetails from "../../components/VitalsDetails";
 import ConsentList from "../../components/ConsentList";
 
-const PatientDetailsWrapper = styled("div")(({ theme }) => ({}));
+const PatientDetailsWrapper = styled("div")(({ theme }) => ({
+  padding: "45px 10px 10px"
+}));
 
 const TabsContainer = styled("div")(({ theme }) => ({
   "&": {

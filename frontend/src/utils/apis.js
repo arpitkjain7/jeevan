@@ -22,7 +22,7 @@ export const apis = {
   uploadPmrPdf: "PMR/uploadDocument",
   getVitalDetail: "patient/getVitals",
   listConsent: "HIU/listConsent",
-  consentDetails: "HIU/getConsentDetails",
+  consentDetails: "HIU/getCareContext",
   getPmrList: "PMR/list",
   getPmrDocs: "PMR/listDocuments",
   getDoc: "PMR/getDocument",

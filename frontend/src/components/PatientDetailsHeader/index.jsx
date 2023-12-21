@@ -11,13 +11,29 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".details-header": {
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down('sm')]: {
+      display: "block"
+    },
+  },
+  ".details-avatar-container": {
+    [theme.breakpoints.down('sm')]: {
+      display: "inline",
+    },
   },
   ".details-Patientdetails": {
     padding: theme.spacing(0, 6),
     borderRight: `1px solid ${theme.palette.primaryGrey}`,
+    [theme.breakpoints.down('sm')]: {
+      display: "inline",
+      borderRight: "0"
+    },
   },
   ".details-emailContainer": {
     padding: theme.spacing(0, 6),
+    [theme.breakpoints.down('sm')]: {
+      display: "inline",
+      marginBottom: "10px"
+    },
   },
   ".details-subContainer": {
     display: "flex",
@@ -39,6 +55,9 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".documents-subContainer": {
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down('sm')]: {
+      display: "block "
+    },
   }
 }));
 
@@ -66,7 +85,7 @@ const PatientDetailsHeader = ({ documents }) => {
 
   return (
     <DetailsHeaderContainer>
-      <div className="details-header">
+      <div container className="details-header">
         <div className="details-avatar-container">
           <Avatar />
         </div>

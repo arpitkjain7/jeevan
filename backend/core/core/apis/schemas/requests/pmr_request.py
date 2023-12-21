@@ -8,7 +8,7 @@ class Vital(BaseModel):
     height: str = None
     weight: str = None
     pulse: str = None
-    blood_pressure: str = None
+    # blood_pressure: str = None
     body_temperature: str = None
     oxygen_saturation: str = None
     respiratory_rate: str = None
@@ -19,8 +19,7 @@ class Vital(BaseModel):
 
 class ExaminationFindings(BaseModel):
     disease: str = None
-    duration: str = None
-    status: str = None
+    notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
@@ -36,7 +35,7 @@ class Condition(BaseModel):
 
 class Diagnosis(BaseModel):
     disease: str = None
-    duration: str = None
+    diagnosis_type: str = None
     status: str = None
     notes: str = None
     snowmed_code: str = None
@@ -59,7 +58,7 @@ class Medicines(BaseModel):
     dosage: str = None
     time_of_day: str = None
     duration: str = None
-    duration_period: str = None
+    # duration_period: str = None
     notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
@@ -78,6 +77,7 @@ class MedicalHistory(BaseModel):
     medical_history: str = None
     since: str = None
     severity: str = None
+    relationship: str = "self"
     notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
@@ -85,6 +85,7 @@ class MedicalHistory(BaseModel):
 
 class LabInvestigations(BaseModel):
     name: str = None
+    notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
@@ -217,7 +218,7 @@ class CreatePMR(BaseModel):
 class PMR(BaseModel):
     pmr_id: str
     vital: Vital = None
-    condition: CreateCondition = None
+    # condition: CreateCondition = None
     examinationFindings: CreateExaminationFindings = None
     diagnosis: CreateDiagnosis = None
     symptom: CreateSymptoms = None
@@ -225,8 +226,9 @@ class PMR(BaseModel):
     currentMedication: CreateCurrentMedication = None
     lab_investigation: CreateLabInvestigation = None
     medical_history: CreateMedicalHistory = None
-    advice: Advice = None
-    notes: Notes = None
+    follow_up: date = None
+    advice: str = None
+    notes: str = None
 
 
 class ConsultationStatus(str, Enum):

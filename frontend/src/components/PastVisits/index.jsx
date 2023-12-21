@@ -22,15 +22,15 @@ const SideList = styled("List")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(8),
-  height: "600px",
+  height: "100vh",
   overflow: "auto",
 }));
 
-const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
-  padding: theme.spacing(2, 4),
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.primaryGrey}`,
-}));
+// const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
+//   padding: theme.spacing(2, 4),
+//   borderRadius: theme.spacing(1),
+//   border: `1px solid ${theme.palette.primaryGrey}`,
+// }));
 
 const PrescriptionDeatils = styled("div")(({ theme }) => ({
   flex: "1",
@@ -70,7 +70,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": theme.typography.h3,
+      [theme.breakpoints.down('md')]: {
+        "&": theme.typography.body2
+      },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
@@ -116,6 +119,7 @@ const PastVisits = ({isPatientHistory}) => {
   const pdfFileName = "custom_filename.pdf";
   const selectVisit = (item) => {
     dispatch(fetchPMRList(item?.id)).then((res) => {
+      setPmrId(item?.id);
       const docsList = res.payload;
       console.log(docsList);
       setTableData(docsList);
@@ -125,7 +129,11 @@ const PastVisits = ({isPatientHistory}) => {
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
       dispatch(fetchVistList(currentPatient?.patientId || currentPatient?.id)).then((res) => {
-        const pmrData = res.payload;
+        const pmrData = res.payload.sort((a,b) => {
+          return new Date(a.updated_at).getTime() - 
+              new Date(b.updated_at).getTime()
+      }).reverse();
+      console.log(pmrData);
         setVisitList(pmrData);
       });
     }
@@ -146,7 +154,7 @@ const PastVisits = ({isPatientHistory}) => {
   };
 
   const openDoc = (row) => {
-    if(isPatientHistory){
+    // if(isPatientHistory){
       dispatch(getDocumentBytes(row?.id)).then((res) => {
        console.log(res);
        if(res.payload != undefined ){
@@ -156,12 +164,12 @@ const PastVisits = ({isPatientHistory}) => {
         console.log("Error retrieving data");
       }
       })
-    } else {
-      dispatch(getDocument(row?.id)).then((res) => {
-        const documentData = res.payload;
-        window.open(documentData?.document_url, "_blank");
-      });
-    }
+    // } else {
+    //   dispatch(getDocument(row?.id)).then((res) => {
+    //     const documentData = res.payload;
+    //     window.open(documentData?.document_url, "_blank");
+    //   });
+    // }
   };
 
   return (
@@ -179,7 +187,6 @@ const PastVisits = ({isPatientHistory}) => {
                   {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
                 </VisitDate>
               </VisitListContainer>
-
               <img
                 src={ArrowRight}
                 alt={`select-${item.date_of_consultation}`}

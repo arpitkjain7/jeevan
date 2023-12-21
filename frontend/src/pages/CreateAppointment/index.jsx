@@ -6,6 +6,10 @@ import { Typography, styled } from "@mui/material";
 import AppointmentIcon from "../../assets/icons/prescription-icon.svg";
 import CalendarIcon from "../../assets/icons/calendar-icon.svg";
 
+const AppointmentWrapper = styled("div")(({ theme }) => ({
+  padding: "40px 10px 10px"
+}));
+
 const PageTitle = styled(Typography)(({ theme }) => ({
   "&": theme.typography.h1,
 }));
@@ -20,7 +24,6 @@ function CreateAppointment() {
   const [completed, setCompleted] = useState(false);
 
   const handleTabChange = (newValue) => {
-    console.log("Selected tab:", newValue);
     setTab(newValue);
     // Perform any additional logic based on the selected tab
   };
@@ -48,7 +51,7 @@ function CreateAppointment() {
   ];
 
   return (
-    <>
+    <AppointmentWrapper>
       <PageTitle>New Appointment</PageTitle>
       <PageSubText>Schedule an appointment</PageSubText>
       <CustomTabs
@@ -58,7 +61,7 @@ function CreateAppointment() {
         tab={tab}
         addSteps={true}
       />
-    </>
+    </AppointmentWrapper>
   );
 }
 

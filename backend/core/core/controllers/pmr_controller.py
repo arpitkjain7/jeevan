@@ -765,15 +765,11 @@ class PMRController:
                 resp["vital_id"] = self.create_vital_pmr(request.vital, pmr_id)[
                     "vital_id"
                 ]
-            if request.diagnosis is not None:
-                resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis, pmr_id)[
-                    "diagnosis_id"
-                ]
-            if request.condition is not None:
-                # logging.info(type(request.condition))
-                resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
-                    "condition_id"
-                ]
+            # if request.condition is not None:
+            #     # logging.info(type(request.condition))
+            #     resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
+            #         "condition_id"
+            #     ]
             if request.examinationFindings is not None:
                 resp["examination_findings_id"] = self.create_examination_findings(
                     request.examinationFindings, pmr_id
@@ -802,11 +798,18 @@ class PMRController:
                 resp["medical_history_id"] = self.create_medicalHistory(
                     request.medical_history, pmr_id
                 )["medicalHistory_id"]
-            if request.advice is not None:
-                resp["advice_id"] = self.create_advice(request.advice, pmr_id)
-            if request.notes is not None:
-                resp["notes_id"] = self.create_notes(request.notes, pmr_id)
-
+            # if request.advice is not None:
+            #     resp["advice_id"] = self.create_advice(request.advice, pmr_id)
+            # if request.notes is not None:
+            #     resp["notes_id"] = self.create_notes(request.notes, pmr_id)
+            self.CRUDPatientMedicalRecord.update(
+                **{
+                    "id": pmr_id,
+                    "follow_up": request.follow_up,
+                    "advices": request.advice,
+                    "notes": request.notes,
+                }
+            )
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")
             return {

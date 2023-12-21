@@ -6,12 +6,12 @@ import { Person } from "@mui/icons-material";
 
 const HeaderWrapper = styled("div")(({ theme }) => ({
   "&": {
-    // width: "100%",
+    width: "100%",
     // margin: "0 auto",
     backgroundColor: theme.palette.primaryWhite,
     zIndex: "1201",
     height: "80px",
-    borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
+    // borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
     pposition: "-webkit-sticky",
     position: "sticky",
     top: 0,
@@ -22,6 +22,9 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     padding: "20px 32px",
     zIndex: "9999",
+    [theme.breakpoints.down('md')]: {
+     padding: "10px"
+    },
   },
   ".header-logo-container": {
     display: "flex",
@@ -49,6 +52,14 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "16px",
     marginRight: theme.spacing(8),
+    [theme.breakpoints.down('md')]: {
+      marginRight: theme.spacing(0),
+    },
+  },
+  ".header-no-login": {
+    [theme.breakpoints.down('md')]: {
+      textAlign: "end"
+    },
   }
 }));
 
@@ -77,7 +88,8 @@ const Header = () => {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    navigate("/login");
+    // navigate("/login");
+    window.location.replace("/login");
     handleClose();
   };
 

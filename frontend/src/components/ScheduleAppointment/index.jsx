@@ -22,6 +22,7 @@ import {
 } from "./scheduleAppointment.slice";
 import Calendar from "../Calendar";
 import RegisterationConfirmation from "../RegistrationConfirmation";
+import { format } from "date-fns";
 
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -109,6 +110,7 @@ const BookingSlots = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [slots, setSlots] = useState([]);
+  const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
   const [appointmentcompleted, setAppointmentCompleted] = useState(false);
@@ -121,7 +123,7 @@ const BookingSlots = () => {
   const doctorDetails = dataState?.appointmentSlots?.doctorSlotDetails;
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
-
+ 
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
@@ -171,9 +173,11 @@ const BookingSlots = () => {
       const date = currentDate.toLocaleDateString(undefined, {
         weekday: "long",
         year: "numeric",
-        month: "long",
+        // month: "long",
+        month: "numeric",
         day: "numeric",
       });
+      
       dates.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -194,7 +198,6 @@ const BookingSlots = () => {
     const generatedSlots = [];
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
-
     while (start < end) {
       const slotStart = start.toLocaleTimeString([], {
         hour: "2-digit",
@@ -331,13 +334,14 @@ const BookingSlots = () => {
                 {selectedDate && (
                   <div className="slots-container">
                     {slots?.map((slot) => (
+
                       <DateButton
                         key={slot}
                         color="primary"
                         onClick={() => handleSlotSelect(slot)}
                         className={selectedSlot === slot ? "selected-btn" : ""}
                       >
-                        {convertTimeSlot(slot)}
+                        {slot}
                       </DateButton>
                     ))}
                   </div>

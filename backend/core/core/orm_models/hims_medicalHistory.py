@@ -8,6 +8,7 @@ class MedicalHistory(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     pmr_id = Column(String, ForeignKey("patientMedicalRecord.id"))
     medical_history = Column(String)
+    relationship = Column(String)
     since = Column(String)
     severity = Column(String)
     notes = Column(String)
