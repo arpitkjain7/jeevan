@@ -296,8 +296,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "disorder",
-        acceptability: "preferred",
+        semantictag: "situation",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -360,7 +360,8 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "finding",
-        acceptability: "preferred",
+        acceptability: "all",
+        groupbyconcept: "true",
         returnlimit: 5,
       };
 
@@ -390,8 +391,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "observable entity",
-        acceptability: "preferred",
+        semantictag: "finding++observable entity++morphologic abnormality",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -422,7 +423,7 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "disorder",
-        acceptability: "preferred",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -452,8 +453,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "clinical drug",
-        acceptability: "preferred",
+        semantictag: "real clinical drug++substance",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -485,7 +486,7 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "procedure",
-        acceptability: "preferred",
+        acceptability: "all",
         returnlimit: 5,
       };
 
