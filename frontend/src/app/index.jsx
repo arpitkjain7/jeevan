@@ -97,6 +97,7 @@ function App() {
   };
 
   const isAuthenticated = sessionStorage.getItem("accesstoken");
+
   useEffect(() => {
     console.log("reduxStore", dataState);
   }, [dataState]);
