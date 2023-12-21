@@ -42,7 +42,7 @@ services:
 
   lobster_mq:
     image: rabbitmq:3.12.0-rc.3-management-alpine
-    container_name:
+    container_name: lobster-mq
     environment:
       - RABBITMQ_MAX_CHANNELS=10
       - RABBITMQ_MAX_POOLS=10
