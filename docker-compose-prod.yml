@@ -48,6 +48,9 @@ services:
       - 4369:4369
       - 5672:5672
       - 15672:15672
+    environment:
+      - RABBITMQ_MAX_CHANNELS=10
+      - RABBITMQ_MAX_POOLS=10
     networks:
       - lobster
     restart: "on-failure"
