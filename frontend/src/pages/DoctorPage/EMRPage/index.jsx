@@ -276,7 +276,7 @@ const PatientEMRDetails = () => {
       console.log("vitals:", res);
     });
 
-  
+
     if (Object.keys(currentPatient)?.length) {
       const emrPayload = {
         patient_id: currentPatient?.patientId,
@@ -299,8 +299,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "disorder",
-        acceptability: "preferred",
+        semantictag: "situation",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -363,7 +363,8 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "finding",
-        acceptability: "preferred",
+        acceptability: "all",
+        groupbyconcept: "true",
         returnlimit: 5,
       };
 
@@ -393,8 +394,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "observable entity",
-        acceptability: "preferred",
+        semantictag: "finding++observable entity++morphologic abnormality",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -425,7 +426,7 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "disorder",
-        acceptability: "preferred",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -455,8 +456,8 @@ const PatientEMRDetails = () => {
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "clinical drug",
-        acceptability: "preferred",
+        semantictag: "real clinical drug++substance",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -488,7 +489,7 @@ const PatientEMRDetails = () => {
         term: inputValue,
         state: "active",
         semantictag: "procedure",
-        acceptability: "preferred",
+        acceptability: "all",
         returnlimit: 5,
       };
 
@@ -1375,10 +1376,10 @@ const PatientEMRDetails = () => {
 
   return (
     <PatientEMRWrapper>
-      {step === "create" && <PatientDetailsHeader 
-      documents={documents}/>}
+      {step === "create" && <PatientDetailsHeader
+        documents={documents} />}
       {step === "create" && (
-        
+
         <EMRFormWrapper>
           <VitalsContainer>
             <SectionHeader>Vitals</SectionHeader>
@@ -1425,7 +1426,7 @@ const PatientEMRDetails = () => {
                 <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Blood Pressure</Typography>
                   <BPTextFieldWrapper>
-                  <Grid item xs={8}>
+                    <Grid item xs={8}>
                       <BPWrapper>
                         <DiastolicTextField
                           fullWidth
@@ -1620,9 +1621,9 @@ const PatientEMRDetails = () => {
                         onChange={(e) =>
                           handleTextFieldChange(item, "since", e.target.value)
                         }
-                        variant="outlined"
+variant="outlined"
                       /> */}
-                       <Autocomplete
+                      <Autocomplete
                         options={generateSymptomsOptions(symptomNumber, item)}
                         value={symptomsSpecs[item?.label]?.since || ""}
                         onChange={(e, newValue) =>
