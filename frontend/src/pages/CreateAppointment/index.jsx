@@ -24,7 +24,6 @@ function CreateAppointment() {
   const [completed, setCompleted] = useState(false);
 
   const handleTabChange = (newValue) => {
-    console.log("Selected tab:", newValue);
     setTab(newValue);
     // Perform any additional logic based on the selected tab
   };

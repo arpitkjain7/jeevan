@@ -32,7 +32,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": {
-        "&": theme.typography.body2,
+        "&": theme.typography.h3,
+        [theme.breakpoints.down('md')]: {
+          "&": theme.typography.body2
+        },
         padding: theme.spacing(4, 8),
       },
     },

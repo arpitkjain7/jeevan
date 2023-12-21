@@ -62,6 +62,7 @@ const RegisterationConfirmation = ({
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
+  
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
@@ -105,6 +106,11 @@ const RegisterationConfirmation = ({
           window.location.replace(abha_url);
         }
       })
+  }
+
+  const navigateStartVisit = () => {
+    navigate("/patient-emr");
+    // sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
   }
 
   const navigateToNext = () => {
@@ -159,7 +165,11 @@ const RegisterationConfirmation = ({
           ))}
         </Grid>
       </Box>
-      <div className="btn-wrapper">    
+      <div className="btn-wrapper">
+      <Button className="submit-btn" onClick={navigateStartVisit}>
+          {/* {isAppointment ? "Go to appointment list" : "Create Appointment"} */}
+          Start Visit
+        </Button>
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>

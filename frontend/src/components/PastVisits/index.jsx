@@ -70,7 +70,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": theme.typography.h3,
+      [theme.breakpoints.down('md')]: {
+        "&": theme.typography.body2
+      },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,

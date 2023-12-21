@@ -5,6 +5,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemButton
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "../../assets/icons/home-icon.svg";
@@ -16,6 +17,12 @@ const Sidebar = ({ open, onClose, list }) => {
 
   const redirectRoutes = (route) => {
     navigate(route);
+  };
+  
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
+
+  const handleListItemClick = (event, index) => {
+    setSelectedIndex(index);
   };
   return (
     <Drawer
@@ -31,7 +38,11 @@ const Sidebar = ({ open, onClose, list }) => {
     >
       {/* sx={{ margin: "0 auto" }} */}
       <List sx={{ marginTop: "5px" }}>
-        <ListItem sx={{ marginBottom: "2px", padding: "0 16px"}}
+      <ListItemButton sx={{ padding: "0 16px"}}
+          selected={selectedIndex === 0}
+          onClick={(event) => handleListItemClick(event, 0)}
+        >
+        <ListItem sx={{ padding: "0"}}
           onClick={() => redirectRoutes("/dashboard")}>
           <img
             src={HomeIcon}
@@ -39,7 +50,12 @@ const Sidebar = ({ open, onClose, list }) => {
             style={{ cursor: "pointer" }}
           /> <h3 className="page_name">Dashboard</h3>
         </ListItem>
-        <ListItem sx={{ marginBottom: "2px", padding: "0 16px"}}
+        </ListItemButton>
+        <ListItemButton sx={{ padding: "0 16px"}}
+          selected={selectedIndex === 1}
+          onClick={(event) => handleListItemClick(event, 1)}
+        >
+        <ListItem sx={{ padding: "5px 0"}}
             onClick={() => redirectRoutes("/patient-list")}>
           <img
             src={PersonIcon}
@@ -47,7 +63,12 @@ const Sidebar = ({ open, onClose, list }) => {
             style={{ cursor: "pointer" }}
           /> <h3 className="page_name">Patient List</h3>
         </ListItem>
-        <ListItem sx={{ marginBottom: "2px", padding: "0 16px"}}
+        </ListItemButton>
+        <ListItemButton sx={{ padding: "0 16px"}}
+          selected={selectedIndex === 2}
+          onClick={(event) => handleListItemClick(event, 2)}
+        >
+        <ListItem sx={{ padding: "5px 0"}}
             onClick={() => redirectRoutes("/appointment-list")}>
           <img
             src={AppointmentIcon}
@@ -55,6 +76,7 @@ const Sidebar = ({ open, onClose, list }) => {
             style={{ cursor: "pointer" }}
           /> <h3 className="page_name">Appointment List</h3>
         </ListItem>
+        </ListItemButton>
       </List>
     </Drawer>
   );
