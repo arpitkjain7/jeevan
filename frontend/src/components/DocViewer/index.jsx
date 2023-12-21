@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { styled } from "@mui/material";
 import { useState } from "react";
 import { useRef } from "react";
+import MyTable from "../../components/TableComponent";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 
 const DocViewerContainer = styled("div")(({ theme }) => ({
@@ -15,6 +16,12 @@ const Views = styled("div")(({ theme }) => ({
   padding: theme.spacing(8, 0),
   minHeight: "600px",
 }));
+const ErrorContainer = styled("div")(({ theme }) => ({
+  display: "block",
+  alignSelf: "center",
+  textAlign: "center",
+  color: 'red'
+}))
 const PdfContainer = styled("div")(({ theme }) => ({
   flex: "1",
   height: "100%",
@@ -29,7 +36,7 @@ const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.spacing(1),
   border: `1px solid ${theme.palette.primaryGrey}`,
-  cursor: "pointer",
+  // cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
@@ -52,7 +59,7 @@ const DocViewer = ({ docData }) => {
     setSelectedDocument(selectedItem?.id);
   };
   const [pdfUrl, setPdfUrl] = useState(null);
-
+  const [consentError, setConsentError] = useState(false);
   const convertToDoc = () => {};
 
   useEffect(() => {
@@ -78,34 +85,69 @@ const DocViewer = ({ docData }) => {
     }
   }, [byteCode]);
 
+  const columns = [
+    { key: "careContext", header: "Care Context" },
+    { key: "hipId", header: "HIP ID"},
+    { key: "date", header: "Created At" },
+    {
+      key: "actions",
+      header: "",
+      actions: [
+        {
+          link: <img src={ArrowRight} />,
+          type: "link",
+          onClick: () => {
+            setConsentError(true);
+            setTimeout(()=> {
+              setConsentError(false);
+            }, 5000);
+          },
+        },
+      ],
+    },
+  ]
   return (
     <DocViewerContainer>
       <Views>
         <SideList>
-          {docData?.length &&
+          {docData?.length && 
             docData?.map(
               (item) =>
-                item?.id && (
+                item?.patient_name && (
                   <DiagnosisDetails
-                    onClick={() => onDocClick(item)}
+                    // onClick={() => onDocClick(item)}
                     className={
-                      selectedDocument === item?.id ? "selected-vital" : ""
+                      selectedDocument === item?.patient_name ? "selected-vital" : ""
                     }
                   >
-                    <DocList>{item?.id}</DocList>
-                    <img src={ArrowRight} alt={`select-${item.type}`} />
+                    <DocList>{item?.patient_name}</DocList>
+                    {/* <img src={ArrowRight} alt={`select-${item.type}`} /> */}
                   </DiagnosisDetails>
-                )
+                ))}
+            {docData?.length &&  (
+             <div className="table-container">
+                <MyTable
+                  columns={columns}
+                  data={docData}
+                  tableClassName="table-class"
+                  searchClassName="search-class"
+                />
+              </div>
             )}
         </SideList>
-        <PdfContainer>
+        {consentError && (
+            <ErrorContainer>
+              <h3>Error retrieving health record</h3>
+            </ErrorContainer>
+          )}
+        {/* <PdfContainer>
           <embed
             src={pdfUrl}
             type="application/pdf"
             width="100%"
             height="700px"
           />
-        </PdfContainer>
+        </PdfContainer> */}
       </Views>
     </DocViewerContainer>
   );
