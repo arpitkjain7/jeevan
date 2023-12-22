@@ -153,10 +153,13 @@ const AppointmentPage = () => {
             ...item,
           };
         });
-        const sortedData = formattedAppointmentList.sort((a, b) => {
-          return new Date(a.slotDate) - new Date(b.slotDate);
-        })
-        setTableData(sortedData);
+        if(formattedAppointmentList.slotDate){
+          const sortedData = formattedAppointmentList.sort((a, b) => {
+            return new Date(a.slotDate) - new Date(b.slotDate);
+          })
+          setTableData(sortedData);
+        } else setTableData(formattedAppointmentList);
+       
       });
     }
   }, []);

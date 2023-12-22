@@ -25,7 +25,13 @@ import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import SyncAabha from "../SyncAabha";
-import { calculateBMI } from "../../../utils/utils";
+import { calculateBMI, convertDateFormat } from "../../../utils/utils";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
+
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
   padding: "40px 10px 10px"
 }));
@@ -253,6 +259,7 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
+  const [followUp, setFollowUp] = useState(dayjs(''));
   const dispatch = useDispatch();
 
   const handleInputChange = (event) => {
@@ -1164,6 +1171,7 @@ const PatientEMRDetails = () => {
           respiratory_rate: formValues?.respiratoryRate,
           systolic_blood_pressure: formValues?.systolicBP,
           diastolic_blood_pressure: formValues?.diastolicaBP,
+          follow_up: convertDateFormat(followUp, "dd-MM-yyyy")
         },
       },
       {
@@ -1211,11 +1219,11 @@ const PatientEMRDetails = () => {
       // const currentPatient = JSON.parse(patient);
       patientDetails = {
         hospitalName: currentHospital?.name || "-",
-        patientName: currentPatient?.patient_details?.name || "-",
+        patientName: currentPatient?.patient_details?.name || currentPatient?.name || "-",
         doctorName: currentPatient?.docName || "-",
-        patientEmail: currentPatient?.patient_details?.email || "-",
-        patientGender: currentPatient?.patient_details?.gender || "-",
-        patientNumber: currentPatient?.mobileNumber || "-",
+        patientEmail: currentPatient?.patient_details?.email || currentPatient?.email || "-",
+        patientGender: currentPatient?.patient_details?.gender || currentPatient?.gender || "-",
+        patientNumber: currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
         patientAge: "-",
       };
@@ -1256,10 +1264,10 @@ const PatientEMRDetails = () => {
   const editPMR = () => {
     setStep("create");
   };
-  const relationshipOptions = ["father", "mother", "sister", "daughter"];
+  const relationshipOptions = ["self", "father", "mother", "sister", "daughter"];
   const diagnosisStatusOpts = ["Suspected", "Confirmed", "Ruled out"];
   const diagnosisTypeOpts = ["Primary Diagnosis", "Differential Diagnosis"];
-  const timeOptions = ["Days", "Weeks", "Months"];
+  const timeOptions = ["Days", "Weeks", "Months", "Years"];
   const doseOptions = ["Tablet"];
   const timingOptions = [
     "After Meal",
@@ -1351,6 +1359,7 @@ const PatientEMRDetails = () => {
   const generateSymptomsOptionChange = (option, newValue, key) => {
     console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
+    
   };
 
   const generateDoseOptions = (number, item) => {
@@ -1933,6 +1942,18 @@ const PatientEMRDetails = () => {
                 ))}
               </div>
             )}
+          </VitalsContainer>
+          
+          <VitalsContainer>
+          <SectionHeader>Follow Up</SectionHeader>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+              <DatePicker sx={{ width: '100%' }}
+                value={followUp}
+                onChange={(newValue) => setFollowUp(newValue)}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
           </VitalsContainer>
 
           <Grid container spacing={2}>
