@@ -20,9 +20,7 @@ const Sidebar = ({ open, onClose, list }) => {
     navigate(route);
   };
   const selectedIndex = JSON.parse(sessionStorage.getItem("PageSelected")) || 0;
-  console.log(typeof pageSelected);
-  // const [selectedIndex, setSelectedIndex] = useState(0);
-
+  
   const handleListItemClick = (event, index) => {
     // setSelectedIndex(index);
     sessionStorage.setItem("PageSelected", index)
