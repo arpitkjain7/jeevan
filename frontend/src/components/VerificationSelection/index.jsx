@@ -6,6 +6,7 @@ import {
   styled,
 } from "@mui/material";
 import React from "react";
+const userRole = sessionStorage?.getItem("userRole").toUpperCase();
 
 const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
   ".select-mode": {
@@ -13,7 +14,7 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     gap: "24px",
     paddingBottom: "40px",
-    borderBottom: `1px solid ${theme.palette.primaryGrey}`,
+    // borderBottom: `1px solid ${theme.palette.primaryGrey}`,
   },
   ".form-radio-group": {
     width: "300px",
@@ -92,28 +93,30 @@ function VerificationSelection({
           );
         })}
       </div>
-      <div className="select-header-container">
-        <div className="select-header">
-          <FormControlLabel
-            control={
-              <Checkbox
-                disabled={selectedOption === "aadhar"}
-                checked={checkedOption}
-                onChange={handleOptionCheck}
-              />
-            }
-            label="Create ABHA for the patient"
-            className="form-control-checkbox"
-          />
-          <Typography className="form-control-subtext">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book.
-          </Typography>
+      { userRole === "ADMIN" && (
+        <div className="select-header-container">
+          <div className="select-header">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disabled={selectedOption === "aadhar"}
+                  checked={checkedOption}
+                  onChange={handleOptionCheck}
+                />
+              }
+              label="Create ABHA for the patient"
+              className="form-control-checkbox"
+            />
+            <Typography className="form-control-subtext">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry. Lorem Ipsum has been the industry's standard dummy text
+              ever since the 1500s, when an unknown printer took a galley of type
+              and scrambled it to make a type specimen book.
+            </Typography>
+          </div>
         </div>
-      </div>
-      <div style={{ float: "right" }}>
+      )}
+      <div>
         <Button
           className="confirm-verification-btn"
           onClick={handleConfirmSelection}

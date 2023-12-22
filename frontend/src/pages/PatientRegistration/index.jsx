@@ -108,13 +108,21 @@ const PatientRegistration = () => {
   const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
+  const userRole = sessionStorage?.getItem("userRole").toUpperCase();
   const scroll = 'paper';
 
-  const modes = [
+  const adminModes = [
     {
       label: "Aadhar",
       value: "aadhar",
     },
+    {
+      label: "Phone Number",
+      value: "phone_number",
+    },
+  ];
+
+  const modes = [
     {
       label: "Phone Number",
       value: "phone_number",
@@ -453,7 +461,16 @@ const PatientRegistration = () => {
         setExpanded={setRegistration}
         completed={stepOne}
       >
+        { userRole === "ADMIN" ? (
         <VerificationSelection
+          modes={adminModes}
+          handleOptionChange={handleOptionChange}
+          selectedOption={selectedOption}
+          checkedOption={checkedOption}
+          handleOptionCheck={handleOptionCheck}
+          handleConfirmSelection={handleConfirmSelection}
+        />) : (
+          <VerificationSelection
           modes={modes}
           handleOptionChange={handleOptionChange}
           selectedOption={selectedOption}
@@ -461,6 +478,7 @@ const PatientRegistration = () => {
           handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
         />
+        )}
       </ExpandableCard>
      
       {selectedOption === "aadhar" && stepOne && !checkedOption && (

@@ -197,7 +197,7 @@ const MyTable = ({
             </TableRow>
           </TableHead>
           <TableBody className="table-body-container">
-          {(rowsPerPage > 0
+          {filteredData && (rowsPerPage > 0
             ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : filteredData).map((item) => (
               <TableRow
