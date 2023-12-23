@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import HomeIcon from "../../assets/icons/home-icon.svg";
 import PersonIcon from "../../assets/icons/person-icon.svg";
 import AppointmentIcon from "../../assets/icons/appointment-icon.svg";
+import { useState } from "react";
 
 const Sidebar = ({ open, onClose, list }) => {
   const navigate = useNavigate();
@@ -18,11 +19,10 @@ const Sidebar = ({ open, onClose, list }) => {
   const redirectRoutes = (route) => {
     navigate(route);
   };
-  
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const selectedIndex = JSON.parse(sessionStorage.getItem("PageSelected")) || 0;
 
   const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
+    sessionStorage.setItem("PageSelected", index)
   };
   return (
     <Drawer

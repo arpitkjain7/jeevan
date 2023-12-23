@@ -129,12 +129,15 @@ const PastVisits = ({isPatientHistory}) => {
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
       dispatch(fetchVistList(currentPatient?.patientId || currentPatient?.id)).then((res) => {
-        const pmrData = res.payload.sort((a,b) => {
-          return new Date(a.updated_at).getTime() - 
-              new Date(b.updated_at).getTime()
-      }).reverse();
-      console.log(pmrData);
-        setVisitList(pmrData);
+        if(res.payload){
+          const pmrData = res.payload
+          .sort((a,b) => {
+            return new Date(a.updated_at).getTime() - 
+                new Date(b.updated_at).getTime()
+            }).reverse();
+            console.log(pmrData);
+              setVisitList(pmrData);
+          }
       });
     }
   }, []);
