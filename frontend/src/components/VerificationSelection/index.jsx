@@ -6,7 +6,7 @@ import {
   styled,
 } from "@mui/material";
 import React from "react";
-const userRole = sessionStorage?.getItem("userRole").toUpperCase();
+const userRole = sessionStorage?.getItem("userRole");
 
 const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
   ".select-mode": {
@@ -93,7 +93,7 @@ function VerificationSelection({
           );
         })}
       </div>
-      { userRole === "ADMIN" && (
+      { userRole === "ADMIN" || userRole === "admin" && (
         <div className="select-header-container">
           <div className="select-header">
             <FormControlLabel

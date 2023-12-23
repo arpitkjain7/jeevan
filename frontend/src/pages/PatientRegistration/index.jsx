@@ -108,7 +108,7 @@ const PatientRegistration = () => {
   const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
-  const userRole = sessionStorage?.getItem("userRole").toUpperCase();
+  const userRole = sessionStorage?.getItem("userRole");
   const scroll = 'paper';
 
   const adminModes = [
@@ -461,7 +461,7 @@ const PatientRegistration = () => {
         setExpanded={setRegistration}
         completed={stepOne}
       >
-        { userRole === "ADMIN" ? (
+        { userRole === "ADMIN" || userRole === "admin" ? (
         <VerificationSelection
           modes={adminModes}
           handleOptionChange={handleOptionChange}
