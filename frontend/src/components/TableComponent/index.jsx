@@ -17,11 +17,13 @@ import {
   TablePagination,
   Box
 } from "@mui/material";
-import { Class, Search as SearchIcon,
+import {
+  Class, Search as SearchIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight } from "@mui/icons-material";
-  import FirstPageIcon from '@mui/icons-material/FirstPage';
-  import LastPageIcon from '@mui/icons-material/LastPage';
+  KeyboardArrowRight
+} from "@mui/icons-material";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
@@ -46,10 +48,16 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
       backgroundColor: theme.palette.primaryWhite,
     },
   },
+  ".table-body-container tr td": {
+    border: "1px solid #e0e0e0"
+  },
   ".table-component-wrapper": {},
   ".table-component-header": {
-    "&.MuiTableHead-root": {
-      backgroundColor: theme.palette.primaryOpacityBlue,
+    // "&.MuiTableHead-root": {
+    //   backgroundColor: theme.palette.primaryOpacityBlue,
+    // },
+    "& > tr >th": {
+      backgroundColor: '#bde4ff',
     },
   },
 }));
@@ -134,9 +142,9 @@ const MyTable = ({
       item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
     );
   });
-   // Avoid a layout jump when reaching the last page with empty rows.
-   const emptyRows =
-   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -151,12 +159,12 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
- 
+
 
   return (
     <TableComponentWrapper>
       {showSearch && (
-        <div style={{backgroundColor: '#fff'}} className="search-wrap">
+        <div style={{ backgroundColor: '#fff' }} className="search-wrap">
           <TextField
             variant="outlined"
             fullWidth
@@ -174,101 +182,128 @@ const MyTable = ({
           />
         </div>
       )}
-      <TableContainer
-        component={Paper}
-        // style={tableStyle}
-        className={tableClassName}
-        // sx={{ maxHeight: 540 }}
-      >
-        <Table  sx={{ minWidth: 500 }} className="table-component-wrapper">
-          <TableHead className="table-component-header" >
-            <TableRow>
-              {columns?.map((column) => (
-                <TableCell key={column.key} classNamwe="table-header-cell">
-                  {column.header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody className="table-body-container">
-          {(rowsPerPage > 0
-            ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : filteredData).map((item) => (
-              <TableRow
-                key={item.id}
-                onClick={() => onRowClick && onRowClick(item)}
-              >
-                {columns?.map((column) => {
-                  if (column.key !== "actions") {
-                    return (
-                      <TableCell key={`${item?.id}-${column?.key}`}>
-                        {column?.render
-                          ? column?.render(item[column?.key])
-                          : item[column.key]}
-                      </TableCell>
-                    );
-                  } else {
-                    const actions = column.actions || [];
-                    return (
-                      <TableCell key={`${item.id}-${column.key}`} align="right">
-                        {actions?.map((action, index) => {
-                          if (action?.type === "icon") {
-                            return (
-                              <IconButton
-                                key={index}
-                                size="small"
-                                onClick={() => action?.onClick(item)}
-                              >
-                                {action.icon}
-                              </IconButton>
-                            );
-                          } else if (action?.type === "link") {
-                            return (
-                              <Typography
-                                key={index}
-                                size="small"
-                                onClick={() => action.onClick(item)}
-                                className="linkTypography"
-                              >
-                                {action?.key ? item[action?.key] : action?.link}
-                              </Typography>
-                            );
-                          }
-                        })}
-                      </TableCell>
-                    );
-                  }
-                })}
+      <Paper sx={{ overflow: 'hidden' }} >
+        <TableContainer
+          // style={tableStyle}
+          className={tableClassName}
+          sx={{ maxHeight: 540 }}
+        >
+          <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
+            <TableHead className="table-component-header" >
+              <TableRow>
+                {columns?.map((column) => (
+                  <TableCell key={column.key} classNamwe="table-header-cell">
+                    {column.header}
+                  </TableCell>
+                ))}
               </TableRow>
-            ))}
+            </TableHead>
+            <TableBody className="table-body-container">
+              {(rowsPerPage > 0
+                ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : filteredData).map((item) => (
+                  <TableRow
+                    key={item.id}
+                    onClick={() => onRowClick && onRowClick(item)}
+                  >
+                    {columns?.map((column) => {
+                      if (column.key == "consentStatus") {
+                        return (
+                          <TableCell key={`${item?.id}-${column?.key}`}>
+                            <Typography
+                              style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red' }}
+                            >
+                              {item.status}
+                            </Typography>
+                          </TableCell>
+                        );
+                      }
+                      if (column.key !== "actions" && column.key !== "p_name") {
+                        return (
+                          <TableCell key={`${item?.id}-${column?.key}`}>
+                            {column?.render
+                              ? column?.render(item[column?.key])
+                              : item[column.key]}
+                          </TableCell>
+                        );
+                      } else {
+                        const actions = column.actions || [];
+                        return (
+                          <TableCell key={`${item.id}-${column.key}`} align="right">
+                            {actions?.map((action, index) => {
+                              if (action?.type === "icon") {
+                                return (
+                                  <IconButton
+                                    key={index}
+                                    size="small"
+                                    onClick={() => action?.onClick(item)}
+                                  >
+                                    {action.icon}
+                                  </IconButton>
+                                );
+                              } else if (action?.type === "link") {
+                                if (column.key === "p_name") {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {item[column?.key]}
+                                    </Typography>
+                                  );
+                                } else {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {action?.key ? item[action?.key] : action?.link}
+                                    </Typography>
+                                  );
+                                }
+                              }
+                            })}
+                          </TableCell>
+                        );
+                      }
+                    })}
+                  </TableRow>
+                ))}
               {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={7} />
-            </TableRow>
-          )}
-          </TableBody>
-          <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              colSpan={3}
-              count={filteredData.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              SelectProps={{
-                inputProps: {
-                  'aria-label': 'rows per page',
-                },
-                native: true,
-              }}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-          </TableRow>
-        </TableFooter>
-        </Table>
-      </TableContainer>
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={7} />
+                </TableRow>
+              )}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+          component="div"
+          colSpan={columns.length}
+          count={filteredData.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          SelectProps={{
+            inputProps: {
+              'aria-label': 'rows per page',
+            },
+            native: true,
+          }}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          ActionsComponent={TablePaginationActions}
+        />
+      </Paper>
     </TableComponentWrapper>
   );
 };
