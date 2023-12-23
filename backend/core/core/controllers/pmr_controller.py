@@ -614,7 +614,7 @@ class PMRController:
         try:
             logging.info("executing get pmr function")
             logging.info(f"Getting the PMR record for {patient_id=}")
-            return self.CRUDPatientMedicalRecord.read_by_patientId(
+            return self.CRUDPatientMedicalRecord.read_pmr_diagnosis_by_patientId(
                 patient_id=patient_id
             )
         except Exception as error:
