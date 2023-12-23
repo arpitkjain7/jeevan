@@ -40,26 +40,20 @@ const ConsentDocumentPage = () => {
   const [documentData, setDocumentData] = useState([]);
   const selectedConsent = sessionStorage.getItem("consentSelected");
   const [consentDetails, setConsentDetails] = useState([]);
-  const [consentPatientId, setConsentPatientId] = useState("");
   const dispatch = useDispatch();
 
   const createDocumentData = (data) => {
-    console.log(data);
     const doclist = [];
-    // data?.map((item) => {
-    //   console.log(item, "item");
-    //   const docObj = {
-    //     documentContent: item?.attachment?.data,
-    //     type: item?.attachment?.contentType,
-    //     id: item?.attachment?.id,
-    //   };
-    const pname = {patient_name: data?.patient};
-    doclist.push(pname)
-    const contexts = data?.care_contexts?.care_context;
-     contexts?.map((item) => {
-      const docObj = { careContext: item?.careContextReference, date: data?.created_at, hipId: data?.hip_id};
+    data?.map((item) => {
+      console.log(item, "item");
+      const docObj = {
+        documentContent: item?.attachment?.data,
+        type: item?.attachment?.contentType,
+        id: item?.attachment?.id,
+      };
       doclist.push(docObj);
     });
+    console.log(doclist);
     setDocumentData(doclist);
   };
   useEffect(() => {
@@ -68,13 +62,10 @@ const ConsentDocumentPage = () => {
       const consentId = currentConsent?.id;
       dispatch(fetchConsentDetails(consentId)).then((response) => {
         const consentData = response?.payload;
-        console.log(consentData);
-        setConsentPatientId(consentData?.care_contexts?.care_context[0]?.patientRefernce);
         const documentReference =
-          consentData?.care_contexts?.care_context;
-          // consentData?.patient_data_transformed[0]?.DocumentReference?.content;
+          consentData?.patient_data_transformed[0]?.DocumentReference?.content;
         console.log(documentReference, "reference");
-        createDocumentData(consentData);
+        createDocumentData(documentReference);
       });
     }
   }, []);
