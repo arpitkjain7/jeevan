@@ -461,7 +461,7 @@ const PatientRegistration = () => {
         setExpanded={setRegistration}
         completed={stepOne}
       >
-        { userRole === "ADMIN" || userRole === "admin" ? (
+        { userRole === "ADMIN" ? (
         <VerificationSelection
           modes={adminModes}
           handleOptionChange={handleOptionChange}

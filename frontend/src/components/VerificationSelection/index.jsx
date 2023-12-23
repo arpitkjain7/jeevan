@@ -29,6 +29,7 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     gap: theme.spacing(4),
+    borderTop: `1px solid ${theme.palette.primaryGrey}`,
     marginBottom: theme.spacing(4),
   },
   ".select-header": {
@@ -93,7 +94,7 @@ function VerificationSelection({
           );
         })}
       </div>
-      { userRole === "ADMIN" || userRole === "admin" && (
+      { userRole === "ADMIN" && (
         <div className="select-header-container">
           <div className="select-header">
             <FormControlLabel

@@ -20,6 +20,7 @@ const PatientDocuments = ({handleClickOpen, open, handleClose}) => {
   return (
     <React.Fragment>
       <Button variant="outlined" onClick={handleClickOpen} >
+
       <AssignmentIcon />&nbsp; Documents
       </Button>
       <Dialog

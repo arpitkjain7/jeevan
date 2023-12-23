@@ -17,11 +17,13 @@ import {
   TablePagination,
   Box
 } from "@mui/material";
-import { Class, Search as SearchIcon,
+import {
+  Class, Search as SearchIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight } from "@mui/icons-material";
-  import FirstPageIcon from '@mui/icons-material/FirstPage';
-  import LastPageIcon from '@mui/icons-material/LastPage';
+  KeyboardArrowRight
+} from "@mui/icons-material";
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
@@ -47,7 +49,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".table-body-container tr td": {
-      border: "1px solid #e0e0e0"
+    border: "1px solid #e0e0e0"
   },
   ".table-component-wrapper": {},
   ".table-component-header": {
@@ -140,9 +142,9 @@ const MyTable = ({
       item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
     );
   });
-   // Avoid a layout jump when reaching the last page with empty rows.
-   const emptyRows =
-   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -157,12 +159,12 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
- 
+
 
   return (
     <TableComponentWrapper>
       {showSearch && (
-        <div style={{backgroundColor: '#fff'}} className="search-wrap">
+        <div style={{ backgroundColor: '#fff' }} className="search-wrap">
           <TextField
             variant="outlined"
             fullWidth
@@ -212,96 +214,96 @@ const MyTable = ({
                               style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
                             >
                               {item.status}
-                          </Typography>
-                      </TableCell>
-                    );
-                  }
-                  if (column.key !== "actions" && column.key !== "p_name") {
-                    return (
-                      <TableCell key={`${item?.id}-${column?.key}`}>
-                        {column?.render
-                          ? column?.render(item[column?.key])
-                          : item[column.key]}
-                      </TableCell>
-                    );
-                  } else {
-                    const actions = column.actions || [];
-                    return (
-                      <TableCell key={`${item.id}-${column.key}`} align="right">
-                        {actions?.map((action, index) => {
-                          if (action?.type === "icon") {
-                            return (
-                              <IconButton
-                                key={index}
-                                size="small"
-                                onClick={() => action?.onClick(item)}
-                              >
-                                {action.icon}
-                              </IconButton>
-                            );
-                          } else if (action?.type === "link") {
-                            if(column.key === "p_name") {
-                              return (
-                                <Typography
-                                  key={index}
-                                  size="small"
-                                  onClick={() => action.onClick(item)}
-                                  className="linkTypography"
-                                >
-                                   {item[column?.key]}
-                                </Typography>
-                              );
-                            } else {
-                              return (
-                                <Typography
-                                  key={index}
-                                  size="small"
-                                  onClick={() => action.onClick(item)}
-                                  className="linkTypography"
-                                >
-                                  {action?.key ? item[action?.key] : action?.link}
-                                </Typography>
-                              );
-                            } 
-                          }
-                        })}
-                      </TableCell>
-                    );
-                  }
-                })}
-              </TableRow>
-            ))}
+                            </Typography>
+                          </TableCell>
+                        );
+                      }
+                      if (column.key !== "actions" && column.key !== "p_name") {
+                        return (
+                          <TableCell key={`${item?.id}-${column?.key}`}>
+                            {column?.render
+                              ? column?.render(item[column?.key])
+                              : item[column.key]}
+                          </TableCell>
+                        );
+                      } else {
+                        const actions = column.actions || [];
+                        return (
+                          <TableCell key={`${item.id}-${column.key}`} align="right">
+                            {actions?.map((action, index) => {
+                              if (action?.type === "icon") {
+                                return (
+                                  <IconButton
+                                    key={index}
+                                    size="small"
+                                    onClick={() => action?.onClick(item)}
+                                  >
+                                    {action.icon}
+                                  </IconButton>
+                                );
+                              } else if (action?.type === "link") {
+                                if (column.key === "p_name") {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {item[column?.key]}
+                                    </Typography>
+                                  );
+                                } else {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {action?.key ? item[action?.key] : action?.link}
+                                    </Typography>
+                                  );
+                                }
+                              }
+                            })}
+                          </TableCell>
+                        );
+                      }
+                    })}
+                  </TableRow>
+                ))}
               {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={7} />
-            </TableRow>
-          )}
-          </TableBody>
-          <TableFooter>
-          <TableRow>
-           
-          </TableRow>
-        </TableFooter>
-        </Table>
-      </TableContainer>
-      <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              component="div"
-              colSpan={columns.length}
-              count={filteredData.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              SelectProps={{
-                inputProps: {
-                  'aria-label': 'rows per page',
-                },
-                native: true,
-              }}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-        </Paper>
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={7} />
+                </TableRow>
+              )}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+          component="div"
+          colSpan={columns.length}
+          count={filteredData.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          SelectProps={{
+            inputProps: {
+              'aria-label': 'rows per page',
+            },
+            native: true,
+          }}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          ActionsComponent={TablePaginationActions}
+        />
+      </Paper>
     </TableComponentWrapper>
   );
 };

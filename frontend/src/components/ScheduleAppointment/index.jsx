@@ -130,7 +130,7 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
-  const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });
+  const currentTime = new Date().toLocaleTimeString(undefined, { hour: 'numeric', hour12: false, minute: 'numeric' });
  
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
