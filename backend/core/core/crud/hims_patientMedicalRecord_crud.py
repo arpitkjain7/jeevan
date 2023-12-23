@@ -186,6 +186,36 @@ class CRUDPatientMedicalRecord:
             )
             raise error
 
+    def read_by_appointmentId(self, appointment_id: int):
+        """[CRUD function to read a PatientMedicalRecord record]
+
+        Args:
+            doc_id (str): [Doctor Id to filter PatientMedicalRecord]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientMedicalRecord record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientMedicalRecord read_by_docId request")
+            with session() as transaction_session:
+                obj: PatientMedicalRecord = (
+                    transaction_session.query(PatientMedicalRecord)
+                    .filter(PatientMedicalRecord.appointment_id == appointment_id)
+                    .order_by(PatientMedicalRecord.date_of_consultation.desc())
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return []
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_by_docId function : {error}"
+            )
+            raise error
+
     def read_all(self):
         """[CRUD function to read_all PatientMedicalRecord record]
 

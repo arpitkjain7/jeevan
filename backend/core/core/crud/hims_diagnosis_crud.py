@@ -54,10 +54,10 @@ class CRUDDiagnosis:
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.pmr_id == pmr_id)
                     .order_by(Diagnosis.created_at.desc())
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
+                return obj.__dict__
             return []
         except Exception as error:
             logging.error(f"Error in CRUDDiagnosis read function : {error}")

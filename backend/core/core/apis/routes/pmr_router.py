@@ -6,26 +6,8 @@ from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     CreatePMR,
     PMR,
-    Advice,
-    Notes,
     CreateVital,
-    CreateExaminationFindings,
-    CreateDiagnosis,
-    CreateCondition,
-    CreateLabInvestigation,
-    CreateMedication,
-    CreateMedicalHistory,
-    CreateCurrentMedication,
-    CreateSymptoms,
     UpdateVital,
-    UpdateExaminationFindings,
-    UpdateDiagnosis,
-    UpdateCondition,
-    UpdateMedication,
-    UpdateLabInvestigation,
-    UpdateMedicalHistory,
-    UpdateCurrentMedication,
-    UpdateSymptoms,
     UpdateConsultationStatus,
     FollowUp,
     DocumentTypes,
@@ -40,7 +22,10 @@ pmr_router = APIRouter()
 
 
 @pmr_router.post("/v1/PMR/createPMR")
-def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
+def createPMR(
+    pmr_request: CreatePMR,
+    token: str = Depends(oauth2_scheme),
+):
     try:
         logging.info("Calling /v1/pmr/createPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
@@ -66,13 +51,38 @@ def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
 
 
 @pmr_router.post("/v1/PMR/submitPMR")
-def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+def submitPMR(
+    pmr_request: PMR,
+    follow_up_request: FollowUp = None,
+    consultation_status_request: UpdateConsultationStatus = None,
+    token: str = Depends(oauth2_scheme),
+):
     try:
         logging.info("Calling /v1/pmr/submitPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().submit_pmr(request=pmr_request)
+            pmr_status = ""
+            consultation_status = "No Update"
+            follow_up_status = "No Update"
+            if pmr_request:
+                pmr_status = PMRController().submit_pmr(request=pmr_request)
+            if consultation_status_request:
+                consultation_status = PMRController().update_consultation_status(
+                    request=consultation_status_request
+                )
+            if follow_up_request:
+                follow_up_status = PMRController().update_followup(
+                    request=follow_up_request
+                )
+            logging.info(f"{pmr_status=}")
+            logging.info(f"{consultation_status=}")
+            logging.info(f"{follow_up_status=}")
+            return {
+                "pmr_status": pmr_status,
+                "consultation_status": consultation_status,
+                "follow_up_status": follow_up_status,
+            }
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

@@ -54,10 +54,10 @@ class CRUDSymptoms:
                     transaction_session.query(Symptoms)
                     .filter(Symptoms.pmr_id == pmr_id)
                     .order_by(Symptoms.created_at.desc())
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
+                return obj.__dict__
             return []
         except Exception as error:
             logging.error(f"Error in CRUDSymptoms read function : {error}")
