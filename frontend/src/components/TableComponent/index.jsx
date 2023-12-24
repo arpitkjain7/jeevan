@@ -183,40 +183,40 @@ const MyTable = ({
         </div>
       )}
       <Paper sx={{ overflow: 'hidden' }} >
-      <TableContainer
-        // style={tableStyle}
-        className={tableClassName}
-         sx={{ maxHeight: 540 }}
-      >
-        <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
-          <TableHead className="table-component-header" >
-            <TableRow>
-              {columns?.map((column) => (
-                <TableCell key={column.key} classNamwe="table-header-cell">
-                  {column.header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody className="table-body-container">
-          {filteredData && (rowsPerPage > 0
-            ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : filteredData).map((item) => (
-              <TableRow
-                key={item.id}
-                onClick={() => onRowClick && onRowClick(item)}
-              >
-                {columns?.map((column) => {
-                  if (column.key == "consentStatus"){
-                    return (
-                      <TableCell key={`${item?.id}-${column?.key}`}>
-                         <Typography
-                              style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
-                            >
-                              {item.status}
-                            </Typography>
-                          </TableCell>
-                        );
+        <TableContainer
+          // style={tableStyle}
+          className={tableClassName}
+          sx={{ maxHeight: 540 }}
+        >
+          <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
+            <TableHead className="table-component-header" >
+              <TableRow>
+                {columns?.map((column) => (
+                  <TableCell key={column.key} classNamwe="table-header-cell">
+                    {column.header}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody className="table-body-container">
+              {filteredData && (rowsPerPage > 0
+                ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : filteredData).map((item) => (
+                  <TableRow
+                    key={item.id}
+                    onClick={() => onRowClick && onRowClick(item)}
+                  >
+                    {columns?.map((column) => {
+                      if (column.key == "consentStatus"){
+                        return (
+                          <TableCell key={`${item?.id}-${column?.key}`}>
+                            <Typography
+                                style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
+                              >
+                                {item.status}
+                              </Typography>
+                            </TableCell>
+                          );
                       }
                       if (column.key !== "actions" && column.key !== "p_name") {
                         return (
@@ -272,7 +272,7 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-                ))}
+              ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={7} />

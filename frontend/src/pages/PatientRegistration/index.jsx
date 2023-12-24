@@ -76,6 +76,9 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
       marginBottom: "4px",
     },
   },
+  ".displayHeaderContainer": {
+    display: "none"
+  }
 }));
 const PatientRegistration = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -477,6 +480,7 @@ const PatientRegistration = () => {
           checkedOption={checkedOption}
           handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
+          displayHeaderContainer="displayHeaderContainer"
         />
         )}
       </ExpandableCard>

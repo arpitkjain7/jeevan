@@ -31,7 +31,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
-const userRole = sessionStorage?.getItem("userRole");
+
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
   padding: "40px 10px 10px"
@@ -248,6 +248,7 @@ const PatientEMRDetails = () => {
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
+  const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -1550,7 +1551,7 @@ const PatientEMRDetails = () => {
               </Grid>
             </form>
           </VitalsContainer>
-          {userRole === "DOCTOR" || userRole === "ADMIN" && (
+          {(userRole === "DOCTOR" || userRole === "ADMIN") && (
             <>
               <VitalsContainer>
                 <SectionHeader>Complaints</SectionHeader>
