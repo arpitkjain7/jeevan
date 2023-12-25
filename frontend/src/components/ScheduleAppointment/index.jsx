@@ -201,6 +201,8 @@ const BookingSlots = () => {
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
+      setSelectedDate(thisWeek[0]);
+      console.log(thisWeek[0])
       handleDateSelect(thisWeek[0]);
     }
   }, []);
@@ -274,7 +276,6 @@ const BookingSlots = () => {
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
 
       const currentTime = new Date().toLocaleTimeString(undefined, { hour12: false});
-     
       if(currentTime > startTime && currentTime < endTime){
        
       let currentSlotStartTime;
@@ -288,12 +289,11 @@ const BookingSlots = () => {
         const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
       }
-      console.log(todaySlots);
+     
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
-  }, []);
-  // doctorDetails
+  }, [allTimeSlots]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
