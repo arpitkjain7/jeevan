@@ -376,7 +376,7 @@ const BookingSlots = () => {
                 </DateContainer>
 
                 {selectedDate && (
-                  selectedDate === formatDisplayDate(current_date) ? 
+                  selectedDate === current_date ? 
                   <div className="slots-container">
                     {todaySlots?.map((todayslot) => (
                       <DateButton
