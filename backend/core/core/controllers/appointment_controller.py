@@ -55,6 +55,7 @@ class AppointmentsController:
                 "encounter_type_code": request.encounter_type.name,
                 "encounter_type": request.encounter_type.value,
                 "patient_id": patient_id,
+                "consultation_status": "Scheduled",
                 "slot_id": slot_id,
             }
             appointment_id = self.CRUDAppointments.create(**create_appointment_request)

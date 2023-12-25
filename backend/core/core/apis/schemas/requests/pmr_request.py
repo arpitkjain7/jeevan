@@ -206,12 +206,20 @@ class CreatePMR(BaseModel):
     hip_id: str
 
 
+class ConsultationStatus(str, Enum):
+    SCHED = "Scheduled"
+    INP = "In Progress"
+    PND = "Pending"
+    COMP = "Completed"
+    CANC = "Cancelled"
+
+
 class CreatePMR_UpdateConsultation(BaseModel):
     patient_id: str
     doc_id: int
     appointment_id: int
     hip_id: str
-    consultation_status: str
+    consultation_status: ConsultationStatus
 
 
 # date_of_consultation: date
@@ -221,14 +229,6 @@ class CreatePMR_UpdateConsultation(BaseModel):
 # medication: List[CreateMedication]
 # medical_test: List[CreateMedicalTest]
 # medical_history: List[CreateMedicalHistory]
-
-
-class ConsultationStatus(str, Enum):
-    SCHED = "Scheduled"
-    INP = "In Progress"
-    PND = "Pending"
-    COMP = "Completed"
-    CANC = "Cancelled"
 
 
 class UpdateConsultationStatus(BaseModel):
