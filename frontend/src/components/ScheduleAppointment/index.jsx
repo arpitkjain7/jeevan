@@ -301,7 +301,6 @@ const BookingSlots = () => {
        
         const todayTimeSlots = generateTimeSlots(slot_start_time, endTime, duration);
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
-        console.log("today slots", todaySlots);
       }
     }
   }, [doctorDetails]);
