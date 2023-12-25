@@ -206,6 +206,14 @@ class CreatePMR(BaseModel):
     hip_id: str
 
 
+class CreatePMR_UpdateConsultation(BaseModel):
+    patient_id: str
+    doc_id: int
+    appointment_id: int
+    hip_id: str
+    consultation_status: str
+
+
 # date_of_consultation: date
 # vitals: List[Vital]
 # complaints: List[CreateComplaint]
