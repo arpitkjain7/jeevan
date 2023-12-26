@@ -63,7 +63,6 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     gap: "16px",
     flexWrap: "wrap",
     marginTop: "16px",
-    // justifyContent: "space-between"
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -72,12 +71,10 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     width: "10%",
   },
   ".btn-date-typography": {
-    width: 'min-content',
     "&.MuiTypography-root": theme.typography.body1,
   },
 
   ".selected-date-typography": {
-     width: 'min-content',
     "&.MuiTypography-root": theme.typography.selectedBody1,
   },
 }));
@@ -93,11 +90,11 @@ const StyledCard = styled(Card)({
   padding: "",
 });
 
-const DateButton = styled("button")(({ theme }) => ({
+const DateButton = styled(Button)(({ theme }) => ({
   "&": theme.typography.body1,
-  width: "auto",
+  width: "200px",
   border: `1px solid ${theme.palette.primaryGrey}`,
-  padding: theme.spacing(3, 4),
+  padding: theme.spacing(1, 3),
   borderRadius: theme.spacing(1),
   textAlign: "center",
   backgroundColor: theme.palette.primaryWhite,
@@ -113,7 +110,6 @@ const BookingSlots = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [slots, setSlots] = useState([]);
-  const [allTimeSlots, setAllTimeSlots] = useState([]);
   const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
@@ -134,6 +130,7 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });
  
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
@@ -166,7 +163,7 @@ const BookingSlots = () => {
         });
       }
     }
-    
+
     setSelectedDate(date);
     setSelectedSlot("");
   };
@@ -201,8 +198,6 @@ const BookingSlots = () => {
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
-      setSelectedDate(thisWeek[0]);
-      console.log(thisWeek[0])
       handleDateSelect(thisWeek[0]);
     }
   }, []);
@@ -212,23 +207,20 @@ const BookingSlots = () => {
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
     while (start < end) {
-      const meridiemSlotStart = start.toLocaleTimeString([], {
+      const slotStart = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-      const slotStart = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
       start.setMinutes(start.getMinutes() + duration);
-      const slotEnd = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
-      const meridiemSlotEnd = start.toLocaleTimeString([], {
+     
+      const slotEnd = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-     
-      setAllTimeSlots(allTimeSlots => [...allTimeSlots, `${slotStart}-${slotEnd}`]);
-      const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
+      const slot = `${slotStart}-${slotEnd}`;
       generatedSlots.push(slot);
     }
-   
+
     return generatedSlots;
   };
 
@@ -274,26 +266,45 @@ const BookingSlots = () => {
       const startTime = doctorDetails?.consultation_start_time;
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
-
-      const currentTime = new Date().toLocaleTimeString(undefined, { hour12: false});
-      if(currentTime > startTime && currentTime < endTime){
-       
-      let currentSlotStartTime;
-        allTimeSlots.map(slot => {
-          const [slotStartTime, slotEndTime] = slot.split("-");
-          const current_time = new Date().toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
-          if(current_time > slotStartTime && current_time < slotEndTime){
-            currentSlotStartTime = slotEndTime;
-          }
-        })
-        const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
-        setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
-      }
-     
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
+
+      if(currentTime > startTime && currentTime < endTime){
+      let convertedStartTime;
+      let convertedEndTime;
+      let slot_start_time;
+        slots.map(slot => {
+          const [slotStartTime, slotEndTime] = slot.split("-");
+
+          const [startTime, startTimeFormat] = slotStartTime.split(" "); 
+          let [startTimeHours, startTimeMinutes] = startTime.split(":");
+          if (startTimeFormat === 'PM' && startTimeHours !== '12') { 
+            startTimeHours = parseInt(startTimeHours, 10) + 12;
+          } else if (startTimeFormat === 'AM' && startTimeHours === '12') { 
+            startTimeHours = '00'; 
+          }
+          convertedStartTime = startTimeHours + ':' + startTimeMinutes;
+
+          const [endTime, endTimeFormat] = slotEndTime.split(" "); 
+          let [endTimeHours, endTimeMinutes] = endTime.split(":");
+          if (endTimeFormat === 'PM' && endTimeHours !== '12') { 
+            endTimeHours = parseInt(endTimeHours, 10) + 12;
+          } else if (endTimeFormat === 'AM' && endTimeHours === '12') { 
+            endTimeHours = '00'; 
+          }
+          convertedEndTime = endTimeHours + ':' + endTimeMinutes;
+          
+          if(currentTime > convertedStartTime && currentTime < convertedEndTime){
+            slot_start_time = convertedEndTime;
+          }
+        })
+       
+        const todayTimeSlots = generateTimeSlots(slot_start_time, endTime, duration);
+        setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
+        console.log("today slots", todaySlots);
+      }
     }
-  }, [allTimeSlots, doctorDetails]);
+  }, [doctorDetails]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
@@ -325,7 +336,7 @@ const BookingSlots = () => {
 
   const formatDisplayDate = (date) => {
     const displayArr = date?.split(" ");
-    return displayArr[0] + " " + displayArr[1];
+    return displayArr[0] + displayArr[1];
   };
 
   return (
@@ -365,7 +376,7 @@ const BookingSlots = () => {
                 </DateContainer>
 
                 {selectedDate && (
-                  selectedDate === current_date ? 
+                  selectedDate === formatDisplayDate(current_date) ? 
                   <div className="slots-container">
                     {todaySlots?.map((todayslot) => (
                       <DateButton
