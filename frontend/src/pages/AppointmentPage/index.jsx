@@ -17,6 +17,7 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
   ".patientList-title-wrapper": {
     marginBottom: "20px",
+    marginBottom: "30px",
   },
   ".patientList-heading": {
     "&.MuiTypography-root": {
