@@ -63,7 +63,7 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     gap: "16px",
     flexWrap: "wrap",
     marginTop: "16px",
-    justifyContent: "space-between"
+    // justifyContent: "space-between"
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -97,7 +97,7 @@ const DateButton = styled("button")(({ theme }) => ({
   "&": theme.typography.body1,
   width: "auto",
   border: `1px solid ${theme.palette.primaryGrey}`,
-  padding: theme.spacing(1, 3),
+  padding: theme.spacing(3, 4),
   borderRadius: theme.spacing(1),
   textAlign: "center",
   backgroundColor: theme.palette.primaryWhite,
@@ -293,7 +293,7 @@ const BookingSlots = () => {
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
-  }, [allTimeSlots]);
+  }, [allTimeSlots, doctorDetails]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
