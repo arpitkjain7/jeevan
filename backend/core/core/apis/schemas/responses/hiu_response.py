@@ -1,5 +1,6 @@
 from typing import List
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class Consent(BaseModel):
@@ -14,6 +15,8 @@ class Consent(BaseModel):
     date_range: dict
     hi_type: dict
     expire_at: str
+    created_at: datetime
+    updated_at: datetime
 
 
 class ConsentDetails(BaseModel):

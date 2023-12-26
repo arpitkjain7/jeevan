@@ -25,8 +25,16 @@ import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import SyncAabha from "../SyncAabha";
-import { calculateBMI } from "../../../utils/utils";
-const PatientEMRWrapper = styled("div")(({ theme }) => ({}));
+import { calculateBMI, convertDateFormat } from "../../../utils/utils";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
+
+const PatientEMRWrapper = styled("div")(({ theme }) => ({
+  padding: "40px 10px 10px"
+}));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
 
@@ -69,7 +77,7 @@ const BPTextFieldWrapper = styled("div")(({ theme }) => ({
 
 const VitalValue = styled("div")(({ theme }) => ({
   "&": {
-    padding: theme.spacing(4),
+    padding: theme.spacing(3.5),
     border: `1px solid ${theme.palette.primaryGrey}`,
     textAlign: "center",
   },
@@ -121,7 +129,7 @@ const RecordLayout = styled("div")(({ theme }) => ({
   padding: theme.spacing(3, 4),
   border: `1px solid ${theme.palette.primaryGrey}`,
   flex: 1,
-  height: theme.spacing(8),
+  height: theme.spacing(13),
   borderRadius: theme.spacing(1.5),
 }));
 
@@ -236,8 +244,9 @@ const PatientEMRDetails = () => {
   const [number, setNumber] = useState("");
   const [symptomNumber, setSymptomNumber] = useState("");
   const [dose, setDose] = useState("");
+  const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
-
+  const currentPatient = JSON.parse(patient);
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -250,6 +259,7 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
+  const [followUp, setFollowUp] = useState(dayjs(''));
   const dispatch = useDispatch();
 
   const handleInputChange = (event) => {
@@ -273,7 +283,7 @@ const PatientEMRDetails = () => {
       console.log("vitals:", res);
     });
 
-    const currentPatient = JSON.parse(patient);
+
     if (Object.keys(currentPatient)?.length) {
       const emrPayload = {
         patient_id: currentPatient?.patientId,
@@ -1102,9 +1112,9 @@ const PatientEMRDetails = () => {
         }
       })
     );
-    const currentPatient = JSON.parse(
-      sessionStorage.getItem("selectedPatient")
-    );
+    // const currentPatient = JSON.parse(
+    //   sessionStorage.getItem("selectedPatient")
+    // );
     if (
       currentPatient?.patient_details?.abha_number &&
       currentPatient?.patient_details?.abha_number !== ""
@@ -1162,6 +1172,7 @@ const PatientEMRDetails = () => {
           respiratory_rate: formValues?.respiratoryRate,
           systolic_blood_pressure: formValues?.systolicBP,
           diastolic_blood_pressure: formValues?.diastolicaBP,
+          follow_up: convertDateFormat(followUp, "dd-MM-yyyy")
         },
       },
       {
@@ -1202,18 +1213,18 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     const hospital = sessionStorage?.getItem("selectedHospital");
-    const patient = sessionStorage?.getItem("selectedPatient");
+    // const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
-      const currentPatient = JSON.parse(patient);
+      // const currentPatient = JSON.parse(patient);
       patientDetails = {
         hospitalName: currentHospital?.name || "-",
-        patientName: currentPatient?.patient_details?.name || "-",
+        patientName: currentPatient?.patient_details?.name || currentPatient?.name || "-",
         doctorName: currentPatient?.docName || "-",
-        patientEmail: currentPatient?.patient_details?.email || "-",
-        patientGender: currentPatient?.patient_details?.gender || "-",
-        patientNumber: currentPatient?.mobileNumber || "-",
+        patientEmail: currentPatient?.patient_details?.email || currentPatient?.email || "-",
+        patientGender: currentPatient?.patient_details?.gender || currentPatient?.gender || "-",
+        patientNumber: currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
         patientAge: "-",
       };
@@ -1254,10 +1265,10 @@ const PatientEMRDetails = () => {
   const editPMR = () => {
     setStep("create");
   };
-  const relationshipOptions = ["father", "mother", "sister", "daughter"];
+  const relationshipOptions = ["self", "father", "mother", "sister", "daughter"];
   const diagnosisStatusOpts = ["Suspected", "Confirmed", "Ruled out"];
   const diagnosisTypeOpts = ["Primary Diagnosis", "Differential Diagnosis"];
-  const timeOptions = ["Days", "Weeks", "Months"];
+  const timeOptions = ["Days", "Weeks", "Months", "Years"];
   const doseOptions = ["Tablet"];
   const timingOptions = [
     "After Meal",
@@ -1349,6 +1360,7 @@ const PatientEMRDetails = () => {
   const generateSymptomsOptionChange = (option, newValue, key) => {
     console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
+
   };
 
   const generateDoseOptions = (number, item) => {
@@ -1373,17 +1385,19 @@ const PatientEMRDetails = () => {
 
   return (
     <PatientEMRWrapper>
-      {step === "create" && <PatientDetailsHeader />}
+      {step === "create" && <PatientDetailsHeader
+        documents={documents} />}
       {step === "create" && (
+
         <EMRFormWrapper>
           <VitalsContainer>
             <SectionHeader>Vitals</SectionHeader>
             <form>
               <Grid container spacing={8}>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Pulse Rate</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1393,17 +1407,17 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>/min</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">
                     Peripheral oxygen saturation
                   </Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1413,40 +1427,44 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>%</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Blood Pressure</Typography>
                   <BPTextFieldWrapper>
-                    <BPWrapper>
-                      <DiastolicTextField
-                        fullWidth
-                        variant="outlined"
-                        name="diastolicaBP"
-                        value={formValues.diastolicaBP}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                      <Divider>/</Divider>
-                      <SystolicTextField
-                        fullWidth
-                        variant="outlined"
-                        name="systolicBP"
-                        value={formValues.systolicBP}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </BPWrapper>
-                    <VitalValue>mmHg</VitalValue>
+                    <Grid item xs={8}>
+                      <BPWrapper>
+                        <DiastolicTextField
+                          fullWidth
+                          variant="outlined"
+                          name="diastolicaBP"
+                          value={formValues.diastolicaBP}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                        <Divider>/</Divider>
+                        <SystolicTextField
+                          fullWidth
+                          variant="outlined"
+                          name="systolicBP"
+                          value={formValues.systolicBP}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                      </BPWrapper>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <VitalValue>mmHg</VitalValue>
+                    </Grid>
                   </BPTextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Respiratory rate</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1456,15 +1474,15 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>/min</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Body Temperature</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1474,15 +1492,15 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>C</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Body height</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1492,15 +1510,15 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>Cms</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Body weight</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <TextField
                         fullWidth
                         variant="outlined"
@@ -1510,20 +1528,20 @@ const PatientEMRDetails = () => {
                         className="emr-input-field"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>Kgs</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
                   <Typography variant="subtitle1">Body mass index</Typography>
                   <TextFieldWrapper>
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={8}>
                       <BPWrapper>
                         <RowWrapper>{bodyMassIndex}</RowWrapper>
                       </BPWrapper>
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={4}>
                       <VitalValue>Kg/m2</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
@@ -1553,7 +1571,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           generateSymptomsOptionChange(item, newValue, "since")
                         }
-                        inputValue={symptomNumber}
+                        // inputValue={symptomNumber}
                         onInputChange={(e, newValue) =>
                           handleSymptomNumberOptions(item, newValue)
                         }
@@ -1573,6 +1591,7 @@ const PatientEMRDetails = () => {
                         onChange={(e) =>
                           handleSymtomsTextChange(item, "notes", e.target.value)
                         }
+                        label="Notes"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1605,13 +1624,31 @@ const PatientEMRDetails = () => {
                       <SelectedRecord>{item?.label}</SelectedRecord>
                     </RecordLayout>
                     <TextBoxLayout>
-                      <RecordTextField
+                      {/* <RecordTextField
                         placeholder="Since"
                         value={optionTextValues[item?.label]?.since || ""}
                         onChange={(e) =>
                           handleTextFieldChange(item, "since", e.target.value)
                         }
-                        variant="outlined"
+variant="outlined"
+                      /> */}
+                      <Autocomplete
+                        options={generateSymptomsOptions(symptomNumber, item)}
+                        value={symptomsSpecs[item?.label]?.since || ""}
+                        onChange={(e, newValue) =>
+                          generateSymptomsOptionChange(item, newValue, "since")
+                        }
+                        // inputValue={symptomNumber}
+                        onInputChange={(e, newValue) =>
+                          handleSymptomNumberOptions(item, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Since"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </TextBoxLayout>
                     <TextBoxLayout>
@@ -1639,6 +1676,7 @@ const PatientEMRDetails = () => {
                         onChange={(e) =>
                           handleTextFieldChange(item, "notes", e.target.value)
                         }
+                        label="Notes"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1678,6 +1716,7 @@ const PatientEMRDetails = () => {
                             e.target.value
                           )
                         }
+                        label="Notes"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1755,6 +1794,7 @@ const PatientEMRDetails = () => {
                             e.target.value
                           )
                         }
+                        label="Notes"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1792,6 +1832,7 @@ const PatientEMRDetails = () => {
                         onChange={(e) =>
                           handleLabTextChange(item, "notes", e.target.value)
                         }
+                        label="Notes"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1831,6 +1872,7 @@ const PatientEMRDetails = () => {
                             e.target.value
                           )
                         }
+                        label="Frequency"
                         variant="outlined"
                       />
                     </TextBoxLayout>
@@ -1857,7 +1899,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "dose")
                         }
-                        inputValue={dose}
+                        // inputValue={dose}
                         onInputChange={(e, newVal) =>
                           handleDoseOptions(e, newVal)
                         }
@@ -1877,7 +1919,7 @@ const PatientEMRDetails = () => {
                         onChange={(e, newValue) =>
                           handleMedicationOptionsChange(item, newValue, "since")
                         }
-                        inputValue={number}
+                        // inputValue={number}
                         onInputChange={(e, newValue) =>
                           handleNumberOptions(item, newValue)
                         }
@@ -1903,8 +1945,20 @@ const PatientEMRDetails = () => {
             )}
           </VitalsContainer>
 
+          <VitalsContainer>
+            <SectionHeader>Follow Up</SectionHeader>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker']}>
+                <DatePicker sx={{ width: '100%' }}
+                  value={followUp}
+                  onChange={(newValue) => setFollowUp(newValue)}
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+          </VitalsContainer>
+
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <VitalsContainer>
                 <SectionHeader>Notes</SectionHeader>
                 <div>
@@ -1916,7 +1970,7 @@ const PatientEMRDetails = () => {
                 </div>
               </VitalsContainer>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <VitalsContainer>
                 <SectionHeader>Advices</SectionHeader>
                 <div>

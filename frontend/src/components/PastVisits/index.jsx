@@ -2,11 +2,12 @@ import { List, styled } from "@mui/material";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import React, { useEffect, useState } from "react";
 import PMRPdf from "../PMRPdf";
-import { fetchPMRList, fetchVistList, getDocument } from "./pastvisits.slice";
+import { fetchPMRList, fetchVistList, getDocument, getDocumentBytes } from "./pastvisits.slice";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 import MyTable from "../TableComponent";
 import { convertDateFormat } from "../../utils/utils";
+import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
 
 const VisitsWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
@@ -21,15 +22,15 @@ const SideList = styled("List")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(8),
-  height: "600px",
+  height: "100vh",
   overflow: "auto",
 }));
 
-const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
-  padding: theme.spacing(2, 4),
-  borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.primaryGrey}`,
-}));
+// const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
+//   padding: theme.spacing(2, 4),
+//   borderRadius: theme.spacing(1),
+//   border: `1px solid ${theme.palette.primaryGrey}`,
+// }));
 
 const PrescriptionDeatils = styled("div")(({ theme }) => ({
   flex: "1",
@@ -47,7 +48,7 @@ const VitalsDetailsContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(8, 0),
 }));
 
-const VitalsList = styled("ListItem")(({ theme }) => ({}));
+// const VitalsList = styled("listItem")(({ theme }) => ({}));
 const VisitDate = styled("p")(({ theme }) => ({
   "&": theme.typography.customKeys,
   margin: "0",
@@ -69,7 +70,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": theme.typography.h3,
+      [theme.breakpoints.down('md')]: {
+        "&": theme.typography.body2
+      },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
@@ -103,9 +107,11 @@ const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
 
-const PastVisits = () => {
+const PastVisits = ({isPatientHistory}) => {
   const [tableData, setTableData] = useState([]);
   const dataState = useSelector((state) => state);
+  const [base64data, setbase64data] = useState("");
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const patient = sessionStorage?.getItem("selectedPatient");
   const [visitList, setVisitList] = useState([]);
@@ -113,6 +119,7 @@ const PastVisits = () => {
   const pdfFileName = "custom_filename.pdf";
   const selectVisit = (item) => {
     dispatch(fetchPMRList(item?.id)).then((res) => {
+      setPmrId(item?.id);
       const docsList = res.payload;
       console.log(docsList);
       setTableData(docsList);
@@ -121,9 +128,16 @@ const PastVisits = () => {
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
-      dispatch(fetchVistList(currentPatient?.id)).then((res) => {
-        const pmrData = res.payload;
-        setVisitList(pmrData);
+      dispatch(fetchVistList(currentPatient?.patientId || currentPatient?.id)).then((res) => {
+        if(res.payload){
+          const pmrData = res.payload
+          .sort((a,b) => {
+            return new Date(a.updated_at).getTime() - 
+                new Date(b.updated_at).getTime()
+            }).reverse();
+            console.log(pmrData);
+              setVisitList(pmrData);
+          }
       });
     }
   }, []);
@@ -133,12 +147,32 @@ const PastVisits = () => {
     { key: "created_at", header: "Uploaded Date" },
     { key: "document_type_code", header: "Document Code" },
   ];
+  
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const openDoc = (row) => {
-    dispatch(getDocument(row?.id)).then((res) => {
-      const documentData = res.payload;
-      window.open(documentData?.document_url, "_blank");
-    });
+    // if(isPatientHistory){
+      dispatch(getDocumentBytes(row?.id)).then((res) => {
+       console.log(res);
+       if(res.payload != undefined ){
+        setbase64data(res.payload.data);
+        setOpen(true);
+      } else {
+        console.log("Error retrieving data");
+      }
+      })
+    // } else {
+    //   dispatch(getDocument(row?.id)).then((res) => {
+    //     const documentData = res.payload;
+    //     window.open(documentData?.document_url, "_blank");
+    //   });
+    // }
   };
 
   return (
@@ -151,12 +185,11 @@ const PastVisits = () => {
               onClick={() => selectVisit(item)}
             >
               <VisitListContainer>
-                <VitalsList>Diagnosis</VitalsList>
+                <listItem>Diagnosis</listItem>
                 <VisitDate>
-                  {convertDateFormat(item?.date_of_consultation, "dd-MM-yyyy")}
+                  {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
                 </VisitDate>
               </VisitListContainer>
-
               <img
                 src={ArrowRight}
                 alt={`select-${item.date_of_consultation}`}
@@ -177,6 +210,13 @@ const PastVisits = () => {
           </VitalDetailsTable>
         </Vitals>
       </VitalsDetailsContainer>
+      {base64data && (
+        <PdfFromDocumentBytes 
+        open={open}
+        handleClose={handleClose}
+        docBytes={base64data}
+         />
+      )}
     </VisitsWrapper>
   );
 };

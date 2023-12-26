@@ -16,7 +16,9 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     marginBottom: "48px",
   },
   ".login-content": {
-    marginTop: "10%",
+    [theme.breakpoints.down('md')]: {
+      marginTop: "10%",
+    }
   },
   ".login-form": {
     "& > .MuiFormControl-root": {
@@ -28,9 +30,15 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,
+    [theme.breakpoints.down('md')]: {
+      "&.MuiTypography-root": theme.typography.h4
+    },
   },
   ".login-subTitle": {
     "&.MuiTypography-root": theme.typography.h2,
+    [theme.breakpoints.down('md')]: {
+      "&.MuiTypography-root": theme.typography.body1
+    },
   },
   ".login-field-title": {
     "&.MuiTypography-root": theme.typography.body1,
@@ -39,6 +47,9 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   ".login-text-field": {
     "&.MuiFormControl-root > .MuiInputBase-root > input": {
       width: "410px",
+      [theme.breakpoints.down('md')]: {
+        width: "100%",
+      },
     },
   },
 }));
@@ -60,7 +71,6 @@ const LoginPage = (props) => {
 
   const handleSignIn = () => {
     // Handle sign-in logic here
-    console.log(password, email, "password");
     // let urlencoded = new URLSearchParams();
     // urlencoded.append("username", email);
     // urlencoded.append("password", password);
@@ -84,7 +94,7 @@ const LoginPage = (props) => {
     <LogInWrapper>
       <div className="login-content">
         <div className="login-heading">
-          <Typography variant="h2" align="center" className="login-title">
+          <Typography  align="center" className="login-title">
             Welcome to CliniQ360
           </Typography>
           <Typography

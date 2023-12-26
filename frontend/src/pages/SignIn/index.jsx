@@ -7,7 +7,7 @@ import banner from "../../assets/sidebar-login.png";
 
 const LoginPageWrapper = styled("div")(({ theme }) => ({
   "&": {
-    paddingTop: theme.spacing(20),
+    // paddingTop: theme.spacing(0),
     height: "70vh",
   },
   ".login-page-container": {
@@ -15,7 +15,14 @@ const LoginPageWrapper = styled("div")(({ theme }) => ({
     gap: theme.spacing(10),
     height: "100%",
     maxWidth: "1440px",
-    margin: "0 auto",
+    margin: "0 50px",
+    [theme.breakpoints.down('md')]: {
+      margin: "0",
+      display: "block"
+    },
+  },
+  ".hospital-page-container":{
+    paddingTop: theme.spacing(20)
   },
   ".login-left-banner": {
     backgroundColor: "#0089E9",
@@ -43,11 +50,17 @@ const LogoText = styled("h1")(({ theme }) => ({
   fontSize: "28px",
   fontWeight: 400,
   color: theme.palette.primaryWhite,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "20px"
+  },
 }));
 
 const BannerInfo = styled("h1")(({ theme }) => ({
   "&": theme.typography.bannerText,
   margin: 0,
+  [theme.breakpoints.down('md')]: {
+    fontSize: "24px"
+  },
 }));
 
 const StyledDiv = styled("div")``;
@@ -65,19 +78,33 @@ function SignInPage() {
 
   return (
     <LoginPageWrapper>
-      <div className="login-page-container">
-        <div className="login-left-banner">
-          <LogoText>cliniQ360</LogoText>
-          <BannerInfo>
-            Elevate patient care with a seamless experience and innovative
-            technology
-          </BannerInfo>
+      {index == 0 ? (
+         <div className="login-page-container">
+         <div className="login-left-banner">
+           <LogoText>cliniQ360</LogoText>
+           <BannerInfo>
+             Elevate patient care with a seamless experience and innovative
+             technology
+           </BannerInfo>
+         </div>
+         <div className="login-right-form">
+           {index === 0 && <LoginPage setIndex={setIndex} />}
+         </div>
+       </div>
+      ) : (
+        <div className="login-page-container hospital-page-container">
+          <div className="login-left-banner">
+            <LogoText>cliniQ360</LogoText>
+            <BannerInfo>
+              Elevate patient care with a seamless experience and innovative
+              technology
+            </BannerInfo>
+          </div>
+          <div className="login-right-form">
+            {index === 1 && <HospitalList setIndex={setIndex} />}
+          </div>
         </div>
-        <div className="login-right-form">
-          {index === 0 && <LoginPage setIndex={setIndex} />}
-          {index === 1 && <HospitalList setIndex={setIndex} />}
-        </div>
-      </div>
+      )}
     </LoginPageWrapper>
   );
 }

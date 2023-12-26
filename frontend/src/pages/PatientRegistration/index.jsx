@@ -26,6 +26,7 @@ import CustomLoader from "../../components/CustomLoader";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
+    padding: "10px",
     display: "flex",
     flexDirection: "column",
     gap: "40px",

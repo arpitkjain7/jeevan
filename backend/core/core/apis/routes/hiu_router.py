@@ -104,6 +104,37 @@ def get_consent_details(consent_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
+@hiu_router.get("/v1/HIU/getCareContext/{consent_id}")
+def get_care_context(consent_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/HIU/getCareContext/{consent_id} endpoint")
+        logging.debug(f"Request: {consent_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            consent_details = HIUController().get_consent_details(consent_id=consent_id)
+            return consent_details
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v1/HIU/getCareContext/{consent_id} endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v1/HIU/getConsentDetails/{consent_id} endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @hiu_router.post("/v1/HIU/consentInit")
 def raiseConsentRequest(hiu_request: RaiseConsent, token: str = Depends(oauth2_scheme)):
     try:

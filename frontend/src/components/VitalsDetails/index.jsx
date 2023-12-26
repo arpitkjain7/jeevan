@@ -1,9 +1,10 @@
-import { styled } from "@mui/material";
+import { ListItem, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import MyTable from "../TableComponent";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 import { fetchVitalDetails } from "./vitalsDetails.slice";
 import { useDispatch, useSelector } from "react-redux";
+import { convertDateFormat } from "../../utils/utils";
 
 const VitalsDetailsWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
@@ -21,7 +22,7 @@ const SideList = styled("List")(({ theme }) => ({
   gap: theme.spacing(8),
 }));
 
-const VitalsList = styled("ListItem")(({ theme }) => ({}));
+// const VitalsList = styled("ListItem")(({ theme }) => ({}));
 
 const Vitals = styled("div")(({ theme }) => ({
   flex: "1",
@@ -40,7 +41,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
       boxShadow: "none",
     },
     "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.body2,
+      "& > tr >th": theme.typography.h3,
+      [theme.breakpoints.down('md')]: {
+        "&": theme.typography.body2
+      },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
@@ -116,12 +120,19 @@ const VitalsDetails = () => {
       };
       dispatch(fetchVitalDetails(payload)).then((res) => {
         const vitalData = res.payload;
-        setTableData(vitalData);
+        const formattedVitalList = vitalData?.map((item) => {
+          const vitalDate = convertDateFormat(item?.created_date, "dd-MM-yyyy hh:mm aa");
+          return {
+            vitalDate: vitalDate,
+            ...item,
+          };
+        });
+        setTableData(formattedVitalList);
       });
     }
   }, [selectedVital]);
   const columns = [
-    { key: "created_date", header: "Date" },
+    { key: "vitalDate", header: "Date" },
     { key: "pmr_id", header: "PMR Id" },
     { key: "value", header: "Value" },
   ];
@@ -138,7 +149,7 @@ const VitalsDetails = () => {
               className={selectedVital === item?.code ? "selected-vital" : ""}
               onClick={() => setVitalsData(item?.code)}
             >
-              <VitalsList>{item?.type}</VitalsList>
+              <ListItem>{item?.type}</ListItem>
               <img src={ArrowRight} alt={`select-${item.type}`} />
             </VitalsListContainer>
           ))}

@@ -22,6 +22,7 @@ import {
 } from "./scheduleAppointment.slice";
 import Calendar from "../Calendar";
 import RegisterationConfirmation from "../RegistrationConfirmation";
+import { format } from "date-fns";
 
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -109,6 +110,7 @@ const BookingSlots = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [slots, setSlots] = useState([]);
+  const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
   const [appointmentcompleted, setAppointmentCompleted] = useState(false);
@@ -121,7 +123,15 @@ const BookingSlots = () => {
   const doctorDetails = dataState?.appointmentSlots?.doctorSlotDetails;
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
-
+  const current_date = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    // month: "long",
+    month: "numeric",
+    day: "numeric",
+  });
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });
+ 
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
@@ -171,9 +181,11 @@ const BookingSlots = () => {
       const date = currentDate.toLocaleDateString(undefined, {
         weekday: "long",
         year: "numeric",
-        month: "long",
+        // month: "long",
+        month: "numeric",
         day: "numeric",
       });
+      
       dates.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -194,13 +206,13 @@ const BookingSlots = () => {
     const generatedSlots = [];
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
-
     while (start < end) {
       const slotStart = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
       start.setMinutes(start.getMinutes() + duration);
+     
       const slotEnd = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -256,6 +268,41 @@ const BookingSlots = () => {
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
+
+      if(currentTime > startTime && currentTime < endTime){
+      let convertedStartTime;
+      let convertedEndTime;
+      let slot_start_time;
+        slots.map(slot => {
+          const [slotStartTime, slotEndTime] = slot.split("-");
+
+          const [startTime, startTimeFormat] = slotStartTime.split(" "); 
+          let [startTimeHours, startTimeMinutes] = startTime.split(":");
+          if (startTimeFormat === 'PM' && startTimeHours !== '12') { 
+            startTimeHours = parseInt(startTimeHours, 10) + 12;
+          } else if (startTimeFormat === 'AM' && startTimeHours === '12') { 
+            startTimeHours = '00'; 
+          }
+          convertedStartTime = startTimeHours + ':' + startTimeMinutes;
+
+          const [endTime, endTimeFormat] = slotEndTime.split(" "); 
+          let [endTimeHours, endTimeMinutes] = endTime.split(":");
+          if (endTimeFormat === 'PM' && endTimeHours !== '12') { 
+            endTimeHours = parseInt(endTimeHours, 10) + 12;
+          } else if (endTimeFormat === 'AM' && endTimeHours === '12') { 
+            endTimeHours = '00'; 
+          }
+          convertedEndTime = endTimeHours + ':' + endTimeMinutes;
+          
+          if(currentTime > convertedStartTime && currentTime < convertedEndTime){
+            slot_start_time = convertedEndTime;
+          }
+        })
+       
+        const todayTimeSlots = generateTimeSlots(slot_start_time, endTime, duration);
+        setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
+        console.log("today slots", todaySlots);
+      }
     }
   }, [doctorDetails]);
 
@@ -329,6 +376,19 @@ const BookingSlots = () => {
                 </DateContainer>
 
                 {selectedDate && (
+                  selectedDate === formatDisplayDate(current_date) ? 
+                  <div className="slots-container">
+                    {todaySlots?.map((todayslot) => (
+                      <DateButton
+                        key={todayslot}
+                        color="primary"
+                        onClick={() => handleSlotSelect(todayslot)}
+                        className={selectedSlot === todayslot ? "selected-btn" : ""}
+                      >
+                        {todayslot}
+                      </DateButton>
+                    ))}
+                  </div> :
                   <div className="slots-container">
                     {slots?.map((slot) => (
                       <DateButton
@@ -337,7 +397,7 @@ const BookingSlots = () => {
                         onClick={() => handleSlotSelect(slot)}
                         className={selectedSlot === slot ? "selected-btn" : ""}
                       >
-                        {convertTimeSlot(slot)}
+                        {slot}
                       </DateButton>
                     ))}
                   </div>

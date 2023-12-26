@@ -4,7 +4,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchAppointmentList } from "./AppointmentPage.slice";
-import { convertDateFormat } from "../../utils/utils";
+import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
 
 const tableStyle = {
@@ -12,9 +12,12 @@ const tableStyle = {
 };
 
 const ListWrapper = styled("div")(({ theme }) => ({
-  "&": {},
+  "&": {
+    padding: "40px 10px 10px"
+  },
   ".patientList-title-wrapper": {
-    marginBottom: "40px",
+    marginBottom: "20px",
+    marginBottom: "30px",
   },
   ".patientList-heading": {
     "&.MuiTypography-root": {
@@ -39,7 +42,10 @@ const ListWrapper = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": {
-        "&": theme.typography.body2,
+        "&": theme.typography.h3,
+        [theme.breakpoints.down('md')]: {
+          "&": theme.typography.body2
+        },
         padding: theme.spacing(4, 8),
       },
     },
@@ -56,6 +62,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
       flex: 0.3,
       padding: 0,
       margin: 0,
+      [theme.breakpoints.down('sm')]: {
+        flex: "1 "
+      },
       "& .MuiInputBase-input": {
         padding: "12px 16px",
       },
@@ -77,11 +86,12 @@ const AppointmentPage = () => {
   const navigate = useNavigate();
 
   const columns = [
-    { key: "patientId", header: "Patient ID" },
     { key: "patientDetails", header: "Patient Name" },
+    { key: "patientId", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
     { key: "docName", header: "Doctor" },
+    { key: "slotDate", header: "Date" },
     { key: "slotTime", header: "Slot" },
     { key: "status", header: "Status" },
     {
@@ -124,7 +134,8 @@ const AppointmentPage = () => {
           const mobileNumber = item?.patient_details?.mobile_number;
           const encounterType = item?.appointment_type;
           const docName = item?.doc_details?.doc_name;
-          const slotTime = item?.slot_time;
+          const slotDate = convertDateFormat(item?.slot_details?.date, "dd/MM/yyyy");
+          const slotTime = convertTimeSlot(item?.slot_time);
           const status = item?.slot_details?.status;
 
           // const updatedDate = convertDateFormat(item?.updated_at);
@@ -135,6 +146,7 @@ const AppointmentPage = () => {
             mobileNumber: mobileNumber,
             encounterType: encounterType,
             docName: docName,
+            slotDate: slotDate,
             slotTime: slotTime,
             status: status,
             // updatedDate: updatedDate,
@@ -142,7 +154,13 @@ const AppointmentPage = () => {
             ...item,
           };
         });
-        setTableData(formattedAppointmentList);
+        if(formattedAppointmentList.slotDate){
+          const sortedData = formattedAppointmentList.sort((a, b) => {
+            return new Date(a.slotDate) - new Date(b.slotDate);
+          })
+          setTableData(sortedData);
+        } else setTableData(formattedAppointmentList);
+       
       });
     }
   }, []);
