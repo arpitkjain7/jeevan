@@ -12,6 +12,9 @@ const AppointmentWrapper = styled("div")(({ theme }) => ({
 
 const PageTitle = styled(Typography)(({ theme }) => ({
   "&": theme.typography.h1,
+  [theme.breakpoints.down('md')]: {
+    "&": theme.typography.h4,
+  },
 }));
 
 const PageSubText = styled(Typography)(({ theme }) => ({

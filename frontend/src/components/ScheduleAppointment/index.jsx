@@ -63,6 +63,9 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     gap: "16px",
     flexWrap: "wrap",
     marginTop: "16px",
+    [theme.breakpoints.down('sm')]: {
+      gap: "12px",
+    },
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -71,10 +74,12 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     width: "10%",
   },
   ".btn-date-typography": {
+    width: 'min-content',
     "&.MuiTypography-root": theme.typography.body1,
   },
 
   ".selected-date-typography": {
+     width: 'min-content',
     "&.MuiTypography-root": theme.typography.selectedBody1,
   },
 }));
@@ -90,14 +95,18 @@ const StyledCard = styled(Card)({
   padding: "",
 });
 
-const DateButton = styled(Button)(({ theme }) => ({
+const DateButton = styled("button")(({ theme }) => ({
   "&": theme.typography.body1,
-  width: "200px",
+  width: "auto",
   border: `1px solid ${theme.palette.primaryGrey}`,
-  padding: theme.spacing(1, 3),
+  padding: theme.spacing(2, 4),
   borderRadius: theme.spacing(1),
   textAlign: "center",
   backgroundColor: theme.palette.primaryWhite,
+  [theme.breakpoints.down('sm')]: {
+    width: "140px",
+    padding: theme.spacing(2, 1.5),
+  },
   "&.selected-btn": {
     backgroundColor: theme.palette.secondaryOpacityBlue,
     border: `1px solid ${theme.palette.secondaryBlue}`,
@@ -110,6 +119,7 @@ const BookingSlots = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [slots, setSlots] = useState([]);
+  const [allTimeSlots, setAllTimeSlots] = useState([]);
   const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
@@ -130,7 +140,6 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
-  const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });
  
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
@@ -163,7 +172,7 @@ const BookingSlots = () => {
         });
       }
     }
-
+    
     setSelectedDate(date);
     setSelectedSlot("");
   };
@@ -198,6 +207,7 @@ const BookingSlots = () => {
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
+      setSelectedDate(thisWeek[0]);
       handleDateSelect(thisWeek[0]);
     }
   }, []);
@@ -207,20 +217,23 @@ const BookingSlots = () => {
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
     while (start < end) {
-      const slotStart = start.toLocaleTimeString([], {
+      const meridiemSlotStart = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
+      const slotStart = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
       start.setMinutes(start.getMinutes() + duration);
-     
-      const slotEnd = start.toLocaleTimeString([], {
+      const slotEnd = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
+      const meridiemSlotEnd = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-      const slot = `${slotStart}-${slotEnd}`;
+     
+      setAllTimeSlots(allTimeSlots => [...allTimeSlots, `${slotStart}-${slotEnd}`]);
+      const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
       generatedSlots.push(slot);
     }
-
+   
     return generatedSlots;
   };
 
@@ -266,43 +279,24 @@ const BookingSlots = () => {
       const startTime = doctorDetails?.consultation_start_time;
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
-      const timeSlots = generateTimeSlots(startTime, endTime, duration);
-      setSlots(removeBookedSlots(timeSlots, slotsBooked));
 
+      const currentTime = new Date().toLocaleTimeString(undefined, { hour12: false});
       if(currentTime > startTime && currentTime < endTime){
-      let convertedStartTime;
-      let convertedEndTime;
-      let slot_start_time;
-        slots.map(slot => {
+       
+      let currentSlotStartTime;
+        allTimeSlots.map(slot => {
           const [slotStartTime, slotEndTime] = slot.split("-");
-
-          const [startTime, startTimeFormat] = slotStartTime.split(" "); 
-          let [startTimeHours, startTimeMinutes] = startTime.split(":");
-          if (startTimeFormat === 'PM' && startTimeHours !== '12') { 
-            startTimeHours = parseInt(startTimeHours, 10) + 12;
-          } else if (startTimeFormat === 'AM' && startTimeHours === '12') { 
-            startTimeHours = '00'; 
-          }
-          convertedStartTime = startTimeHours + ':' + startTimeMinutes;
-
-          const [endTime, endTimeFormat] = slotEndTime.split(" "); 
-          let [endTimeHours, endTimeMinutes] = endTime.split(":");
-          if (endTimeFormat === 'PM' && endTimeHours !== '12') { 
-            endTimeHours = parseInt(endTimeHours, 10) + 12;
-          } else if (endTimeFormat === 'AM' && endTimeHours === '12') { 
-            endTimeHours = '00'; 
-          }
-          convertedEndTime = endTimeHours + ':' + endTimeMinutes;
-          
-          if(currentTime > convertedStartTime && currentTime < convertedEndTime){
-            slot_start_time = convertedEndTime;
+          const current_time = new Date().toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
+          if(current_time > slotStartTime && current_time < slotEndTime){
+            currentSlotStartTime = slotEndTime;
           }
         })
-       
-        const todayTimeSlots = generateTimeSlots(slot_start_time, endTime, duration);
+        const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
-        console.log("today slots", todaySlots);
       }
+      console.log("slots");
+      const timeSlots = generateTimeSlots(startTime, endTime, duration);
+      setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
   }, [doctorDetails]);
 
@@ -336,7 +330,7 @@ const BookingSlots = () => {
 
   const formatDisplayDate = (date) => {
     const displayArr = date?.split(" ");
-    return displayArr[0] + displayArr[1];
+    return displayArr[0] + " " + displayArr[1];
   };
 
   return (
@@ -376,19 +370,7 @@ const BookingSlots = () => {
                 </DateContainer>
 
                 {selectedDate && (
-                  selectedDate === formatDisplayDate(current_date) ? 
-                  <div className="slots-container">
-                    {todaySlots?.map((todayslot) => (
-                      <DateButton
-                        key={todayslot}
-                        color="primary"
-                        onClick={() => handleSlotSelect(todayslot)}
-                        className={selectedSlot === todayslot ? "selected-btn" : ""}
-                      >
-                        {todayslot}
-                      </DateButton>
-                    ))}
-                  </div> :
+                  selectedDate != current_date ?
                   <div className="slots-container">
                     {slots?.map((slot) => (
                       <DateButton
@@ -400,7 +382,19 @@ const BookingSlots = () => {
                         {slot}
                       </DateButton>
                     ))}
-                  </div>
+                  </div> :
+                  <div className="slots-container">
+                  {todaySlots?.map((todayslot) => (
+                    <DateButton
+                      key={todayslot}
+                      color="primary"
+                      onClick={() => handleSlotSelect(todayslot)}
+                      className={selectedSlot === todayslot ? "selected-btn" : ""}
+                    >
+                      {todayslot}
+                    </DateButton>
+                  ))}
+                </div>
                 )}
               </Grid>
             </CardContent>

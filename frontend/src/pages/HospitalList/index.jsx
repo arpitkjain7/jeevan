@@ -25,6 +25,9 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
     width: "500px",
     margin: "0 auto",
     marginTop: "10%",
+    [theme.breakpoints.only('sm')]: {
+      width: "350px",
+    },
   },
   ".hospitalList-name-wrapper": {
     border: `1px solid ${theme.palette.tertiaryGrey}`,

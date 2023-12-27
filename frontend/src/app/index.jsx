@@ -144,7 +144,7 @@ function App() {
         {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
           <Routes>
             <Route path="/login" element={<SignInPage />} />
-              {isAuthenticated ? (
+              {(isAuthenticated) ? (
                 <> 
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/patient-list" element={<PatientPage />} />

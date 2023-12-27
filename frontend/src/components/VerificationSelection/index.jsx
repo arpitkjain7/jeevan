@@ -14,16 +14,28 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     gap: "24px",
     paddingBottom: "40px",
     // borderBottom: `1px solid ${theme.palette.primaryGrey}`,
+    [theme.breakpoints.down('sm')]: {
+      paddingBottom: "20px",
+      gap: "12px"
+    },
   },
   ".form-radio-group": {
     width: "300px",
     padding: theme.spacing(4),
     border: `1px solid ${theme.palette.tertiaryGrey}`,
     borderRadius: theme.spacing(2),
-
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      padding: "8px",
+    },
     "& > label": theme.typography.body1,
   },
-  ".radio-input": { marginRight: theme.spacing(4) },
+  ".radio-input": { 
+    marginRight: theme.spacing(4),
+      [theme.breakpoints.down('sm')]: {
+        marginRight: theme.spacing(2),
+      }, 
+    },
   ".select-header-container": {
     display: "flex",
     alignItems: "center",
@@ -37,6 +49,9 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.secondaryOpacityBlue,
     borderRadius: theme.spacing(2),
     border: `1px solid ${theme.palette.secondaryBlue}`,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: "22px",
+    },
   },
   ".form-control-checkbox": {
     "&.MuiFormControlLabel-root": {

@@ -17,9 +17,15 @@ const CardWrapper = styled("div")(({ theme }) => ({
   ".card-container": {
     "&.MuiPaper-root": {
       padding: "24px",
+      [theme.breakpoints.down('sm')]: {
+        padding: "0",
+      },
     },
     "& > .MuiCardHeader-root": {
       padding: "24px",
+      [theme.breakpoints.down('sm')]: {
+        padding: "16px",
+      },
     },
     "& > .MuiCardHeader-content": {
       padding: "24px",
