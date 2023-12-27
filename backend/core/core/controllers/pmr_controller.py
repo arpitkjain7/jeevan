@@ -687,16 +687,22 @@ class PMRController:
             response = []
             for pmr_obj in pmr_list:
                 diagnosis_obj = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_obj["id"])
-                if diagnosis_obj == []:
-                    diagnosis_name = ""
-                else:
-                    diagnosis_name = diagnosis_obj["disease"]
-                pmr_obj.update(
-                    {
-                        "diagnosis_name": diagnosis_name,
-                    }
+                appointment_obj = self.CRUDAppointments.read(
+                    appointment_id=pmr_obj["appointment_id"]
                 )
-                response.append(pmr_obj)
+                consultation_status = appointment_obj["consultation_status"]
+                logging.debug(f"{consultation_status=}")
+                if consultation_status == "Completed":
+                    if diagnosis_obj == []:
+                        diagnosis_name = ""
+                    else:
+                        diagnosis_name = diagnosis_obj["disease"]
+                    pmr_obj.update(
+                        {
+                            "diagnosis_name": diagnosis_name,
+                        }
+                    )
+                    response.append(pmr_obj)
             return response
         except Exception as error:
             logging.error(
