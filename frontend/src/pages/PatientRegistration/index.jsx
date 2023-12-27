@@ -30,6 +30,10 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     gap: "40px",
+    [theme.breakpoints.down('sm')]: {
+      gap: "20px",
+      padding: "10px 5px",
+    },
   },
 
   ".validate-aadhar-form": {
@@ -487,7 +491,7 @@ const PatientRegistration = () => {
      
       {selectedOption === "aadhar" && stepOne && !checkedOption && (
         <ExpandableCard
-          title="AADHAR Verfication"
+          title="AADHAR Verification"
           expanded={verifyAadhar}
           setExpanded={setVerifyAadhar}
           completed={stepTwo}
