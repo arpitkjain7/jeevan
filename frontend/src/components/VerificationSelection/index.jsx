@@ -13,7 +13,7 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     gap: "24px",
     paddingBottom: "40px",
-    borderBottom: `1px solid ${theme.palette.primaryGrey}`,
+    // borderBottom: `1px solid ${theme.palette.primaryGrey}`,
   },
   ".form-radio-group": {
     width: "300px",
@@ -28,6 +28,7 @@ const VerificationSelectionWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     gap: theme.spacing(4),
+    borderTop: `1px solid ${theme.palette.primaryGrey}`,
     marginBottom: theme.spacing(4),
   },
   ".select-header": {
@@ -71,6 +72,7 @@ function VerificationSelection({
   checkedOption,
   handleOptionCheck,
   handleConfirmSelection,
+  displayHeaderContainer
 }) {
   return (
     <VerificationSelectionWrapper>
@@ -92,28 +94,30 @@ function VerificationSelection({
           );
         })}
       </div>
-      <div className="select-header-container">
-        <div className="select-header">
-          <FormControlLabel
-            control={
-              <Checkbox
-                disabled={selectedOption === "aadhar"}
-                checked={checkedOption}
-                onChange={handleOptionCheck}
+      <div className={displayHeaderContainer}>
+          <div className="select-header-container">
+            <div className="select-header">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    disabled={selectedOption === "aadhar"}
+                    checked={checkedOption}
+                    onChange={handleOptionCheck}
+                  />
+                }
+                label="Create ABHA for the patient"
+                className="form-control-checkbox"
               />
-            }
-            label="Create ABHA for the patient"
-            className="form-control-checkbox"
-          />
-          <Typography className="form-control-subtext">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book.
-          </Typography>
-        </div>
+              <Typography className="form-control-subtext">
+                Lorem Ipsum is simply dummy text of the printing and typesetting
+                industry. Lorem Ipsum has been the industry's standard dummy text
+                ever since the 1500s, when an unknown printer took a galley of type
+                and scrambled it to make a type specimen book.
+              </Typography>
+            </div>
+          </div>
       </div>
-      <div style={{ float: "right" }}>
+      <div>
         <Button
           className="confirm-verification-btn"
           onClick={handleConfirmSelection}

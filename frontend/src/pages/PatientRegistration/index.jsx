@@ -76,6 +76,9 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
       marginBottom: "4px",
     },
   },
+  ".displayHeaderContainer": {
+    display: "none"
+  }
 }));
 const PatientRegistration = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -108,13 +111,21 @@ const PatientRegistration = () => {
   const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
+  const userRole = sessionStorage?.getItem("userRole");
   const scroll = 'paper';
 
-  const modes = [
+  const adminModes = [
     {
       label: "Aadhar",
       value: "aadhar",
     },
+    {
+      label: "Phone Number",
+      value: "phone_number",
+    },
+  ];
+
+  const modes = [
     {
       label: "Phone Number",
       value: "phone_number",
@@ -453,14 +464,25 @@ const PatientRegistration = () => {
         setExpanded={setRegistration}
         completed={stepOne}
       >
+        { userRole === "ADMIN" ? (
         <VerificationSelection
+          modes={adminModes}
+          handleOptionChange={handleOptionChange}
+          selectedOption={selectedOption}
+          checkedOption={checkedOption}
+          handleOptionCheck={handleOptionCheck}
+          handleConfirmSelection={handleConfirmSelection}
+        />) : (
+          <VerificationSelection
           modes={modes}
           handleOptionChange={handleOptionChange}
           selectedOption={selectedOption}
           checkedOption={checkedOption}
           handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
+          displayHeaderContainer="displayHeaderContainer"
         />
+        )}
       </ExpandableCard>
      
       {selectedOption === "aadhar" && stepOne && !checkedOption && (
