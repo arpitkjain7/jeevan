@@ -298,7 +298,7 @@ const BookingSlots = () => {
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
-  }, [doctorDetails, todaySlots]);
+  }, [doctorDetails]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
