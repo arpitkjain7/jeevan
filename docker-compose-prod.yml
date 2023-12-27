@@ -40,34 +40,6 @@ services:
       - lobster
     restart: "on-failure"
 
-  lobster_mq:
-    image: rabbitmq:3.12.0-rc.3-management-alpine
-    container_name: lobster-mq
-    environment:
-      - RABBITMQ_MAX_CHANNELS=10
-      - RABBITMQ_MAX_POOLS=10
-    ports:
-      - 5671:5671
-      - 4369:4369
-      - 5672:5672
-      - 15672:15672
-    networks:
-      - lobster
-    restart: "on-failure"
-
-  lobster_flower:
-    image: mher/flower:0.9.7
-    container_name: lobster-flower
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@lobster_mq
-      - FLOWER_PORT=8888
-    ports:
-      - 8889:8888
-    networks:
-      - lobster
-    depends_on:
-      - lobster_mq
-
   lobster_ui:
     image: cliniq360/lobster-ui:0.11
 
