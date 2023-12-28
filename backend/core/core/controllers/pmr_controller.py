@@ -1084,6 +1084,7 @@ class PMRController:
                         "notes": request.notes,
                     }
                 )
+            self.CRUDPatientMedicalRecord.update(**{"id": pmr_id})
             logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
             logging.info(f"{resp=}")
             return {
