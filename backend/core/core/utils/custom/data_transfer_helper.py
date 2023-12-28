@@ -13,7 +13,6 @@ import os
 import uuid
 from pytz import timezone as pytz_timezone
 from core import logger
-from core import celery
 import base64, json
 
 logging = logger(__name__)

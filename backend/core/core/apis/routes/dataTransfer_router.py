@@ -5,7 +5,6 @@ from core import logger
 from commons.auth import decodeJWT
 from core.utils.custom.encryption_helper import encrypt_data
 from core.controllers.dataTransfer_controller import DataTransferController
-from core.controllers.dataTransfer_controller import data_request
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")

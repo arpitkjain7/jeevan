@@ -1,7 +1,6 @@
 # Database Manager
 from core.database.database_manager import DatabaseManager
 from commons.logger import logger
-from celery import Celery
 
 database_manager = DatabaseManager.sharedInstance()
 Base = database_manager.Base
@@ -15,5 +14,3 @@ Base.metadata.create_all(bind=database_manager.engine)
 from commons.load_config import load_configuration
 
 config = load_configuration()
-
-celery = Celery("tasks", broker="amqp://lobster-mq", backend="rpc://lobster-mq")
