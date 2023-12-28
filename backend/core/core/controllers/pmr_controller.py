@@ -1168,7 +1168,7 @@ class PMRController:
             logging.info(f"{document_key=}")
             document_bytes = read_object(
                 bucket_name=bucket_name,
-                key=document_key,
+                prefix=document_key,
             )
             return {"data": document_bytes}
         except Exception as error:
