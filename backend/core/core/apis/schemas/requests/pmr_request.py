@@ -241,6 +241,12 @@ class FollowUp(BaseModel):
     followup_date: date
 
 
+class FollowUp_ConsultationStatus(BaseModel):
+    appointment_id: str
+    followup_date: date
+    consultation_status: ConsultationStatus
+
+
 class PMR(BaseModel):
     pmr_id: str
     vital: Vital = None

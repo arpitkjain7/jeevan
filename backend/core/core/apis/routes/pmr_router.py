@@ -10,10 +10,12 @@ from core.apis.schemas.requests.pmr_request import (
     CreateVital,
     UpdateVital,
     UpdateConsultationStatus,
+    FollowUp_ConsultationStatus,
     FollowUp,
     DocumentTypes,
 )
 from core.controllers.pmr_controller import PMRController
+from core.controllers.appointment_controller import AppointmentsController
 from core import logger
 from commons.auth import decodeJWT
 
@@ -85,9 +87,8 @@ def createPMR_updateConsultation(
 
 @pmr_router.post("/v1/PMR/submitPMR")
 def submitPMR(
-    pmr_request: PMR,
-    follow_up_request: FollowUp = None,
-    consultation_status_request: UpdateConsultationStatus = None,
+    pmr_request: PMR = None,
+    appointment_request: FollowUp_ConsultationStatus = None,
     token: str = Depends(oauth2_scheme),
 ):
     try:
@@ -95,27 +96,12 @@ def submitPMR(
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            pmr_status = ""
-            consultation_status = "No Update"
-            follow_up_status = "No Update"
-            if pmr_request:
-                pmr_status = PMRController().submit_pmr(request=pmr_request)
-            if consultation_status_request:
-                consultation_status = PMRController().update_consultation_status(
-                    request=consultation_status_request
-                )
-            if follow_up_request:
-                follow_up_status = PMRController().update_followup(
-                    request=follow_up_request
-                )
+            pmr_status = PMRController().submit_pmr(request=pmr_request)
             logging.info(f"{pmr_status=}")
-            logging.info(f"{consultation_status=}")
-            logging.info(f"{follow_up_status=}")
-            return {
-                "pmr_status": pmr_status,
-                "consultation_status": consultation_status,
-                "follow_up_status": follow_up_status,
-            }
+            appointment_status = AppointmentsController().update_appointment(
+                request=appointment_request
+            )
+            return {"pmr_status": pmr_status, "appointment_status": appointment_status}
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

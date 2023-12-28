@@ -981,10 +981,9 @@ class PMRController:
             logging.info("executing update consultation status function")
             request_dict = request.dict()
             appointment_id = request_dict.pop("appointment_id")
-            logging.info(
-                f"Consultation Status: {request_dict=}, PMR: {appointment_id=}"
-            )
-            self.CRUDAppointments.update(appointment_id, **request_dict)
+            request_dict.update({"id": appointment_id})
+            logging.info(f"Consultation Status: {request_dict=}")
+            self.CRUDAppointments.update(**request_dict)
             return {"appointment_id": appointment_id}
         except Exception as error:
             logging.error(
@@ -1008,8 +1007,9 @@ class PMRController:
             logging.info("executing update followup date function")
             request_dict = request.dict()
             appointment_id = request_dict.pop("appointment_id")
-            logging.info(f"Follow Up date : {request_dict=}, PMR: {appointment_id=}")
-            self.CRUDAppointments.update(appointment_id, **request_dict)
+            request_dict.update({"id": appointment_id})
+            logging.info(f"Follow Up date : {request_dict=}")
+            self.CRUDAppointments.update(**request_dict)
             return {"appointment_id": appointment_id}
         except Exception as error:
             logging.error(f"Error in PMRController.update_followup function: {error}")
@@ -1029,68 +1029,73 @@ class PMRController:
         """
         try:
             logging.info("executing submit pmr function")
-            pmr_id = request.pmr_id
-            logging.info("Submitting PMR record")
-            logging.info(f"{request=}")
-            resp = dict()
-            if request.vital is not None:
-                resp["vital_id"] = self.create_vital_pmr(request.vital, pmr_id)[
-                    "vital_id"
-                ]
-            # if request.condition is not None:
-            #     # logging.info(type(request.condition))
-            #     resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
-            #         "condition_id"
-            #     ]
-            if request.examinationFindings is not None:
-                resp["examination_findings_id"] = self.create_examination_findings(
-                    request.examinationFindings, pmr_id
-                )
-            if request.diagnosis is not None:
-                resp["diagnosis_id"] = self.create_diagnosis(request.diagnosis, pmr_id)
-            if request.symptom is not None:
-                resp["symptom_id"] = self.create_symptoms(request.symptom, pmr_id)
-            if request.medication is not None:
-                resp["medication_id"] = self.create_medication(
-                    request.medication, pmr_id
-                )
-            if request.currentMedication is not None:
-                resp["current_medication_id"] = self.create_current_medication(
-                    request.currentMedication, pmr_id
-                )
-            if request.lab_investigation is not None:
-                resp["lab_investigation_id"] = self.create_labInvestigation(
-                    request.lab_investigation, pmr_id
-                )
-            if request.medical_history is not None:
-                resp["medical_history_id"] = self.create_medicalHistory(
-                    request.medical_history, pmr_id
-                )
-            # if request.advice is not None:
-            #     resp["advice_id"] = self.create_advice(request.advice, pmr_id)
-            # if request.notes is not None:
-            #     resp["notes_id"] = self.create_notes(request.notes, pmr_id)
-            if request.advice:
-                self.CRUDPatientMedicalRecord.update(
-                    **{
-                        "id": pmr_id,
-                        "advices": request.advice,
-                    }
-                )
-            if request.notes:
-                self.CRUDPatientMedicalRecord.update(
-                    **{
-                        "id": pmr_id,
-                        "notes": request.notes,
-                    }
-                )
-            self.CRUDPatientMedicalRecord.update(**{"id": pmr_id})
-            logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
-            logging.info(f"{resp=}")
-            return {
-                "pmr_id": pmr_id,
-                "response": resp,
-            }
+            if request:
+                pmr_id = request.pmr_id
+                logging.info("Submitting PMR record")
+                logging.info(f"{request=}")
+                resp = dict()
+                if request.vital:
+                    resp["vital_id"] = self.create_vital_pmr(request.vital, pmr_id)[
+                        "vital_id"
+                    ]
+                # if request.condition is not None:
+                #     # logging.info(type(request.condition))
+                #     resp["condition_id"] = self.create_condition(request.condition, pmr_id)[
+                #         "condition_id"
+                #     ]
+                if request.examinationFindings:
+                    resp["examination_findings_id"] = self.create_examination_findings(
+                        request.examinationFindings, pmr_id
+                    )
+                if request.diagnosis:
+                    resp["diagnosis_id"] = self.create_diagnosis(
+                        request.diagnosis, pmr_id
+                    )
+                if request.symptom:
+                    resp["symptom_id"] = self.create_symptoms(request.symptom, pmr_id)
+                if request.medication:
+                    resp["medication_id"] = self.create_medication(
+                        request.medication, pmr_id
+                    )
+                if request.currentMedication:
+                    resp["current_medication_id"] = self.create_current_medication(
+                        request.currentMedication, pmr_id
+                    )
+                if request.lab_investigation:
+                    resp["lab_investigation_id"] = self.create_labInvestigation(
+                        request.lab_investigation, pmr_id
+                    )
+                if request.medical_history:
+                    resp["medical_history_id"] = self.create_medicalHistory(
+                        request.medical_history, pmr_id
+                    )
+                # if request.advice is not None:
+                #     resp["advice_id"] = self.create_advice(request.advice, pmr_id)
+                # if request.notes is not None:
+                #     resp["notes_id"] = self.create_notes(request.notes, pmr_id)
+                if request.advice:
+                    self.CRUDPatientMedicalRecord.update(
+                        **{
+                            "id": pmr_id,
+                            "advices": request.advice,
+                        }
+                    )
+                if request.notes:
+                    self.CRUDPatientMedicalRecord.update(
+                        **{
+                            "id": pmr_id,
+                            "notes": request.notes,
+                        }
+                    )
+                self.CRUDPatientMedicalRecord.update(**{"id": pmr_id})
+                logging.info(f"PMR record submitted with PMR_ID = {pmr_id}")
+                logging.info(f"{resp=}")
+                return {
+                    "pmr_id": pmr_id,
+                    "response": resp,
+                }
+            else:
+                return {"Response": "No update on PMR"}
         except Exception as error:
             logging.error(
                 f"Error in PMRController.submit_pmr_controller function: {error}"
