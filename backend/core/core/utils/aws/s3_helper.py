@@ -53,7 +53,7 @@ def create_bucket(bucket_name, region=None):
     return True
 
 
-def upload_to_s3(bucket_name: str, byte_data: bytes, file_name: str):
+def upload_to_s3(bucket_name: str, file_name: str, byte_data):
     try:
         logging.info(f"Uploading file {file_name} to bucket {bucket_name}")
         _ = s3_client.put_object(
@@ -87,7 +87,7 @@ def delete_s3(bucket_name: str, key: str):
         return None
 
 
-def read_object(bucket_name: str, key: str):
-    response = s3_client.get_object(Bucket=bucket_name, Key=key)
+def read_object(bucket_name: str, prefix: str):
+    response = s3_client.get_object(Bucket=bucket_name, Key=prefix)
     file_bytes = response["Body"].read()
     return base64.b64encode(file_bytes).decode("utf-8")

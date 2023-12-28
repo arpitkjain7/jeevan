@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 from core.utils.custom.session_helper import get_session_token
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.utils.fhir.op_consult import opConsultUnstructured
+from core.utils.aws.s3_helper import upload_to_s3
 import os
 import uuid
 from pytz import timezone as pytz_timezone
@@ -16,6 +17,7 @@ from core import celery
 import base64, json
 
 logging = logger(__name__)
+s3_location = os.environ["s3_location"]
 
 
 def prepare_data(pmr_id: str):
@@ -38,111 +40,89 @@ def send_data(
     try:
         logging.info("send_data triggered")
         logging.info(f"{hi_request=}")
-        data_push_url = hi_request.get("dataPushUrl")
-        key_material = hi_request.get("keyMaterial")
+        # data_push_url = hi_request.get("dataPushUrl")
+        # key_material = hi_request.get("keyMaterial")
         consent_data = consent_obj.get("care_contexts")
         hip_id = consent_obj.get("hip_id")
         care_context_list = consent_data.get("care_context")
         care_context_output, care_context_ack = [], []
-        sender_key_material = getEcdhKeyMaterial()
+        fhir_bundle_list = []
+        # sender_key_material = getEcdhKeyMaterial()  # lambda
         for care_context_obj in care_context_list:
             logging.info(f"{care_context_obj=}")
-            # with open("/app/core/utils/custom/arpit-abha-card.pdf", "rb") as pdf_file:
-            #     pdf_data = pdf_file.read()
-            #     base64_data = base64.b64encode(pdf_data)
-            #     encoded_string = base64_data.decode("utf-8")
             fhir_bundle = prepare_data(
                 pmr_id=care_context_obj.get("careContextReference")
             )
             if fhir_bundle:
-                checksum = generateChecksum(json_data=fhir_bundle)
-                encryption_obj = encrypt_data(
-                    stringToEncrypt=f"{fhir_bundle}",
-                    requesterKeyMaterial=key_material,
-                    senderKeyMaterial=sender_key_material,
+                fhir_bundle_list.append(
+                    {care_context_obj.get("careContextReference"): fhir_bundle}
                 )
-                encrypted_data = encryption_obj.get("encryptedData")
-                care_context_output.append(
-                    {
-                        "content": encrypted_data,
-                        "media": "application/fhir+json",
-                        "checksum": checksum,
-                        "careContextReference": care_context_obj.get(
-                            "careContextReference"
-                        ),
-                    }
-                )
-                care_context_ack.append(
-                    {
-                        "careContextReference": care_context_obj.get(
-                            "careContextReference"
-                        ),
-                        "hiStatus": "OK",
-                        "description": "Transfered Successfully",
-                    }
-                )
+                # checksum = generateChecksum(json_data=fhir_bundle)
+                # encryption_obj = encrypt_data(
+                #     stringToEncrypt=f"{fhir_bundle}",
+                #     requesterKeyMaterial=key_material,
+                #     senderKeyMaterial=sender_key_material,
+                # )
+                # encrypted_data = encryption_obj.get("encryptedData")
+                # care_context_output.append(
+                #     {
+                #         "content": encrypted_data,
+                #         "media": "application/fhir+json",
+                #         "checksum": checksum,
+                #         "careContextReference": care_context_obj.get(
+                #             "careContextReference"
+                #         ),
+                #     }
+                # )
+                # care_context_ack.append(
+                #     {
+                #         "careContextReference": care_context_obj.get(
+                #             "careContextReference"
+                #         ),
+                #         "hiStatus": "OK",
+                #         "description": "Transfered Successfully",
+                #     }
+                # )
             else:
                 continue
-        data_request = {
-            "pageNumber": 0,
-            "pageCount": 1,
-            "transactionId": transaction_id,
-            "entries": care_context_output,
-            "keyMaterial": {
-                "cryptoAlg": "ECDH",
-                "curve": "Curve25519",
-                "dhPublicKey": {
-                    "expiry": "2024-10-06T10:50:37.764Z",
-                    "parameters": "Curve25519/32byte random key",
-                    "keyValue": sender_key_material.get("x509PublicKey"),
-                },
-                "nonce": sender_key_material.get("nonce"),
-            },
+        send_data_obj = {
+            "transaction_id": transaction_id,
+            "request_id": request_id,
+            "hip_id": hip_id,
+            "consent_id": consent_obj.get("id"),
+            "data_push_url": hi_request.get("dataPushUrl"),
+            "receiver_key_material": hi_request.get("keyMaterial"),
+            "fhir_bundles": fhir_bundle_list,
         }
+        send_data_json = json.dumps(send_data_obj)
+        uploaded_file_location = upload_to_s3(
+            bucket_name=s3_location,
+            file_name=f"{hip_id}/{transaction_id}/{request_id}.json",
+            byte_data=send_data_json,
+        )
+        # data_request = {
+        #     "pageNumber": 0,
+        #     "pageCount": 1,
+        #     "transactionId": transaction_id,
+        #     "entries": care_context_output,
+        #     "keyMaterial": {
+        #         "cryptoAlg": "ECDH",
+        #         "curve": "Curve25519",
+        #         "dhPublicKey": {
+        #             "expiry": "2024-10-06T10:50:37.764Z",
+        #             "parameters": "Curve25519/32byte random key",
+        #             "keyValue": sender_key_material.get("x509PublicKey"),
+        #         },
+        #         "nonce": sender_key_material.get("nonce"),
+        #     },
+        # }
         # with open(
         #     f"/app/core/utils/custom/output-{str(uuid.uuid1().int)[:18]}.json", "w"
         # ) as json_file:
         #     json.dump(data_request, json_file)
-        _, resp_code = APIInterface().post(route=data_push_url, data=data_request)
-        logging.info(f"Data push {resp_code=}")
-        ack_request_id = str(uuid.uuid1())
-        time_now = datetime.now(timezone.utc)
-        time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-        gateway_access_token = get_session_token(session_parameter="gateway_token").get(
-            "accessToken"
-        )
-        gateway_url = os.environ["gateway_url"]
-        data_transfer_success_url = f"{gateway_url}/v0.5/health-information/notify"
-        request = {
-            "requestId": ack_request_id,
-            "timestamp": time_now,
-            "notification": {
-                "consentId": consent_obj.get("id"),
-                "transactionId": transaction_id,
-                "doneAt": time_now,
-                "notifier": {"type": "HIP", "id": hip_id},
-                "statusNotification": {
-                    "sessionStatus": "TRANSFERRED",
-                    "hipId": hip_id,
-                    "statusResponses": care_context_ack,
-                },
-            },
-        }
-        headers = {
-            "X-CM-ID": os.environ["X-CM-ID"],
-            "Authorization": f"Bearer {gateway_access_token}",
-        }
-        _, ack_resp_code = APIInterface().post(
-            route=data_transfer_success_url, data=request, headers=headers
-        )
-        logging.info(f"ack sent {ack_resp_code=}")
-        gateway_request = {"request_id": request_id}
-        if ack_resp_code <= 250:
-            gateway_request.update({"request_status": "SUCCESS"})
-        else:
-            gateway_request.update({"request_status": "FAILED"})
-        CRUDGatewayInteraction().update(**gateway_request)
-        return gateway_request
+        # _, resp_code = APIInterface().post(route=data_push_url, data=data_request)
+        # logging.info(f"Data push {resp_code=}")
+        return uploaded_file_location
     except Exception as error:
         logging.error(f"Error in send_data function: {error}")
         raise error
