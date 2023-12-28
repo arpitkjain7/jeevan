@@ -58,7 +58,7 @@ class CRUDMedicalHistory:
                 )
             if obj is not None:
                 return obj.__dict__
-            return []
+            return None
         except Exception as error:
             logging.error(f"Error in CRUDMedicalHistory read function : {error}")
             raise error

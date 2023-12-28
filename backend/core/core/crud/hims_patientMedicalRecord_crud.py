@@ -209,7 +209,7 @@ class CRUDPatientMedicalRecord:
                 )
             if obj is not None:
                 return obj.__dict__
-            return []
+            return None
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord read_by_docId function : {error}"

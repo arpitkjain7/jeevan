@@ -208,7 +208,7 @@ class CreatePMR(BaseModel):
 
 class ConsultationStatus(str, Enum):
     SCHED = "Scheduled"
-    INP = "In Progress"
+    INP = "InProgress"
     PND = "Pending"
     COMP = "Completed"
     CANC = "Cancelled"

@@ -53,13 +53,13 @@ def createPMR(
         )
 
 
-@pmr_router.post("/v1.5/PMR/createPMR")
+@pmr_router.post("/v2/PMR/createPMR")
 def createPMR_updateConsultation(
     pmr_request: CreatePMR_UpdateConsultation,
     token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1.5/pmr/createPMR endpoint")
+        logging.info("Calling /v2/PMR/createPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
@@ -74,10 +74,10 @@ def createPMR_updateConsultation(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/createPMR endpoint: {httperror}")
+        logging.error(f"Error in /v2/PMR/createPMR endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/createPMR endpoint: {error}")
+        logging.error(f"Error in /v2/PMR/createPMR endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -96,12 +96,15 @@ def submitPMR(
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            pmr_status = PMRController().submit_pmr(request=pmr_request)
-            logging.info(f"{pmr_status=}")
-            appointment_status = AppointmentsController().update_appointment(
+            submit_pmr_response = PMRController().submit_pmr(request=pmr_request)
+            logging.info(f"{submit_pmr_response=}")
+            appointment_update_status = AppointmentsController().update_appointment(
                 request=appointment_request
             )
-            return {"pmr_status": pmr_status, "appointment_status": appointment_status}
+            return {
+                "submit_pmr_response": submit_pmr_response,
+                "appointment_update_status": appointment_update_status,
+            }
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

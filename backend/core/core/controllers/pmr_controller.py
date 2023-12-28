@@ -163,7 +163,7 @@ class PMRController:
             [dict]: [authorization details]
         """
         try:
-            logging.info("executing create new pmr function")
+            logging.info("executing create_pmr_update_consultation_status function")
             if type(request) is dict:
                 request_dict = request
             else:
@@ -215,7 +215,7 @@ class PMRController:
             }
         except Exception as error:
             logging.error(
-                f"Error in PMRController.create_pmr_controller function: {error}"
+                f"Error in PMRController.create_pmr_update_consultation_status function: {error}"
             )
             raise error
 
