@@ -22,6 +22,12 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing(6),
   },
+  ".btn-wrapper": {
+     [theme.breakpoints.down('sm')]: {
+        display: "flex",
+        justifyContent: "space-around"
+     }
+  },
   ".submit-btn": {
     "&.MuiButtonBase-root": {
       display: "flex",
@@ -38,6 +44,11 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       height: "40px",
       marginTop: theme.spacing(8),
       textTransform: "capitalize",
+      [theme.breakpoints.down('sm')]: {
+        fontSize: "14px",
+        padding: "0 3px",
+        marginTop: "0"
+      }
     },
   },
 }));
@@ -146,7 +157,7 @@ const RegisterationConfirmation = ({
         </div>
         <Grid container spacing={4} xs={12}>
           {data?.map((item) => (
-            <Grid item key={item.key} xs={4}>
+            <Grid item key={item.key} xs={12} md={5}>
               <Typography
                 variant="subtitle1"
                 gutterBottom

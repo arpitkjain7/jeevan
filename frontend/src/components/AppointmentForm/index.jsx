@@ -29,6 +29,10 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".doctorName-dd": {
     "& > .MuiFormControl-root": {
       width: "250px",
+      [theme.breakpoints.down('sm')]: {
+        width: "100%",
+        marginBottom: "15px"
+      },
     },
   },
   ".appointmentForm-details-key": {
@@ -53,16 +57,23 @@ const StyledCard = styled(Card)({
   marginTop: "24px",
 });
 
-const StyledCardContent = styled(CardContent)({
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   rowGap: "32px",
-});
+  [theme.breakpoints.down('sm')]: {
+    display: "block",
+  },
+}));
 
-const RadioFormControl = styled("div")({
+const RadioFormControl = styled("div")(({ theme }) =>({
   display: "flex",
   alignItems: "center",
-});
+  [theme.breakpoints.down('sm')]: {
+    justifyContent: "space-between",
+    marginBottom: "15px"
+  }
+}));
 
 function AppointmentForm(props) {
   const [doctorName, setDoctorName] = useState("");
@@ -161,7 +172,7 @@ function AppointmentForm(props) {
         <CardContent>
           <Grid container>
             {userDetails?.map((pair, index) => (
-              <Grid item xs={3}>
+              <Grid item xs={6} md={3}>
                 <Typography className="appointmentForm-details-key">
                   {pair.label}
                 </Typography>

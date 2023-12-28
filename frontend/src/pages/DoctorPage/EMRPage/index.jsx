@@ -32,6 +32,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
 
+
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
   padding: "40px 10px 10px"
 }));
@@ -169,6 +170,9 @@ const PdfDisplayWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(10),
+  [theme.breakpoints.down('sm')]: {
+    display: "block"
+  }
 }));
 
 const BPWrapper = styled("div")(({ theme }) => ({
@@ -247,6 +251,7 @@ const PatientEMRDetails = () => {
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
+  const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -292,6 +297,7 @@ const PatientEMRDetails = () => {
         hip_id: currentPatient?.hip_id,
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
+        console.log(res);
         setEMRId(res.payload?.pmr_id);
         sessionStorage.setItem("pmrID", res.payload?.pmr_id);
       });
@@ -1086,6 +1092,7 @@ const PatientEMRDetails = () => {
 
   const postPMR = async () => {
     const filteredPayload = pdfData;
+    console.log(pdfData);
     filteredPayload["pmr_id"] = emrId;
     filteredPayload["advice"] = {
       advices: advices,
@@ -1112,9 +1119,9 @@ const PatientEMRDetails = () => {
         }
       })
     );
-    // const currentPatient = JSON.parse(
-    //   sessionStorage.getItem("selectedPatient")
-    // );
+    const currentPatient = JSON.parse(
+      sessionStorage.getItem("selectedPatient")
+    );
     if (
       currentPatient?.patient_details?.abha_number &&
       currentPatient?.patient_details?.abha_number !== ""
@@ -1213,11 +1220,11 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     const hospital = sessionStorage?.getItem("selectedHospital");
-    // const patient = sessionStorage?.getItem("selectedPatient");
+    const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
-      // const currentPatient = JSON.parse(patient);
+      const currentPatient = JSON.parse(patient);
       patientDetails = {
         hospitalName: currentHospital?.name || "-",
         patientName: currentPatient?.patient_details?.name || currentPatient?.name || "-",
@@ -1493,7 +1500,7 @@ const PatientEMRDetails = () => {
                       />
                     </Grid>
                     <Grid item xs={4}>
-                      <VitalValue>C</VitalValue>
+                      <VitalValue>°C</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
@@ -1983,38 +1990,43 @@ variant="outlined"
               </VitalsContainer>
             </Grid>
           </Grid>
-          <EMRFooter>
-            <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
-            <PrimaryButton onClick={submitEMR}>
-              Review Prescription
-            </PrimaryButton>
-          </EMRFooter>
-        </EMRFormWrapper>
+        </>
       )}
-      {pmrFinished && step === "preview" && (
-        <PdfDisplayWrapper>
-          {/* <PageTitle>Preview</PageTitle>
+      <EMRFooter>
+        <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
+        <PrimaryButton onClick={submitEMR}>
+          Review Prescription
+        </PrimaryButton>
+      </EMRFooter>
+    </EMRFormWrapper>
+  )
+}
+{
+  pmrFinished && step === "preview" && (
+    <PdfDisplayWrapper>
+      {/* <PageTitle>Preview</PageTitle>
           <PageSubText>
             Closely Review the Details Before Confirming
           </PageSubText> */}
-          <SyncAabha
-            showSync={showSync}
-            handleModalClose={handleModalClose}
-            setSelectedAuthOption={setSelectedAuthOption}
-            selectedAuthOption={selectedAuthOption}
-          />
-          <div style={{ height: "800px", marginBottom: "32px", flex: "1" }}>
-            <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
-              <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />
-            </PDFViewer>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
-            <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
-          </div>
-        </PdfDisplayWrapper>
-      )}
-    </PatientEMRWrapper>
+      <SyncAabha
+        showSync={showSync}
+        handleModalClose={handleModalClose}
+        setSelectedAuthOption={setSelectedAuthOption}
+        selectedAuthOption={selectedAuthOption}
+      />
+      <PDFViewerWrapper>
+        <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
+          <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />
+        </PDFViewer>
+      </PDFViewerWrapper>
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
+        <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
+      </div>
+    </PdfDisplayWrapper>
+  )
+}
+    </PatientEMRWrapper >
   );
 };
 

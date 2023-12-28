@@ -30,10 +30,12 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       ...prevData,
       [name]: value,
     }));
-    if(!validateAbhaAddress(value)) {
-      setAbhaAddressError(true);
-    } else {
-      setAbhaAddressError(false)
+    if(name == "abhaAddress"){
+      if(!validateAbhaAddress(value)) {
+        setAbhaAddressError(true);
+      } else {
+        setAbhaAddressError(false)
+      }
     }
   };
 
@@ -97,7 +99,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
         onClose={onSnackbarClose}
       />
       <Grid container spacing={2}>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="First Name"
             name="firstname"
@@ -107,7 +109,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Middle Name"
             name="middlename"
@@ -116,7 +118,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Last Name"
             name="lastname"
@@ -126,7 +128,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Email Address"
             name="email"
@@ -137,7 +139,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Enter ABHA Address"
             name="abhaAddress"
@@ -149,7 +151,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Enter Password"
             name="password"
@@ -163,7 +165,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       </Grid>
       <Grid container spacing={2}>
         <Grid item xs={5}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <Button variant="contained" color="primary" type="submit" fullWidth>
             Submit
           </Button>
