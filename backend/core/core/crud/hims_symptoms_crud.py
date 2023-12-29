@@ -145,7 +145,6 @@ class CRUDSymptoms:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDSymptoms delete_all function : {error}")
             raise error

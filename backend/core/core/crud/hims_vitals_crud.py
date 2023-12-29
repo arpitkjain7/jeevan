@@ -141,6 +141,33 @@ class CRUDVital:
             logging.error(f"Error in CRUDVital update function : {error}")
             raise error
 
+    def update_by_pmr_id(self, **kwargs):
+        """[CRUD function to update a Vital record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+        """
+        try:
+            logging.info("CRUDVital update function")
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
+            del kwargs["id"]
+            with session() as transaction_session:
+                obj: Vital = (
+                    transaction_session.query(Vital)
+                    .filter(Vital.pmr_id == kwargs.get("pmr_id"))
+                    .update(kwargs, synchronize_session=False)
+                )
+                transaction_session.commit()
+        except Exception as error:
+            logging.error(f"Error in CRUDVital update function : {error}")
+            raise error
+
     def delete(self, vital_id: int):
         """[CRUD function to delete a Vital record]
 
@@ -177,7 +204,6 @@ class CRUDVital:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDVital delete_all function : {error}")
             raise error

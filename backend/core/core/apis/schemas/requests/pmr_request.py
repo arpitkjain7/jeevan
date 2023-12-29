@@ -41,7 +41,6 @@ class Symptoms(BaseModel):
     duration: str = None
     severity: str = None
     notes: str = None
-    start_date: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 

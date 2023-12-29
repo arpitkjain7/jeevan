@@ -94,7 +94,7 @@ def submitPMR(
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().submit_pmr(
+            return PMRController().submit_pmr_v1(
                 pmr_request=pmr_request, appointment_request=appointment_request
             )
         else:

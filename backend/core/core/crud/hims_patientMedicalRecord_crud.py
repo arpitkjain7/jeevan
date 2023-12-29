@@ -472,18 +472,20 @@ class CRUDPatientMedicalRecord:
 
                 pmr_dict.update(
                     {
-                        "vital": vital_results.__dict__,
-                        "diagnosis": {"data": diagnosis_list},
-                        "examination_findings": {"data": examination_finding_list},
-                        "medication": {"data": medicines_list},
-                        "medical_history": {"data": medical_history_list},
-                        "lab_investigation": {"data": lab_investigation_list},
-                        "symptom": {"data": symptoms_list},
+                        "pmr_data": {
+                            "vital": vital_results.__dict__ if vital_results else None,
+                            "diagnosis": {"data": diagnosis_list},
+                            "examination_findings": {"data": examination_finding_list},
+                            "medication": {"data": medicines_list},
+                            "medical_history": {"data": medical_history_list},
+                            "lab_investigation": {"data": lab_investigation_list},
+                            "symptom": {"data": symptoms_list},
+                        }
                     }
                 )
                 return pmr_dict
         except Exception as error:
             logging.error(
-                f"Error in CRUDPatientMedicalRecord read_details function: {error}"
+                f"Error in CRUDPatientMedicalRecord read_joined function: {error}"
             )
             raise
