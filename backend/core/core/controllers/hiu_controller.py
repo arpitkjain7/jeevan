@@ -12,7 +12,6 @@ import uuid, json
 from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 from dateutil import parser
-from core import celery
 import ast
 
 logging = logger(__name__)

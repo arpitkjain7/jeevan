@@ -9,11 +9,10 @@ from core.orm_models.hims_hipDetails import HIPDetail
 from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_patientDetails import PatientDetails
 from core.orm_models.hims_docDetails import DocDetails
-from core.orm_models.hims_condition import Condition
 from core.orm_models.hims_vitals import Vital
 from core.orm_models.hims_medicalHistory import MedicalHistory
 from core.orm_models.hims_symptoms import Symptoms
-from core.orm_models.hims_medicalHistory import MedicalHistory
+from core.orm_models.hims_condition import Condition
 from datetime import datetime
 from pytz import timezone
 

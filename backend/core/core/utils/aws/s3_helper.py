@@ -53,7 +53,7 @@ def create_bucket(bucket_name, region=None):
     return True
 
 
-def upload_to_s3(bucket_name: str, byte_data: bytes, file_name: str):
+def upload_to_s3(bucket_name: str, file_name: str, byte_data):
     try:
         logging.info(f"Uploading file {file_name} to bucket {bucket_name}")
         _ = s3_client.put_object(
