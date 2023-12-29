@@ -1128,7 +1128,7 @@ def patient_sms_on_notify(sms_on_notify_request: dict):
 @pmr_router.post("/test123")
 def test(pmr_id: str):
     try:
-        return CRUDPatientMedicalRecord().read_details_new_1(pmr_id=pmr_id)
+        return CRUDPatientMedicalRecord().read_joined(pmr_id=pmr_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {httperror}")
         raise httperror

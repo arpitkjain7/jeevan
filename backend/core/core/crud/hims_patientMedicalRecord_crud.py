@@ -10,6 +10,9 @@ from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_patientDetails import PatientDetails
 from core.orm_models.hims_docDetails import DocDetails
 from core.orm_models.hims_vitals import Vital
+from core.orm_models.hims_medicalHistory import MedicalHistory
+from core.orm_models.hims_symptoms import Symptoms
+from core.orm_models.hims_condition import Condition
 from datetime import datetime
 from pytz import timezone
 
@@ -370,67 +373,91 @@ class CRUDPatientMedicalRecord:
             )
             raise
 
-    def read_details_new_1(self, pmr_id: str):
+    def read_joined(self, pmr_id: str):
         try:
             logging.info(
-                f"CRUDPatientMedicalRecord read_details request for pmr_id: {pmr_id}"
+                f"CRUDPatientMedicalRecord read_joined request for pmr_id: {pmr_id}"
             )
             with session() as transaction_session:
-                joined_result = []
-
                 # Diagnosis table
                 diagnosis_results = (
                     transaction_session.query(Diagnosis)
                     .filter(Diagnosis.pmr_id == pmr_id)
                     .all()
                 )
-
-                # Vital table
+                diagnosis_list = [
+                    diagnosis_obj.__dict__ for diagnosis_obj in diagnosis_results
+                ]
+                # Vitals table
                 vital_results = (
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
                     .all()
                 )
-
-                # PatientDetails table
-                patient_details = transaction_session.query(PatientDetails).get(pmr_id)
-
+                vital_list = [vital_obj.__dict__ for vital_obj in vital_results]
+                # Examination Findings table
+                examination_finding_results = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.pmr_id == pmr_id)
+                    .all()
+                )
+                examination_finding_list = [
+                    examination_finding_obj.__dict__
+                    for examination_finding_obj in examination_finding_results
+                ]
+                # Medicines table
+                medicines_results = (
+                    transaction_session.query(Medicines)
+                    .filter(Medicines.pmr_id == pmr_id)
+                    .all()
+                )
+                medicines_list = [
+                    medicines_obj.__dict__ for medicines_obj in medicines_results
+                ]
+                # Medical History table
+                medical_history_results = (
+                    transaction_session.query(MedicalHistory)
+                    .filter(MedicalHistory.pmr_id == pmr_id)
+                    .all()
+                )
+                medical_history_list = [
+                    medical_history_obj.__dict__
+                    for medical_history_obj in medical_history_results
+                ]
+                # Conditions table
+                conditions_results = (
+                    transaction_session.query(Condition)
+                    .filter(Condition.pmr_id == pmr_id)
+                    .all()
+                )
+                conditions_list = [
+                    conditions_obj.__dict__ for conditions_obj in conditions_results
+                ]
+                # Symptoms table
+                symptoms_results = (
+                    transaction_session.query(Symptoms)
+                    .filter(Symptoms.pmr_id == pmr_id)
+                    .all()
+                )
+                symptoms_list = [
+                    symptoms_obj.__dict__ for symptoms_obj in symptoms_results
+                ]
                 # PatientMedicalRecord table
                 pmr_obj = transaction_session.query(PatientMedicalRecord).get(pmr_id)
+                pmr_dict = pmr_obj.__dict__
 
-                for diagnosis_obj in diagnosis_results:
-                    current_result = pmr_obj.__dict__.copy()
-                    current_result["diagnosis"] = diagnosis_obj.__dict__
-                    current_result[
-                        "vital"
-                    ] = None  # Initialize to None, update if there are matching vitals
-
-                    joined_result.append(current_result)
-
-                for vital_obj in vital_results:
-                    existing_result = next(
-                        (
-                            result
-                            for result in joined_result
-                            if result["diagnosis"] is None and result["vital"] is None
-                        ),
-                        None,
-                    )
-                    if existing_result:
-                        existing_result["vital"] = vital_obj.__dict__
-                    else:
-                        current_result = pmr_obj.__dict__.copy()
-                        current_result[
-                            "diagnosis"
-                        ] = None  # Initialize to None, update if there are matching diagnoses
-                        current_result["vital"] = vital_obj.__dict__
-                        joined_result.append(current_result)
-
-                if patient_details:
-                    for result in joined_result:
-                        result["patient"] = patient_details.__dict__
-
-                return joined_result
+                pmr_dict.update(
+                    {
+                        "vitals": vital_list,
+                        "diagnosis": diagnosis_list,
+                        "examination_findings": examination_finding_list,
+                        "medicines": medicines_list,
+                        "medicalHistory": medical_history_list,
+                        "conditions": conditions_list,
+                        "symptoms": symptoms_list,
+                    }
+                )
+                return pmr_dict
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalRecord read_details function: {error}"
