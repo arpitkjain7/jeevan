@@ -441,7 +441,7 @@ class CRUDPatientMedicalRecord:
                 ]
                 # Medical History table
                 medical_history_results = (
-                    transaction_session.query()
+                    transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.pmr_id == pmr_id)
                     .all()
                 )
@@ -451,27 +451,21 @@ class CRUDPatientMedicalRecord:
                 ]
                 # Conditions table
                 conditions_results = (
-                    transaction_session.query().filter(Condition.pmr_id == pmr_id).all()
+                    transaction_session.query(Condition)
+                    .filter(Condition.pmr_id == pmr_id)
+                    .all()
                 )
                 conditions_list = [
                     conditions_obj.__dict__ for conditions_obj in conditions_results
                 ]
                 # Symptoms table
                 symptoms_results = (
-                    transaction_session.query().filter(Symptoms.pmr_id == pmr_id).all()
+                    transaction_session.query(Symptoms)
+                    .filter(Symptoms.pmr_id == pmr_id)
+                    .all()
                 )
                 symptoms_list = [
                     symptoms_obj.__dict__ for symptoms_obj in symptoms_results
-                ]
-                # Medical History table
-                medical_history_results = (
-                    transaction_session.query()
-                    .filter(MedicalHistory.pmr_id == pmr_id)
-                    .all()
-                )
-                medical_history_list = [
-                    medical_history_obj.__dict__
-                    for medical_history_obj in medical_history_results
                 ]
                 # PatientMedicalRecord table
                 pmr_obj = transaction_session.query(PatientMedicalRecord).get(pmr_id)
@@ -483,10 +477,9 @@ class CRUDPatientMedicalRecord:
                         "diagnosis": diagnosis_list,
                         "examination_findings": examination_finding_list,
                         "medicines": medicines_list,
-                        "medical_history": medical_history_list,
+                        "medicalHistory": medical_history_list,
                         "conditions": conditions_list,
                         "symptoms": symptoms_list,
-                        "medicalHistory": medical_history_list,
                     }
                 )
                 return pmr_dict
