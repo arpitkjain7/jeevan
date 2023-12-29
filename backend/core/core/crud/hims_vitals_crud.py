@@ -115,7 +115,7 @@ class CRUDVital:
             logging.error(f"Error in CRUDVital read_all function : {error}")
             raise error
 
-    def update(self, id: str, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a Vital record]
 
         Raises:
@@ -133,7 +133,7 @@ class CRUDVital:
             with session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
-                    .filter(Vital.id == id)
+                    .filter(Vital.id == kwargs.get("id"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

@@ -5,10 +5,10 @@ from enum import Enum
 
 
 class Vital(BaseModel):
+    id: int = None
     height: str = None
     weight: str = None
     pulse: str = None
-    # blood_pressure: str = None
     body_temperature: str = None
     oxygen_saturation: str = None
     respiratory_rate: str = None
@@ -18,22 +18,15 @@ class Vital(BaseModel):
 
 
 class ExaminationFindings(BaseModel):
+    id: int = None
     disease: str = None
     notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
 
-class Condition(BaseModel):
-    condition: str = None
-    start_date: str = None
-    status: str = None
-    notes: str = None
-    snowmed_code: str = None
-    snowmed_display: str = None
-
-
 class Diagnosis(BaseModel):
+    id: int = None
     disease: str = None
     diagnosis_type: str = None
     status: str = None
@@ -43,6 +36,7 @@ class Diagnosis(BaseModel):
 
 
 class Symptoms(BaseModel):
+    id: int = None
     symptom: str = None
     duration: str = None
     severity: str = None
@@ -53,27 +47,29 @@ class Symptoms(BaseModel):
 
 
 class Medicines(BaseModel):
+    id: int = None
     medicine_name: str = None
     frequency: str = None
     dosage: str = None
     time_of_day: str = None
     duration: str = None
-    # duration_period: str = None
     notes: str = None
     snowmed_code: str = None
     snowmed_display: str = None
 
 
-class CurrentMedicines(BaseModel):
-    medicine_name: str = None
-    start_date: str = None
-    status: str = None
-    notes: str = None
-    snowmed_code: str = None
-    snowmed_display: str = None
+# TODO: To be used in future
+# class CurrentMedicines(BaseModel):
+#     medicine_name: str = None
+#     start_date: str = None
+#     status: str = None
+#     notes: str = None
+#     snowmed_code: str = None
+#     snowmed_display: str = None
 
 
 class MedicalHistory(BaseModel):
+    id: int = None
     medical_history: str = None
     since: str = None
     severity: str = None
@@ -84,6 +80,7 @@ class MedicalHistory(BaseModel):
 
 
 class LabInvestigations(BaseModel):
+    id: int = None
     name: str = None
     notes: str = None
     snowmed_code: str = None
@@ -102,29 +99,10 @@ class UpdateVital(BaseModel):
 
 
 class CreateExaminationFindings(BaseModel):
-    # pmr_id: str
     data: List[ExaminationFindings]
-
-
-class UpdateExaminationFindings(BaseModel):
-    id: str
-    pmr_id: str
-    data: List[ExaminationFindings]
-
-
-class CreateCondition(BaseModel):
-    # pmr_id: str
-    data: List[Condition]
-
-
-class UpdateCondition(BaseModel):
-    id: str
-    pmr_id: str
-    data: List[Condition]
 
 
 class CreateDiagnosis(BaseModel):
-    # pmr_id: str
     data: List[Diagnosis]
 
 
@@ -135,7 +113,6 @@ class UpdateDiagnosis(BaseModel):
 
 
 class CreateSymptoms(BaseModel):
-    # pmr_id: str
     data: List[Symptoms]
 
 
@@ -146,7 +123,6 @@ class UpdateSymptoms(BaseModel):
 
 
 class CreateMedication(BaseModel):
-    # pmr_id: str
     data: List[Medicines]
 
 
@@ -156,15 +132,14 @@ class UpdateMedication(BaseModel):
     data: List[Medicines]
 
 
-class CreateCurrentMedication(BaseModel):
-    # pmr_id: str
-    data: List[CurrentMedicines]
+# class CreateCurrentMedication(BaseModel):
+#     data: List[CurrentMedicines]
 
 
-class UpdateCurrentMedication(BaseModel):
-    id: str
-    pmr_id: str
-    data: List[CurrentMedicines]
+# class UpdateCurrentMedication(BaseModel):
+#     id: str
+#     pmr_id: str
+#     data: List[CurrentMedicines]
 
 
 class CreateLabInvestigation(BaseModel):
@@ -190,12 +165,10 @@ class UpdateMedicalHistory(BaseModel):
 
 
 class Advice(BaseModel):
-    # pmr_id: str = None
     advices: str = None
 
 
 class Notes(BaseModel):
-    # pmr_id: str = None
     notes: str = None
 
 
@@ -250,12 +223,10 @@ class FollowUp_ConsultationStatus(BaseModel):
 class PMR(BaseModel):
     pmr_id: str
     vital: Vital = None
-    # condition: CreateCondition = None
-    examinationFindings: CreateExaminationFindings = None
+    examination_findings: CreateExaminationFindings = None
     diagnosis: CreateDiagnosis = None
     symptom: CreateSymptoms = None
     medication: CreateMedication = None
-    currentMedication: CreateCurrentMedication = None
     lab_investigation: CreateLabInvestigation = None
     medical_history: CreateMedicalHistory = None
     advice: str = None

@@ -87,7 +87,31 @@ class CRUDExaminationFindings:
             )
             raise error
 
-    def update(self, id: str, **kwargs):
+    def read(self, id: int):
+        """[CRUD function to read ExaminationFindings record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all ExaminationFindings records]
+        """
+        try:
+            logging.info("CRUDExaminationFindings read request")
+            with session() as transaction_session:
+                obj: ExaminationFindings = (
+                    transaction_session.query(ExaminationFindings)
+                    .filter(ExaminationFindings.id == id)
+                    .first()
+                )
+            if obj:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(f"Error in CRUDExaminationFindings read function : {error}")
+            raise error
+
+    def update(self, **kwargs):
         """[CRUD function to update a ExaminationFindings record]
 
         Raises:
@@ -105,7 +129,7 @@ class CRUDExaminationFindings:
             with session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
-                    .filter(ExaminationFindings.id == id)
+                    .filter(ExaminationFindings.id == kwargs["id"])
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

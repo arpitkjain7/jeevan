@@ -94,15 +94,9 @@ def submitPMR(
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            submit_pmr_response = PMRController().submit_pmr(request=pmr_request)
-            logging.info(f"{submit_pmr_response=}")
-            appointment_update_status = AppointmentsController().update_appointment(
-                request=appointment_request
+            return PMRController().submit_pmr(
+                pmr_request=pmr_request, appointment_request=appointment_request
             )
-            return {
-                "submit_pmr_response": submit_pmr_response,
-                "appointment_update_status": appointment_update_status,
-            }
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

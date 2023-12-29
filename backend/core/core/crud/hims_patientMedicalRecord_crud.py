@@ -478,7 +478,7 @@ class CRUDPatientMedicalRecord:
                         "medication": {"data": medicines_list},
                         "medical_history": {"data": medical_history_list},
                         "lab_investigation": {"data": lab_investigation_list},
-                        "symptoms": {"data": symptoms_list},
+                        "symptom": {"data": symptoms_list},
                     }
                 )
                 return pmr_dict
