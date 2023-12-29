@@ -3,7 +3,7 @@ from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_appointments_crud import CRUDAppointments
 from core.crud.hims_hip_crud import CRUDHIP
-from core.apis.schemas.requests.user_request import Register
+from core.apis.schemas.requests.user_request import Register, OnBoard
 from core.controllers.users_controller import UserManagementController
 import uuid
 from core import logger
@@ -13,11 +13,19 @@ patient_id = "111-111-111-111"
 
 
 def create_admin_user(admin_user_request):
-    existing_admin_user = CRUDUser().read(username=admin_user_request.username)
+    existing_admin_user = CRUDUser().read_by_username(
+        username=admin_user_request.mobile_number
+    )
     if not existing_admin_user:
         _ = UserManagementController().register_user_controller(
             request=admin_user_request
         )
+
+
+def onboard_admin_user(admin_onboard_request):
+    _ = UserManagementController().onboard_user_controller(
+        request=admin_onboard_request
+    )
 
 
 def create_sample_doc_record(doc_request):
@@ -50,15 +58,20 @@ def create_sample_hip(hip_request):
 
 def main():
     admin_user_request = Register(
-        username="admin@lobster.com",
+        mobile_number="8552012549",
         name="admin",
+        password="P@ssw0rd",
+        email_id="dev@cliniq360.com",
+    )
+    create_admin_user(admin_user_request=admin_user_request)
+    admin_onboard_request = OnBoard(
+        mobile_number="8552012549",
         hip_name="Jeevan Healthcare",
         hip_id="123123",
-        password="P@ssw0rd",
         user_role="ADMIN",
         department="IT",
     )
-    create_admin_user(admin_user_request=admin_user_request)
+    onboard_admin_user(admin_onboard_request=admin_onboard_request)
     create_sample_doc_record(
         doc_request={
             "doc_name": "Dr Arpit Jain",

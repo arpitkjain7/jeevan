@@ -1,6 +1,8 @@
 from core.crud.hims_users_crud import CRUDUser
 from commons.auth import encrypt_password, verify_hash_password, signJWT
+from fastapi import HTTPException, status
 from core import logger
+import random
 
 logging = logger(__name__)
 
@@ -25,59 +27,189 @@ class UserManagementController:
             logging.info("executing register new user function")
             request_json = request.dict()
             password_hash = encrypt_password(password=request_json.get("password"))
-            user_obj = self.CRUDUser.read(username=request_json.get("username"))
-            inp_hip_id = request_json.pop("hip_id")
-            inp_hip_name = request_json.pop("hip_name")
-            if user_obj is not None:
-                hip_details = user_obj.get("hip_details")
-                hip_list = list(hip_details.keys())
-                if inp_hip_id in hip_list:
-                    return {
-                        "access_token": None,
-                        "token_type": "bearer",
-                        "user_role": request_json.get("user_role"),
-                        "status": "User already exists",
-                    }
-                else:
-                    hip_details.update({inp_hip_id: inp_hip_name})
-                    request_json.update(
-                        {"password": password_hash, "hip_details": hip_details}
-                    )
-                    self.CRUDUser.update(**request_json)
-                    access_token = signJWT(
-                        email=request_json.get("username"),
-                        user_role=request_json.get("user_role"),
-                        department=request_json.get("department"),
-                        hip_id=hip_details,
-                    )
-                    return {
-                        "access_token": access_token,
-                        "token_type": "bearer",
-                        "user_role": request_json.get("user_role"),
-                        "status": "User onboarded successfully",
-                    }
+            user_obj = self.CRUDUser.read_by_username(
+                username=request_json.get("mobile_number")
+            )
+            if user_obj:
+                return {
+                    "access_token": None,
+                    "token_type": "bearer",
+                    "user_role": request_json.get("user_role"),
+                    "status": f"User already exists with provided mobile number",
+                }
             else:
                 request_json.update(
                     {
                         "password": password_hash,
-                        "hip_details": {inp_hip_id: inp_hip_name},
+                        "username": request_json.get("mobile_number"),
                     }
                 )
                 self.CRUDUser.create(**request_json)
                 access_token = signJWT(
-                    email=request_json.get("username"),
-                    user_role=request_json.get("user_role"),
-                    department=request_json.get("department"),
-                    hip_id={inp_hip_id: inp_hip_name},
+                    username=request_json.get("mobile_number"),
+                    user_role="dummy",
+                    department="dummy",
+                    hip_id={"dummy": "dummy"},
                 )
                 return {
                     "access_token": access_token,
                     "token_type": "bearer",
-                    "user_role": request_json.get("user_role"),
+                    "user_role": "dummy",
                     "status": "New user created successfully",
                 }
         except Exception as error:
             logging.error(f"Error in register_user_controller function: {error}")
+            raise error
+
+    def onboard_user_controller(self, request):
+        try:
+            logging.info("executing onboard_user_controller function")
+            request_json = request.dict()
+            user_obj = self.CRUDUser.read_by_username(
+                username=request_json.get("mobile_number")
+            )
+            hip_details = user_obj.get("hip_details", {})
+            hip_details = {} if hip_details is None else hip_details
+            if user_obj is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=str(error),
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            inp_hip_id = request_json.pop("hip_id")
+            inp_hip_name = request_json.pop("hip_name")
+            hip_details.update({inp_hip_id: inp_hip_name})
+            request_json.update(
+                {
+                    "hip_details": hip_details,
+                    "username": request_json.get("mobile_number"),
+                }
+            )
+            self.CRUDUser.update(**request_json)
+            access_token = signJWT(
+                username=request_json.get("mobile_number"),
+                user_role=request_json.get("user_role"),
+                department=request_json.get("department"),
+                hip_id=hip_details,
+            )
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user_role": request_json.get("user_role"),
+                "status": "New user created successfully",
+            }
+        except Exception as error:
+            logging.error(f"Error in onboard_user_controller function: {error}")
+            raise error
+
+    def generate_otp_controller(self, request):
+        try:
+            logging.info("executing generate_otp_controller function")
+            user_obj = self.CRUDUser.read_by_username(username=request.mobile_number)
+            if user_obj:
+                # TODO: call send OTP function
+                otp = random.randint(1000, 9999)
+                self.CRUDUser.update(**{"username": request.mobile_number, "otp": otp})
+                return {
+                    "status": "success",
+                    "details": "OTP generate and sent successfully",
+                }
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in generate_otp_controller function: {error}")
+            raise error
+
+    def reset_password_controller(self, request):
+        try:
+            logging.info("executing reset_password_controller function")
+            user_obj = self.CRUDUser.read_by_username(username=request.mobile_number)
+            if user_obj:
+                if request.old_password:
+                    if verify_hash_password(
+                        plain_password=request.old_password,
+                        hashed_password=user_obj.get("password"),
+                    ):
+                        password_hash = encrypt_password(password=request.new_password)
+                        self.CRUDUser.update(
+                            **{
+                                "username": request.mobile_number,
+                                "password": password_hash,
+                            }
+                        )
+                        return {
+                            "status": "success",
+                            "details": "Password updated successfully",
+                        }
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Provided password does not match",
+                            headers={"WWW-Authenticate": "Bearer"},
+                        )
+                if request.otp:
+                    if request.otp == user_obj.get("otp"):
+                        password_hash = encrypt_password(password=request.new_password)
+                        self.CRUDUser.update(
+                            **{
+                                "username": request.mobile_number,
+                                "password": password_hash,
+                            }
+                        )
+                        return {
+                            "status": "success",
+                            "details": "Password updated successfully",
+                        }
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="OTP does not match",
+                            headers={"WWW-Authenticate": "Bearer"},
+                        )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in reset_password_controller function: {error}")
+            raise error
+
+    def verify_otp_controller(self, request):
+        try:
+            logging.info("executing reset_password_controller function")
+            user_obj = self.CRUDUser.read_by_username(username=request.mobile_number)
+            if user_obj:
+                if request.otp == user_obj.get("otp"):
+                    self.CRUDUser.update(
+                        **{
+                            "username": request.mobile_number,
+                            "verified": True,
+                        }
+                    )
+                    return {
+                        "status": "success",
+                        "details": "OTP verified successfully",
+                    }
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="OTP does not match",
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(f"Error in reset_password_controller function: {error}")
             raise error
 
     def login_user_controller(self, request):
@@ -94,14 +226,14 @@ class UserManagementController:
         """
         try:
             logging.info("executing login user function")
-            user_obj = self.CRUDUser.read(username=request.username)
+            user_obj = self.CRUDUser.read_by_username(username=request.username)
             if user_obj:
                 if verify_hash_password(
                     plain_password=request.password,
                     hashed_password=user_obj.get("password"),
                 ):
                     access_token = signJWT(
-                        email=request.username,
+                        username=request.username,
                         user_role=user_obj.get("user_role"),
                         department=user_obj.get("department"),
                         hip_id=user_obj.get("hip_details"),
@@ -152,7 +284,7 @@ class UserManagementController:
         """
         try:
             logging.info("executing get_all_users_controller function")
-            user_obj = self.CRUDUser.read(username=username)
+            user_obj = self.CRUDUser.read_by_username(username=username)
             del user_obj["password"]
             return user_obj
         except Exception as error:

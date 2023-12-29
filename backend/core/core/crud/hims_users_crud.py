@@ -34,7 +34,7 @@ class CRUDUser:
             logging.error(f"Error in CRUDUser create function : {error}")
             raise error
 
-    def read(self, username: str):
+    def read_by_username(self, username: str):
         """[CRUD function to read a User record]
 
         Args:
@@ -52,6 +52,60 @@ class CRUDUser:
                 obj: Users = (
                     transaction_session.query(Users)
                     .filter(Users.username == username)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            else:
+                return None
+        except Exception as error:
+            logging.error(f"Error in CRUDUser read function : {error}")
+            raise error
+
+    def read_by_userid(self, user_id: int):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDUser read request")
+            with session() as transaction_session:
+                obj: Users = (
+                    transaction_session.query(Users).filter(Users.id == user_id).first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            else:
+                return None
+        except Exception as error:
+            logging.error(f"Error in CRUDUser read function : {error}")
+            raise error
+
+    def read_by_mobilenumber(self, mobile_number: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDUser read request")
+            with session() as transaction_session:
+                obj: Users = (
+                    transaction_session.query(Users)
+                    .filter(Users.mobile_number == mobile_number)
                     .first()
                 )
             if obj is not None:
