@@ -55,11 +55,11 @@ class CRUDVital:
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
                     .order_by(Vital.created_at.desc())
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
-            return []
+                return obj.__dict__
+            return None
         except Exception as error:
             logging.error(f"Error in CRUDVital read function : {error}")
             raise error

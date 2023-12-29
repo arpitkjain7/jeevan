@@ -54,11 +54,11 @@ class CRUDExaminationFindings:
                     transaction_session.query(ExaminationFindings)
                     .filter(ExaminationFindings.pmr_id == pmr_id)
                     .order_by(ExaminationFindings.created_at.desc())
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
-            return []
+                return obj.__dict__
+            return None
         except Exception as error:
             logging.error(f"Error in CRUDExaminationFindings read function : {error}")
             raise error

@@ -87,7 +87,7 @@ def delete_s3(bucket_name: str, key: str):
         return None
 
 
-def read_object(bucket_name: str, key: str):
-    response = s3_client.get_object(Bucket=bucket_name, Key=key)
+def read_object(bucket_name: str, prefix: str):
+    response = s3_client.get_object(Bucket=bucket_name, Key=prefix)
     file_bytes = response["Body"].read()
     return base64.b64encode(file_bytes).decode("utf-8")

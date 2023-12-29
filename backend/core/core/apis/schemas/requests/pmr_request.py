@@ -206,6 +206,22 @@ class CreatePMR(BaseModel):
     hip_id: str
 
 
+class ConsultationStatus(str, Enum):
+    SCHED = "Scheduled"
+    INP = "InProgress"
+    PND = "Pending"
+    COMP = "Completed"
+    CANC = "Cancelled"
+
+
+class CreatePMR_UpdateConsultation(BaseModel):
+    patient_id: str
+    doc_id: int
+    appointment_id: int
+    hip_id: str
+    consultation_status: ConsultationStatus
+
+
 # date_of_consultation: date
 # vitals: List[Vital]
 # complaints: List[CreateComplaint]
@@ -213,6 +229,22 @@ class CreatePMR(BaseModel):
 # medication: List[CreateMedication]
 # medical_test: List[CreateMedicalTest]
 # medical_history: List[CreateMedicalHistory]
+
+
+class UpdateConsultationStatus(BaseModel):
+    appointment_id: str
+    consultation_status: ConsultationStatus
+
+
+class FollowUp(BaseModel):
+    appointment_id: str
+    followup_date: date
+
+
+class FollowUp_ConsultationStatus(BaseModel):
+    appointment_id: str
+    followup_date: date
+    consultation_status: ConsultationStatus
 
 
 class PMR(BaseModel):
@@ -226,27 +258,8 @@ class PMR(BaseModel):
     currentMedication: CreateCurrentMedication = None
     lab_investigation: CreateLabInvestigation = None
     medical_history: CreateMedicalHistory = None
-    follow_up: date = None
     advice: str = None
     notes: str = None
-
-
-class ConsultationStatus(str, Enum):
-    SCHED = "scheduled"
-    INP = "in progress"
-    PND = "pending"
-    COMP = "completed"
-    CANC = "cancelled"
-
-
-class UpdateConsultationStatus(BaseModel):
-    appointment_id: str
-    consultation_status: ConsultationStatus
-
-
-class FollowUp(BaseModel):
-    appointment_id: str
-    followup_date: date
 
 
 class DocumentTypes(str, Enum):
