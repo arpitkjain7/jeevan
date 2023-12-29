@@ -54,7 +54,7 @@ def createPMR(
 
 
 @pmr_router.post("/v2/PMR/createPMR")
-def createPMR_updateConsultation(
+def createPMR_v2(
     pmr_request: CreatePMR_UpdateConsultation,
     token: str = Depends(oauth2_scheme),
 ):
@@ -63,9 +63,7 @@ def createPMR_updateConsultation(
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().create_pmr_update_consultation_status(
-                request=pmr_request
-            )
+            return PMRController().create_pmr_v2(request=pmr_request)
 
         else:
             raise HTTPException(

@@ -209,7 +209,6 @@ class CRUDPatientMedicalRecord:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
                     .filter(PatientMedicalRecord.appointment_id == appointment_id)
-                    .order_by(PatientMedicalRecord.date_of_consultation.desc())
                     .first()
                 )
             if obj is not None:
@@ -417,9 +416,8 @@ class CRUDPatientMedicalRecord:
                 vital_results = (
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
-                    .all()
+                    .first()
                 )
-                vital_list = [vital_obj.__dict__ for vital_obj in vital_results]
                 # Examination Findings table
                 examination_finding_results = (
                     transaction_session.query(ExaminationFindings)
@@ -449,15 +447,6 @@ class CRUDPatientMedicalRecord:
                     medical_history_obj.__dict__
                     for medical_history_obj in medical_history_results
                 ]
-                # Conditions table
-                conditions_results = (
-                    transaction_session.query(Condition)
-                    .filter(Condition.pmr_id == pmr_id)
-                    .all()
-                )
-                conditions_list = [
-                    conditions_obj.__dict__ for conditions_obj in conditions_results
-                ]
                 # Symptoms table
                 symptoms_results = (
                     transaction_session.query(Symptoms)
@@ -467,19 +456,29 @@ class CRUDPatientMedicalRecord:
                 symptoms_list = [
                     symptoms_obj.__dict__ for symptoms_obj in symptoms_results
                 ]
+                # Lab Investigation table
+                lab_investigation_results = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.pmr_id == pmr_id)
+                    .all()
+                )
+                lab_investigation_list = [
+                    lab_investigation_obj.__dict__
+                    for lab_investigation_obj in lab_investigation_results
+                ]
                 # PatientMedicalRecord table
                 pmr_obj = transaction_session.query(PatientMedicalRecord).get(pmr_id)
                 pmr_dict = pmr_obj.__dict__
 
                 pmr_dict.update(
                     {
-                        "vitals": vital_list,
-                        "diagnosis": diagnosis_list,
-                        "examination_findings": examination_finding_list,
-                        "medicines": medicines_list,
-                        "medicalHistory": medical_history_list,
-                        "conditions": conditions_list,
-                        "symptoms": symptoms_list,
+                        "vital": vital_results.__dict__,
+                        "diagnosis": {"data": diagnosis_list},
+                        "examination_findings": {"data": examination_finding_list},
+                        "medication": {"data": medicines_list},
+                        "medical_history": {"data": medical_history_list},
+                        "lab_investigation": {"data": lab_investigation_list},
+                        "symptoms": {"data": symptoms_list},
                     }
                 )
                 return pmr_dict

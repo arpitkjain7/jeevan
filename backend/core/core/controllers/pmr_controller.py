@@ -67,28 +67,7 @@ class PMRController:
         try:
             logging.info("executing get pmr function")
             logging.info(f"Getting the PMR record for {pmr_id=}")
-            pmr_metadata = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
-            vitals_data = self.CRUDVital.read_by_pmrId(pmr_id=pmr_id)
-            examination_findings_data = self.CRUDExaminationFindings.read_by_pmrId(
-                pmr_id=pmr_id
-            )
-            diagnosis_data = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_id)
-            medicine_data = self.CRUDMedicines.read_by_pmrId(pmr_id=pmr_id)
-            medicalHistory_data = self.CRUDMedicalHistory.read_by_pmrId(pmr_id=pmr_id)
-            condition = self.CRUDCondition.read_by_pmrId(pmr_id=pmr_id)
-            symptoms = self.CRUDSymptoms.read_by_pmrId(pmr_id=pmr_id)
-            pmr_metadata.update(
-                {
-                    "vitals": vitals_data,
-                    "examination_findings": examination_findings_data,
-                    "conditions": condition,
-                    "diagnosis": diagnosis_data,
-                    "symptoms": symptoms,
-                    "medicines": medicine_data,
-                    "medicalHistory": medicalHistory_data,
-                }
-            )
-            return pmr_metadata
+            return self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
         except Exception as error:
             logging.error(
                 f"Error in PMRController.get_pmr_controller function: {error}"
@@ -109,16 +88,12 @@ class PMRController:
         """
         try:
             logging.info("executing create new pmr function")
-            if type(request) is dict:
-                request_dict = request
-            else:
-                request_dict = request.dict()
+            request_dict = request.dict()
             pmr_obj = self.CRUDPatientMedicalRecord.read_by_appointmentId(
                 appointment_id=request_dict.get("appointment_id")
             )
             logging.debug(f"{pmr_obj=}")
-            pmr_id = ""
-            if pmr_obj == []:
+            if pmr_obj is None:
                 pmr_id = f"C360-PMR-{str(uuid.uuid1().int)[:18]}"
                 appointment_obj = self.CRUDAppointments.read(
                     appointment_id=request_dict.get("appointment_id")
@@ -129,7 +104,6 @@ class PMRController:
                 request_dict.update(
                     {
                         "id": pmr_id,
-                        "hip_id": request_dict["hip_id"],
                         "date_of_consultation": consultation_date,
                     }
                 )
@@ -139,19 +113,24 @@ class PMRController:
                 logging.info(f"PMR record created with PMR_ID = {pmr_id}")
             else:
                 logging.info("PMR object already exist")
-                request_dict = request.dict()
                 pmr_id = pmr_obj.get("id")
-            pmr_details = self.get_pmr(pmr_id=pmr_id)
-            return pmr_details
-
+            # TODO: Optimise the function to reduce additional query
+            pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            appointment_details = self.CRUDAppointments.read(
+                request_dict.get("appointment_id")
+            )
+            return {
+                "pmr_details": pmr_details,
+                "appointment_details": appointment_details,
+            }
         except Exception as error:
             logging.error(
                 f"Error in PMRController.create_pmr_controller function: {error}"
             )
             raise error
 
-    def create_pmr_update_consultation_status(self, request):
-        """[Controller to create new pmr record]
+    def create_pmr_v2(self, request):
+        """[Controller to create new pmr record and update consultation status]
 
         Args:
             request ([dict]): [create new pmr request]
@@ -163,18 +142,14 @@ class PMRController:
             [dict]: [authorization details]
         """
         try:
-            logging.info("executing create_pmr_update_consultation_status function")
-            if type(request) is dict:
-                request_dict = request
-            else:
-                request_dict = request.dict()
+            logging.info("executing create_pmr_v2 function")
+            request_dict = request.dict()
             pmr_obj = self.CRUDPatientMedicalRecord.read_by_appointmentId(
                 appointment_id=request_dict.get("appointment_id")
             )
             logging.debug(f"{pmr_obj=}")
-            pmr_id = ""
             consultation_status = request_dict.pop("consultation_status")
-            if pmr_obj == []:
+            if pmr_obj is None:
                 pmr_id = f"C360-PMR-{str(uuid.uuid1().int)[:18]}"
                 appointment_obj = self.CRUDAppointments.read(
                     appointment_id=request_dict.get("appointment_id")
@@ -185,7 +160,6 @@ class PMRController:
                 request_dict.update(
                     {
                         "id": pmr_id,
-                        "hip_id": request_dict["hip_id"],
                         "date_of_consultation": consultation_date,
                     }
                 )
@@ -195,17 +169,19 @@ class PMRController:
                 logging.info(f"PMR record created with PMR_ID = {pmr_id}")
             else:
                 logging.info("PMR object already exist")
-                request_dict = request.dict()
                 pmr_id = pmr_obj.get("id")
             logging.info("Updating consultation status")
             logging.info(
                 f"Consultation Status: {request_dict=}, PMR: {request_dict.get('appointment_id')=}"
             )
             self.CRUDAppointments.update(
-                request_dict.get("appointment_id"),
-                **{"consultation_status": consultation_status},
+                **{
+                    "id": request_dict.get("appointment_id"),
+                    "consultation_status": consultation_status,
+                },
             )
-            pmr_details = self.get_pmr(pmr_id=pmr_id)
+            # TODO: Optimise the function to reduce additional query
+            pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
             appointment_details = self.CRUDAppointments.read(
                 request_dict.get("appointment_id")
             )
@@ -214,9 +190,7 @@ class PMRController:
                 "appointment_details": appointment_details,
             }
         except Exception as error:
-            logging.error(
-                f"Error in PMRController.create_pmr_update_consultation_status function: {error}"
-            )
+            logging.error(f"Error in PMRController.create_pmr_v2 function: {error}")
             raise error
 
     def update_pmr(self, request):
