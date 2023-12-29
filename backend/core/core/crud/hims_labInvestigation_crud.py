@@ -54,11 +54,11 @@ class CRUDLabInvestigation:
                     transaction_session.query(LabInvestigations)
                     .filter(LabInvestigations.pmr_id == pmr_id)
                     .order_by(LabInvestigations.created_at.desc())
-                    .first()
+                    .all()
                 )
             if obj is not None:
-                return obj.__dict__
-            return None
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDLabInvestigation read function : {error}")
             raise error

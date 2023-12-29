@@ -113,8 +113,8 @@ const EMRFooter = styled("div")(({ theme }) => ({
 }));
 
 const PDFViewerWrapper = styled("div")(({ theme }) => ({
-  height: "800px",
-  marginBottom: "32px",
+  height: "800px", 
+  marginBottom: "32px", 
   flex: "1",
   [theme.breakpoints.down('sm')]: {
     height: "500px",
@@ -1377,7 +1377,7 @@ const PatientEMRDetails = () => {
   const generateSymptomsOptionChange = (option, newValue, key) => {
     console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
-
+    
   };
 
   const generateDoseOptions = (number, item) => {
@@ -1651,7 +1651,7 @@ const PatientEMRDetails = () => {
                             }
     variant="outlined"
                           /> */}
-                          <Autocomplete
+                         <Autocomplete
                             options={generateSymptomsOptions(symptomNumber, item)}
                             value={symptomsSpecs[item?.label]?.since || ""}
                             onChange={(e, newValue) =>
@@ -1930,7 +1930,6 @@ const PatientEMRDetails = () => {
                               />
                             )}
                           />
-
                         </TextBoxLayout>
                         <TextBoxLayout>
                           <Autocomplete
@@ -1964,19 +1963,18 @@ const PatientEMRDetails = () => {
                   </div>
                 )}
               </VitalsContainer>
-
+              
               <VitalsContainer>
-                <SectionHeader>Follow Up</SectionHeader>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={['DatePicker']}>
-                    <DatePicker sx={{ width: '100%' }}
-                      value={followUp}
-                      onChange={(newValue) => setFollowUp(newValue)}
-                    />
-                  </DemoContainer>
-                </LocalizationProvider>
+              <SectionHeader>Follow Up</SectionHeader>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker sx={{ width: '100%' }}
+                    value={followUp}
+                    onChange={(newValue) => setFollowUp(newValue)}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
               </VitalsContainer>
-
 
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
