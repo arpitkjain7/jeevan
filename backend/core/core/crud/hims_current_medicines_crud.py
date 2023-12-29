@@ -54,11 +54,11 @@ class CRUDCurrentMedicines:
                     transaction_session.query(CurrentMedicines)
                     .filter(CurrentMedicines.pmr_id == pmr_id)
                     .order_by(CurrentMedicines.created_at.desc())
-                    .first()
+                    .all()
                 )
             if obj is not None:
-                return obj.__dict__
-            return None
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDCurrentMedicines read function : {error}")
             raise error

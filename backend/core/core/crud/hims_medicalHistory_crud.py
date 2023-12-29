@@ -54,11 +54,11 @@ class CRUDMedicalHistory:
                     transaction_session.query(MedicalHistory)
                     .filter(MedicalHistory.pmr_id == pmr_id)
                     .order_by(MedicalHistory.created_at.desc())
-                    .first()
+                    .all()
                 )
             if obj is not None:
-                return obj.__dict__
-            return None
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDMedicalHistory read function : {error}")
             raise error
