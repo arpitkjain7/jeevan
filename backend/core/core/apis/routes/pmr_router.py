@@ -5,32 +5,17 @@ from datetime import date
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     CreatePMR,
+    CreatePMR_UpdateConsultation,
     PMR,
-    Advice,
-    Notes,
     CreateVital,
-    CreateExaminationFindings,
-    CreateDiagnosis,
-    CreateCondition,
-    CreateLabInvestigation,
-    CreateMedication,
-    CreateMedicalHistory,
-    CreateCurrentMedication,
-    CreateSymptoms,
     UpdateVital,
-    UpdateExaminationFindings,
-    UpdateDiagnosis,
-    UpdateCondition,
-    UpdateMedication,
-    UpdateLabInvestigation,
-    UpdateMedicalHistory,
-    UpdateCurrentMedication,
-    UpdateSymptoms,
     UpdateConsultationStatus,
+    FollowUp_ConsultationStatus,
     FollowUp,
     DocumentTypes,
 )
 from core.controllers.pmr_controller import PMRController
+from core.controllers.appointment_controller import AppointmentsController
 from core import logger
 from commons.auth import decodeJWT
 
@@ -40,7 +25,10 @@ pmr_router = APIRouter()
 
 
 @pmr_router.post("/v1/PMR/createPMR")
-def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
+def createPMR(
+    pmr_request: CreatePMR,
+    token: str = Depends(oauth2_scheme),
+):
     try:
         logging.info("Calling /v1/pmr/createPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
@@ -65,14 +53,50 @@ def createPMR(pmr_request: CreatePMR, token: str = Depends(oauth2_scheme)):
         )
 
 
+@pmr_router.post("/v2/PMR/createPMR")
+def createPMR_v2(
+    pmr_request: CreatePMR_UpdateConsultation,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v2/PMR/createPMR endpoint")
+        logging.debug(f"Request: {pmr_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().create_pmr_v2(request=pmr_request)
+
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v2/PMR/createPMR endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v2/PMR/createPMR endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @pmr_router.post("/v1/PMR/submitPMR")
-def submitPMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+def submitPMR(
+    pmr_request: PMR = None,
+    appointment_request: FollowUp_ConsultationStatus = None,
+    token: str = Depends(oauth2_scheme),
+):
     try:
         logging.info("Calling /v1/pmr/submitPMR endpoint")
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().submit_pmr(request=pmr_request)
+            return PMRController().submit_pmr_v1(
+                pmr_request=pmr_request, appointment_request=appointment_request
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

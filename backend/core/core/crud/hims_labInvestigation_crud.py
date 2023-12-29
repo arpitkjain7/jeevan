@@ -85,7 +85,7 @@ class CRUDLabInvestigation:
             logging.error(f"Error in CRUDLabInvestigation read_all function : {error}")
             raise error
 
-    def update(self, id: str, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a User record]
 
         Raises:
@@ -103,7 +103,7 @@ class CRUDLabInvestigation:
             with session() as transaction_session:
                 obj: LabInvestigations = (
                     transaction_session.query(LabInvestigations)
-                    .filter(LabInvestigations.id == id)
+                    .filter(LabInvestigations.id == kwargs["id"])
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
@@ -147,7 +147,6 @@ class CRUDLabInvestigation:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(
                 f"Error in CRUDLabInvestigation delete_all function : {error}"
