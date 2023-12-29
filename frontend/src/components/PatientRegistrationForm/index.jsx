@@ -107,7 +107,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           gender: formData?.gender,
           DOB: formData?.dob,
           email: formData?.email,
-          mobile_number: formData?.mobile,
+          mobile_number: mobile,
           hip_id: currentHospital?.hip_id,
         };
         url = apis?.registerUser;
@@ -151,7 +151,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
         onClose={onSnackbarClose}
       />
       <Grid container spacing={2}>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="First Name"
             name="firstname"
@@ -161,7 +161,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Middle Name"
             name="middlename"
@@ -170,7 +170,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Last Name"
             name="lastname"
@@ -180,7 +180,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <FormControl component="fieldset">
             <FormLabel component="legend">Gender</FormLabel>
             <RadioGroup
@@ -205,7 +205,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             </RadioGroup>
           </FormControl>
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Date of Birth"
             name="dob"
@@ -219,7 +219,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <TextField
             placeholder="Email Address"
             name="email"
@@ -231,7 +231,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           />
         </Grid>
         {!isForAabha && (
-          <Grid item xs={5}>
+          <Grid item xs={12} md={5}>
             <TextField
               placeholder="Mobile Number"
               name="mobile"
@@ -247,7 +247,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
         )}
         {isForAabha && (
           <>
-            <Grid item xs={5}>
+            <Grid item xs={12} md={5}>
               <TextField
                 placeholder="Enter ABHA Address"
                 name="abhaAddress"
@@ -258,8 +258,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
                 fullWidth        
                 helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
               />
-            </Grid>  <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
-            <Grid item xs={5}>
+            </Grid> 
+            <Grid item xs={12} md={5}>
               <TextField
                 placeholder="Enter Password"
                 name="password"
@@ -273,9 +273,10 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           </>
         )}
       </Grid>
+      <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
       <Grid container spacing={2}>
         <Grid item xs={5}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={12} md={5}>
           <Button variant="contained" color="primary" type="submit" fullWidth>
             Submit
           </Button>

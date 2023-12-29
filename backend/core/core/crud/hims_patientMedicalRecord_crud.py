@@ -190,6 +190,90 @@ class CRUDPatientMedicalRecord:
             )
             raise error
 
+    def read_by_appointmentId(self, appointment_id: int):
+        """[CRUD function to read a PatientMedicalRecord record]
+
+        Args:
+            doc_id (str): [Doctor Id to filter PatientMedicalRecord]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientMedicalRecord record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientMedicalRecord read_by_docId request")
+            with session() as transaction_session:
+                obj: PatientMedicalRecord = (
+                    transaction_session.query(PatientMedicalRecord)
+                    .filter(PatientMedicalRecord.appointment_id == appointment_id)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_by_docId function : {error}"
+            )
+            raise error
+
+    def read_pmr_diagnosis_by_patientId(self, patient_id: int):
+        """[CRUD function to read a PatientMedicalRecord record]
+
+        Args:
+            patient_id (str): [Patient Id to filter PatientMedicalRecord]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientMedicalRecord record matching the criteria]
+        """
+        try:
+            logging.info(
+                "CRUDPatientMedicalRecord read_pmr_diagnosis_by_patientId request"
+            )
+            """with session() as transaction_session:
+                obj: PatientMedicalRecord = (
+                    transaction_session.query(PatientMedicalRecord,Diagnosis)
+                    .filter(PatientMedicalRecord.patient_id == patient_id)
+                    .order_by(PatientMedicalRecord.date_of_consultation.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []"""
+
+            with session() as transaction_session:
+                joined_result = []
+                for (
+                    diagnosis_obj,
+                    pmr_obj,
+                ) in (
+                    transaction_session.query(
+                        Diagnosis,
+                        PatientMedicalRecord,
+                    )
+                    .filter(PatientMedicalRecord.patient_id == patient_id)
+                    .filter(Diagnosis.pmr_id == PatientMedicalRecord.id)
+                    .all()
+                ):
+                    pmr_obj.__dict__.update(
+                        {
+                            "diagnosis_name": diagnosis_obj.__dict__["disease"],
+                        }
+                    )
+                    joined_result.append(pmr_obj)
+            return joined_result
+
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_by_patientId function : {error}"
+            )
+            raise error
+
     def read_all(self):
         """[CRUD function to read_all PatientMedicalRecord record]
 
@@ -312,67 +396,6 @@ class CRUDPatientMedicalRecord:
             )
             raise error
 
-    def read_details_new(self, pmr_id: str):
-        try:
-            logging.info(
-                f"CRUDPatientMedicalRecord read_details request for pmr_id: {pmr_id}"
-            )
-            with session() as transaction_session:
-                joined_result = []
-                results = (
-                    transaction_session.query(
-                        DocDetails.id,
-                        Appointments.id,
-                        PatientDetails.id,
-                        PatientMedicalRecord,
-                    )
-                    .outerjoin(DocDetails, DocDetails.id == PatientMedicalRecord.doc_id)
-                    .outerjoin(
-                        Appointments,
-                        Appointments.id == PatientMedicalRecord.appointment_id,
-                    )
-                    .outerjoin(
-                        PatientDetails,
-                        PatientDetails.id == PatientMedicalRecord.patient_id,
-                    )
-                    .filter(PatientMedicalRecord.id == pmr_id)
-                    .all()
-                )
-                print(results)
-                for result in results:
-                    doc_id, appointment_id, patient_id, pmr_obj = result
-                    current_result = pmr_obj.__dict__.copy()
-
-                    current_result["doctor"] = (
-                        transaction_session.query(DocDetails).get(doc_id).__dict__
-                        if doc_id
-                        else None
-                    )
-                    current_result["appointment"] = (
-                        transaction_session.query(Appointments)
-                        .get(appointment_id)
-                        .__dict__
-                        if appointment_id
-                        else None
-                    )
-                    current_result["patient"] = (
-                        transaction_session.query(PatientDetails)
-                        .get(patient_id)
-                        .__dict__
-                        if patient_id
-                        else None
-                    )
-
-                    joined_result.append(current_result)
-
-                return joined_result
-
-        except Exception as error:
-            logging.error(
-                f"Error in CRUDPatientMedicalRecord read_details function: {error}"
-            )
-            raise
-
     def read_joined(self, pmr_id: str):
         try:
             logging.info(
@@ -392,9 +415,8 @@ class CRUDPatientMedicalRecord:
                 vital_results = (
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
-                    .all()
+                    .first()
                 )
-                vital_list = [vital_obj.__dict__ for vital_obj in vital_results]
                 # Examination Findings table
                 examination_finding_results = (
                     transaction_session.query(ExaminationFindings)
@@ -424,15 +446,6 @@ class CRUDPatientMedicalRecord:
                     medical_history_obj.__dict__
                     for medical_history_obj in medical_history_results
                 ]
-                # Conditions table
-                conditions_results = (
-                    transaction_session.query(Condition)
-                    .filter(Condition.pmr_id == pmr_id)
-                    .all()
-                )
-                conditions_list = [
-                    conditions_obj.__dict__ for conditions_obj in conditions_results
-                ]
                 # Symptoms table
                 symptoms_results = (
                     transaction_session.query(Symptoms)
@@ -442,24 +455,36 @@ class CRUDPatientMedicalRecord:
                 symptoms_list = [
                     symptoms_obj.__dict__ for symptoms_obj in symptoms_results
                 ]
+                # Lab Investigation table
+                lab_investigation_results = (
+                    transaction_session.query(LabInvestigations)
+                    .filter(LabInvestigations.pmr_id == pmr_id)
+                    .all()
+                )
+                lab_investigation_list = [
+                    lab_investigation_obj.__dict__
+                    for lab_investigation_obj in lab_investigation_results
+                ]
                 # PatientMedicalRecord table
                 pmr_obj = transaction_session.query(PatientMedicalRecord).get(pmr_id)
                 pmr_dict = pmr_obj.__dict__
 
                 pmr_dict.update(
                     {
-                        "vitals": vital_list,
-                        "diagnosis": diagnosis_list,
-                        "examination_findings": examination_finding_list,
-                        "medicines": medicines_list,
-                        "medicalHistory": medical_history_list,
-                        "conditions": conditions_list,
-                        "symptoms": symptoms_list,
+                        "pmr_data": {
+                            "vital": vital_results.__dict__ if vital_results else None,
+                            "diagnosis": {"data": diagnosis_list},
+                            "examination_findings": {"data": examination_finding_list},
+                            "medication": {"data": medicines_list},
+                            "medical_history": {"data": medical_history_list},
+                            "lab_investigation": {"data": lab_investigation_list},
+                            "symptom": {"data": symptoms_list},
+                        }
                     }
                 )
                 return pmr_dict
         except Exception as error:
             logging.error(
-                f"Error in CRUDPatientMedicalRecord read_details function: {error}"
+                f"Error in CRUDPatientMedicalRecord read_joined function: {error}"
             )
             raise

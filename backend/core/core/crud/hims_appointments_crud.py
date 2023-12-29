@@ -190,7 +190,7 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read_all function : {error}")
             raise error
 
-    def update(self, id, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a User record]
 
         Raises:
@@ -208,7 +208,7 @@ class CRUDAppointments:
             with session() as transaction_session:
                 obj: Appointments = (
                     transaction_session.query(Appointments)
-                    .filter(Appointments.id == id)
+                    .filter(Appointments.id == kwargs.get("id"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()

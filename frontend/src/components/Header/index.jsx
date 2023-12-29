@@ -22,7 +22,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     padding: "20px 32px",
     zIndex: "9999",
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
      padding: "10px"
     },
   },
@@ -52,12 +52,12 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "16px",
     marginRight: theme.spacing(8),
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       marginRight: theme.spacing(0),
     },
   },
   ".header-no-login": {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       textAlign: "end"
     },
   }

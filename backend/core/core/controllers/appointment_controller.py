@@ -152,3 +152,21 @@ class AppointmentsController:
                 f"Error in AppointmentsController.update_slots function: {error}"
             )
             raise error
+
+    def update_appointment(self, request):
+        try:
+            logging.info("executing update_appointment function")
+            logging.info(f"{request=}")
+            if request:
+                request_dict = request.dict()
+                appointment_id = request_dict.pop("appointment_id")
+                request_dict.update({"id": appointment_id})
+                self.CRUDAppointments.update(**request_dict)
+                return {"Response": f"Appointment id {appointment_id} updated"}
+            else:
+                return {"Response": "No update on appointment"}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.update_appointment function: {error}"
+            )
+            raise error

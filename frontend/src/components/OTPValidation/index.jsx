@@ -7,6 +7,10 @@ const OtpInputWrapperWrapper = styled("div")(({ theme }) => ({
     "&.MuiFormControl-root": {
       width: "48px",
       marginRight: "16px",
+      [theme.breakpoints.down('sm')]: {
+        width: "40px",
+        marginRight: "10px",
+      }
     },
   },
 }));

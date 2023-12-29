@@ -16,7 +16,7 @@ const LoginPageWrapper = styled("div")(({ theme }) => ({
     height: "100%",
     maxWidth: "1440px",
     margin: "0 50px",
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       margin: "0",
       display: "block"
     },
@@ -50,7 +50,7 @@ const LogoText = styled("h1")(({ theme }) => ({
   fontSize: "28px",
   fontWeight: 400,
   color: theme.palette.primaryWhite,
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('sm')]: {
     fontSize: "20px"
   },
 }));

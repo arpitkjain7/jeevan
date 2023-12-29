@@ -20,6 +20,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    [theme.breakpoints.down('md')]: {
+      display: "block",
+    },
   },
   ".patientList-heading": {
     "&.MuiTypography-root": theme.typography.h1,
@@ -66,6 +69,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
   ".header-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
+    [theme.breakpoints.down('md')]: {
+      marginTop: "10px"
+    },
   },
 }));
 

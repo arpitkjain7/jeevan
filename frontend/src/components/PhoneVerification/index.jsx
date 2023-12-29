@@ -10,7 +10,12 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
     gap: "24px",
   },
   ".verification-btn": {
-    "&.MuiButtonBase-root": theme.typography.primaryButton,
+    "&.MuiButtonBase-root": {
+      "&": theme.typography.primaryButton,
+      [theme.breakpoints.down('sm')]: {
+        fontSize: "14px",
+      }
+    }
   },
   ".phone-text": {
     "&.MuiFormControl-root": {
@@ -22,6 +27,9 @@ const PhoneVerificationWrapper = styled("div")(({ theme }) => ({
         alignItems: "center",
         flex: "1 0 0",
         alignSelf: "stretch",
+        [theme.breakpoints.down('sm')]: {
+          width: "auto",
+        },
       },
     },
   },
@@ -46,7 +54,6 @@ const PhoneVerification = ({
   phoneNumberUsed,
   seconds
 }) => {
-  console.log(isMobileError);
   return (
     <PhoneVerificationWrapper>
       <div className="validate-phone-form">

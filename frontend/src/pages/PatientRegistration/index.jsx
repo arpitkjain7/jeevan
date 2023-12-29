@@ -30,6 +30,10 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     gap: "40px",
+    [theme.breakpoints.down('sm')]: {
+      gap: "20px",
+      padding: "10px 5px",
+    },
   },
 
   ".validate-aadhar-form": {
@@ -76,6 +80,9 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
       marginBottom: "4px",
     },
   },
+  ".displayHeaderContainer": {
+    display: "none"
+  }
 }));
 const PatientRegistration = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -108,13 +115,21 @@ const PatientRegistration = () => {
   const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
+  const userRole = sessionStorage?.getItem("userRole");
   const scroll = 'paper';
 
-  const modes = [
+  const adminModes = [
     {
       label: "Aadhar",
       value: "aadhar",
     },
+    {
+      label: "Phone Number",
+      value: "phone_number",
+    },
+  ];
+
+  const modes = [
     {
       label: "Phone Number",
       value: "phone_number",
@@ -453,19 +468,30 @@ const PatientRegistration = () => {
         setExpanded={setRegistration}
         completed={stepOne}
       >
+        { userRole === "ADMIN" ? (
         <VerificationSelection
+          modes={adminModes}
+          handleOptionChange={handleOptionChange}
+          selectedOption={selectedOption}
+          checkedOption={checkedOption}
+          handleOptionCheck={handleOptionCheck}
+          handleConfirmSelection={handleConfirmSelection}
+        />) : (
+          <VerificationSelection
           modes={modes}
           handleOptionChange={handleOptionChange}
           selectedOption={selectedOption}
           checkedOption={checkedOption}
           handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
+          displayHeaderContainer="displayHeaderContainer"
         />
+        )}
       </ExpandableCard>
      
       {selectedOption === "aadhar" && stepOne && !checkedOption && (
         <ExpandableCard
-          title="AADHAR Verfication"
+          title="AADHAR Verification"
           expanded={verifyAadhar}
           setExpanded={setVerifyAadhar}
           completed={stepTwo}

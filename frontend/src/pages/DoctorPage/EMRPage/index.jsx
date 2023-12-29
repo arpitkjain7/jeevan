@@ -32,6 +32,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
 
+
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
   padding: "40px 10px 10px"
 }));
@@ -111,6 +112,16 @@ const EMRFooter = styled("div")(({ theme }) => ({
   },
 }));
 
+const PDFViewerWrapper = styled("div")(({ theme }) => ({
+  height: "800px",
+  marginBottom: "32px",
+  flex: "1",
+  [theme.breakpoints.down('sm')]: {
+    height: "500px",
+    marginBottom: "0"
+  }
+}))
+
 const PrimaryButton = styled("Button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
 }));
@@ -169,6 +180,9 @@ const PdfDisplayWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(10),
+  [theme.breakpoints.down('sm')]: {
+    display: "block"
+  }
 }));
 
 const BPWrapper = styled("div")(({ theme }) => ({
@@ -247,6 +261,7 @@ const PatientEMRDetails = () => {
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
+  const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -292,6 +307,7 @@ const PatientEMRDetails = () => {
         hip_id: currentPatient?.hip_id,
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
+        console.log(res);
         setEMRId(res.payload?.pmr_id);
         sessionStorage.setItem("pmrID", res.payload?.pmr_id);
       });
@@ -1086,6 +1102,7 @@ const PatientEMRDetails = () => {
 
   const postPMR = async () => {
     const filteredPayload = pdfData;
+    console.log(pdfData);
     filteredPayload["pmr_id"] = emrId;
     filteredPayload["advice"] = {
       advices: advices,
@@ -1112,9 +1129,9 @@ const PatientEMRDetails = () => {
         }
       })
     );
-    // const currentPatient = JSON.parse(
-    //   sessionStorage.getItem("selectedPatient")
-    // );
+    const currentPatient = JSON.parse(
+      sessionStorage.getItem("selectedPatient")
+    );
     if (
       currentPatient?.patient_details?.abha_number &&
       currentPatient?.patient_details?.abha_number !== ""
@@ -1213,11 +1230,11 @@ const PatientEMRDetails = () => {
       createPayload(item?.key, item?.dataArr);
     });
     const hospital = sessionStorage?.getItem("selectedHospital");
-    // const patient = sessionStorage?.getItem("selectedPatient");
+    const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
-      // const currentPatient = JSON.parse(patient);
+      const currentPatient = JSON.parse(patient);
       patientDetails = {
         hospitalName: currentHospital?.name || "-",
         patientName: currentPatient?.patient_details?.name || currentPatient?.name || "-",
@@ -1360,7 +1377,7 @@ const PatientEMRDetails = () => {
   const generateSymptomsOptionChange = (option, newValue, key) => {
     console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
-    
+
   };
 
   const generateDoseOptions = (number, item) => {
@@ -1493,7 +1510,7 @@ const PatientEMRDetails = () => {
                       />
                     </Grid>
                     <Grid item xs={4}>
-                      <VitalValue>C</VitalValue>
+                      <VitalValue>°C</VitalValue>
                     </Grid>
                   </TextFieldWrapper>
                 </Grid>
@@ -1549,440 +1566,446 @@ const PatientEMRDetails = () => {
               </Grid>
             </form>
           </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Complaints</SectionHeader>
-            <CustomAutoComplete
-              options={symptomsOpts}
-              handleInputChange={handleSymptompsChange}
-              setOptions={setSymptomsOpts}
-              handleOptionChange={handleSymptoms}
-            />
-            {symptoms?.length > 0 && (
-              <div>
-                {symptoms?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={generateSymptomsOptions(symptomNumber, item)}
-                        value={symptomsSpecs[item?.label]?.since || ""}
-                        onChange={(e, newValue) =>
-                          generateSymptomsOptionChange(item, newValue, "since")
-                        }
-                        // inputValue={symptomNumber}
-                        onInputChange={(e, newValue) =>
-                          handleSymptomNumberOptions(item, newValue)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Since"
+          {(userRole === "DOCTOR" || userRole === "ADMIN") && (
+            <>
+              <VitalsContainer>
+                <SectionHeader>Complaints</SectionHeader>
+                <CustomAutoComplete
+                  options={symptomsOpts}
+                  handleInputChange={handleSymptompsChange}
+                  setOptions={setSymptomsOpts}
+                  handleOptionChange={handleSymptoms}
+                />
+                {symptoms?.length > 0 && (
+                  <div>
+                    {symptoms?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={generateSymptomsOptions(symptomNumber, item)}
+                            value={symptomsSpecs[item?.label]?.since || ""}
+                            onChange={(e, newValue) =>
+                              generateSymptomsOptionChange(item, newValue, "since")
+                            }
+                            // inputValue={symptomNumber}
+                            onInputChange={(e, newValue) =>
+                              handleSymptomNumberOptions(item, newValue)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Since"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Notes"
+                            value={symptomsSpecs[item?.label]?.notes || ""}
+                            onChange={(e) =>
+                              handleSymtomsTextChange(item, "notes", e.target.value)
+                            }
+                            label="Notes"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={symptomsSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleSymtomsTextChange(item, "notes", e.target.value)
-                        }
-                        label="Notes"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleSymptomsSpecsDelete(item?.label)}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Patient Medical History</SectionHeader>
-            <CustomAutoComplete
-              options={medicalHistoryoptions}
-              handleInputChange={handleMeidcalHistoryChange}
-              setOptions={setMedicalHistoryOptions}
-              handleOptionChange={handleMedicalHistoryValue}
-              autocompleteRef={medicalHistoryRef}
-            />
-            {medicalHistory?.length > 0 && showMedicalHistory && (
-              <div>
-                {medicalHistory?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      {/* <RecordTextField
-                        placeholder="Since"
-                        value={optionTextValues[item?.label]?.since || ""}
-                        onChange={(e) =>
-                          handleTextFieldChange(item, "since", e.target.value)
-                        }
-variant="outlined"
-                      /> */}
-                      <Autocomplete
-                        options={generateSymptomsOptions(symptomNumber, item)}
-                        value={symptomsSpecs[item?.label]?.since || ""}
-                        onChange={(e, newValue) =>
-                          generateSymptomsOptionChange(item, newValue, "since")
-                        }
-                        // inputValue={symptomNumber}
-                        onInputChange={(e, newValue) =>
-                          handleSymptomNumberOptions(item, newValue)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Since"
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField
+                            onClick={handleSymptomsSpecsDelete(item?.label)}
+                          >
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
+              </VitalsContainer>
+              <VitalsContainer>
+                <SectionHeader>Patient Medical History</SectionHeader>
+                <CustomAutoComplete
+                  options={medicalHistoryoptions}
+                  handleInputChange={handleMeidcalHistoryChange}
+                  setOptions={setMedicalHistoryOptions}
+                  handleOptionChange={handleMedicalHistoryValue}
+                  autocompleteRef={medicalHistoryRef}
+                />
+                {medicalHistory?.length > 0 && showMedicalHistory && (
+                  <div>
+                    {medicalHistory?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          {/* <RecordTextField
+                            placeholder="Since"
+                            value={optionTextValues[item?.label]?.since || ""}
+                            onChange={(e) =>
+                              handleTextFieldChange(item, "since", e.target.value)
+                            }
+    variant="outlined"
+                          /> */}
+                          <Autocomplete
+                            options={generateSymptomsOptions(symptomNumber, item)}
+                            value={symptomsSpecs[item?.label]?.since || ""}
+                            onChange={(e, newValue) =>
+                              generateSymptomsOptionChange(item, newValue, "since")
+                            }
+                            // inputValue={symptomNumber}
+                            onInputChange={(e, newValue) =>
+                              handleSymptomNumberOptions(item, newValue)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Since"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={relationshipOptions}
+                            value={
+                              optionTextValues[item?.label]?.relationship || ""
+                            }
+                            onChange={(e, newValue) =>
+                              handleRelationshipChange(item, newValue)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Relationship"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Notes"
+                            value={optionTextValues[item?.label]?.notes || ""}
+                            onChange={(e) =>
+                              handleTextFieldChange(item, "notes", e.target.value)
+                            }
+                            label="Notes"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={relationshipOptions}
-                        value={
-                          optionTextValues[item?.label]?.relationship || ""
-                        }
-                        onChange={(e, newValue) =>
-                          handleRelationshipChange(item, newValue)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Relationship"
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField onClick={handleOptionRemove(item?.label)}>
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
+              </VitalsContainer>
+              <VitalsContainer>
+                <SectionHeader>Examination Findings</SectionHeader>
+                <CustomAutoComplete
+                  options={examFindingsOpts}
+                  handleInputChange={handleExamFindingsChange}
+                  setOptions={setExamFindingsOpts}
+                  handleOptionChange={handleExaminationFindings}
+                />
+                {examFindings?.length > 0 && (
+                  <div>
+                    {examFindings?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Notes"
+                            value={examinationSpecs[item?.label]?.notes || ""}
+                            onChange={(e) =>
+                              handleExaminationTextChange(
+                                item,
+                                "notes",
+                                e.target.value
+                              )
+                            }
+                            label="Notes"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={optionTextValues[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleTextFieldChange(item, "notes", e.target.value)
-                        }
-                        label="Notes"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField onClick={handleOptionRemove(item?.label)}>
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Examination Findings</SectionHeader>
-            <CustomAutoComplete
-              options={examFindingsOpts}
-              handleInputChange={handleExamFindingsChange}
-              setOptions={setExamFindingsOpts}
-              handleOptionChange={handleExaminationFindings}
-            />
-            {examFindings?.length > 0 && (
-              <div>
-                {examFindings?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={examinationSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleExaminationTextChange(
-                            item,
-                            "notes",
-                            e.target.value
-                          )
-                        }
-                        label="Notes"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleExaminationSpecsDelete(item?.label)}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Diagnosis</SectionHeader>
-            <CustomAutoComplete
-              options={diagnosisOpts}
-              handleInputChange={handleDiagnosisChange}
-              setOptions={setDiagnosisOpts}
-              handleOptionChange={handleDiagnosis}
-            />
-            {diagnosis?.length > 0 && (
-              <div>
-                {diagnosis?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={diagnosisStatusOpts}
-                        value={diagnosisSpecs[item?.label]?.since || ""}
-                        onChange={(e, newValue) =>
-                          handleDiganosisOptionChange(item, newValue, "since")
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Status"
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField
+                            onClick={handleExaminationSpecsDelete(item?.label)}
+                          >
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
+              </VitalsContainer>
+              <VitalsContainer>
+                <SectionHeader>Diagnosis</SectionHeader>
+                <CustomAutoComplete
+                  options={diagnosisOpts}
+                  handleInputChange={handleDiagnosisChange}
+                  setOptions={setDiagnosisOpts}
+                  handleOptionChange={handleDiagnosis}
+                />
+                {diagnosis?.length > 0 && (
+                  <div>
+                    {diagnosis?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={diagnosisStatusOpts}
+                            value={diagnosisSpecs[item?.label]?.since || ""}
+                            onChange={(e, newValue) =>
+                              handleDiganosisOptionChange(item, newValue, "since")
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Status"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={diagnosisTypeOpts}
+                            value={diagnosisSpecs[item?.label]?.severity || ""}
+                            onChange={(e, newValue) =>
+                              handleDiganosisOptionChange(
+                                item,
+                                newValue,
+                                "severity"
+                              )
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Type"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Notes"
+                            value={diagnosisSpecs[item?.label]?.notes || ""}
+                            onChange={(e) =>
+                              handleDiagnosisTextChange(
+                                item,
+                                "notes",
+                                e.target.value
+                              )
+                            }
+                            label="Notes"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={diagnosisTypeOpts}
-                        value={diagnosisSpecs[item?.label]?.severity || ""}
-                        onChange={(e, newValue) =>
-                          handleDiganosisOptionChange(
-                            item,
-                            newValue,
-                            "severity"
-                          )
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Type"
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField
+                            onClick={handleDiagnosisSpecsDelete(item?.label)}
+                          >
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
+              </VitalsContainer>
+              <VitalsContainer>
+                <SectionHeader>Lab Investigations</SectionHeader>
+                <CustomAutoComplete
+                  options={labInvestigationsOpts}
+                  handleInputChange={handleLabInvestigationsChange}
+                  setOptions={setLabInvestigationsOpts}
+                  handleOptionChange={handleLabInvestigations}
+                />
+                {labInvestigation?.length > 0 && (
+                  <div>
+                    {labInvestigation?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Notes"
+                            value={labInvestigationSpecs[item?.label]?.notes || ""}
+                            onChange={(e) =>
+                              handleLabTextChange(item, "notes", e.target.value)
+                            }
+                            label="Notes"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={diagnosisSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleDiagnosisTextChange(
-                            item,
-                            "notes",
-                            e.target.value
-                          )
-                        }
-                        label="Notes"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleDiagnosisSpecsDelete(item?.label)}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Lab Investigations</SectionHeader>
-            <CustomAutoComplete
-              options={labInvestigationsOpts}
-              handleInputChange={handleLabInvestigationsChange}
-              setOptions={setLabInvestigationsOpts}
-              handleOptionChange={handleLabInvestigations}
-            />
-            {labInvestigation?.length > 0 && (
-              <div>
-                {labInvestigation?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Notes"
-                        value={labInvestigationSpecs[item?.label]?.notes || ""}
-                        onChange={(e) =>
-                          handleLabTextChange(item, "notes", e.target.value)
-                        }
-                        label="Notes"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField onClick={handleLabSpecsDelete(item?.label)}>
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          <VitalsContainer>
-            <SectionHeader>Medications</SectionHeader>
-            <CustomAutoComplete
-              options={medicationsOpts}
-              handleInputChange={handleMedicationsChange}
-              setOptions={setMedicationsOpts}
-              handleOptionChange={handleMedications}
-            />
-            {medications?.length > 0 && (
-              <div>
-                {medications?.map((item) => (
-                  <FieldSpecsContainer>
-                    <RecordLayout>
-                      <SelectedRecord>{item?.label}</SelectedRecord>
-                    </RecordLayout>
-                    <TextBoxLayout>
-                      <RecordTextField
-                        placeholder="Frequency"
-                        value={medicationsSpecs[item?.label]?.severity || ""}
-                        onChange={(e) =>
-                          handleMedicationsTextChange(
-                            item,
-                            "severity",
-                            e.target.value
-                          )
-                        }
-                        label="Frequency"
-                        variant="outlined"
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={timingOptions} // Replace with your actual timing options
-                        value={medicationsSpecs[item?.label]?.timing || null}
-                        onChange={(event, newValue) =>
-                          handleMedicationsTextChange(item, "timing", newValue)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Timing"
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField onClick={handleLabSpecsDelete(item?.label)}>
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
+              </VitalsContainer>
+              <VitalsContainer>
+                <SectionHeader>Medications</SectionHeader>
+                <CustomAutoComplete
+                  options={medicationsOpts}
+                  handleInputChange={handleMedicationsChange}
+                  setOptions={setMedicationsOpts}
+                  handleOptionChange={handleMedications}
+                />
+                {medications?.length > 0 && (
+                  <div>
+                    {medications?.map((item) => (
+                      <FieldSpecsContainer>
+                        <RecordLayout>
+                          <SelectedRecord>{item?.label}</SelectedRecord>
+                        </RecordLayout>
+                        <TextBoxLayout>
+                          <RecordTextField
+                            placeholder="Frequency"
+                            value={medicationsSpecs[item?.label]?.severity || ""}
+                            onChange={(e) =>
+                              handleMedicationsTextChange(
+                                item,
+                                "severity",
+                                e.target.value
+                              )
+                            }
+                            label="Frequency"
                             variant="outlined"
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={generateDoseOptions(dose, item)}
-                        value={medicationsSpecs[item?.label]?.dose || ""}
-                        onChange={(e, newValue) =>
-                          handleMedicationOptionsChange(item, newValue, "dose")
-                        }
-                        // inputValue={dose}
-                        onInputChange={(e, newVal) =>
-                          handleDoseOptions(e, newVal)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Dose"
-                            variant="outlined"
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={timingOptions} // Replace with your actual timing options
+                            value={medicationsSpecs[item?.label]?.timing || null}
+                            onChange={(event, newValue) =>
+                              handleMedicationsTextChange(item, "timing", newValue)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Timing"
+                                variant="outlined"
+                              />
+                            )}
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <TextBoxLayout>
-                      <Autocomplete
-                        options={generateOptions(number, item)}
-                        value={medicationsSpecs[item?.label]?.since || ""}
-                        onChange={(e, newValue) =>
-                          handleMedicationOptionsChange(item, newValue, "since")
-                        }
-                        // inputValue={number}
-                        onInputChange={(e, newValue) =>
-                          handleNumberOptions(item, newValue)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Duration"
-                            variant="outlined"
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={generateDoseOptions(dose, item)}
+                            value={medicationsSpecs[item?.label]?.dose || ""}
+                            onChange={(e, newValue) =>
+                              handleMedicationOptionsChange(item, newValue, "dose")
+                            }
+                            // inputValue={dose}
+                            onInputChange={(e, newVal) =>
+                              handleDoseOptions(e, newVal)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Dose"
+                                variant="outlined"
+                              />
+                            )}
                           />
-                        )}
-                      />
-                    </TextBoxLayout>
-                    <DeleteWrapper>
-                      <DeleteField
-                        onClick={handleMedicationsSpecsDelete(item?.label)}
-                      >
-                        Delete
-                      </DeleteField>
-                    </DeleteWrapper>
-                  </FieldSpecsContainer>
-                ))}
-              </div>
-            )}
-          </VitalsContainer>
-          
-          <VitalsContainer>
-          <SectionHeader>Follow Up</SectionHeader>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={['DatePicker']}>
-              <DatePicker sx={{ width: '100%' }}
-                value={followUp}
-                onChange={(newValue) => setFollowUp(newValue)}
-              />
-            </DemoContainer>
-          </LocalizationProvider>
-          </VitalsContainer>
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <VitalsContainer>
-                <SectionHeader>Notes</SectionHeader>
-                <div>
-                  <RecordTextField
-                    placeholder="Add your notes here"
-                    className="notes-field"
-                    onChange={prescriptionCommentChange}
-                  />
-                </div>
+                        </TextBoxLayout>
+                        <TextBoxLayout>
+                          <Autocomplete
+                            options={generateOptions(number, item)}
+                            value={medicationsSpecs[item?.label]?.since || ""}
+                            onChange={(e, newValue) =>
+                              handleMedicationOptionsChange(item, newValue, "since")
+                            }
+                            // inputValue={number}
+                            onInputChange={(e, newValue) =>
+                              handleNumberOptions(item, newValue)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Duration"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </TextBoxLayout>
+                        <DeleteWrapper>
+                          <DeleteField
+                            onClick={handleMedicationsSpecsDelete(item?.label)}
+                          >
+                            Delete
+                          </DeleteField>
+                        </DeleteWrapper>
+                      </FieldSpecsContainer>
+                    ))}
+                  </div>
+                )}
               </VitalsContainer>
-            </Grid>
-            <Grid item xs={12} md={6}>
+
               <VitalsContainer>
-                <SectionHeader>Advices</SectionHeader>
-                <div>
-                  <RecordTextField
-                    placeholder="Add your advices here"
-                    className="notes-field"
-                    onChange={adviceChange}
-                  />
-                </div>
+                <SectionHeader>Follow Up</SectionHeader>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DatePicker']}>
+                    <DatePicker sx={{ width: '100%' }}
+                      value={followUp}
+                      onChange={(newValue) => setFollowUp(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
               </VitalsContainer>
-            </Grid>
-          </Grid>
+
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <VitalsContainer>
+                    <SectionHeader>Notes</SectionHeader>
+                    <div>
+                      <RecordTextField
+                        placeholder="Add your notes here"
+                        className="notes-field"
+                        onChange={prescriptionCommentChange}
+                      />
+                    </div>
+                  </VitalsContainer>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <VitalsContainer>
+                    <SectionHeader>Advices</SectionHeader>
+                    <div>
+                      <RecordTextField
+                        placeholder="Add your advices here"
+                        className="notes-field"
+                        onChange={adviceChange}
+                      />
+                    </div>
+                  </VitalsContainer>
+                </Grid>
+              </Grid>
+            </>
+          )}
           <EMRFooter>
             <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
             <PrimaryButton onClick={submitEMR}>
@@ -2003,11 +2026,11 @@ variant="outlined"
             setSelectedAuthOption={setSelectedAuthOption}
             selectedAuthOption={selectedAuthOption}
           />
-          <div style={{ height: "800px", marginBottom: "32px", flex: "1" }}>
+          <PDFViewerWrapper>
             <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
               <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />
             </PDFViewer>
-          </div>
+          </PDFViewerWrapper>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
             <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>

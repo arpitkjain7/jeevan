@@ -87,7 +87,7 @@ class CRUDExaminationFindings:
             )
             raise error
 
-    def update(self, id: str, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a ExaminationFindings record]
 
         Raises:
@@ -105,7 +105,7 @@ class CRUDExaminationFindings:
             with session() as transaction_session:
                 obj: ExaminationFindings = (
                     transaction_session.query(ExaminationFindings)
-                    .filter(ExaminationFindings.id == id)
+                    .filter(ExaminationFindings.id == kwargs["id"])
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
@@ -149,7 +149,6 @@ class CRUDExaminationFindings:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(
                 f"Error in CRUDExaminationFindings delete_all function : {error}"

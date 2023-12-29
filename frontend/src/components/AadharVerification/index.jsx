@@ -15,9 +15,17 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     marginBottom: "4px",
     gap: "24px",
+    [theme.breakpoints.down('sm')]: {
+      gap: "10px",
+    },
   },
   ".verification-btn": {
-    "&.MuiButtonBase-root": theme.typography.primaryButton,
+    "&.MuiButtonBase-root": {
+      "&": theme.typography.primaryButton,
+      [theme.breakpoints.down('sm')]: {
+        padding: "10px"
+      },
+    }   
   },
   ".aadhar-text": {
     "&.MuiFormControl-root": {
@@ -29,6 +37,9 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
         alignItems: "center",
         flex: "1 0 0",
         alignSelf: "stretch",
+        [theme.breakpoints.down('sm')]: {
+          width: "auto",
+        },
       },
     },
   },
@@ -85,8 +96,8 @@ const AadharVerification = ({
             </Button>
             )}
       </div>
-      <div style={{ marginBottom: "24px"}} >
-        <span style={{ color: 'red', marginBottom: "24px"}}>{isAadharError ? "Please enter correct Aadhar Number" : ""}</span>
+      <div>
+        <span style={{ color: 'red'}}>{isAadharError ? "Please enter correct Aadhar Number" : ""}</span>
       </div>
       {seconds < 0 ? (
         null

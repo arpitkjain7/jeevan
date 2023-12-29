@@ -199,7 +199,7 @@ const MyTable = ({
               </TableRow>
             </TableHead>
             <TableBody className="table-body-container">
-              {(rowsPerPage > 0
+              {filteredData && (rowsPerPage > 0
                 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 : filteredData).map((item) => (
                   <TableRow
@@ -207,16 +207,16 @@ const MyTable = ({
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns?.map((column) => {
-                      if (column.key == "consentStatus") {
+                      if (column.key == "consentStatus"){
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             <Typography
-                              style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red' }}
-                            >
-                              {item.status}
-                            </Typography>
-                          </TableCell>
-                        );
+                                style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
+                              >
+                                {item.status}
+                              </Typography>
+                            </TableCell>
+                          );
                       }
                       if (column.key !== "actions" && column.key !== "p_name") {
                         return (
@@ -272,7 +272,7 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-                ))}
+              ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={7} />
