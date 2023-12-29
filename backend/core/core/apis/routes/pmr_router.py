@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
 from typing import List
 from collections import defaultdict
 from datetime import date
+from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.pmr_request import (
     CreatePMR,
@@ -1112,6 +1113,22 @@ def patient_sms_on_notify(sms_on_notify_request: dict):
         logging.info("Calling /v0.5/patients/sms/on-notify endpoint")
         logging.debug(f"Request: {sms_on_notify_request}")
         return PMRController().deep_link_ack(request=sms_on_notify_request)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/test123")
+def test(pmr_id: str):
+    try:
+        return CRUDPatientMedicalRecord().read_details_new_1(pmr_id=pmr_id)
     except HTTPException as httperror:
         logging.error(f"Error in /v0.5/patients/sms/on-notify endpoint: {httperror}")
         raise httperror

@@ -9,6 +9,7 @@ from core.orm_models.hims_hipDetails import HIPDetail
 from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_patientDetails import PatientDetails
 from core.orm_models.hims_docDetails import DocDetails
+from core.orm_models.hims_vitals import Vital
 from datetime import datetime
 from pytz import timezone
 
@@ -307,3 +308,131 @@ class CRUDPatientMedicalRecord:
                 f"Error in CRUDPatientMedicalRecord read_details function : {error}"
             )
             raise error
+
+    def read_details_new(self, pmr_id: str):
+        try:
+            logging.info(
+                f"CRUDPatientMedicalRecord read_details request for pmr_id: {pmr_id}"
+            )
+            with session() as transaction_session:
+                joined_result = []
+                results = (
+                    transaction_session.query(
+                        DocDetails.id,
+                        Appointments.id,
+                        PatientDetails.id,
+                        PatientMedicalRecord,
+                    )
+                    .outerjoin(DocDetails, DocDetails.id == PatientMedicalRecord.doc_id)
+                    .outerjoin(
+                        Appointments,
+                        Appointments.id == PatientMedicalRecord.appointment_id,
+                    )
+                    .outerjoin(
+                        PatientDetails,
+                        PatientDetails.id == PatientMedicalRecord.patient_id,
+                    )
+                    .filter(PatientMedicalRecord.id == pmr_id)
+                    .all()
+                )
+                print(results)
+                for result in results:
+                    doc_id, appointment_id, patient_id, pmr_obj = result
+                    current_result = pmr_obj.__dict__.copy()
+
+                    current_result["doctor"] = (
+                        transaction_session.query(DocDetails).get(doc_id).__dict__
+                        if doc_id
+                        else None
+                    )
+                    current_result["appointment"] = (
+                        transaction_session.query(Appointments)
+                        .get(appointment_id)
+                        .__dict__
+                        if appointment_id
+                        else None
+                    )
+                    current_result["patient"] = (
+                        transaction_session.query(PatientDetails)
+                        .get(patient_id)
+                        .__dict__
+                        if patient_id
+                        else None
+                    )
+
+                    joined_result.append(current_result)
+
+                return joined_result
+
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_details function: {error}"
+            )
+            raise
+
+    def read_details_new_1(self, pmr_id: str):
+        try:
+            logging.info(
+                f"CRUDPatientMedicalRecord read_details request for pmr_id: {pmr_id}"
+            )
+            with session() as transaction_session:
+                joined_result = []
+
+                # Diagnosis table
+                diagnosis_results = (
+                    transaction_session.query(Diagnosis)
+                    .filter(Diagnosis.pmr_id == pmr_id)
+                    .all()
+                )
+
+                # Vital table
+                vital_results = (
+                    transaction_session.query(Vital)
+                    .filter(Vital.pmr_id == pmr_id)
+                    .all()
+                )
+
+                # PatientDetails table
+                patient_details = transaction_session.query(PatientDetails).get(pmr_id)
+
+                # PatientMedicalRecord table
+                pmr_obj = transaction_session.query(PatientMedicalRecord).get(pmr_id)
+
+                for diagnosis_obj in diagnosis_results:
+                    current_result = pmr_obj.__dict__.copy()
+                    current_result["diagnosis"] = diagnosis_obj.__dict__
+                    current_result[
+                        "vital"
+                    ] = None  # Initialize to None, update if there are matching vitals
+
+                    joined_result.append(current_result)
+
+                for vital_obj in vital_results:
+                    existing_result = next(
+                        (
+                            result
+                            for result in joined_result
+                            if result["diagnosis"] is None and result["vital"] is None
+                        ),
+                        None,
+                    )
+                    if existing_result:
+                        existing_result["vital"] = vital_obj.__dict__
+                    else:
+                        current_result = pmr_obj.__dict__.copy()
+                        current_result[
+                            "diagnosis"
+                        ] = None  # Initialize to None, update if there are matching diagnoses
+                        current_result["vital"] = vital_obj.__dict__
+                        joined_result.append(current_result)
+
+                if patient_details:
+                    for result in joined_result:
+                        result["patient"] = patient_details.__dict__
+
+                return joined_result
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientMedicalRecord read_details function: {error}"
+            )
+            raise
