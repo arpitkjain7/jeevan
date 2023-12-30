@@ -1,6 +1,7 @@
 from core.crud.hims_users_crud import CRUDUser
 from commons.auth import encrypt_password, verify_hash_password, signJWT
 from fastapi import HTTPException, status
+from core.utils.custom.msg91_helper import otpHelper
 from core import logger
 import random
 
@@ -109,7 +110,12 @@ class UserManagementController:
             if user_obj:
                 # TODO: call send OTP function
                 otp = random.randint(1000, 9999)
-                self.CRUDUser.update(**{"username": request.mobile_number, "otp": otp})
+                otp_response = otpHelper().send_otp(
+                    mobile_number=user_obj.get("mobile_number"), otp=otp
+                )
+                self.CRUDUser.update(
+                    **{"username": request.mobile_number, "otp": str(otp)}
+                )
                 return {
                     "status": "success",
                     "details": "OTP generate and sent successfully",

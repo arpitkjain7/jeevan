@@ -2,12 +2,10 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.user_request import (
     Register,
-    Login,
     OnBoard,
     ResetPassword,
     GenerateOTP,
     VerifyOTP,
-    ForgotPassword,
 )
 from core.apis.schemas.responses.user_response import (
     RegisterResponse,

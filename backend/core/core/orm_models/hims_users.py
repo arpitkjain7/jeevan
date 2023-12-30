@@ -12,7 +12,7 @@ class Users(Base):
     email_id = Column(String)
     mobile_number = Column(String)
     verified = Column(Boolean, default=False)
-    otp = Column(Integer)
+    otp = Column(String)
     hip_details = Column(JSON)
     user_role = Column(String)
     department = Column(String)

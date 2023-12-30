@@ -26,7 +26,7 @@ class ResetPassword(BaseModel):
     mobile_number: str
     old_password: str = None
     new_password: str
-    otp: int = None
+    otp: str = None
 
 
 class GenerateOTP(BaseModel):
@@ -35,13 +35,7 @@ class GenerateOTP(BaseModel):
 
 class VerifyOTP(BaseModel):
     mobile_number: str
-    otp: int
-
-
-class ForgotPassword(BaseModel):
-    mobile_number: str
-    otp: int
-    new_password: str
+    otp: str
 
 
 # class UpdatePassword(BaseModel):
