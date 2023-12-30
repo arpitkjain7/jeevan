@@ -627,7 +627,7 @@ class PMRController:
                     diagnosis_length = len(diagnosis_obj_list)
                     if diagnosis_length == 1:
                         diagnosis_name = f"{diagnosis_obj_list[0]['disease']}"
-                    elif diagnosis_length == 2:
+                    elif diagnosis_length >= 2:
                         diagnosis_name = f"{diagnosis_obj_list[0]['disease']} | {diagnosis_obj_list[1]['disease']}"
                     else:
                         diagnosis_name = "Diagnosis"
