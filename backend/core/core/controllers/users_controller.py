@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from core.utils.custom.msg91_helper import otpHelper
 from core import logger
 import random
+import os
 
 logging = logger(__name__)
 
@@ -11,6 +12,7 @@ logging = logger(__name__)
 class UserManagementController:
     def __init__(self):
         self.CRUDUser = CRUDUser()
+        self.msg91_template_id = os.environ["msg91_otp_template_id"]
 
     def register_user_controller(self, request):
         """[Controller to register new user]
@@ -111,7 +113,9 @@ class UserManagementController:
                 # TODO: call send OTP function
                 otp = random.randint(1000, 9999)
                 otp_response = otpHelper().send_otp(
-                    mobile_number=user_obj.get("mobile_number"), otp=otp
+                    mobile_number=user_obj.get("mobile_number"),
+                    otp=otp,
+                    template_id=self.msg91_template_id,
                 )
                 self.CRUDUser.update(
                     **{"username": request.mobile_number, "otp": str(otp)}

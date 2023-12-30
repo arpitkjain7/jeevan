@@ -62,7 +62,7 @@ def get_all_HIPs(token: str = Depends(oauth2_scheme)):
 
 
 @hip_router.get("/v1/HIP/listForUser")
-def get_all_HIPs(username: str, token: str = Depends(oauth2_scheme)):
+def get_user_HIPs(username: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info(f"Calling /v1/HIP/listForUser endpoint")
         authenticated_user_details = decodeJWT(token=token)

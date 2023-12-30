@@ -9,14 +9,13 @@ class otpHelper:
     def __init__(self):
         self.msg91_base_url = os.environ["msg91_base_url"]
         self.msg91_auth_key = os.environ["msg91_auth_key"]
-        self.msg91_template_id = os.environ["msg91_template_id"]
 
-    def send_otp(self, mobile_number: str, otp: str):
+    def send_otp(self, mobile_number: str, otp: str, template_id: str):
         try:
             if len(mobile_number) == 10:
                 mobile_number = f"91{mobile_number}"
             send_otp_params = {
-                "template_id": self.msg91_template_id,
+                "template_id": template_id,
                 "mobile": int(mobile_number),
                 "otp": str(otp),
             }
