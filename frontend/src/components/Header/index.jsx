@@ -10,7 +10,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     // margin: "0 auto",
     backgroundColor: theme.palette.primaryWhite,
     zIndex: "1201",
-    height: "80px",
+    // height: "80px",
     // borderBottom: `1px solid ${theme.palette.tertiaryGrey}`,
     pposition: "-webkit-sticky",
     position: "sticky",
@@ -23,7 +23,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     padding: "20px 32px",
     zIndex: "9999",
     [theme.breakpoints.down('sm')]: {
-     padding: "10px"
+     padding: "10px 0"
     },
   },
   ".header-logo-container": {
@@ -33,6 +33,9 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
 
     ".hospital-name": {
       "&": theme.typography.sectionBody2,
+      [theme.breakpoints.down('sm')]: {
+        fontSize: "16px",
+      }
     },
   },
   ".logo": {
@@ -44,6 +47,10 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "24px",
     paddingRight: "16px",
     borderRight: "1px solid #9e9e9e",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "21px",
+      paddingRight: "10px",
+    }
   },
   ".header-question-text": {
     color: theme.palette.secondaryGrey,
@@ -69,14 +76,22 @@ const ProfileIconWrapper = styled("div")({
   display: "inline-block",
 });
 
-const ProfileIcon = styled(Avatar)({
-  backgroundColor: "#000"
-});
+const ProfileIcon = styled(Avatar)(({ theme }) => ({
+  backgroundColor: "#000",
+  [theme.breakpoints.down('sm')]: {
+    width: "35px",
+    height: "35px",
+  }
+}));
 
-const ProfileMenu = styled(Menu)({
+const ProfileMenu = styled(Menu)(({ theme }) => ({
   position: "absolute",
   top: 20,
-});
+  [theme.breakpoints.down('sm')]: {
+    top: 10,
+    left: 11
+  }
+}));
 
 const Header = () => {
   const accessToken = sessionStorage.getItem("accesstoken");
@@ -120,6 +135,7 @@ const Header = () => {
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
+                className="profile_menu"
               >
                 <MenuItem onClick={handleClose}>View Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>

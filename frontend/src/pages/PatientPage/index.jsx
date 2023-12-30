@@ -13,7 +13,10 @@ const tableStyle = {
 
 const ListWrapper = styled("div")(({ theme }) => ({
   "&": {
-    padding: "40px 10px 10px"
+    padding: "40px 10px 10px",
+    [theme.breakpoints.down('sm')]: {
+      padding: "10px"
+    }
   },
   ".patientList-title-wrapper": {
     marginBottom: "20px",
@@ -26,6 +29,9 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
   ".patientList-heading": {
     "&.MuiTypography-root": theme.typography.h1,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "30px"
+    },
   },
   ".patientList-desc": theme.typography.h2,
   ".table-class": {
@@ -39,14 +45,14 @@ const ListWrapper = styled("div")(({ theme }) => ({
         [theme.breakpoints.down('md')]: {
           "&": theme.typography.body2
         },
-        padding: theme.spacing(4, 8),
+        padding: theme.spacing(4),
       },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": {
         "&": theme.typography.body1,
         cursor: "pointer",
-        padding: theme.spacing(4, 8),
+        padding: theme.spacing(4),
       },
     },
   },
@@ -87,7 +93,7 @@ const PatientPage = () => {
   const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const isMobile = window.innerWidth < 600;
   const columns = [
     {
       key: "p_name",
@@ -137,6 +143,44 @@ const PatientPage = () => {
     //   ],
     // },
   ];
+  const mobileColumns = [
+    {
+      key: "p_name",
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ],
+    },
+    
+    {
+      key: "actions",
+      header: "Create Appointment",
+      actions: [
+        {
+          link: "Create Appointment",
+          type: "link",
+          onClick: (item) => {
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+            dispatch(AppointmentPageActions.setSelectedPatientData(item));
+            navigate("/create-appointment");
+          },
+        },
+      ],
+    },
+    { key: "id", header: "Patient ID" },
+    { key: "abha_number", header: "Abha Id" },
+    { key: "mobile_number", header: "Contact Number" },
+    { key: "updatedDate", header: "Last Visited" },
+    { key: "createdDate", header: "Follow Up" },
+  ];
+
   useEffect(() => {
     dispatch(AppointmentPageActions.setSelectedPatientData({}));
     let currentHospital = {};
@@ -188,7 +232,18 @@ const PatientPage = () => {
         </Button>
       </div>
       <div className="table-container">
-        <MyTable
+        {isMobile ? (
+          <MyTable
+            columns={mobileColumns}
+            data={tableData}
+            tableStyle={tableStyle}
+            searchInputStyle={searchInputStyle}
+            tableClassName="table-class"
+            searchClassName="search-class"
+            onRowClick={(row) => onTableRowClick(row)}
+          />
+        ) : (
+          <MyTable
           columns={columns}
           data={tableData}
           tableStyle={tableStyle}
@@ -197,6 +252,7 @@ const PatientPage = () => {
           searchClassName="search-class"
           onRowClick={(row) => onTableRowClick(row)}
         />
+        )}
       </div>
     </ListWrapper>
   );

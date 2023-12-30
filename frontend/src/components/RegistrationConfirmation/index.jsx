@@ -7,8 +7,10 @@ import { downloadAabha } from "../../pages/PatientRegistration/PatientRegistrati
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
   "&": {
     backgroundColor: theme.palette.primaryWhite,
-
     marginTop: theme.spacing(8),
+    [theme.breakpoints.down('sm')]: {
+      margin: "8px"
+    }
   },
   ".registration-success-text": {
     "&.MuiTypography-root": theme.typography.successText,
@@ -45,7 +47,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       marginTop: theme.spacing(8),
       textTransform: "capitalize",
       [theme.breakpoints.down('sm')]: {
-        fontSize: "14px",
+        fontSize: "13px",
         padding: "0 3px",
         marginTop: "0"
       }
@@ -137,7 +139,7 @@ const RegisterationConfirmation = ({
   };
   return (
     <RegisterationConfirmationWrapper>
-      <Box padding={8} marginTop={4} marginBottom={4}>
+      <Box padding={{ xs: 6, md: 8 }} marginTop={{ xs: 0, md: 4 }} marginBottom={4}>
         <div className="registration-success-header">
           <Typography
             variant="h6"

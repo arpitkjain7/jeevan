@@ -133,7 +133,8 @@ const BookingSlots = () => {
   const doctorDetails = dataState?.appointmentSlots?.doctorSlotDetails;
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
-  const current_date = new Date().toLocaleDateString(undefined, {
+  const today = new Date();
+  const current_date = today.toLocaleDateString(undefined, {
     weekday: "long",
     year: "numeric",
     // month: "long",
@@ -203,7 +204,7 @@ const BookingSlots = () => {
   };
 
   useEffect(() => {
-    const today = new Date();
+    // const today = new Date();
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
@@ -280,13 +281,13 @@ const BookingSlots = () => {
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
 
-      const currentTime = new Date().toLocaleTimeString(undefined, { hour12: false});
+      const currentTime = today.toLocaleTimeString(undefined, { hour12: false});
       if(currentTime > startTime && currentTime < endTime){
        
       let currentSlotStartTime;
         allTimeSlots.map(slot => {
           const [slotStartTime, slotEndTime] = slot.split("-");
-          const current_time = new Date().toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
+          const current_time = today.toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
           if(current_time > slotStartTime && current_time < slotEndTime){
             currentSlotStartTime = slotEndTime;
           }

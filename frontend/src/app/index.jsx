@@ -139,7 +139,7 @@ function App() {
         </Drawer>
       )}
       
-      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ p:3, overflow: "auto" }}>
+      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 2, md: 3}}>
         <DrawerHeader/>
         {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
           <Routes>

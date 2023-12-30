@@ -13,11 +13,16 @@ const tableStyle = {
 
 const ListWrapper = styled("div")(({ theme }) => ({
   "&": {
-    padding: "40px 10px 10px"
+    padding: "40px 10px 10px",
+    [theme.breakpoints.down('sm')]: {
+      padding: "10px",
+    }
   },
   ".patientList-title-wrapper": {
-    marginBottom: "20px",
-    marginBottom: "30px",
+    marginBottom: "25px",
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: "20px",
+    }
   },
   ".patientList-heading": {
     "&.MuiTypography-root": {
@@ -46,14 +51,14 @@ const ListWrapper = styled("div")(({ theme }) => ({
         [theme.breakpoints.down('md')]: {
           "&": theme.typography.body2
         },
-        padding: theme.spacing(4, 8),
+        padding: theme.spacing(4),
       },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": {
         "&": theme.typography.body1,
         cursor: "pointer",
-        padding: theme.spacing(4, 8),
+        padding: theme.spacing(4),
       },
     },
   },
@@ -96,10 +101,9 @@ const AppointmentPage = () => {
     { key: "status", header: "Status" },
     {
       key: "actions",
-      header: "",
       actions: [
         {
-          link: "Start Visit",
+          key: "action",
           type: "link",
           onClick: (item) => {
             navigate("/patient-emr");
@@ -108,6 +112,31 @@ const AppointmentPage = () => {
         },
       ],
     },
+  ];
+
+  const mobileColumns = [
+    { key: "patientDetails", header: "Patient Name" },
+    {
+      key: "actions",
+      header: "Start Visit",
+      actions: [
+        {
+          key: "action",
+          type: "link",
+          onClick: (item) => {
+            navigate("/patient-emr");
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+          },
+        },
+      ],
+    },
+    { key: "patientId", header: "Patient ID" },
+    { key: "mobileNumber", header: "Contact Number" },
+    { key: "encounterType", header: "Encounter Type" },
+    { key: "docName", header: "Doctor" },
+    { key: "slotDate", header: "Date" },
+    { key: "slotTime", header: "Slot" },
+    { key: "status", header: "Status" }
   ];
 
   useEffect(() => {
@@ -136,8 +165,14 @@ const AppointmentPage = () => {
           const docName = item?.doc_details?.doc_name;
           const slotDate = convertDateFormat(item?.slot_details?.date, "dd/MM/yyyy");
           const slotTime = convertTimeSlot(item?.slot_time);
-          const status = item?.slot_details?.status;
-
+          const status = item?.consultation_status;
+          let action = "Start Visit";
+          if(status === "Completed") {
+            action = "Edit"
+          }
+          else if(status === "InProgress") {
+            action = "Resume"
+          }
           // const updatedDate = convertDateFormat(item?.updated_at);
           // const createdDate = convertDateFormat(item?.created_at);
           return {
@@ -149,6 +184,7 @@ const AppointmentPage = () => {
             slotDate: slotDate,
             slotTime: slotTime,
             status: status,
+            action: action,
             // updatedDate: updatedDate,
             // createdDate: createdDate,
             ...item,
@@ -164,6 +200,7 @@ const AppointmentPage = () => {
       });
     }
   }, []);
+  const isMobile = window.innerWidth < 600;
   return (
     <ListWrapper>
       <div className="patientList-title-wrapper">
@@ -173,6 +210,16 @@ const AppointmentPage = () => {
         <Typography className="patientList-desc">Description</Typography>
       </div>
       <div className="table-container">
+        {isMobile ? (
+          <MyTable
+          columns={mobileColumns}
+          data={tableData}
+          tableStyle={tableStyle}
+          searchInputStyle={searchInputStyle}
+          tableClassName="table-class"
+          searchClassName="search-class"
+        />
+        ) : (
         <MyTable
           columns={columns}
           data={tableData}
@@ -181,6 +228,7 @@ const AppointmentPage = () => {
           tableClassName="table-class"
           searchClassName="search-class"
         />
+        )}
       </div>
     </ListWrapper>
   );
