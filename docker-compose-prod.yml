@@ -27,6 +27,7 @@ services:
       - algorithm=HS256
       - msg91_auth_key=395349A10sSXh0sK64460a51P1
       - msg91_template_id=647ae4efd6fc050215318912
+      - msg91_otp_template_id=658f896fd6fc055fe638e0a2
       - msg91_base_url=https://control.msg91.com/api/v5/otp
     volumes:
       - ./backend/core:/app
