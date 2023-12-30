@@ -55,11 +55,11 @@ class CRUDVital:
                     transaction_session.query(Vital)
                     .filter(Vital.pmr_id == pmr_id)
                     .order_by(Vital.created_at.desc())
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
-            return []
+                return obj.__dict__
+            return None
         except Exception as error:
             logging.error(f"Error in CRUDVital read function : {error}")
             raise error
@@ -115,7 +115,7 @@ class CRUDVital:
             logging.error(f"Error in CRUDVital read_all function : {error}")
             raise error
 
-    def update(self, id: str, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a Vital record]
 
         Raises:
@@ -133,7 +133,34 @@ class CRUDVital:
             with session() as transaction_session:
                 obj: Vital = (
                     transaction_session.query(Vital)
-                    .filter(Vital.id == id)
+                    .filter(Vital.id == kwargs.get("id"))
+                    .update(kwargs, synchronize_session=False)
+                )
+                transaction_session.commit()
+        except Exception as error:
+            logging.error(f"Error in CRUDVital update function : {error}")
+            raise error
+
+    def update_by_pmr_id(self, **kwargs):
+        """[CRUD function to update a Vital record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+        """
+        try:
+            logging.info("CRUDVital update function")
+            kwargs.update(
+                {
+                    "updated_at": datetime.now(timezone("Asia/Kolkata")).strftime(
+                        "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                }
+            )
+            del kwargs["id"]
+            with session() as transaction_session:
+                obj: Vital = (
+                    transaction_session.query(Vital)
+                    .filter(Vital.pmr_id == kwargs.get("pmr_id"))
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
@@ -177,7 +204,6 @@ class CRUDVital:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDVital delete_all function : {error}")
             raise error

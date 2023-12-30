@@ -27,6 +27,7 @@ class PatientController:
         self.gateway_url = os.environ["gateway_url"]
         self.abha_url = os.environ["abha_url"]
         self.s3_location = os.environ["s3_location"]
+        self.msg91_template_id = os.environ["msg91_template_id"]
 
     def abha_verification(self, health_id: str, year_of_birth: str):
         """Verify if the abha address already exists
@@ -639,7 +640,9 @@ class PatientController:
                 "resp": {"requestId": request.get("requestId")},
             }
             otp_response = otpHelper().send_otp(
-                mobile_number=patient_mobile_number, otp=otp
+                mobile_number=patient_mobile_number,
+                otp=otp,
+                template_id=self.msg91_template_id,
             )
             linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-init"
             resp, resp_code = APIInterface().post(

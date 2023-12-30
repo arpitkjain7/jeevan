@@ -5,7 +5,6 @@ from core import logger
 from commons.auth import decodeJWT
 from core.utils.custom.encryption_helper import encrypt_data
 from core.controllers.dataTransfer_controller import DataTransferController
-from core.controllers.dataTransfer_controller import data_request
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -28,18 +27,32 @@ def hip_notify(consent_notify_request: dict):
 
 
 @dataTransfer_router.post("/v0.5/health-information/hip/request")
-def hi_data_request(consent_notify_request: dict, background_tasks: BackgroundTasks):
+def hi_data_request(consent_notify_request: dict):
     try:
         logging.info("Calling /v0.5/health-information/hip/request endpoint")
         logging.debug(f"Request: {consent_notify_request}")
-        background_tasks.add_task(data_request, consent_notify_request)
-        return {"status": "success"}
-        # response = DataTransferController().data_request(request=consent_notify_request)
-        # return response
+        return DataTransferController().data_request(request=consent_notify_request)
     except Exception as error:
         logging.error(
             f"Error in /v0.5/health-information/hip/request endpoint: {error}"
         )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@dataTransfer_router.post("/v1/data_transfer_ack")
+def data_transfer_ack(data_transfer_ack_request: dict):
+    try:
+        logging.info("Calling /v1/data_transfer_ack endpoint")
+        logging.debug(f"Request: {data_transfer_ack}")
+        return DataTransferController().send_data_transfer_ack(
+            request=data_transfer_ack_request
+        )
+    except Exception as error:
+        logging.error(f"Error in /v1/data_transfer_ack endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

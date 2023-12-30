@@ -61,6 +61,31 @@ def get_all_HIPs(token: str = Depends(oauth2_scheme)):
         )
 
 
+@hip_router.get("/v1/HIP/listForUser")
+def get_user_HIPs(username: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HIP/listForUser endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIPController().get_hip_for_user(username=username)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HIP/listForUser endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HIP/listForUser endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @hip_router.get("/v1/HIP/{hip_id}")
 def get_hip(hip_id: str, token: str = Depends(oauth2_scheme)):
     try:

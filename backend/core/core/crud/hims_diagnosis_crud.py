@@ -83,7 +83,7 @@ class CRUDDiagnosis:
             logging.error(f"Error in CRUDDiagnosis read_all function : {error}")
             raise error
 
-    def update(self, id: str, **kwargs):
+    def update(self, **kwargs):
         """[CRUD function to update a Diagnosis record]
 
         Raises:
@@ -101,7 +101,7 @@ class CRUDDiagnosis:
             with session() as transaction_session:
                 obj: Diagnosis = (
                     transaction_session.query(Diagnosis)
-                    .filter(Diagnosis.id == id)
+                    .filter(Diagnosis.id == kwargs["id"])
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
@@ -145,7 +145,6 @@ class CRUDDiagnosis:
                     .delete(synchronize_session=False)
                 )
                 transaction_session.commit()
-                return obj.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDDiagnosis delete_all function : {error}")
             raise error

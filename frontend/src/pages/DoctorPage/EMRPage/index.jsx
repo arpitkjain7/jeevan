@@ -139,8 +139,8 @@ const EMRFooter = styled("div")(({ theme }) => ({
 }));
 
 const PDFViewerWrapper = styled("div")(({ theme }) => ({
-  height: "800px", 
-  marginBottom: "32px", 
+  height: "800px",
+  marginBottom: "32px",
   flex: "1",
   [theme.breakpoints.down('sm')]: {
     height: "500px",
@@ -2219,6 +2219,7 @@ const PatientEMRDetails = () => {
                               />
                             )}
                           />
+
                         </TextBoxLayout>
                         <TextBoxLayout className="addMaxWidth">
                           <Autocomplete
@@ -2283,7 +2284,7 @@ const PatientEMRDetails = () => {
                   </div>
                 )}
               </VitalsContainer>
-              
+
               <VitalsContainer>
               <SectionHeader>Follow Up</SectionHeader>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -2296,6 +2297,7 @@ const PatientEMRDetails = () => {
                 </DemoContainer>
               </LocalizationProvider>
               </VitalsContainer>
+
 
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>

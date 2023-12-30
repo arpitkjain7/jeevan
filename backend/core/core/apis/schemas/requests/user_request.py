@@ -3,9 +3,14 @@ from pydantic import BaseModel, Field
 
 
 class Register(BaseModel):
+    mobile_number: str
     password: str
-    username: str
     name: str
+    email_id: str = None
+
+
+class OnBoard(BaseModel):
+    mobile_number: str
     hip_name: str
     hip_id: str
     user_role: str
@@ -13,13 +18,24 @@ class Register(BaseModel):
 
 
 class Login(BaseModel):
-    email_id: str = Field(..., description="Username")
+    username: str = Field(..., description="Username")
     password: str = Field(..., description="Password")
 
 
-# class ForgotPassword(BaseModel):
-#     username: str
-#     new_password: str
+class ResetPassword(BaseModel):
+    mobile_number: str
+    old_password: str = None
+    new_password: str
+    otp: str = None
+
+
+class GenerateOTP(BaseModel):
+    mobile_number: str
+
+
+class VerifyOTP(BaseModel):
+    mobile_number: str
+    otp: str
 
 
 # class UpdatePassword(BaseModel):
