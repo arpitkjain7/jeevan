@@ -28,13 +28,16 @@ const Sidebar = ({ open, onClose, list }) => {
     <Drawer
       anchor="left"
       variant="permanent"
-      sx={{
+      sx={(theme) => ({
         "& .MuiDrawer-paper": {
           backgroundColor: "#fff",
           padding: "80px 0 30px 0",
           minWidth: "60px",
+          [theme.breakpoints.down('sm')]: {
+            padding: "50px 0 30px 0",
+          }
         },
-      }}
+      })}
     >
       {/* sx={{ margin: "0 auto" }} */}
       <List sx={{ marginTop: "5px" }}>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = "https://engine.cliniq360.com/v1";
+export const BASE_URL = "https://engine.cliniq360.com";
 
 const defaultHeader = () => {
   const access_token = sessionStorage.getItem("accesstoken");
@@ -38,7 +38,7 @@ export const apiRequest = async (
 ) => {
   try {
     const url = `${BASE_URL}/${endpoint}`;
-
+    
     const config = {
       method,
       url,

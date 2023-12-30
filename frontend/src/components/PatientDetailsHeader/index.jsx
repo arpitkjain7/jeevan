@@ -68,10 +68,12 @@ const PatientDetailsHeader = ({ documents }) => {
 
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
-    if (currentPatient && Object.keys(currentPatient)?.length) {
-      setPatientData(currentPatient);
-    } else {
-      setPatientData({});
+    if(currentPatient){
+      if (Object.keys(currentPatient)?.length) {
+        setPatientData(currentPatient);
+      } else {
+        setPatientData({});
+      }
     }
   }, []);
 

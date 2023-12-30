@@ -185,7 +185,7 @@ const PastVisits = ({isPatientHistory}) => {
               onClick={() => selectVisit(item)}
             >
               <VisitListContainer>
-                <listItem>Diagnosis</listItem>
+                <listItem>{item.diagnosis_name != "" ? item.diagnosis_name : "Diagnosis"}</listItem>
                 <VisitDate>
                   {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
                 </VisitDate>
