@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import PropTypes from 'prop-types';
-import { useTheme } from '@mui/material/styles';
+import PropTypes from "prop-types";
+import { useTheme } from "@mui/material/styles";
 import {
   Table,
   TableBody,
@@ -15,15 +15,16 @@ import {
   Typography,
   TableFooter,
   TablePagination,
-  Box
+  Box,
 } from "@mui/material";
 import {
-  Class, Search as SearchIcon,
+  Class,
+  Search as SearchIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight
+  KeyboardArrowRight,
 } from "@mui/icons-material";
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import LastPageIcon from "@mui/icons-material/LastPage";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
@@ -49,7 +50,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".table-body-container tr td": {
-    border: "1px solid #e0e0e0"
+    borderRight: "1px solid e0e0e0#",
   },
   ".table-component-wrapper": {},
   ".table-component-header": {
@@ -57,7 +58,8 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     //   backgroundColor: theme.palette.primaryOpacityBlue,
     // },
     "& > tr >th": {
-      backgroundColor: '#bde4ff',
+      backgroundColor: "#bde4ff",
+      // borderRight: "1px solid #e0e0e0",
     },
   },
 }));
@@ -89,28 +91,36 @@ function TablePaginationActions(props) {
         disabled={page === 0}
         aria-label="first page"
       >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
       </IconButton>
       <IconButton
         onClick={handleBackButtonClick}
         disabled={page === 0}
         aria-label="previous page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
       </IconButton>
       <IconButton
         onClick={handleNextButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="next page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
       </IconButton>
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="last page"
       >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </Box>
   );
@@ -122,7 +132,6 @@ TablePaginationActions.propTypes = {
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
 };
-
 
 const MyTable = ({
   columns,
@@ -159,12 +168,10 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
-
-
   return (
     <TableComponentWrapper>
       {showSearch && (
-        <div style={{ backgroundColor: '#fff' }} className="search-wrap">
+        <div style={{ backgroundColor: "#fff" }} className="search-wrap">
           <TextField
             variant="outlined"
             fullWidth
@@ -182,14 +189,18 @@ const MyTable = ({
           />
         </div>
       )}
-      <Paper sx={{ overflow: 'hidden' }} >
+      <Paper sx={{ overflow: "hidden" }}>
         <TableContainer
           // style={tableStyle}
           className={tableClassName}
           sx={{ maxHeight: 540 }}
         >
-          <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
-            <TableHead className="table-component-header" >
+          <Table
+            stickyHeader
+            sx={{ minWidth: 500, flexShrink: "0" }}
+            className="table-component-wrapper"
+          >
+            <TableHead className="table-component-header">
               <TableRow>
                 {columns?.map((column) => (
                   <TableCell key={column.key} classNamwe="table-header-cell">
@@ -199,37 +210,50 @@ const MyTable = ({
               </TableRow>
             </TableHead>
             <TableBody className="table-body-container">
-              {filteredData && (rowsPerPage > 0
-                ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : filteredData).map((item) => (
+              {filteredData &&
+                (rowsPerPage > 0
+                  ? filteredData.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                  : filteredData
+                ).map((item) => (
                   <TableRow
                     key={item.id}
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns?.map((column) => {
-                      if (column.key == "consentStatus"){
+                      if (column.key == "consentStatus") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             <Typography
-                                style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
-                              >
-                                {item.status}
-                              </Typography>
-                            </TableCell>
-                          );
+                              style={{
+                                color:
+                                  `${item?.status}` === "GRANTED"
+                                    ? "green"
+                                    : "red",
+                              }}
+                            >
+                              {item.status}
+                            </Typography>
+                          </TableCell>
+                        );
                       }
                       if (column.key !== "actions" && column.key !== "p_name") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             {column?.render
                               ? column?.render(item[column?.key])
-                              : item[column.key]}
+                              : item[column?.key]}
                           </TableCell>
                         );
                       } else {
                         const actions = column.actions || [];
                         return (
-                          <TableCell key={`${item.id}-${column.key}`} align="right">
+                          <TableCell
+                            key={`${item.id}-${column.key}`}
+                            align="right"
+                          >
                             {actions?.map((action, index) => {
                               if (action?.type === "icon") {
                                 return (
@@ -261,7 +285,9 @@ const MyTable = ({
                                       onClick={() => action.onClick(item)}
                                       className="linkTypography"
                                     >
-                                      {action?.key ? item[action?.key] : action?.link}
+                                      {action?.key
+                                        ? item[action?.key]
+                                        : action?.link}
                                     </Typography>
                                   );
                                 }
@@ -272,7 +298,7 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-              ))}
+                ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={7} />
@@ -280,14 +306,12 @@ const MyTable = ({
               )}
             </TableBody>
             <TableFooter>
-              <TableRow>
-
-              </TableRow>
+              <TableRow></TableRow>
             </TableFooter>
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+          rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
           component="div"
           colSpan={columns.length}
           count={filteredData.length}
@@ -295,7 +319,7 @@ const MyTable = ({
           page={page}
           SelectProps={{
             inputProps: {
-              'aria-label': 'rows per page',
+              "aria-label": "rows per page",
             },
             native: true,
           }}

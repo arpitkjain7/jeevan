@@ -11,28 +11,28 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".details-header": {
     display: "flex",
     alignItems: "center",
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
     },
   },
   ".details-avatar-container": {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "inline",
     },
   },
   ".details-Patientdetails": {
     padding: theme.spacing(0, 6),
     borderRight: `1px solid ${theme.palette.primaryGrey}`,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "inline",
-      borderRight: "0"
+      borderRight: "0",
     },
   },
   ".details-emailContainer": {
     padding: theme.spacing(0, 6),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "inline",
-      marginBottom: "10px"
+      marginBottom: "10px",
     },
   },
   ".details-subContainer": {
@@ -49,16 +49,22 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   "details-patient-email": {
     "&.MuiTypography-root": theme.typography.body3,
   },
-  "displayDocuments": {
-    display: "block"
+  displayDocuments: {
+    display: "block",
   },
   ".documents-subContainer": {
     display: "flex",
     alignItems: "center",
-    [theme.breakpoints.down('sm')]: {
-      display: "block "
+    [theme.breakpoints.down("sm")]: {
+      display: "block ",
     },
-  }
+  },
+}));
+
+const DetailsHeaderWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
 }));
 
 const PatientDetailsHeader = ({ documents }) => {
@@ -87,47 +93,48 @@ const PatientDetailsHeader = ({ documents }) => {
 
   return (
     <DetailsHeaderContainer>
-      <div container className="details-header">
-        <div className="details-avatar-container">
-          <Avatar />
-        </div>
-        <div className="details-Patientdetails">
-          <Typography className="details-patient-name">
-            {patientData?.patient_details?.name || patientData?.name}
-          </Typography>
-          <div className="details-subContainer">
-            <Typography className="details-patient-id">
-              {patientData?.patientId || patientData?.id}
+      <DetailsHeaderWrapper>
+        <div container className="details-header">
+          <div className="details-avatar-container">
+            <Avatar />
+          </div>
+          <div className="details-Patientdetails">
+            <Typography className="details-patient-name">
+              {patientData?.patient_details?.name || patientData?.name}
             </Typography>
-            <Typography className="details-patient-id">
-              {patientData?.age || patientData?.DOB}
+            <div className="details-subContainer">
+              <Typography className="details-patient-id">
+                {patientData?.patientId || patientData?.id}
+              </Typography>
+              <Typography className="details-patient-id">
+                {patientData?.age || patientData?.DOB}
+              </Typography>
+              <Typography className="details-patient-id">
+                {patientData?.patient_details?.gender || patientData?.gender}
+              </Typography>
+            </div>
+          </div>
+          <div className="details-emailContainer">
+            <Typography className="details-patient-email">
+              {patientData?.patient_details?.email || patientData?.email}
             </Typography>
-            <Typography className="details-patient-id">
-              {patientData?.patient_details?.gender || patientData?.gender}
+            <Typography className="details-patient-email">
+              {patientData?.mobileNumber || patientData?.mobile_number}
             </Typography>
           </div>
-        </div>
-        <div className="details-emailContainer">
-          <Typography className="details-patient-email">
-            {patientData?.patient_details?.email || patientData?.email}
-          </Typography>
-          <Typography className="details-patient-email">
-            {patientData?.mobileNumber || patientData?.mobile_number}
-          </Typography>
         </div>
         {documents && (
-            <div className="documents-subContainer">
-              <PatientDocuments
-                handleClickOpen={handleClickOpen}
-                open={open}
-                handleClose={handleClose}
-                aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description"
-              >
-              </PatientDocuments>
+          <div className="documents-subContainer">
+            <PatientDocuments
+              handleClickOpen={handleClickOpen}
+              open={open}
+              handleClose={handleClose}
+              aria-labelledby="scroll-dialog-title"
+              aria-describedby="scroll-dialog-description"
+            ></PatientDocuments>
           </div>
         )}
-      </div>
+      </DetailsHeaderWrapper>
     </DetailsHeaderContainer>
   );
 };

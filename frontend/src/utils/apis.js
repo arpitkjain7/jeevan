@@ -1,6 +1,7 @@
 export const apis = {
   login: "v1/user/signIn",
   list: "v1/HIP/listAll",
+  listHospitalByUser: "v1/HIP/listForUser",
   listPtaient: "v1/patient/listAll",
   registerAadhar: "v1/HID/registration/aadhaar/generateOTP",
   verifyOTPAadhar: "v1/HID/registration/aadhaar/verifyOTP",
@@ -31,5 +32,5 @@ export const apis = {
   fetchModes: "v1/patient/fetchModes",
   authInit: "v1/patient/auth/init",
   verifySyncOtp: "v1/patient/auth/verifyOtp",
-  syncPMREndpoint: "v1/PMR/sync"
+  syncPMREndpoint: "v1/PMR/sync",
 };

@@ -29,7 +29,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
     email: "",
     password: "",
   });
-  const [mobile, setMobile] = useState()
+  const [mobile, setMobile] = useState();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const [showSnackbar, setShowSnackbar] = useState(false);
@@ -45,14 +45,13 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
       [name]: value,
     }));
 
-    if (name === "abhaAddress"){
-      if(!validateAbhaAddress(value)) {
+    if (name === "abhaAddress") {
+      if (!validateAbhaAddress(value)) {
         setAbhaAddressError(true);
       } else {
-        setAbhaAddressError(false)
+        setAbhaAddressError(false);
       }
     }
-
   };
 
   const handleNumberChange = (event) => {
@@ -71,7 +70,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-   
+
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       let url = "";
@@ -82,7 +81,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           setShowSnackbar(true);
           setErrorMessage("Invalid ABHA Address");
           return;
-        } console.log(formData);
+        }
+        console.log(formData);
         payload = {
           firstName: formData?.firstname,
           middleName: formData?.middlename,
@@ -129,8 +129,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
         console.log(res.payload);
         setUserCreated(true);
         dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
-        navigate("/registered-patient");
       });
+      navigate("/registered-patient");
     }
   };
 
@@ -243,7 +243,6 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
               fullWidth
             />
           </Grid>
-          
         )}
         {isForAabha && (
           <>
@@ -255,10 +254,14 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
                 value={formData.abhaAddress}
                 onChange={handleChange}
                 required
-                fullWidth        
-                helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
+                fullWidth
+                helperText={
+                  abhaAddressError
+                    ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address"
+                    : ""
+                }
               />
-            </Grid> 
+            </Grid>
             <Grid item xs={12} md={5}>
               <TextField
                 placeholder="Enter Password"
@@ -273,7 +276,9 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           </>
         )}
       </Grid>
-      <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+      <span style={{ color: "red" }}>
+        {isMobileError ? "Please enter valid number" : ""}
+      </span>
       <Grid container spacing={2}>
         <Grid item xs={5}></Grid>
         <Grid item xs={12} md={5}>

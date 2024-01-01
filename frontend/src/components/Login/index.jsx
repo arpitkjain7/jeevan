@@ -16,9 +16,9 @@ const LogInWrapper = styled("div")(({ theme }) => ({
     marginBottom: "48px",
   },
   ".login-content": {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: "10%",
-    }
+    },
   },
   ".login-form": {
     "& > .MuiFormControl-root": {
@@ -30,14 +30,14 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,
-    [theme.breakpoints.down('md')]: {
-      "&.MuiTypography-root": theme.typography.h4
+    [theme.breakpoints.down("md")]: {
+      "&.MuiTypography-root": theme.typography.h4,
     },
   },
   ".login-subTitle": {
     "&.MuiTypography-root": theme.typography.h2,
-    [theme.breakpoints.down('md')]: {
-      "&.MuiTypography-root": theme.typography.body1
+    [theme.breakpoints.down("md")]: {
+      "&.MuiTypography-root": theme.typography.body1,
     },
   },
   ".login-field-title": {
@@ -47,7 +47,7 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   ".login-text-field": {
     "&.MuiFormControl-root > .MuiInputBase-root > input": {
       width: "410px",
-      [theme.breakpoints.down('md')]: {
+      [theme.breakpoints.down("md")]: {
         width: "100%",
       },
     },
@@ -85,6 +85,7 @@ const LoginPage = (props) => {
       if (resData?.access_token) {
         sessionStorage.setItem("accesstoken", resData?.access_token);
         sessionStorage.setItem("userRole", resData?.user_role);
+        sessionStorage.setItem("userName", resData?.username);
         props?.setIndex(1);
       }
     });
@@ -94,7 +95,7 @@ const LoginPage = (props) => {
     <LogInWrapper>
       <div className="login-content">
         <div className="login-heading">
-          <Typography  align="center" className="login-title">
+          <Typography align="center" className="login-title">
             Welcome to CliniQ360
           </Typography>
           <Typography

@@ -13,6 +13,7 @@ import {
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
+  customformatDate,
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -63,7 +64,7 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     gap: "16px",
     flexWrap: "wrap",
     marginTop: "16px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       gap: "12px",
     },
   },
@@ -74,12 +75,12 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     width: "10%",
   },
   ".btn-date-typography": {
-    width: 'min-content',
+    width: "min-content",
     "&.MuiTypography-root": theme.typography.body1,
   },
 
   ".selected-date-typography": {
-     width: 'min-content',
+    width: "min-content",
     "&.MuiTypography-root": theme.typography.selectedBody1,
   },
 }));
@@ -103,7 +104,7 @@ const DateButton = styled("button")(({ theme }) => ({
   borderRadius: theme.spacing(1),
   textAlign: "center",
   backgroundColor: theme.palette.primaryWhite,
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: "140px",
     padding: theme.spacing(2, 1.5),
   },
@@ -141,7 +142,7 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
- 
+
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
@@ -160,7 +161,7 @@ const BookingSlots = () => {
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
+          appointment_date: customformatDate(date, "yyyy-MM-dd"),
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -173,7 +174,7 @@ const BookingSlots = () => {
         });
       }
     }
-    
+
     setSelectedDate(date);
     setSelectedSlot("");
   };
@@ -195,7 +196,7 @@ const BookingSlots = () => {
         month: "numeric",
         day: "numeric",
       });
-      
+
       dates.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -204,7 +205,6 @@ const BookingSlots = () => {
   };
 
   useEffect(() => {
-    // const today = new Date();
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
@@ -222,19 +222,30 @@ const BookingSlots = () => {
         hour: "2-digit",
         minute: "2-digit",
       });
-      const slotStart = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
+      const slotStart = start.toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "numeric",
+        minute: "numeric",
+      });
       start.setMinutes(start.getMinutes() + duration);
-      const slotEnd = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
+      const slotEnd = start.toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "numeric",
+        minute: "numeric",
+      });
       const meridiemSlotEnd = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-     
-      setAllTimeSlots(allTimeSlots => [...allTimeSlots, `${slotStart}-${slotEnd}`]);
+
+      setAllTimeSlots((allTimeSlots) => [
+        ...allTimeSlots,
+        `${slotStart}-${slotEnd}`,
+      ]);
       const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
       generatedSlots.push(slot);
     }
-   
+
     return generatedSlots;
   };
 
@@ -281,18 +292,27 @@ const BookingSlots = () => {
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
 
-      const currentTime = today.toLocaleTimeString(undefined, { hour12: false});
-      if(currentTime > startTime && currentTime < endTime){
-       
-      let currentSlotStartTime;
-        allTimeSlots.map(slot => {
+      const currentTime = today.toLocaleTimeString(undefined, {
+        hour12: false,
+      });
+      if (currentTime > startTime && currentTime < endTime) {
+        let currentSlotStartTime;
+        allTimeSlots.map((slot) => {
           const [slotStartTime, slotEndTime] = slot.split("-");
-          const current_time = today.toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
-          if(current_time > slotStartTime && current_time < slotEndTime){
+          const current_time = today.toLocaleTimeString(undefined, {
+            hour12: false,
+            hour: "numeric",
+            minute: "numeric",
+          });
+          if (current_time > slotStartTime && current_time < slotEndTime) {
             currentSlotStartTime = slotEndTime;
           }
-        })
-        const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
+        });
+        const todayTimeSlots = generateTimeSlots(
+          currentSlotStartTime,
+          endTime,
+          duration
+        );
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
       }
       console.log("slots");
@@ -371,7 +391,6 @@ const BookingSlots = () => {
                 </DateContainer>
 
                 {selectedDate && (
-                  selectedDate != current_date ?
                   <div className="slots-container">
                     {slots?.map((slot) => (
                       <DateButton
@@ -383,19 +402,7 @@ const BookingSlots = () => {
                         {slot}
                       </DateButton>
                     ))}
-                  </div> :
-                  <div className="slots-container">
-                  {todaySlots?.map((todayslot) => (
-                    <DateButton
-                      key={todayslot}
-                      color="primary"
-                      onClick={() => handleSlotSelect(todayslot)}
-                      className={selectedSlot === todayslot ? "selected-btn" : ""}
-                    >
-                      {todayslot}
-                    </DateButton>
-                  ))}
-                </div>
+                  </div>
                 )}
               </Grid>
             </CardContent>

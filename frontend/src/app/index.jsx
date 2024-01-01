@@ -15,85 +15,85 @@ import PatientEMRDetails from "../pages/DoctorPage/EMRPage";
 import RegisterationConfirmation from "../components/RegistrationConfirmation";
 import PatientDetails from "../pages/PatientDetails";
 import ConsentDocumentPage from "../pages/ConsentDocumentPage";
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import MuiDrawer from "@mui/material/Drawer";
+import MuiAppBar from "@mui/material/AppBar";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const drawerWidth = 235;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
-  transition: theme.transitions.create('width', {
+  transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
   }),
-  overflowX: 'hidden',
+  overflowX: "hidden",
 });
 
 const closedMixin = (theme) => ({
-  transition: theme.transitions.create('width', {
+  transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  overflowX: 'hidden',
+  overflowX: "hidden",
   width: `calc(${theme.spacing(9)} + 20px)`,
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(11)} + 20px)`,
   },
 });
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
+  transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
+    transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
   }),
-);
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
+}));
 
 function App() {
   const dataState = useSelector((state) => state);
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
-      setOpen(prevCheck => !prevCheck);
+    setOpen((prevCheck) => !prevCheck);
   };
 
   const isAuthenticated = sessionStorage.getItem("accesstoken");
@@ -103,90 +103,87 @@ function App() {
   }, [dataState]);
 
   return (
-    <Router> 
+    <Router>
       <Box>
         {isAuthenticated ? (
           <>
-          <CssBaseline />
-          <AppBar position="fixed" style={{backgroundColor: "#fff", color: "#000"}}>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ marginLeft: 1 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Header /> 
-            </Toolbar>
-          </AppBar>
+            <CssBaseline />
+            <AppBar
+              position="fixed"
+              style={{ backgroundColor: "#fff", color: "#000" }}
+            >
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ marginLeft: 1 }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Header />
+              </Toolbar>
+            </AppBar>
           </>
-          ) : (
-            <Header />
-          )}
+        ) : (
+          <Header />
+        )}
       </Box>
 
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: "flex" }}>
         <CssBaseline />
         {isAuthenticated && (
-        <Drawer variant="permanent" open={open} >
-          <DrawerHeader>
-          </DrawerHeader>
-          <Divider /> 
-          <Sidebar />
-        </Drawer>
-      )}
-      
-      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 2, md: 3}}>
-        <DrawerHeader/>
-        {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader></DrawerHeader>
+            <Divider />
+            <Sidebar />
+          </Drawer>
+        )}
+
+        <Box
+          component="main"
+          style={{ flexGrow: 1, backgroundColor: "#f0f0f0a8" }}
+          sx={{ overflow: "auto" }}
+          p={{ xs: 2, md: 3 }}
+        >
+          <DrawerHeader />
+          {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
           <Routes>
             <Route path="/login" element={<SignInPage />} />
-              {(isAuthenticated) ? (
-                <> 
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/patient-list" element={<PatientPage />} />
-                  <Route 
-                    path="/patient-registration"
-                    element={<PatientRegistration />}
-                  />
-                  <Route
-                    path="/appointment-list"
-                    element={<AppointmentPage />}
-                  />
-                  <Route
-                    path="/create-appointment"
-                    element={<CreateAppointment />}
-                  />
-                  <Route 
-                    path="/patient-emr"
-                    element={<PatientEMRDetails />}
-                  />
-                  <Route
-                    path="/registered-patient"
-                    element={<RegisterationConfirmation />}
-                  />
-                  <Route
-                    path="/patient-details"
-                    element={<PatientDetails />}
-                  />
-                  <Route
-                    path="/consent-detail"
-                    element={<ConsentDocumentPage />}
-                  />
-                </>
-              ) : (
-                <Route path="*" element={<SignInPage />} />
-              )}
-              <Route path="/" element={<SignInPage />} />
+            {isAuthenticated ? (
+              <>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/patient-list" element={<PatientPage />} />
+                <Route
+                  path="/patient-registration"
+                  element={<PatientRegistration />}
+                />
+                <Route path="/appointment-list" element={<AppointmentPage />} />
+                <Route
+                  path="/create-appointment"
+                  element={<CreateAppointment />}
+                />
+                <Route path="/patient-emr" element={<PatientEMRDetails />} />
+                <Route
+                  path="/registered-patient"
+                  element={<RegisterationConfirmation />}
+                />
+                <Route path="/patient-details" element={<PatientDetails />} />
+                <Route
+                  path="/consent-detail"
+                  element={<ConsentDocumentPage />}
+                />
+              </>
+            ) : (
+              <Route path="*" element={<SignInPage />} />
+            )}
+            <Route path="/" element={<SignInPage />} />
           </Routes>
-        {/* </div> */}
         </Box>
       </Box>
     </Router>
-  );  
+  );
 }
 
 export default App;

@@ -1,10 +1,17 @@
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 export const convertDateFormat = (dateString, formatNeeded) => {
   const formattedDate = format(new Date(dateString), formatNeeded);
   return formattedDate;
 };
 
+export const customformatDate = (dateString, formatNeeded) => {
+  const parsedDate = parse(dateString, "EEEE, dd/MM/yyyy", new Date());
+  const formattedDate = format(parsedDate, formatNeeded);
+  return formattedDate;
+};
+
+//
 export const convertToNumber = (value) => {
   const parsedValue = parseFloat(value);
   return isNaN(parsedValue) ? value : parsedValue;

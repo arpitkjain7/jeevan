@@ -3,7 +3,7 @@ import {
   CircularProgress,
   TextField,
   Typography,
-  styled
+  styled,
 } from "@mui/material";
 import React from "react";
 import OtpInput from "../OTPValidation";
@@ -15,17 +15,17 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
     alignItems: "center",
     marginBottom: "4px",
     gap: "24px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       gap: "10px",
     },
   },
   ".verification-btn": {
     "&.MuiButtonBase-root": {
       "&": theme.typography.primaryButton,
-      [theme.breakpoints.down('sm')]: {
-        padding: "10px"
+      [theme.breakpoints.down("sm")]: {
+        padding: "10px",
       },
-    }   
+    },
   },
   ".aadhar-text": {
     "&.MuiFormControl-root": {
@@ -37,7 +37,7 @@ const AadharVerificationWrapper = styled("div")(({ theme }) => ({
         alignItems: "center",
         flex: "1 0 0",
         alignSelf: "stretch",
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down("sm")]: {
           width: "auto",
         },
       },
@@ -57,7 +57,7 @@ const AadharVerification = ({
   aadharOTP,
   setSixDigitOTP,
   verifyOTP,
-  seconds
+  seconds,
 }) => {
   const dataState = useSelector((state) => state);
   const fetchingAadharOtp = dataState?.PatientRegistartion?.loading;
@@ -82,39 +82,41 @@ const AadharVerification = ({
           >
             {fetchingAadharOtp ? <CircularProgress size={24} /> : " Get OTP"}
           </Button>
-            ) : (
-              <Button
-              disabled={!isAadharValid }
-              style={{
-                color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
-              }}
-              onClick={() => handleSubmit("aadhar")}
-              variant="contained"
-              className="verification-btn"
-            >
-              {fetchingAadharOtp ? <CircularProgress size={24} /> : " Resend OTP"}
-            </Button>
-            )}
+        ) : (
+          <Button
+            disabled={!isAadharValid}
+            style={{
+              color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+            }}
+            onClick={() => handleSubmit("aadhar")}
+            variant="contained"
+            className="verification-btn"
+          >
+            {fetchingAadharOtp ? <CircularProgress size={24} /> : " Resend OTP"}
+          </Button>
+        )}
       </div>
       <div>
-        <span style={{ color: 'red'}}>{isAadharError ? "Please enter correct Aadhar Number" : ""}</span>
+        <span style={{ color: "red" }}>
+          {isAadharError ? "Please enter correct Aadhar Number" : ""}
+        </span>
       </div>
-      {seconds < 0 ? (
-        null
-      ):( <h4>
-        Resend OTP in: 00:
-        {seconds < 10 ? `0${seconds}` : seconds}
-      </h4>)}
-     
+      {seconds < 0 ? null : (
+        <h4>
+          Resend OTP in: 00:
+          {seconds < 10 ? `0${seconds}` : seconds}
+        </h4>
+      )}
+
       {aadharOTP && (
-      <div>
-        <Typography className="otp-title">Enter OTP</Typography>
-        <OtpInput
-          setSixDigitOTP={setSixDigitOTP}
-          verifyOTP={verifyOTP}
-          type="aadhar"
-        />
-      </div>
+        <div>
+          <Typography className="otp-title">Enter OTP</Typography>
+          <OtpInput
+            setSixDigitOTP={setSixDigitOTP}
+            verifyOTP={verifyOTP}
+            type="aadhar"
+          />
+        </div>
       )}
     </AadharVerificationWrapper>
   );

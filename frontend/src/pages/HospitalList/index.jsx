@@ -25,7 +25,7 @@ const HospitalListWrapper = styled("div")(({ theme }) => ({
     width: "500px",
     margin: "0 auto",
     marginTop: "10%",
-    [theme.breakpoints.only('sm')]: {
+    [theme.breakpoints.only("sm")]: {
       width: "350px",
     },
   },
@@ -53,10 +53,10 @@ const HospitalList = () => {
   const dataState = useSelector((state) => state.list);
   const navigate = useNavigate();
   const [hospitalList, setHospitalList] = useState([]);
-  // const hospitalList = dataState.
+  const userName = sessionStorage.getItem("userName");
 
   useEffect(() => {
-    dispatch(fetchHospital()).then((response) => {
+    dispatch(fetchHospital(userName)).then((response) => {
       const resData = response.payload;
       if (resData?.length) {
         setHospitalList(resData);
