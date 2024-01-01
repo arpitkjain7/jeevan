@@ -1082,7 +1082,7 @@ class PMRController:
                     )
                 if pmr_request.symptom:
                     pmr_data.setdefault("symptom", {})
-                    pmr_data["symptom"]["data"] = self.create_symptoms(
+                    pmr_data["symptom"]["data"] = self.create_symptoms_v1(
                         pmr_request.symptom, pmr_id
                     )
                 if pmr_request.medication:
