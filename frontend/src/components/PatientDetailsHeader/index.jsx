@@ -1,7 +1,20 @@
-import { Avatar, Typography, styled } from "@mui/material";
-import React, { useState } from "react";
+import { Avatar, Box, Typography, styled } from "@mui/material";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import PatientDocuments from "../../components/PatientDocuments";
+import Modal from '@mui/material/Modal';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '1px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   "&": {
@@ -61,10 +74,31 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   }
 }));
 
+const PrimaryButton = styled("Button")(({ theme }) => ({
+  "&": theme.typography.primaryButton,
+}));
+
 const PatientDetailsHeader = ({ documents }) => {
   const patient = sessionStorage?.getItem("selectedPatient");
   const [patientData, setPatientData] = useState({});
   const [open, setOpen] = useState(false);
+  const [openDocument, setOpenDocument] = useState(false);
+  const handleCloseDocument = () => setOpenDocument(false);
+  const [imageObject, setImageObject] = useState(null);
+
+  const handleFileInput = useRef(null);
+
+  const handleClick = () => {
+    handleFileInput.current.click();
+  };
+
+  const handleImageChange = (event) => {
+    setImageObject({
+      imagePreview: URL.createObjectURL(event.target.files[0]),
+      imageFile: event.target.files[0],
+    });
+    setOpenDocument(true);
+  };
 
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
@@ -127,6 +161,32 @@ const PatientDetailsHeader = ({ documents }) => {
               </PatientDocuments>
           </div>
         )}
+        <div>
+          <PrimaryButton onClick={handleClick}>Upload Photo</PrimaryButton>
+          <label>
+            <input
+              style={{ display: "none" }}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              ref={handleFileInput}
+              onChange={handleImageChange}
+            />
+          </label>
+          {imageObject && 
+           <Modal
+              open={openDocument}
+              onClose={handleCloseDocument}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <img src={imageObject.imagePreview} />
+                <PrimaryButton>Save</PrimaryButton>
+              </Box>
+            </Modal>
+          }
+        </div>
       </div>
     </DetailsHeaderContainer>
   );
