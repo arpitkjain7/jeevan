@@ -31,5 +31,6 @@ export const apis = {
   fetchModes: "v1/patient/fetchModes",
   authInit: "v1/patient/auth/init",
   verifySyncOtp: "v1/patient/auth/verifyOtp",
-  syncPMREndpoint: "v1/PMR/sync"
+  syncPMREndpoint: "v1/PMR/sync",
+  uploadHealthDocument: "v1/PMR/uploadHealthDocuments"
 };

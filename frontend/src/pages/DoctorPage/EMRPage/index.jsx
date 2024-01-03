@@ -9,9 +9,14 @@ import {
   filledInputClasses,
   Autocomplete,
   Modal,
-  Box
+  Box, 
+  AppBar, 
+  Toolbar, 
+  IconButton, 
 } from "@mui/material";
+import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Delete, Assignment } from "@mui/icons-material";
+import CloseIcon from '@mui/icons-material/Close';
 import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +38,23 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+const TextareaAutosize = styled(BaseTextareaAutosize)(
+  ({ theme }) => `
+  width: 320px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  // firefox
+  &:focus-visible {
+    outline: 0;
+  }
+`,
+);
 
 const style = {
   position: 'absolute',
@@ -136,6 +158,9 @@ const EMRFooter = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.primaryOpacityBlue,
     padding: theme.spacing(4.5, 8),
   },
+  [theme.breakpoints.down('sm')]: {
+    padding: "15px 5px",
+  }
 }));
 
 const PDFViewerWrapper = styled("div")(({ theme }) => ({
@@ -149,11 +174,17 @@ const PDFViewerWrapper = styled("div")(({ theme }) => ({
 }))
 
 const PrimaryButton = styled("button")(({ theme }) => ({
-  "&": theme.typography.primaryButton,
+  "&": theme.typography.primaryButton, float:"right",
+  [theme.breakpoints.down('sm')]: {
+    padding: "5px 8px",
+  }
 }));
 
 const SecondaryButton = styled("button")(({ theme }) => ({
   "&": theme.typography.secondaryButton,
+  [theme.breakpoints.down('sm')]: {
+    padding: "5px 10px",
+  }
 }));
 
 const SectionHeader = styled(Typography)(({ theme }) => ({
@@ -193,6 +224,9 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
   "&.mobileTextBoxLayout": {
     [theme.breakpoints.up('sm')]: {
       display: "none",
+    },
+    "&.frequencyInput": {
+      maxWidth: "95px",
     }
   },
   "&.addMaxWidth": {
@@ -1993,12 +2027,25 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                              <Typography id="modal-modal-title" variant="h3">
+                            <AppBar sx={{ position: 'relative' }}>
+                              <Toolbar>
+                              <Typography id="modal-modal-title" sx={{ ml: 2, flex: 1 }} variant="h3">
                                 Complaints Note
                               </Typography>
+                              <IconButton
+                                edge="start"
+                                color="inherit"
+                                onClick={handleCloseComplaintNotes}
+                                aria-label="close"
+                              >
+                                <CloseIcon />
+                              </IconButton>
+                              </Toolbar>
+                            </AppBar>
                               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                                 <TextBoxLayout>
-                                  <RecordTextField
+                                  <TextareaAutosize
+                                    maxRows={3}
                                     placeholder="Notes"
                                     value={symptomsSpecs[item?.label]?.notes || ""}
                                     onChange={(e) =>
@@ -2476,7 +2523,7 @@ const PatientEMRDetails = () => {
                             )}
                           />
                         </TextBoxLayout>
-                        <TextBoxLayout className="mobileTextBoxLayout">
+                        <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
                           <RecordTextField
                             placeholder="Frequency"
                             value={medicationsSpecs[item?.label]?.severity || ""}
@@ -2491,7 +2538,7 @@ const PatientEMRDetails = () => {
                             variant="outlined"
                           />
                         </TextBoxLayout>
-                        <TextBoxLayout className="mobileTextBoxLayout">
+                        <TextBoxLayout className="mobileTextBoxLayout addMaxWidth">
                           <Autocomplete
                             options={timingOptions} // Replace with your actual timing options
                             value={medicationsSpecs[item?.label]?.timing || null}

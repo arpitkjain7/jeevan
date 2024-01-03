@@ -71,6 +71,16 @@ export const uploadPmrPdf = createAsyncThunk(
   }
 );
 
+export const uploadHealthDocument = createAsyncThunk(
+  "uploadHealthDocuments",
+  async ({params, docPayload}) => {
+    console.log(docPayload);
+    const response = await apiRequest("POST", `${apis?.uploadHealthDocument}?patient_id=${params.patient_id}&appointment_id=${params.appointment_id}&hip_id=${params.hip_id}`,
+    docPayload);
+    return response;
+  }
+);
+
 const EMRSlice = createSlice({
   name: "SearchVitals",
   initialState: {
