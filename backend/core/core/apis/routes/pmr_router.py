@@ -912,20 +912,15 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
 async def uploadDocument(
     pmr_id: str,
     document_type: DocumentTypes,
-    file: UploadFile,
+    files: List[UploadFile],
     token: str = Depends(oauth2_scheme),
 ):
     try:
         logging.info("Calling /v1/PMR/uploadDocument endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            file_name = file.filename
-            contents = await file.read()
-            return PMRController().upload_document(
-                pmr_id=pmr_id,
-                document_data=contents,
-                document_type=document_type,
-                document_name=file_name,
+            return await PMRController().upload_document(
+                pmr_id=pmr_id, document_type=document_type, files=files
             )
         else:
             raise HTTPException(
@@ -1104,6 +1099,7 @@ async def uploadHealthDocuments(
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
 
 
 @pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")
