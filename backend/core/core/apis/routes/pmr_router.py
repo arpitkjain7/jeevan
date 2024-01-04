@@ -912,20 +912,15 @@ def updateFollowUp(followup_request: FollowUp, token: str = Depends(oauth2_schem
 async def uploadDocument(
     pmr_id: str,
     document_type: DocumentTypes,
-    file: UploadFile,
+    files: List[UploadFile],
     token: str = Depends(oauth2_scheme),
 ):
     try:
         logging.info("Calling /v1/PMR/uploadDocument endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            file_name = file.filename
-            contents = await file.read()
-            return PMRController().upload_document(
-                pmr_id=pmr_id,
-                document_data=contents,
-                document_type=document_type,
-                document_name=file_name,
+            return await PMRController().upload_document(
+                pmr_id=pmr_id, document_type=document_type, files=files
             )
         else:
             raise HTTPException(
@@ -1105,37 +1100,6 @@ async def uploadHealthDocuments(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
-@pmr_router.post("/v1/PMR/uploadEMR")
-async def uploadEMR(
-    patient_id: str,
-    pmr_id: str,
-    document_type: str,
-    files: List[UploadFile],
-    token: str = Depends(oauth2_scheme),
-):
-    try:
-        # Authenticate user
-        authenticated_user_details = decodeJWT(token)
-        if not authenticated_user_details:
-            raise HTTPException(status_code=401, detail="Invalid access token")
-        logging.info("Calling /v1/PMR/uploadEMR endpoint")
-        return await PMRController().upload_multiple_documents(
-            patient_id=patient_id,
-            pmr_id=pmr_id,
-            document_type=document_type,
-            files=files,
-        )
-    except HTTPException as httperror:
-        logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {httperror}")
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v1/PMR/uploadHealthDocument endpoint: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
 
 @pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")

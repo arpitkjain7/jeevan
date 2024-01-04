@@ -1135,31 +1135,39 @@ class PMRController:
             )
             raise error
 
-    def upload_document(self, pmr_id, document_data, document_type, document_name):
+    async def upload_document(self, pmr_id, files, document_type):
         try:
             logging.info("executing upload_document function")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             patient_id = pmr_obj.get("patient_id")
-            document_ext = document_name.split(".")[-1]
-            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
-            s3_location = upload_to_s3(
-                bucket_name=self.cliniq_bucket,
-                byte_data=document_data,
-                file_name=document_key,
-            )
-            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
-            self.CRUDPatientMedicalDocuments.create(
-                **{
-                    "id": document_id,
-                    "pmr_id": pmr_id,
-                    "document_name": document_name,
-                    "document_mime_type": self.mime_type_mapping.get(document_ext),
-                    "document_type": document_type.name,
-                    "document_type_code": document_type.value,
-                    "document_location": s3_location,
-                }
-            )
-            return {"document_id": document_id, "status": "success"}
+            uploaded_document_list = []
+            for document in files:
+                logging.info(f"{document=}")
+                document_name = document.filename
+                document_data = await document.read()
+                document_ext = document_name.split(".")[-1]
+                document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=document_data,
+                    file_name=document_key,
+                )
+                document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                self.CRUDPatientMedicalDocuments.create(
+                    **{
+                        "id": document_id,
+                        "pmr_id": pmr_id,
+                        "document_name": document_name,
+                        "document_mime_type": self.mime_type_mapping.get(document_ext),
+                        "document_type": document_type.name,
+                        "document_type_code": document_type.value,
+                        "document_location": s3_location,
+                    }
+                )
+                uploaded_document_list.append(
+                    {"document_id": document_id, "status": "success"}
+                )
+            return uploaded_document_list
         except Exception as error:
             logging.error(f"Error in PMRController.upload_document function: {error}")
             raise error
@@ -1249,30 +1257,6 @@ class PMRController:
             )
             raise error
 
-    async def upload_multiple_documents(
-        self, patient_id: str, pmr_id: str, document_type: str, files
-    ):
-        try:
-            logging.info("executing upload_multiple_documents function")
-            response = []
-            for document in files:
-                logging.info(f"{document=}")
-                file_name = document.filename
-                content = await document.read()
-                resp = self.upload_health_document(
-                    pmr_id=pmr_id,
-                    patient_id=patient_id,
-                    document_data=content,
-                    document_type=document_type,
-                    document_name=file_name,
-                )
-                response.append(resp)
-            return response
-        except Exception as error:
-            logging.error(
-                f"Error in PMRController.upload_health_document function: {error}"
-            )
-            raise error
 
     def get_fhir(self, pmr_id):
         try:
