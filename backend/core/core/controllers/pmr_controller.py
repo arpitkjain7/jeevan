@@ -1249,6 +1249,31 @@ class PMRController:
             )
             raise error
 
+    async def upload_multiple_documents(
+        self, patient_id: str, pmr_id: str, document_type: str, files
+    ):
+        try:
+            logging.info("executing upload_multiple_documents function")
+            response = []
+            for document in files:
+                logging.info(f"{document=}")
+                file_name = document.filename
+                content = await document.read()
+                resp = self.upload_health_document(
+                    pmr_id=pmr_id,
+                    patient_id=patient_id,
+                    document_data=content,
+                    document_type=document_type,
+                    document_name=file_name,
+                )
+                response.append(resp)
+            return response
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.upload_health_document function: {error}"
+            )
+            raise error
+
     def get_fhir(self, pmr_id):
         try:
             logging.info("executing get_fhir function")
