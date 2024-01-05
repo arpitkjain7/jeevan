@@ -136,7 +136,9 @@ const PreviewImageWrapper = styled("div")(({ theme }) => ({
     margin: "1rem",
     display: "flex",
     flexWrap: "wrap",
-    justifyContent: "center", 
+    [theme.breakpoints.down('sm')]:{
+      justifyContent: "center", 
+    }
   },
   [theme.breakpoints.down('sm')]:{
     margin: "0",
