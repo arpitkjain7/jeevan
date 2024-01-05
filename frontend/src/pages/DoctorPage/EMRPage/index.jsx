@@ -38,6 +38,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CustomizedDialogs from "../../../components/Dialog";
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
   ({ theme }) => `
@@ -61,11 +62,11 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: "350px",
   bgcolor: 'background.paper',
-  border: '2px solid #000',
+  border: '1px solid #696969',
   boxShadow: 24,
-  p: 4,
+  padding: "0 16px 16px",
 };
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
@@ -405,6 +406,11 @@ const PatientEMRDetails = () => {
     diastolicaBP: "",
   });
   const [followUp, setFollowUp] = useState(null);
+  const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+
+  const handlePmrDialogClose = () => {
+    setPmrDialogOpen(false);
+  };
   const dispatch = useDispatch();
 
   const handleInputChange = (event) => {
@@ -421,7 +427,7 @@ const PatientEMRDetails = () => {
       state: "active",
       semantictag: "finding",
       acceptability: "preferred",
-      returnlimit: 5,
+      returnlimit: 15,
     };
 
     dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -570,14 +576,14 @@ const PatientEMRDetails = () => {
   const handleMeidcalHistoryChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
         semantictag: "situation",
         acceptability: "all",
-        returnlimit: 5,
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -602,14 +608,14 @@ const PatientEMRDetails = () => {
   const handleExistingConditionsChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
         semantictag: "finding",
         acceptability: "preferred",
-        returnlimit: 5,
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -633,7 +639,7 @@ const PatientEMRDetails = () => {
   const handleSymptompsChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
@@ -641,7 +647,7 @@ const PatientEMRDetails = () => {
         semantictag: "finding",
         acceptability: "all",
         groupbyconcept: "true",
-        returnlimit: 5,
+        returnlimit: 15,
       };
      
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -665,14 +671,15 @@ const PatientEMRDetails = () => {
   const handleExamFindingsChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
         semantictag: "finding++observable entity++morphologic abnormality",
         acceptability: "all",
-        returnlimit: 5,
+        groupbyconcept: "true",
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -696,14 +703,15 @@ const PatientEMRDetails = () => {
   const handleDiagnosisChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
         semantictag: "disorder",
         acceptability: "all",
-        returnlimit: 5,
+        groupbyconcept: "true",
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -727,14 +735,15 @@ const PatientEMRDetails = () => {
   const handleMedicationsChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
-        semantictag: "real clinical drug++substance",
+        semantictag: "real clinical drug++substance++product name",
         acceptability: "all",
-        returnlimit: 5,
+        groupbyconcept: "true",
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -759,14 +768,15 @@ const PatientEMRDetails = () => {
   const handleLabInvestigationsChange = async (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length >= 3) {
+    if (inputValue.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
         term: inputValue,
         state: "active",
         semantictag: "procedure",
         acceptability: "all",
-        returnlimit: 5,
+        groupbyconcept: "true",
+        returnlimit: 15,
       };
 
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
@@ -797,6 +807,7 @@ const PatientEMRDetails = () => {
         [value]: { since: "", relationship: "", severity: "", notes: "" },
       });
       setMedicalHistory([...medicalHistory, fieldValue]);
+      setMedicalHistoryOpts([]);
     }
   };
   const handleExistingConditions = (event, value) => {
@@ -811,7 +822,6 @@ const PatientEMRDetails = () => {
   };
   
   const handleSymptoms = (event, value) => {
-    console.log(event, value);
     if (value) {
       const fieldValue = value;
       setSymptomsSpecs({
@@ -819,6 +829,7 @@ const PatientEMRDetails = () => {
         [value]: { since: "", severity: "", notes: "" },
       });
       setSymptoms([...symptoms, fieldValue]);
+      setSymptomsOpts([]);
     }
   };
   // const handleMedicalHistory = (event, value) => {
@@ -842,6 +853,7 @@ const PatientEMRDetails = () => {
 
       setExamFinding([...examFindings, fieldValue]);
       handleExaminationTextChange(value, "notes", "");
+      setExamFindingsOpts([]);
     }
   };
   const handleDiagnosis = (event, value) => {
@@ -852,6 +864,7 @@ const PatientEMRDetails = () => {
         [value]: { since: "", severity: "", notes: "" },
       });
       setDiagnosis([...diagnosis, fieldValue]);
+      setDiagnosisOpts([]);
     }
   };
   const handleMedications = (event, value) => {
@@ -862,6 +875,7 @@ const PatientEMRDetails = () => {
         [value]: { since: "", severity: "", notes: "" },
       });
       setMedications([...medications, fieldValue]);
+      setMedicationsOpts([]);
     }
   };
   const handleLabInvestigations = (event, value) => {
@@ -873,6 +887,7 @@ const PatientEMRDetails = () => {
       });
       setLabInvestigation([...labInvestigation, fieldValue]);
       handleLabTextChange(value, "notes", "");
+      setLabInvestigationsOpts([]);
     }
   };
 
@@ -1384,29 +1399,45 @@ const PatientEMRDetails = () => {
       pmr_id: emrId,
     };
     const current_patientt = JSON.parse(patient);
-    const appointment_request = {
-      appointment_id: current_patientt?.id,
-      followup_date: followUp ? convertDateFormat(followUp, "yyyy-MM-dd") : "",
-      consultation_status: "Completed"
+    let appointment_request;
+    if(followUp){
+      appointment_request = {
+        appointment_id: current_patientt?.id,
+        followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
+        consultation_status: "Completed"
+      }
+    }
+    else { 
+        appointment_request = {
+        appointment_id: current_patientt?.id,
+        consultation_status: "Completed"
+      }
     }
     const allData ={
       pmr_request, appointment_request
     }
+    console.log(allData);
     const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload })).then(
       dispatch(postEMR(allData)).then((res) => {
-        if (
-          !(
+        if(res.meta.requestStatus === "rejected"){
+          setPmrDialogOpen(true);
+        } else {
+          if ( !(
             currentPatient?.patient_details?.abha_number &&
             currentPatient?.patient_details?.abha_number !== ""
           )
         ) {
           navigate("/appointment-list");
           sessionStorage.removeItem("pmrID");
-          // ("/appointment-list");
         }
-      })
-    );
+        }
+        }).catch((error) => {
+          console.log(error);
+        })
+    ).catch((error) => {
+      console.log(error);
+    });
     const currentPatient = JSON.parse(
       sessionStorage.getItem("selectedPatient")
     );
@@ -1802,6 +1833,10 @@ const PatientEMRDetails = () => {
 
   return (
     <PatientEMRWrapper>
+       <CustomizedDialogs
+          open={pmrDialogOpen}
+          handleClose={handlePmrDialogClose}
+        />
       {step === "create" && <PatientDetailsHeader
         documents={documents} />}
       {step === "create" && (
@@ -1977,10 +2012,10 @@ const PatientEMRDetails = () => {
                 />
                 {symptoms?.length > 0 && (
                   <div>
-                    {symptoms?.map((item) => (
+                    {symptoms?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout>
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item || item}</SelectedRecord>
                         </RecordLayout>
                         <TextBoxLayout className="addMaxWidth">
                           <Autocomplete                          
@@ -2015,8 +2050,6 @@ const PatientEMRDetails = () => {
                               variant="outlined"
                             />
                           </TextBoxLayout>
-                          
-                       
                           </NotesWrapper>
                           <DeleteWrapper>
                           <p onClick={handleOpenComplaintNotes} className="mobile"><NotesField /></p>
@@ -2027,22 +2060,22 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                            <AppBar sx={{ position: 'relative' }}>
+                            <div style={{ position: 'relative' }}>
                               <Toolbar>
-                              <Typography id="modal-modal-title" sx={{ ml: 2, flex: 1 }} variant="h3">
-                                Complaints Note
-                              </Typography>
-                              <IconButton
-                                edge="start"
-                                color="inherit"
-                                onClick={handleCloseComplaintNotes}
-                                aria-label="close"
-                              >
-                                <CloseIcon />
-                              </IconButton>
+                                <Typography id="modal-modal-title" sx={{ flex: 1 }} variant="h3">
+                                  Complaints Note
+                                </Typography>
+                                <IconButton
+                                  edge="end"
+                                  color="inherit"
+                                  onClick={handleCloseComplaintNotes}
+                                  aria-label="close"
+                                >
+                                  <CloseIcon />
+                                </IconButton>
                               </Toolbar>
-                            </AppBar>
-                              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                            </div>
+                              <Typography sx={{ mt: 2 }}>
                                 <TextBoxLayout>
                                   <TextareaAutosize
                                     maxRows={3}
@@ -2081,10 +2114,10 @@ const PatientEMRDetails = () => {
                 />
                 {medicalHistory?.length > 0 && (
                   <div>
-                    {medicalHistory?.map((item) => (
+                    {medicalHistory?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout className="addMaxWidth">
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item}</SelectedRecord>
                         </RecordLayout>
                         <TextBoxLayout className="addMaxWidth">
                           {/* <RecordTextField
@@ -2156,12 +2189,25 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                              <Typography id="modal-modal-title" variant="h3">
-                                Patient Medical History Notes
+                            <div style={{ position: 'relative' }}>
+                              <Toolbar>
+                              <Typography id="modal-modal-title" sx={{ flex: 1 }} variant="h3">
+                              Patient Medical History Notes
                               </Typography>
+                              <IconButton
+                                edge="end"
+                                color="inherit"
+                                onClick={handleCloseMedicalHistory}
+                                aria-label="close"
+                              >
+                                <CloseIcon />
+                              </IconButton>
+                              </Toolbar>
+                            </div>
                               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                                 <TextBoxLayout>
-                                  <RecordTextField
+                                  <TextareaAutosize
+                                    maxRows={3}
                                     placeholder="Notes"
                                     value={optionTextValues[item?.label]?.notes || ""}
                                     onChange={(e) =>
@@ -2193,10 +2239,10 @@ const PatientEMRDetails = () => {
                 />
                 {examFindings?.length > 0 && (
                   <div>
-                    {examFindings?.map((item) => (
+                    {examFindings?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout>
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item}</SelectedRecord>
                         </RecordLayout>
                         <NotesWrapper>
                           <TextBoxLayout className="desktop">
@@ -2225,12 +2271,25 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                              <Typography id="modal-modal-title" variant="h3">
-                                Examination Finding Notes
-                              </Typography>
+                              <div style={{ position: 'relative' }}>
+                                <Toolbar>
+                                <Typography id="modal-modal-title" sx={{ flex: 1 }} variant="h3">
+                                  Examination Finding Notes
+                                </Typography>
+                                <IconButton
+                                  edge="end"
+                                  color="inherit"
+                                  onClick={handleCloseFindingNotes}
+                                  aria-label="close"
+                                >
+                                  <CloseIcon />
+                                </IconButton>
+                                </Toolbar>
+                              </div>
                               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                                 <TextBoxLayout>
-                                  <RecordTextField
+                                  <TextareaAutosize
+                                    maxRows={3}
                                     placeholder="Notes"
                                     value={examinationSpecs[item?.label]?.notes || ""}
                                     onChange={(e) =>
@@ -2268,10 +2327,10 @@ const PatientEMRDetails = () => {
                 />
                 {diagnosis?.length > 0 && (
                   <div>
-                    {diagnosis?.map((item) => (
+                    {diagnosis?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout className="addMaxWidth">
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item}</SelectedRecord>
                         </RecordLayout>
                         <TextBoxLayout className="addMaxWidth">
                           <Autocomplete
@@ -2337,12 +2396,25 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                              <Typography id="modal-modal-title" variant="h3">
-                                Diagnosis Notes
-                              </Typography>
+                              <div style={{ position: 'relative' }}>
+                                <Toolbar>
+                                  <Typography id="modal-modal-title" sx={{ flex: 1 }} variant="h3">
+                                    Diagnosis Notes
+                                  </Typography>
+                                  <IconButton
+                                    edge="end"
+                                    color="inherit"
+                                    onClick={handleCloseDiagnosisNotes}
+                                    aria-label="close"
+                                  >
+                                    <CloseIcon />
+                                  </IconButton>
+                                </Toolbar>
+                              </div>
                               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                                 <TextBoxLayout>
-                                  <RecordTextField
+                                  <TextareaAutosize
+                                    maxRows={3}
                                     placeholder="Notes"
                                     value={diagnosisSpecs[item?.label]?.notes || ""}
                                     onChange={(e) =>
@@ -2380,10 +2452,10 @@ const PatientEMRDetails = () => {
                 />
                 {labInvestigation?.length > 0 && (
                   <div>
-                    {labInvestigation?.map((item) => (
+                    {labInvestigation?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout>
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item}</SelectedRecord>
                         </RecordLayout>
                         <NotesWrapper>
                           <TextBoxLayout className="desktop">
@@ -2409,12 +2481,25 @@ const PatientEMRDetails = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <Box sx={style}>
-                              <Typography id="modal-modal-title" variant="h3">
-                                Lab Investigation Notes
-                              </Typography>
+                              <div style={{ position: 'relative' }}>
+                                <Toolbar>
+                                  <Typography id="modal-modal-title" sx={{ flex: 1 }} variant="h3">
+                                    Lab Investigation Notes
+                                  </Typography>
+                                  <IconButton
+                                    edge="end"
+                                    color="inherit"
+                                    onClick={handleCloseLabNotes}
+                                    aria-label="close"
+                                  >
+                                    <CloseIcon />
+                                  </IconButton>
+                                </Toolbar>
+                              </div>
                               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                                 <TextBoxLayout>
-                                  <RecordTextField
+                                  <TextareaAutosize
+                                    maxRows={3}
                                     placeholder="Notes"
                                     value={labInvestigationSpecs[item?.label]?.notes || ""}
                                     onChange={(e) =>
@@ -2446,10 +2531,10 @@ const PatientEMRDetails = () => {
                 />
                 {medications?.length > 0 && (
                   <div>
-                    {medications?.map((item) => (
+                    {medications?.slice(0).reverse().map((item) => (
                       <FieldSpecsContainer>
                         <RecordLayout>
-                          <SelectedRecord>{item?.label}</SelectedRecord>
+                          <SelectedRecord>{item?.label || item}</SelectedRecord>
                         </RecordLayout>
                         <TextBoxLayout className="desktopTextBoxLayout">
                           <RecordTextField

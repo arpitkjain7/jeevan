@@ -44,11 +44,20 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".field-title": {
     "&.MuiTypography-root": theme.typography.body2,
   },
-
+  ".btn-wrapper": {
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
+      justifyContent: "center",
+    }
+  },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
     float: "right",
     marginTop: theme.spacing(8),
+    marginBottom: "10px",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(5),
+    }
   },
 }));
 
@@ -70,8 +79,12 @@ const RadioFormControl = styled("div")(({ theme }) =>({
   display: "flex",
   alignItems: "center",
   [theme.breakpoints.down('sm')]: {
-    justifyContent: "space-between",
     marginBottom: "15px"
+  },
+  ".MuiFormGroup-root": {
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "space-between"
+    },
   }
 }));
 
@@ -241,7 +254,7 @@ function AppointmentForm(props) {
             <Typography className="field-title">Visit Type</Typography>
             <FormControl>
               <RadioFormControl component="fieldset">
-                <RadioGroup
+                <RadioGroup 
                   row
                   value={visitTypeValue}
                   onChange={handleVisitTypeChange}

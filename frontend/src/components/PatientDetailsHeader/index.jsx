@@ -5,7 +5,7 @@ import PatientDocuments from "../../components/PatientDocuments";
 import { pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../components/PMRPdf";
 import { postEMR } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { submitPdf } from "../../components/PMRPdf/pmrPdf.slice";
+import { submitHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import { useNavigate } from "react-router-dom";
 import Modal from '@mui/material/Modal';
 import { forwardRef } from 'react';
@@ -20,6 +20,23 @@ import {
   uploadHealthDocument
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import CustomLoader from "../CustomLoader";
+import CustomizedDialogs from "../Dialog";
+
+const previewStyling = {
+  margin: "1rem .5rem",
+  position: "relative",
+  boxShadow: "rgba(0,0,0,0.05) 0 1px 2px 0"
+}
+
+const deleteImage = {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  cutser: "pointer",
+  border: 0,
+  backgroundColor: "#958c8c",
+  color: "#fff"
+}
 
 const style = {
   position: 'absolute',
@@ -32,6 +49,18 @@ const style = {
   boxShadow: 24,
   padding: "0 16px 16px",
 };
+
+const ImageTag = styled("img")(({ theme }) => ({
+  "&": {
+    width: "200px",
+    height: "300px",
+    objectFit: "cover",
+    [theme.breakpoints.down('sm')]: {
+      width: "150px",
+      height: "230px",
+    },
+  }
+}));
 
 const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   "&": {
@@ -89,16 +118,6 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
       display: "block "
     },
   },
-  ".result": {
-    minHeight: "100%",
-    maxHeight: "auto",
-    width: "100%",
-    marginTop: "1rem",
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "left",
-  },
 }));
 
 const HealthDocUpload = styled("div")(({ theme }) => ({
@@ -109,6 +128,18 @@ const HealthDocUpload = styled("div")(({ theme }) => ({
     [theme.breakpoints.down('sm')]:{
       marginTop: "15px",
     }
+  },
+}));
+
+const PreviewImageWrapper = styled("div")(({ theme }) => ({
+  "&": {
+    margin: "1rem",
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center", 
+  },
+  [theme.breakpoints.down('sm')]:{
+    margin: "0",
   }
 }));
 
@@ -134,10 +165,11 @@ const PatientDetailsHeader = ({ documents }) => {
   const handleCloseDocument = () => setOpenDocument(false);
   const [openFollowUp, setOpenFollowUp] = useState(false);
   const handleFollowUpClose = () => setOpenFollowUp(false);
+  const [imageFiles, setImageFiles] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [imagesBytes, setImagesBytes] = useState([]);
   const [followUp, setFollowUp] = useState(null);
   const [showLoader, setShowLoader] = useState(false);
+  const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
 
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
@@ -153,53 +185,54 @@ const PatientDetailsHeader = ({ documents }) => {
     }
   }, []);
 
+  const handlePmrDialogClose = () => {
+    setPmrDialogOpen(false);
+  };
+
   const handleClick = (e) => {
     handleFileInput.current.click();
   };
 
   const handleImageChange = async (event) => {
-    console.log(event.target.files);
+    console.log(event.target.files); 
+    const files = Array.from(event.target.files);
+    setImageFiles((prevFiles) => [...prevFiles, ...files]);
+    
     if(event.target.files){
-      const fileArray = Array.from(event.target.files).map((file) => URL.createObjectURL(file));
-      console.log(fileArray);
+      const fileArray = files.map((file) => URL.createObjectURL(file));
+      
       setSelectedImages((prevImages) => prevImages.concat(fileArray));
-      Array.from(event.target.files).map((file) => 
-        convertBase64(file).then((result) => {
-          setImagesBytes(bytes => [...bytes, result]);
-        }).catch((error) => {
-          console.log(error);
-        })
-      );
-
       Array.from(event.target.files).map(
-        (file) => URL.revokeObjectURL(file)
+        (file) => {
+          URL.revokeObjectURL(file);
+        }
       )
     }
     setOpenDocument(true);
   };
 
-  const convertBase64 = async (file) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-
-      fileReader.onload = () => {
-        const data = fileReader.result;
-        const bytesData = data.split(',')[1];
-        resolve(bytesData);
-      };
-
-      fileReader.onerror= (error) => {
-        reject(error);
-      };
+  const handleDeleteImage = (photo, index) => {
+    const files = imageFiles.filter((e, i)=> {
+      return i !== index
     })
+    setImageFiles(files);
+    setSelectedImages(selectedImages.filter((e) => e !== photo));
   }
+
   const renderPhotos = (source) => {
-    return source.map((photo) => {
-      return <img src={photo} key={photo} style={{ width: "200px",
-      height: "300px",
-      objectFit: "cover",
-      padding: "0.7rem" }}/>
+    return source.map((photo, index) => {
+      return (
+        <div key={photo} style ={ previewStyling }>
+          <ImageTag src={photo} />
+            <IconButton
+              onClick={() => handleDeleteImage(photo, index)}
+              aria-label="close"
+              style={ deleteImage }
+            >
+              <CloseIcon />
+            </IconButton>
+        </div>
+      )
     })
   }
 
@@ -217,79 +250,55 @@ const PatientDetailsHeader = ({ documents }) => {
 
   const SaveDocument = async () => {
     setShowLoader(true);
-    const params = {
-      patient_id: patientData?.patient_id,
-      appointment_id: patientData?.id,
-      hip_id: patientData?.doc_details?.hip_id
-    }
-    
-    const dateToday = new Date();
-    const dateTodayFormat = convertDateFormat(dateToday, "yyyy-MM-dd");
-    const docPayload = {
-      doc_ids: [patientData?.doc_details.id],
-      document_types: ["prescription"],
-      dates: [dateTodayFormat],
-      files: imagesBytes
-    }
-    console.log(docPayload);
-    dispatch(uploadHealthDocument({params, docPayload}))
-    .then((res) => {
-      setShowLoader(false);
-      console.log(res);
-      // setShowFollowUp(true);
-      setOpenFollowUp(true);
-    })
+   
+      const pmr_id = sessionStorage?.getItem("pmrID");
+      const params = {
+        pmr_id: pmr_id,
+        document_type: "Prescription",
+      }
+      
+      const docPayload = {
+        files: imageFiles
+      }
+      console.log(docPayload);
+    dispatch(submitHealthDocument({params, docPayload}))
+      .then((res) => {
+        setShowLoader(false);
+        console.log(res);
+        if(res.meta.requestStatus === "rejected"){
+          setPmrDialogOpen(true);
+        } else {
+          setOpenFollowUp(true);
+        }
+      })
   }
-
-  const createPdfBlob = async () => {
-    const hospital = sessionStorage?.getItem("selectedHospital");
-    let patientDetails = {};
-    if (hospital) {
-      const currentHospital = JSON.parse(hospital);
-      patientDetails = {
-        hospitalName: currentHospital?.name || "-",
-        patientName: patientData?.patient_details?.name || patientData?.name || "-",
-        doctorName: patientData?.docName || "-",
-        patientEmail: patientData?.patient_details?.email || patientData?.email || "-",
-        patientGender: patientData?.patient_details?.gender || patientData?.gender || "-",
-        patientNumber:  patientData?.mobile_number || patientData?.mobileNumber || "-",
-        patientId: patientData?.patientId || "-",
-        patientAge: "-",
-      };
-    }
-    // setPatientData(patientDetails);
-    const pdfBlob = await pdf(<PMRPdf patientData={patientDetails} />).toBlob();
-
-    const pdfFile = new File([pdfBlob], "patient_record.pdf", {
-      type: "application/pdf",
-    });
-
-    return pdfFile;
-  };
 
   const postPMR = async () => {
     const pmr_id = sessionStorage?.getItem("pmrID");
-    const pdfPayload = {
-      document_type: "Prescription",
-      pmr_id: pmr_id,
-    };
 
     const pmr_request = {};
     pmr_request["pmr_id"] = pmr_id;
-    const appointment_request = {
-      appointment_id: patientData?.id,
-      followup_date: followUp ? convertDateFormat(followUp, "yyyy-MM-dd") : "",
-      consultation_status: "Completed"
+    let appointment_request;
+    if(followUp){
+      appointment_request = {
+        appointment_id: patientData?.id,
+        followup_date: followUp ? convertDateFormat(followUp, "yyyy-MM-dd") : "",
+        consultation_status: "Completed"
+      }
+    } else {
+      appointment_request = {
+        appointment_id: patientData?.id,
+        consultation_status: "Completed"
+      }
     }
     const allData ={
       pmr_request, appointment_request
     }
-    const blob = await createPdfBlob();
-    dispatch(submitPdf({ blob, pdfPayload })).then(
-      dispatch(postEMR(allData)).then((res) => {
-          navigate("/appointment-list");
-      })
-    );
+    dispatch(postEMR(allData)).then((res) => {
+      if(res.payload){
+        navigate("/appointment-list");
+      }
+    })
   };
 
   return (
@@ -336,6 +345,10 @@ const PatientDetailsHeader = ({ documents }) => {
             </div>
         
             <HealthDocUpload>
+              <CustomizedDialogs
+                open={pmrDialogOpen}
+                handleClose={handlePmrDialogClose}
+              />
               <PrimaryButton onClick={handleClick}>Upload Photo</PrimaryButton>
               <label>
                 <input
@@ -375,53 +388,51 @@ const PatientDetailsHeader = ({ documents }) => {
                       </IconButton>
                     </Toolbar>
                   </AppBar>
-                    {/* <img src={imageObject.imagePreview} width="350px" height="500px"/> */}
-                    <div className="result">
-                      {renderPhotos(selectedImages)}
-                      <div style = {{ display: "flex"}}>
+                    <div>
+                      <PreviewImageWrapper>
+                        {renderPhotos(selectedImages)}
+                      </PreviewImageWrapper>
+                      <div style = {{ display: "flex", margin: "10px"}}>
                         <PrimaryButton style = {{ margin: "0 10px" }} onClick={handleClick}>Upload Image</PrimaryButton>
                         <PrimaryButton onClick={SaveDocument}>Save Document</PrimaryButton>
                       </div>
-                      {/* {showFollowUp && ( */}
-                        <div>
-                          <Modal
-                            open={openFollowUp}
-                            onClose={handleFollowUpClose}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                          >
-                            <Box sx={style}>
-                              <Toolbar stye={{ padding: 0 }}>
-                                <Typography sx={{ flex: 1, fontSize: "20px" }} component="div">
-                                  Follow Up Date
-                                </Typography>
-                                <IconButton
-                                  edge="end"
-                                  color="inherit"
-                                  onClick={handleFollowUpClose}
-                                  aria-label="close"
-                                >
-                                  <CloseIcon />
-                                </IconButton>
-                              </Toolbar>
-                              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DemoContainer components={['DatePicker']}>
-                                  <DatePicker sx={{ width: '100%' }} 
-                                    disablePast
-                                    value={followUp}
-                                    onChange={(newValue) => setFollowUp(newValue)}
-                                  />
-                                </DemoContainer>
-                              </LocalizationProvider>
-                              <br/>
-                              <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
-                            </Box>
-                          </Modal>
-                        </div>
-                    {/* )} */}
+                    <div>
+                      <Modal
+                        open={openFollowUp}
+                        onClose={handleFollowUpClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                      >
+                        <Box sx={style}>
+                          <Toolbar stye={{ padding: 0 }}>
+                            <Typography sx={{ flex: 1, fontSize: "20px" }} component="div">
+                              Follow Up Date
+                            </Typography>
+                            <IconButton
+                              edge="end"
+                              color="inherit"
+                              onClick={handleFollowUpClose}
+                              aria-label="close"
+                            >
+                              <CloseIcon />
+                            </IconButton>
+                          </Toolbar>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['DatePicker']}>
+                              <DatePicker sx={{ width: '100%' }} 
+                                disablePast
+                                value={followUp}
+                                onChange={(newValue) => setFollowUp(newValue)}
+                              />
+                            </DemoContainer>
+                          </LocalizationProvider>
+                          <br/>
+                          <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
+                        </Box>
+                      </Modal>
                     </div>
-                </Dialog>
-              {/* } */}
+                </div>
+              </Dialog>
             </HealthDocUpload>
           
           </>

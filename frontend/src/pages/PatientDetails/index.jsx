@@ -7,7 +7,10 @@ import VitalsDetails from "../../components/VitalsDetails";
 import ConsentList from "../../components/ConsentList";
 
 const PatientDetailsWrapper = styled("div")(({ theme }) => ({
-  padding: "45px 10px 10px"
+    padding: "45px 10px 10px",
+  [theme.breakpoints.down('sm')]: {
+    padding: "22px 10px 10px",
+  }
 }));
 
 const TabsContainer = styled("div")(({ theme }) => ({
@@ -15,8 +18,17 @@ const TabsContainer = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.primaryWhite,
     borderRadius: theme.spacing(2),
     marginTop: theme.spacing(8),
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(5),
+    },
     "& .MuiTabs-root": {
       width: "50%",
+      [theme.breakpoints.only('sm')]: {
+        width: "55%"
+      },
+      [theme.breakpoints.down('sm')]: {
+        width: "100%"
+      }
     },
     "& .MuiTabs-root > .MuiTabs-scroller .MuiButtonBase-root": {
       border: 0,
