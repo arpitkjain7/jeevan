@@ -194,7 +194,6 @@ const PatientDetailsHeader = ({ documents }) => {
   };
 
   const handleImageChange = async (event) => {
-    console.log(event.target.files); 
     const files = Array.from(event.target.files);
     setImageFiles((prevFiles) => [...prevFiles, ...files]);
     
@@ -260,11 +259,10 @@ const PatientDetailsHeader = ({ documents }) => {
       const docPayload = {
         files: imageFiles
       }
-      console.log(docPayload);
+     
     dispatch(submitHealthDocument({params, docPayload}))
       .then((res) => {
         setShowLoader(false);
-        console.log(res);
         if(res.meta.requestStatus === "rejected"){
           setPmrDialogOpen(true);
         } else {

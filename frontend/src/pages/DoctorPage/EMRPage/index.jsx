@@ -1416,7 +1416,6 @@ const PatientEMRDetails = () => {
     const allData ={
       pmr_request, appointment_request
     }
-    console.log(allData);
     const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload })).then(
       dispatch(postEMR(allData)).then((res) => {

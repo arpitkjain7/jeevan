@@ -82,7 +82,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           setShowSnackbar(true);
           setErrorMessage("Invalid ABHA Address");
           return;
-        } console.log(formData);
+        }
         payload = {
           firstName: formData?.firstname,
           middleName: formData?.middlename,
@@ -126,7 +126,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           password: formData?.password,
           hip_id: currentHospital?.hip_id,
         };
-        console.log(res.payload);
+       
         setUserCreated(true);
         dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
         navigate("/registered-patient");

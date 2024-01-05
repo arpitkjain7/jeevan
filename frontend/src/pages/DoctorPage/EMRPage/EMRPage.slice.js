@@ -85,13 +85,11 @@ export const uploadPmrPdf = createAsyncThunk(
 export const submitHealthDocument = createAsyncThunk(
   "PMR/uploadDocument",
   async ({params, docPayload}) => {
-    console.log(docPayload);
     const apiUrl = apis.uploadPmrPdf;
     const access_token = sessionStorage.getItem("accesstoken");
     const formData = new FormData();
     const files = docPayload.files;
     files.map((file) => {
-      console.log(file);
       formData.append("files", file);
     })
     try {

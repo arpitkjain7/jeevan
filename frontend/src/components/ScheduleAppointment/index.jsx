@@ -295,7 +295,6 @@ const BookingSlots = () => {
         const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
       }
-      console.log("slots");
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
