@@ -615,22 +615,28 @@ class PMRController:
             )
             response = []
             for pmr_obj in pmr_list:
-                diagnosis_obj = self.CRUDDiagnosis.read_by_pmrId(pmr_id=pmr_obj["id"])
+                diagnosis_obj_list = self.CRUDDiagnosis.read_by_pmrId(
+                    pmr_id=pmr_obj["id"]
+                )
                 appointment_obj = self.CRUDAppointments.read(
                     appointment_id=pmr_obj["appointment_id"]
                 )
                 consultation_status = appointment_obj["consultation_status"]
                 logging.debug(f"{consultation_status=}")
                 if consultation_status == "Completed":
-                    if diagnosis_obj == []:
-                        diagnosis_name = ""
+                    diagnosis_length = len(diagnosis_obj_list)
+                    if diagnosis_length == 1:
+                        diagnosis_name = f"{diagnosis_obj_list[0]['disease']}"
+                    elif diagnosis_length >= 2:
+                        diagnosis_name = f"{diagnosis_obj_list[0]['disease']} | {diagnosis_obj_list[1]['disease']}"
                     else:
-                        diagnosis_name = diagnosis_obj["disease"]
+                        diagnosis_name = "Diagnosis"
                     pmr_obj.update(
                         {
                             "diagnosis_name": diagnosis_name,
                         }
                     )
+
                     response.append(pmr_obj)
             return response
         except Exception as error:
@@ -1076,7 +1082,7 @@ class PMRController:
                     )
                 if pmr_request.symptom:
                     pmr_data.setdefault("symptom", {})
-                    pmr_data["symptom"]["data"] = self.create_symptoms(
+                    pmr_data["symptom"]["data"] = self.create_symptoms_v1(
                         pmr_request.symptom, pmr_id
                     )
                 if pmr_request.medication:
@@ -1129,31 +1135,39 @@ class PMRController:
             )
             raise error
 
-    def upload_document(self, pmr_id, document_data, document_type, document_name):
+    async def upload_document(self, pmr_id, files, document_type):
         try:
             logging.info("executing upload_document function")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             patient_id = pmr_obj.get("patient_id")
-            document_ext = document_name.split(".")[-1]
-            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
-            s3_location = upload_to_s3(
-                bucket_name=self.cliniq_bucket,
-                byte_data=document_data,
-                file_name=document_key,
-            )
-            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
-            self.CRUDPatientMedicalDocuments.create(
-                **{
-                    "id": document_id,
-                    "pmr_id": pmr_id,
-                    "document_name": document_name,
-                    "document_mime_type": self.mime_type_mapping.get(document_ext),
-                    "document_type": document_type.name,
-                    "document_type_code": document_type.value,
-                    "document_location": s3_location,
-                }
-            )
-            return {"document_id": document_id, "status": "success"}
+            uploaded_document_list = []
+            for document in files:
+                logging.info(f"{document=}")
+                document_name = document.filename
+                document_data = await document.read()
+                document_ext = document_name.split(".")[-1]
+                document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=document_data,
+                    file_name=document_key,
+                )
+                document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                self.CRUDPatientMedicalDocuments.create(
+                    **{
+                        "id": document_id,
+                        "pmr_id": pmr_id,
+                        "document_name": document_name,
+                        "document_mime_type": self.mime_type_mapping.get(document_ext),
+                        "document_type": document_type.name,
+                        "document_type_code": document_type.value,
+                        "document_location": s3_location,
+                    }
+                )
+                uploaded_document_list.append(
+                    {"document_id": document_id, "status": "success"}
+                )
+            return uploaded_document_list
         except Exception as error:
             logging.error(f"Error in PMRController.upload_document function: {error}")
             raise error
@@ -1242,6 +1256,7 @@ class PMRController:
                 f"Error in PMRController.upload_health_document function: {error}"
             )
             raise error
+
 
     def get_fhir(self, pmr_id):
         try:
