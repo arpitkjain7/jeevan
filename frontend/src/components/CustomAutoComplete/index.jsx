@@ -14,9 +14,11 @@ const CustomAutoComplete = ({
   return (
     <Autocomplete
       freeSolo
-      ref={autocompleteRef}
+      // ref={autocompleteRef}
       options={options}
       getOptionLabel={(option) => option?.label}
+      filterSelectedOptions
+      clearOnEscape
       renderInput={(params) => (
         <TextField
           {...params}
@@ -26,6 +28,9 @@ const CustomAutoComplete = ({
           placeholder={placeholder}
         />
       )}
+      value={null}
+      blurOnSelect={true}
+      clearOnBlur={true}
       onChange={handleOptionChange}
     />
   );

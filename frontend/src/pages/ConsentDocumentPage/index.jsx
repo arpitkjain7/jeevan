@@ -38,7 +38,6 @@ const ConsentValue = styled("div")(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 const ConsentDocumentPage = (consentListData) => {
-  console.log("cld", consentListData);
   const [documentData, setDocumentData] = useState([]);
   const selectedConsent = sessionStorage.getItem("consentSelected");
   const [consentDetails, setConsentDetails] = useState([]);
@@ -69,7 +68,6 @@ const ConsentDocumentPage = (consentListData) => {
       const consentId = currentConsent?.id;
       dispatch(fetchConsentDetails(consentId)).then((response) => {
         const consentData = response?.payload;
-        console.log(consentData);
         const formattedConsentList = {
           createdAt: convertDateFormat(consentData?.created_at, "dd-MM-yyyy"),
           expireAt: convertDateFormat(consentData?.expire_at, "dd-MM-yyyy"),

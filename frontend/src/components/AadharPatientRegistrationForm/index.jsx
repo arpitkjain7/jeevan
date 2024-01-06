@@ -60,7 +60,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
         hip_id: currentHospital?.hip_id,
         txnId: txnId,
       };
-      console.log(payload);
+    
       dispatch(
         registerPatient({ payload, url: apis.registerAadharPaient })
       ).then((res) => {

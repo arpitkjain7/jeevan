@@ -192,7 +192,7 @@ const MyTable = ({
             <TableHead className="table-component-header" >
               <TableRow>
                 {columns?.map((column) => (
-                  <TableCell key={column.key} classNamwe="table-header-cell">
+                  <TableCell key={column.key} className="table-header-cell">
                     {column.header}
                   </TableCell>
                 ))}
