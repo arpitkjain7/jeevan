@@ -5,7 +5,12 @@ from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from datetime import datetime, timezone, timedelta
-from core.utils.aws.s3_helper import upload_to_s3, get_object, create_presigned_url
+from core.utils.aws.s3_helper import (
+    upload_to_s3,
+    get_object,
+    create_presigned_url,
+    read_object,
+)
 from core.utils.custom.encryption_helper import rsa_encryption
 import os
 import json
@@ -782,6 +787,111 @@ class HIDController:
         except Exception as error:
             logging.error(
                 f"Error in HIDController.mobile_abha_registration function: {error}"
+            )
+            raise error
+
+    def get_abha_card_bytes(self, patient_id: str):
+        try:
+            logging.info("executing  get_abha_card_bytes function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            if patient_obj:
+                logging.info("Getting ABHA S3 location")
+                if patient_obj.get("abha_s3_location"):
+                    logging.info("Generating Presigned URL for ABHA S3 location")
+                    abha_bytes = read_object(
+                        bucket_name=self.s3_location,
+                        prefix=patient_obj.get("abha_s3_location"),
+                    )
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_bytes": abha_bytes}
+                else:
+                    logging.info("Getting Abha card")
+                    linking_token = patient_obj.get("linking_token").get("value")
+                    byte_data, resp_code = APIInterface().get_bytes(
+                        route=f"{self.abha_url}/v1/account/getPngCard",
+                        headers={
+                            "Authorization": f"Bearer {gateway_access_token}",
+                            "X-Token": f"Bearer {linking_token}",
+                        },
+                    )
+                    if resp_code >= 400:
+                        logging.info(
+                            "Expired Linking Token. Generating new with Refresh token"
+                        )
+                        refresh_token = patient_obj.get("refresh_token").get("value")
+                        refresh_token_url = (
+                            f"{self.abha_url}/v1/auth/generate/access-token"
+                        )
+                        resp, resp_code = APIInterface().post(
+                            route=refresh_token_url,
+                            data={"refreshToken": refresh_token},
+                            headers={"Authorization": f"Bearer {gateway_access_token}"},
+                        )
+                        linking_token = resp.get("accessToken", None)
+                        if linking_token:
+                            self.CRUDPatientDetails.update(
+                                **{
+                                    "id": patient_id,
+                                    "linking_token": {"value": linking_token},
+                                }
+                            )
+                        logging.info("Getting Abha card")
+                        byte_data, resp_code = APIInterface().get_bytes(
+                            route=f"{self.abha_url}/v1/account/getPngCard",
+                            headers={
+                                "Authorization": f"Bearer {gateway_access_token}",
+                                "X-Token": f"Bearer {linking_token}",
+                            },
+                        )
+                        logging.info("Uploading Abha card to S3")
+                        upload_to_s3(
+                            bucket_name=self.s3_location,
+                            byte_data=byte_data,
+                            file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                        )
+                        logging.info("Uploading database with S3 location")
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                            }
+                        )
+                        logging.info("Generating Presigned URL for Abha S3")
+                        abha_bytes = read_object(
+                            bucket_name=self.s3_location,
+                            prefix=f"PATIENT_DATA/{patient_id}/abha.png",
+                        )
+                        logging.info("Returning S3 presigned url")
+                        return {"abha_bytes": abha_bytes}
+                    logging.info("Uploading Abha card to S3")
+                    upload_to_s3(
+                        bucket_name=self.s3_location,
+                        byte_data=byte_data,
+                        file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                    )
+                    logging.info("Uploading database with S3 location")
+                    self.CRUDPatientDetails.update(
+                        **{
+                            "id": patient_id,
+                            "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                        }
+                    )
+                    logging.info("Generating Presigned URL for Abha S3")
+                    abha_bytes = read_object(
+                        bucket_name=self.s3_location,
+                        prefix=f"PATIENT_DATA/{patient_id}/abha.png",
+                    )
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_bytes": abha_bytes}
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.get_abha_card_bytes function: {error}"
             )
             raise error
 
