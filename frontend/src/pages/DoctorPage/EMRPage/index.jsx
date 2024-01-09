@@ -32,7 +32,7 @@ import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
-import SyncAabha from "../SyncAabha";
+import SyncAbha from "../SyncAbha";
 import { calculateBMI, convertDateFormat } from "../../../utils/utils";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -2710,7 +2710,7 @@ const PatientEMRDetails = () => {
           <PageSubText>
             Closely Review the Details Before Confirming
           </PageSubText> */}
-          <SyncAabha
+          <SyncAbha
             showSync={showSync}
             handleModalClose={handleModalClose}
             setSelectedAuthOption={setSelectedAuthOption}

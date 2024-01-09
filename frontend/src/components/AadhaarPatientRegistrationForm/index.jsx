@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import CustomSnackbar from "../CustomSnackbar";
 import { validateAbhaAddress } from "../../utils/utils";
 
-const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
+const AadhaarPatientRegForm = ({ setUserCreated, txnId }) => {
   const [formData, setFormData] = React.useState({
     firstname: "",
     lastname: "",
@@ -62,7 +62,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       };
     
       dispatch(
-        registerPatient({ payload, url: apis.registerAadharPaient })
+        registerPatient({ payload, url: apis.registerAadhaarPaient })
       ).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
@@ -101,6 +101,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
       <Grid container spacing={2}>
         <Grid item xs={12} md={5}>
           <TextField
+            label="First Name"
             placeholder="First Name"
             name="firstname"
             value={formData.firstname}
@@ -135,7 +136,7 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
             value={formData.email}
             onChange={handleChange}
             type="email"
-            required
+            // required
             fullWidth
           />
         </Grid>
@@ -175,4 +176,4 @@ const AadharPatientRegForm = ({ setUserCreated, txnId }) => {
   );
 };
 
-export default AadharPatientRegForm;
+export default AadhaarPatientRegForm;

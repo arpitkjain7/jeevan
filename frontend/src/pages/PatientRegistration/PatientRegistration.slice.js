@@ -5,26 +5,26 @@ import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
 import React, {useState} from 'react';
 
-export const registerAADHAR = createAsyncThunk(
-  "registration/aadharregisterAADHAR",
+export const registerAADHAAR = createAsyncThunk(
+  "registration/aadhaarregisterAADHAAR",
   async (userData) => {
-    const response = await apiRequest("POST", apis?.registerAadhar, userData);
+    const response = await apiRequest("POST", apis?.registerAadhaar, userData);
     return response;
   }
 );
 
 export const registerPhone = createAsyncThunk(
-  "registration/aadharregisterPhone",
+  "registration/aadhaarregisterPhone",
   async ({ payload, url }) => {
     const response = await apiRequest("POST", url, payload);
     return response;
   }
 );
 
-export const verifyAadharOTP = createAsyncThunk(
-  "registration/verifyAADHAR",
+export const verifyAadhaarOTP = createAsyncThunk(
+  "registration/verifyAADHAAR",
   async (OTP) => {
-    const response = await apiRequest("POST", apis?.verifyOTPAadhar, OTP);
+    const response = await apiRequest("POST", apis?.verifyOTPAadhaar, OTP);
     return response;
   }
 );
@@ -36,10 +36,10 @@ export const verifyPhoneOTP = createAsyncThunk(
   }
 );
 
-export const verifyAadharPhoneOTP = createAsyncThunk(
-  "registration/verifyAadharPhone",
+export const verifyAadhaarPhoneOTP = createAsyncThunk(
+  "registration/verifyAadhaarPhone",
   async (OTP) => {
-    const response = await apiRequest("POST", apis?.verifyAadharotp, OTP);
+    const response = await apiRequest("POST", apis?.verifyAadhaarotp, OTP);
     return response;
   }
 );
@@ -52,11 +52,18 @@ export const registerPatient = createAsyncThunk(
   }
 );
 
-export const downloadAabha = createAsyncThunk(
-  "registration/downloadAabha",
+export const downloadAbha = createAsyncThunk(
+  "registration/downloadAbha",
   async (patient_Id) => {
-    console.log(patient_Id);
-    const response = await apiRequest("POST", apis?.downloadAabhaCard, patient_Id);
+    const response = await apiRequest("POST", apis?.downloadAbhaCard, patient_Id);
+    return response;
+  }
+);
+
+export const displayAbha = createAsyncThunk(
+  "registration/displayAbha",
+  async (patient_Id) => {
+    const response = await apiRequest("POST", apis?.displayAbhaCard, patient_Id);
     return response;
   }
 );
@@ -66,22 +73,22 @@ const PatientRegistartionSlice = createSlice({
   initialState: {
     loading: false,
     error: null,
-    registerAadhar: {},
+    registerAadhaar: {},
     registerPhone: {},
     registeredPatientDetails: {},
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(registerAADHAR.pending, (state) => {
+      .addCase(registerAADHAAR.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerAADHAR.fulfilled, (state, action) => {
+      .addCase(registerAADHAAR.fulfilled, (state, action) => {
         state.loading = false;
-        state.registerAadhar = action.payload;
+        state.registerAadhaar = action.payload;
       })
-      .addCase(registerAADHAR.rejected, (state, action) => {
+      .addCase(registerAADHAAR.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
@@ -97,14 +104,14 @@ const PatientRegistartionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(verifyAadharOTP.pending, (state) => {
+      .addCase(verifyAadhaarOTP.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(verifyAadharOTP.fulfilled, (state) => {
+      .addCase(verifyAadhaarOTP.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(verifyAadharOTP.rejected, (state, action) => {
+      .addCase(verifyAadhaarOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
@@ -131,14 +138,14 @@ const PatientRegistartionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(verifyAadharPhoneOTP.pending, (state) => {
+      .addCase(verifyAadhaarPhoneOTP.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(verifyAadharPhoneOTP.fulfilled, (state) => {
+      .addCase(verifyAadhaarPhoneOTP.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(verifyAadharPhoneOTP.rejected, (state, action) => {
+      .addCase(verifyAadhaarPhoneOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
