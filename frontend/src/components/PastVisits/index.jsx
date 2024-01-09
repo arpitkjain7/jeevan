@@ -35,7 +35,7 @@ const SideList = styled("List")(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     gap: theme.spacing(4),
     height: "auto",
-  }
+  },
 }));
 
 // const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
@@ -93,6 +93,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
+      "& > tr >td:active": {
+        borderStyle: "inset",
+        backgroundColor: "#bde4ff"
+      },
       [theme.breakpoints.down('sm')]: {
         "& > tr >td": {
           padding: "10px",

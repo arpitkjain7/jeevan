@@ -18,7 +18,7 @@ import { useNavigate } from "react-router";
 import CustomSnackbar from "../CustomSnackbar";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
 
-const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
+const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -76,7 +76,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
       currentHospital = JSON.parse(hospital);
       let url = "";
       let payload = {};
-      if (isForAabha) {
+      if (isForAbha) {
         if (!validateAbhaAddress(formData.abhaAddress)) {
           setAbhaAddressError(true);
           setShowSnackbar(true);
@@ -226,11 +226,11 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
             value={formData.email}
             onChange={handleChange}
             type="email"
-            required
+            // required
             fullWidth
           />
         </Grid>
-        {!isForAabha && (
+        {!isForAbha && (
           <Grid item xs={12} md={5}>
             <TextField
               placeholder="Mobile Number"
@@ -245,7 +245,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAabha, txnId }) => {
           </Grid>
           
         )}
-        {isForAabha && (
+        {isForAbha && (
           <>
             <Grid item xs={12} md={5}>
               <TextField

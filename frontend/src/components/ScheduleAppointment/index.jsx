@@ -321,6 +321,11 @@ const BookingSlots = () => {
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
+        sessionStorage.removeItem("doctorName");
+        sessionStorage.removeItem("encounterTypeValue");
+        sessionStorage.removeItem("appointmentTypeValue");
+        sessionStorage.removeItem("visitTypeValue");
+        sessionStorage.removeItem("billingTypeValue");
         if (res.payload?.appointment_id) {
           setAppointmentCompleted(true);
         }

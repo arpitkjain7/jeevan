@@ -20,6 +20,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Close } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import { postConsentRequest } from "../ConsentList/consentList.slice";
+import { convertDateFormat } from "../../utils/utils";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -56,7 +57,7 @@ const ModalFooter = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
   alignItems: "center",
 }));
-const CustomButton = styled(Button)(({ theme }) => ({
+const CustomButton = styled("button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
 }));
 
@@ -96,7 +97,7 @@ const ConsentModal = ({
         hi_type: [formData?.healthInfoType],
         date_from: formData?.healthInfoFromDate,
         date_to: formData?.healthInfoToDate,
-        expiry: formData?.consentExpiryDate,
+        expiry: convertDateFormat(formData?.consentExpiryDate, "yyyy-MM-dd HH:mm:SS"),
         hip_id: currentHospital?.hip_id,
         doc_id: "1",
       };
@@ -215,7 +216,7 @@ const ConsentModal = ({
                   <FormLabel>Consent Expiry</FormLabel>
                   <TextField
                     fullWidth
-                    type="date"
+                    type="datetime-local"
                     name="consentExpiryDate"
                     value={formData.consentExpiryDate}
                     onChange={handleChange}
@@ -350,7 +351,7 @@ const ConsentModal = ({
              <FormLabel>Consent Expiry</FormLabel>
              <TextField
                fullWidth
-               type="date"
+               type="datetime-local"
                name="consentExpiryDate"
                value={formData.consentExpiryDate}
                onChange={handleChange}
