@@ -1,4 +1,3 @@
-import { List, styled } from "@mui/material";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import React, { useEffect, useState } from "react";
 import PMRPdf from "../PMRPdf";
@@ -6,7 +5,7 @@ import { fetchPMRList, fetchVistList, getDocument, getDocumentBytes } from "./pa
 import { useDispatch, useSelector } from "react-redux";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 import MyTable from "../TableComponent";
-import { Dialog, AppBar, Toolbar, IconButton, Typography, Slide } from '@mui/material';
+import { List, ListItem, styled, Dialog, AppBar, Toolbar, IconButton, Typography, Slide } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { convertDateFormat } from "../../utils/utils";
 import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
@@ -24,7 +23,7 @@ const Visits = styled("div")(({ theme }) => ({
   gap: theme.spacing(4),
   padding: theme.spacing(8, 0),
 }));
-const SideList = styled("List")(({ theme }) => ({
+const SideList = styled(List)(({ theme }) => ({
   display: "flex",
   gap: theme.spacing(8),
   height: "100vh",
@@ -226,7 +225,7 @@ const PastVisits = ({isPatientHistory}) => {
               onClick={() => selectVisit(item)}
             >
               <VisitListContainer>
-                <listItem>{item.diagnosis_name != "" ? item.diagnosis_name : "Diagnosis"}</listItem>
+                <ListItem>{item.diagnosis_name != "" ? item.diagnosis_name : "Diagnosis"}</ListItem>
                 <VisitDate>
                   {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
                 </VisitDate>
