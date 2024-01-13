@@ -61,7 +61,6 @@ const Sidebar = ({ open, onClose, list }) => {
           onClick={(event) => handleListItemClick(event, 1)}
         >
         <ListItem sx={{ padding: "5px 0"}}
-
             onClick={() => redirectRoutes("/patient-list")}>
           <img
             src={PersonIcon}

@@ -35,6 +35,7 @@ function useWindowDimensions() {
   }, []);
   return windowDimensions;
 }
+
 const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const { height, width } = useWindowDimensions();
   const isMobile = window.innerWidth < 600;

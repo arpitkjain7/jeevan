@@ -203,7 +203,6 @@ const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
   const [prescriptionData, setPrescriptionData] = useState([]);
   const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
-
   const columns = [
     { key: "medicine_name", label: "Medications" },
     { key: "frequency", label: "Frequency" },

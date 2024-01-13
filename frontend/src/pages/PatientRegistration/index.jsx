@@ -173,7 +173,6 @@ const PatientRegistration = () => {
     // Check if the input value is empty string
     if (inputValue !== null) {
       setAadhaar(inputValue);
-      console.log(aadhaar_regex.test(event.target.value));
       if (!aadhaar_regex.test(event.target.value)) {
         setIsAadhaarError(true);
         setIsAadhaarValid(false);

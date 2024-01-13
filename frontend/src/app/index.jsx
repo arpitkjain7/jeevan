@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { styled, useTheme, Box, CssBaseline, Toolbar } from "@mui/material";
+import { styled, useTheme, Box, CssBaseline, Toolbar, Drawer } from "@mui/material";
 import { useSelector } from "react-redux";
 import Header from "../components/Header";
 import "./global.scss";
@@ -89,7 +89,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+const DesktopDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: drawerWidth,
     flexShrink: 0,
@@ -119,7 +119,18 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 function App() {
+  const isMobile = window.innerWidth < 600;
   const dataState = useSelector((state) => state);
+  const [sidebarState, setSidebarState] = React.useState(false);
+
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setSidebarState(open);
+  };
+
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -134,88 +145,176 @@ function App() {
 
   return (
     <Router> 
-      <Box>
-        {isAuthenticated ? (
-          <>
-          <CssBaseline />
-          <AppBar position="fixed" style={{backgroundColor: "#fff", color: "#000"}}>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ marginLeft: 1 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Header /> 
-            </Toolbar>
-          </AppBar>
-          </>
-          ) : (
-            <Header />
-          )}
-      </Box>
-
-      <Box display={{ xs: "block", md: "flex"}}>
-        <CssBaseline />
-        {isAuthenticated && (
-        <Drawer variant="permanent" open={open} >
-          <DrawerHeader>
-          </DrawerHeader>
-          <Divider /> 
-          <Sidebar />
-        </Drawer>
-      )}
-      
-      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 1, md: 3}}>
-        <DrawerHeader/>
-        {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
-          <Routes>
-            <Route path="/login" element={<SignInPage />} />
-              {(isAuthenticated) ? (
-                <> 
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/patient-list" element={<PatientPage />} />
-                  <Route 
-                    path="/patient-registration"
-                    element={<PatientRegistration />}
-                  />
-                  <Route
-                    path="/appointment-list"
-                    element={<AppointmentPage />}
-                  />
-                  <Route
-                    path="/create-appointment"
-                    element={<CreateAppointment />}
-                  />
-                  <Route 
-                    path="/patient-emr"
-                    element={<PatientEMRDetails />}
-                  />
-                  <Route
-                    path="/registered-patient"
-                    element={<RegisterationConfirmation />}
-                  />
-                  <Route
-                    path="/patient-details"
-                    element={<PatientDetails />}
-                  />
-                  <Route
-                    path="/consent-detail"
-                    element={<ConsentDocumentPage />}
-                  />
-                </>
-              ) : (
-                <Route path="*" element={<SignInPage />} />
-              )}
-              <Route path="/" element={<SignInPage />} />
-          </Routes>
-        {/* </div> */}
+       {!isMobile && (
+        <>
+        <Box>
+          {isAuthenticated ? (
+            <>
+            <CssBaseline />
+            <AppBar position="fixed" style={{backgroundColor: "#fff", color: "#000"}}>
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ marginLeft: 1 }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Header /> 
+              </Toolbar>
+            </AppBar>
+            </>
+            ) : (
+              <Header />
+            )}
         </Box>
-      </Box>
+
+        <Box display={{ xs: "block", md: "flex"}}>
+          <CssBaseline />
+          {isAuthenticated && (
+          <DesktopDrawer variant="permanent" open={open} >
+            <DrawerHeader>
+            </DrawerHeader>
+            <Divider /> 
+            <Sidebar />
+          </DesktopDrawer>
+        )}
+        
+        <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 1, md: 3}}>
+          <DrawerHeader/>
+          {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
+            <Routes>
+              <Route path="/login" element={<SignInPage />} />
+                {(isAuthenticated) ? (
+                  <> 
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/patient-list" element={<PatientPage />} />
+                    <Route 
+                      path="/patient-registration"
+                      element={<PatientRegistration />}
+                    />
+                    <Route
+                      path="/appointment-list"
+                      element={<AppointmentPage />}
+                    />
+                    <Route
+                      path="/create-appointment"
+                      element={<CreateAppointment />}
+                    />
+                    <Route 
+                      path="/patient-emr"
+                      element={<PatientEMRDetails />}
+                    />
+                    <Route
+                      path="/registered-patient"
+                      element={<RegisterationConfirmation />}
+                    />
+                    <Route
+                      path="/patient-details"
+                      element={<PatientDetails />}
+                    />
+                    <Route
+                      path="/consent-detail"
+                      element={<ConsentDocumentPage />}
+                    />
+                  </>
+                ) : (
+                  <Route path="*" element={<SignInPage />} />
+                )}
+                <Route path="/" element={<SignInPage />} />
+            </Routes>
+          {/* </div> */}
+          </Box>
+        </Box>
+        </>
+      )}
+       {isMobile && (
+        <>
+        <Box>
+          {isAuthenticated ? (
+            <>
+            <CssBaseline />
+            <AppBar position="fixed" style={{backgroundColor: "#fff", color: "#000"}}>
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={toggleDrawer(true)}
+                  edge="start"
+                  sx={{ marginLeft: 1 }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Header /> 
+              </Toolbar>
+            </AppBar>
+            </>
+            ) : (
+              <Header />
+            )}
+        </Box>
+
+        <Box display={{ xs: "block", md: "flex"}} onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+          <CssBaseline />
+          {isAuthenticated && (
+            <Drawer open={sidebarState} >
+              <DrawerHeader>
+              </DrawerHeader>
+              <Divider /> 
+              <Sidebar />
+            </Drawer>
+          )}
+        
+        <Box component="main" style={{ backgroundColor:"#f0f0f0a8" }} p={{xs: 1, md: 3}}>
+          <DrawerHeader/>
+            <Routes>
+              <Route path="/login" element={<SignInPage />} />
+                {(isAuthenticated) ? (
+                  <> 
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/patient-list" element={<PatientPage />} />
+                    <Route 
+                      path="/patient-registration"
+                      element={<PatientRegistration />}
+                    />
+                    <Route
+                      path="/appointment-list"
+                      element={<AppointmentPage />}
+                    />
+                    <Route
+                      path="/create-appointment"
+                      element={<CreateAppointment />}
+                    />
+                    <Route 
+                      path="/patient-emr"
+                      element={<PatientEMRDetails />}
+                    />
+                    <Route
+                      path="/registered-patient"
+                      element={<RegisterationConfirmation />}
+                    />
+                    <Route
+                      path="/patient-details"
+                      element={<PatientDetails />}
+                    />
+                    <Route
+                      path="/consent-detail"
+                      element={<ConsentDocumentPage />}
+                    />
+                  </>
+                ) : (
+                  <Route path="*" element={<SignInPage />} />
+                )}
+                <Route path="/" element={<SignInPage />} />
+            </Routes>
+          </Box>
+        </Box>
+        </>
+      )}
     </Router>
+   
   );  
 }
 
