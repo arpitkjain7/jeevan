@@ -123,6 +123,11 @@ const PatientPage = () => {
           type: "link",
           onClick: (item) => {
             sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+            sessionStorage.removeItem("doctorName");
+            sessionStorage.removeItem("encounterTypeValue");
+            sessionStorage.removeItem("appointmentTypeValue");
+            sessionStorage.removeItem("visitTypeValue");
+            sessionStorage.removeItem("billingTypeValue");
             dispatch(AppointmentPageActions.setSelectedPatientData(item));
             navigate("/create-appointment");
           },
@@ -168,6 +173,11 @@ const PatientPage = () => {
           type: "link",
           onClick: (item) => {
             sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+            sessionStorage.removeItem("doctorName");
+            sessionStorage.removeItem("encounterTypeValue");
+            sessionStorage.removeItem("appointmentTypeValue");
+            sessionStorage.removeItem("visitTypeValue");
+            sessionStorage.removeItem("billingTypeValue");
             dispatch(AppointmentPageActions.setSelectedPatientData(item));
             navigate("/create-appointment");
           },

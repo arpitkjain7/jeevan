@@ -43,7 +43,7 @@ import { Document, Page, pdfjs } from "react-pdf/dist/esm";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 
-const isMobile = window.innerWidth < 600;
+const isMobile = window.innerWidth < 1000;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
   ({ theme }) => `
@@ -173,7 +173,7 @@ const PDFViewerWrapper = styled("div")(({ theme }) => ({
   height: "800px",
   marginBottom: "32px",
   flex: "1",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('md')]: {
     height: "auto",
     marginBottom: "0"
   }
@@ -1425,18 +1425,18 @@ const PatientEMRDetails = () => {
       document_type: "Prescription",
       pmr_id: emrId,
     };
-    const current_patientt = JSON.parse(patient);
+    const current_patient = JSON.parse(patient);
     let appointment_request;
     if(followUp){
       appointment_request = {
-        appointment_id: current_patientt?.id,
+        appointment_id: current_patient?.id,
         followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed"
       }
     }
     else { 
         appointment_request = {
-        appointment_id: current_patientt?.id,
+        appointment_id: current_patient?.id,
         consultation_status: "Completed"
       }
     }
@@ -1687,10 +1687,20 @@ const PatientEMRDetails = () => {
     pmr_request["advice"] = advices
     pmr_request["notes"] = prescriptionComment
 
-    const appointment_request = {
-      appointment_id: currentPatient?.id,
-      followup_date: followUp ? convertDateFormat(followUp, "yyyy-MM-dd") : "",
-      consultation_status: "Completed"
+    let appointment_request;
+    const current_patient = JSON.parse(patient);
+    if(followUp){
+      appointment_request = {
+        appointment_id: current_patient?.id,
+        followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
+        consultation_status: "InProgress"
+      }
+    }
+    else { 
+        appointment_request = {
+        appointment_id: current_patient?.id,
+        consultation_status: "InProgress"
+      }
     }
     const allData ={
       pmr_request, appointment_request
@@ -2770,7 +2780,7 @@ const PatientEMRDetails = () => {
               </div>
             </>
           )}
-           {isMobile && (
+          {isMobile && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "10px"}}>
                 <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>

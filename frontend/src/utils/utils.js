@@ -1,8 +1,20 @@
-import { format } from "date-fns";
+import { format, isValid, parse } from "date-fns";
+import { enGB } from 'date-fns/locale';
 
 export const convertDateFormat = (dateString, formatNeeded) => {
   const formattedDate = format(new Date(dateString), formatNeeded);
   return formattedDate;
+};
+
+export const parseDateFormat = (dateString, formatNeeded) => {
+  if(isValid(new Date(dateString))){
+    const formattedDate = format(new Date(dateString), formatNeeded);
+    return formattedDate;
+  } else {
+    const parsedDate = parse(dateString, 'P', new Date(), { locale: enGB });
+    const formattedDate = format(parsedDate, formatNeeded);
+    return formattedDate;
+  }
 };
 
 export const convertToNumber = (value) => {

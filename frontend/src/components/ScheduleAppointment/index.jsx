@@ -14,6 +14,7 @@ import {
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
+  parseDateFormat,
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -150,7 +151,7 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
- 
+
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
@@ -163,13 +164,12 @@ const BookingSlots = () => {
     let first = Object.keys(doctorDetails)?.length ? false : true;
     if (date !== selectedDate) {
       let currentHospital = {};
-
       if (hospital && doctorId) {
         currentHospital = JSON.parse(hospital);
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
+          appointment_date: date,
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -235,7 +235,6 @@ const BookingSlots = () => {
       week.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    console.log(week, day);
     return week.includes(day);
   };
   
@@ -364,6 +363,12 @@ const BookingSlots = () => {
     return displayArr[0] + " " + displayArr[1];
   };
 
+  const formatDate = (date) => {
+    const displayArr = date?.split(" ");
+    const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
+    return formatedDate
+  };
+
   return (
     <>
       {!appointmentcompleted ? (
@@ -377,7 +382,7 @@ const BookingSlots = () => {
                     <DemoContainer components={['DatePicker']}>
                       <DesktopDatePicker 
                         disablePast
-                        onChange={(newValue) => handleDateSelect(newValue)}
+                        onChange={(newValue) => handleDateSelect(convertDateFormat(newValue, "yyyy-MM-dd"))}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -390,7 +395,7 @@ const BookingSlots = () => {
                       <Button
                         key={index}
                         color="primary"
-                        onClick={() => handleDateSelect(date)}
+                        onClick={() => handleDateSelect(formatDate(date))}
                         className={
                           selectedDate === date ? "selected-date-btn" : "date-btn"
                         }
@@ -415,7 +420,7 @@ const BookingSlots = () => {
                       <DesktopDatePicker sx={{ padding: "10px" }}
                         disablePast
                         shouldDisableDate={isWeekend}
-                        onChange={(newValue) => handleDateSelect(newValue)}
+                        onChange={(newValue) => handleDateSelect(convertDateFormat(newValue, "yyyy-MM-dd"))}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
