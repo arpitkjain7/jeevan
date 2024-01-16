@@ -33,4 +33,5 @@ export const apis = {
   authInit: "v1/patient/auth/init",
   verifySyncOtp: "v1/patient/auth/verifyOtp",
   syncPMREndpoint: "v1/PMR/sync",
+  patientDetails: "v1/patient",
 };

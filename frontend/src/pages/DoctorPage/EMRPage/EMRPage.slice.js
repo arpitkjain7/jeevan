@@ -31,6 +31,18 @@ export const verifyPatientOTP = createAsyncThunk(
   }
 );
 
+export const getPatientDetails = createAsyncThunk(
+  "patient/getPatientDetails",
+  async (id) => {
+    const response = await apiRequest(
+      "GET",
+      apis?.patientDetails + "/" + id,
+      null
+    );
+    return response;
+  }
+);
+
 export const syncPMR = createAsyncThunk(
   "patient/verifySyncOtp",
   async (payload) => {

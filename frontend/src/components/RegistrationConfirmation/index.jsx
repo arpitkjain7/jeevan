@@ -15,7 +15,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { downloadAabha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { fetchDoctorList } from "../AppointmentForm/AppointmentForm.slice";
 import { createAppointment } from "../ScheduleAppointment/scheduleAppointment.slice";
-import { getEMRId } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
+import {
+  getEMRId,
+  getPatientDetails,
+} from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -258,6 +261,7 @@ const RegisterationConfirmation = ({
     const formattedDatetime = `${year}-${month}-${day} ${hours}:${minutes}`;
     return formattedDatetime;
   };
+
   const handleDrSubmit = () => {
     sessionStorage.setItem("doctorId", doctorName);
     let currentHospital = {};
@@ -284,7 +288,13 @@ const RegisterationConfirmation = ({
           };
           dispatch(getEMRId(emrPayload)).then((res) => {
             sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
-            navigate("/patient-emr");
+            dispatch(getPatientDetails(patientData?.id)).then((res) => {
+              sessionStorage.setItem(
+                "selectedPatient",
+                JSON.stringify(res?.payload)
+              );
+            });
+            setTimeout(() => navigate("/patient-emr"), 2000);
           });
         }
       });

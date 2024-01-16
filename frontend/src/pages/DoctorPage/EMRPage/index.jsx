@@ -344,6 +344,7 @@ const PatientEMRDetails = () => {
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
+
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
