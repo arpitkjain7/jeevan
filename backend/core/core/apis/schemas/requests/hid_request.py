@@ -21,14 +21,16 @@ class OTPVerification(BaseModel):
 
 class AbhaAuth(BaseModel):
     authMethod: str
-    patientId: str
+    patientId: str = None
+    abhaNumber: str = None
 
 
 class AbhaAuthConfirm(BaseModel):
     otp: str
     txnId: str
-    patientId: str
+    patientId: str = None
     authMode: str
+    hidId: str
 
 
 class MobileOTP(BaseModel):

@@ -60,7 +60,6 @@ const HospitalList = () => {
       const resData = response.payload;
       if (resData?.length) {
         setHospitalList(resData);
-        console.log(response.payload);
       }
     });
   }, []);

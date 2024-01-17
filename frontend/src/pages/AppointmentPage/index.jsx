@@ -190,13 +190,18 @@ const AppointmentPage = () => {
             ...item,
           };
         });
-        if(formattedAppointmentList.slotDate){
+        if(formattedAppointmentList){
           const sortedData = formattedAppointmentList.sort((a, b) => {
-            return new Date(a.slotDate) - new Date(b.slotDate);
-          })
+            const dateA = new Date(a.slot_details.date);
+            const dateB = new Date(b.slot_details.date);
+    
+            if (dateA < dateB) {
+              return -1;
+            }
+            else return 1;
+          });
           setTableData(sortedData);
-        } else setTableData(formattedAppointmentList);
-       
+        } 
       });
     }
   }, []);
@@ -225,6 +230,7 @@ const AppointmentPage = () => {
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"
         />

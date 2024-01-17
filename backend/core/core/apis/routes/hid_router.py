@@ -349,6 +349,32 @@ def profile_getAbhaCard(request: PatientData, token: str = Depends(oauth2_scheme
         )
 
 
+@hid_router.post("/v1/profile/getAbhaCardBytes")
+def profile_getAbhaCardBytes(request: PatientData, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/profile/getAbhaCardBytes endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().get_abha_card_bytes(patient_id=request.patientId)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/profile/getAbhaCardBytes endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/profile/getAbhaCardBytes endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @hid_router.post("/v1/HID/searchAbha")
 def search_abha(request: HealthNumber, token: str = Depends(oauth2_scheme)):
     try:

@@ -22,6 +22,10 @@ code {
   color: #fff !important;
 }
 
+.ok_btn:disabled{
+  background-color: #1976d294 !important;
+}
+
 .cancel_btn {
  border: 1px solid !important;
 }

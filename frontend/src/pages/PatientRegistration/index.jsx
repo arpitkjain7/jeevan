@@ -7,20 +7,20 @@ import { CheckBox } from "@mui/icons-material";
 import OtpInput from "../../components/OTPValidation";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  registerAADHAR,
+  registerAADHAAR,
   registerPhone,
-  verifyAadharOTP,
-  verifyAadharPhoneOTP,
+  verifyAadhaarOTP,
+  verifyAadhaarPhoneOTP,
   verifyPhoneOTP,
 } from "./PatientRegistration.slice";
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
 import VerificationSelection from "../../components/VerificationSelection";
-import AadharVerification from "../../components/AadharVerification";
-import AadharConsent from "../../components/AadharConsent";
+import AadhaarVerification from "../../components/AadhaarVerification";
+import AadhaarConsent from "../../components/AadhaarConsent";
 import PhoneVerification from "../../components/PhoneVerification";
 import RegisterationConfirmation from "../../components/RegistrationConfirmation";
 import { apis } from "../../utils/apis";
-import AadharPatientRegForm from "../../components/AadharPatientRegistrationForm";
+import AadhaarPatientRegForm from "../../components/AadhaarPatientRegistrationForm";
 import CustomSnackbar from "../../components/CustomSnackbar";
 import CustomLoader from "../../components/CustomLoader";
 
@@ -36,7 +36,7 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
     },
   },
 
-  ".validate-aadhar-form": {
+  ".validate-aadhaar-form": {
     display: "flex",
     alignItems: "center",
     marginBottom: "24px",
@@ -58,7 +58,7 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
       height: "40px",
     },
   },
-  ".aadhar-text": {
+  ".aadhaar-text": {
     "&.MuiFormControl-root": {
       "& > .MuiInputBase-root": {
         display: "flex",
@@ -88,19 +88,19 @@ const PatientRegistration = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [checkedOption, setCheckedOption] = useState(null);
   const [registration, setRegistration] = useState(true);
-  const [verifyAadhar, setVerifyAadhar] = useState(true);
+  const [verifyAadhaar, setVerifyAadhaar] = useState(true);
   const [verifyNumber, setVerifyNumber] = useState(true);
   const [userDetailsForm, setUserDeatilsForm] = useState(true);
   const [sixDigitOTP, setSixDigitOTP] = useState("");
   const [number, setNumber] = useState();
   const dataState = useSelector((state) => state);
-  const aadharData = dataState?.PatientRegistartion?.registerAadhar;
+  const aadhaarData = dataState?.PatientRegistartion?.registerAadhaar;
   const phoneData = dataState?.PatientRegistartion?.registerPhone;
   const [stepOne, setStepOne] = useState(false);
   const [stepTwo, setStepTwo] = useState(false);
   const [stepThree, setStepThree] = useState(false);
   const [stepFour, setStepFour] = useState(false);
-  const [aadhar, setAadhar] = useState("");
+  const [aadhaar, setAadhaar] = useState("");
   const dispatch = useDispatch();
   const [userCreated, setUserCreated] = useState(false);
   const [phoneNumberUsed, setPhoneNumberUsed] = useState(true);
@@ -108,11 +108,11 @@ const PatientRegistration = () => {
   const [showLoader, setShowLoader] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Something went wrong');
   const [isMobileError, setIsMobileError] = useState(false);
-  const [isAadharError, setIsAadharError] = useState(false);
-  const [isAadharValid, setIsAadharValid] = useState(false);
-  const [aadharOTP, setAadharOTP] = useState(false);
+  const [isAadhaarError, setIsAadhaarError] = useState(false);
+  const [isAadhaarValid, setIsAadhaarValid] = useState(false);
+  const [aadhaarOTP, setAadhaarOTP] = useState(false);
   const [PhoneDisabled, setPhoneDisabled] = useState(true);
-  const [aadharOTPseconds, setAadharOTPSeconds] = useState(-1);
+  const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
   const userRole = sessionStorage?.getItem("userRole");
@@ -120,8 +120,8 @@ const PatientRegistration = () => {
 
   const adminModes = [
     {
-      label: "Aadhar",
-      value: "aadhar",
+      label: "Aadhaar",
+      value: "aadhaar",
     },
     {
       label: "Phone Number",
@@ -144,24 +144,23 @@ const PatientRegistration = () => {
     setPhoneNumberUsed(true);
     setNumber("");
     setUserDeatilsForm(true);
-    setAadhar("");
+    setAadhaar("");
     setSixDigitOTP("");
     setVerifyNumber(true);
-    setVerifyAadhar(true);
+    setVerifyAadhaar(true);
     setRegistration(true);
     setCheckedOption(null);
-    setIsAadharValid(false);
-    setAadharOTP(false);
-    setAadharOTPSeconds(-1);
+    setIsAadhaarValid(false);
+    setAadhaarOTP(false);
+    setAadhaarOTPSeconds(-1);
     setSeconds(-1);
   };
 
-  const aadhar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
+  const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
   const handleOptionChange = (event) => {
     if (selectedOption?.length) {
       resetFields();
     }
-    console.log(event.target.value);
     setSelectedOption(event.target.value);
   };
 
@@ -169,26 +168,26 @@ const PatientRegistration = () => {
     setCheckedOption((prevValue) => !prevValue);
   };
 
-  const handleAadharChange = (event) => {
+  const handleAadhaarChange = (event) => {
     const inputValue = event.target.value;
     // Check if the input value is empty string
     if (inputValue !== null) {
-      setAadhar(inputValue);
-      console.log(aadhar_regex.test(event.target.value));
-      if (!aadhar_regex.test(event.target.value)) {
-        setIsAadharError(true);
-        setIsAadharValid(false);
+      setAadhaar(inputValue);
+      console.log(aadhaar_regex.test(event.target.value));
+      if (!aadhaar_regex.test(event.target.value)) {
+        setIsAadhaarError(true);
+        setIsAadhaarValid(false);
       } else {
-        setIsAadharError(false);
-        setIsAadharValid(true);
+        setIsAadhaarError(false);
+        setIsAadhaarValid(true);
       }
     }
   
     // if (isNaN(numericValue) || inputValue === "") {
     //   console.log(isNaN(numericValue));
-    //   setErrorMessage('Please enter valid Aadhar number!');
+    //   setErrorMessage('Please enter valid Aadhaar number!');
     // } else {    
-    //   setAadhar(inputValue);
+    //   setAadhaar(inputValue);
     // }
   };
 
@@ -215,37 +214,35 @@ const PatientRegistration = () => {
   };
 
   const handleClose = () => {
-    console.log(open);
     setOpen(false);
   };
 
   const handleSubmit = (type) => {
     // Handle the form submission
      setShowLoader(true);
-    if (type === "aadhar") {
+    if (type === "aadhaar") {
       
     //validation
-    if (aadhar_regex.test(aadhar)){
-      setIsAadharValid(false);
-      console.log("Form submitted:", aadhar);
+    if (aadhaar_regex.test(aadhaar)){
+      setIsAadhaarValid(false);
+      console.log("Form submitted:", aadhaar);
         const payload = {
-          aadhaarNumber: (aadhar).replace(/\D/g, ""),
+          aadhaarNumber: (aadhaar).replace(/\D/g, ""),
         };
-        dispatch(registerAADHAR(payload)).then((res) => {
-          console.log(res?.payload);
+        dispatch(registerAADHAAR(payload)).then((res) => {
           setShowLoader(false);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
-            setErrorMessage("Please enter valid Aadhar Number");
+            setErrorMessage("Please enter valid Aadhaar Number");
             setShowSnackbar(true);
             return;
           }
-          setAadharOTPSeconds(30);
-          setAadharOTP(true);
-          setIsAadharValid(true);
+          setAadhaarOTPSeconds(60);
+          setAadhaarOTP(true);
+          setIsAadhaarValid(true);
         });
       } else {
         console.log("Failed");
-        setErrorMessage("Please enter a correct Aadhar Number");
+        setErrorMessage("Please enter a correct Aadhaar Number");
         setShowSnackbar(true);
       }
     } else if (type === "phone_number") {
@@ -254,20 +251,19 @@ const PatientRegistration = () => {
       if (mobile_pattern.test(number)){
         setPhoneDisabled(true);
         const payload =
-          selectedOption === "aadhar"
+          selectedOption === "aadhaar"
             ? {
-                txnId: aadharData?.txn_id,
+                txnId: aadhaarData?.txn_id,
                 mobileNumber: number,
               }
             : {
                 mobileNumber: number,
               };
         const url =
-          selectedOption === "aadhar"
-            ? apis?.registerAadharNumber
+          selectedOption === "aadhaar"
+            ? apis?.registerAadhaarNumber
             : apis?.restigerNumber;
         dispatch(registerPhone({ payload, url })).then((res) => {
-          console.log(res);
           setShowLoader(false);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             setShowSnackbar(true);
@@ -275,15 +271,15 @@ const PatientRegistration = () => {
           }
           const resData = res?.payload;
          
-          if (resData?.mobileLinked && selectedOption === "aadhar") {
+          if (resData?.mobileLinked && selectedOption === "aadhaar") {
             setPhoneNumberUsed(resData?.mobileLinked);
             setStepThree(true);
-          } else if(!resData?.mobileLinked && selectedOption === "aadhar"){
-            setSeconds(30);
+          } else if(!resData?.mobileLinked && selectedOption === "aadhaar"){
+            setSeconds(60);
             setPhoneNumberUsed(false);
             setPhoneDisabled(false);
           } else if(selectedOption === "phone_number"){
-            setSeconds(30);
+            setSeconds(60);
             setPhoneNumberUsed(false);
             setPhoneDisabled(false);
           }
@@ -297,12 +293,12 @@ const PatientRegistration = () => {
   };
 
   const verifyOTP = (otp, type) => {
-    if (selectedOption === "aadhar" && type === "aadhar") {
+    if (selectedOption === "aadhaar" && type === "aadhaar") {
       const payload = {
-        txnId: aadharData?.txn_id,
+        txnId: aadhaarData?.txn_id,
         otp: otp,
       };
-      dispatch(verifyAadharOTP(payload)).then((res) => {
+      dispatch(verifyAadhaarOTP(payload)).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setErrorMessage("Please enter correct OTP");
           setShowSnackbar(true);
@@ -321,7 +317,6 @@ const PatientRegistration = () => {
         otp: otp,
       };
       dispatch(verifyPhoneOTP(payload)).then((res) => {
-        console.log(res);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
           setErrorMessage("Please enter correct OTP");
@@ -332,12 +327,12 @@ const PatientRegistration = () => {
           setStepTwo(true);
         // }
       });
-    } else if (selectedOption === "aadhar" && type === "phone_number") {
+    } else if (selectedOption === "aadhaar" && type === "phone_number") {
       const payload = {
         txnId: phoneData?.txn_id,
         otp: otp,
       };
-      dispatch(verifyAadharPhoneOTP(payload)).then((res) => {
+      dispatch(verifyAadhaarPhoneOTP(payload)).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
           return;
@@ -354,8 +349,8 @@ const PatientRegistration = () => {
   useEffect(() => {
     if (stepOne) {
       setRegistration(false);
-      if (selectedOption === "aadhar") {
-        setVerifyAadhar(true);       
+      if (selectedOption === "aadhaar") {
+        setVerifyAadhaar(true);       
       }
       if (selectedOption === "phone_number" && checkedOption) {
         setUserDeatilsForm(true);
@@ -368,8 +363,8 @@ const PatientRegistration = () => {
     if (stepTwo) {
       setUserDeatilsForm(false);
 
-      if (selectedOption === "aadhar") {
-        setVerifyAadhar(false);
+      if (selectedOption === "aadhaar") {
+        setVerifyAadhaar(false);
         setVerifyNumber(true);
       }
 
@@ -381,7 +376,7 @@ const PatientRegistration = () => {
 
     if (stepThree) {
       setRegistration(false);
-      setVerifyAadhar(false);
+      setVerifyAadhaar(false);
       setVerifyNumber(false);
       setUserDeatilsForm(true);
     }
@@ -404,21 +399,21 @@ const PatientRegistration = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (aadharOTPseconds > 0) {
-        setAadharOTPSeconds(aadharOTPseconds - 1);
+      if (aadhaarOTPseconds > 0) {
+        setAadhaarOTPSeconds(aadhaarOTPseconds - 1);
       }
   
-      if (aadharOTPseconds === 0) {
+      if (aadhaarOTPseconds === 0) {
         clearInterval(interval);       
       }
     }, 1000);
     return () => {
       clearInterval(interval);
     };
-  }, [aadharOTPseconds]);
+  }, [aadhaarOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if(selectedOption == "aadhar") {
+    if(selectedOption == "aadhaar") {
       setOpen(true);
     } else {
       setStepOne(true);
@@ -451,7 +446,7 @@ const PatientRegistration = () => {
         onClose={onLoaderClose}
       />
        
-        <AadharConsent
+        <AadhaarConsent
           open={open}
           handleClose={handleClose}
           scroll={scroll}
@@ -459,7 +454,7 @@ const PatientRegistration = () => {
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
         >
-        </AadharConsent>
+        </AadhaarConsent>
       <ExpandableCard
         title={`Mode of Registration ${
           selectedOption ? "|" + " " + selectedOption?.replace("_", " ") : ""
@@ -489,32 +484,32 @@ const PatientRegistration = () => {
         )}
       </ExpandableCard>
      
-      {selectedOption === "aadhar" && stepOne && !checkedOption && (
+      {selectedOption === "aadhaar" && stepOne && !checkedOption && (
         <ExpandableCard
-          title="AADHAR Verification"
-          expanded={verifyAadhar}
-          setExpanded={setVerifyAadhar}
+          title="AADHAAR Verification"
+          expanded={verifyAadhaar}
+          setExpanded={setVerifyAadhaar}
           completed={stepTwo}
         >
-          <AadharVerification
-            aadhar={aadhar}
-            handleAadharChange={handleAadharChange}
-            isAadharError={isAadharError}
+          <AadhaarVerification
+            aadhaar={aadhaar}
+            handleAadhaarChange={handleAadhaarChange}
+            isAadhaarError={isAadhaarError}
             handleSubmit={handleSubmit}
-            isAadharValid={isAadharValid}
-            aadharOTP={aadharOTP}
+            isAadhaarValid={isAadhaarValid}
+            aadhaarOTP={aadhaarOTP}
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
-            seconds={aadharOTPseconds}
+            seconds={aadhaarOTPseconds}
           /> 
         </ExpandableCard>
       )}
-      {(selectedOption === "aadhar" && stepTwo && !checkedOption &&
+      {(selectedOption === "aadhaar" && stepTwo && !checkedOption &&
          <ExpandableCard
          title="Mobile Number Verification"
          expanded={verifyNumber}
          setExpanded={setVerifyNumber}
-         completed={(selectedOption === "aadhar" && stepThree)}
+         completed={(selectedOption === "aadhaar" && stepThree)}
        >
          <PhoneVerification
            number={number}
@@ -551,7 +546,7 @@ const PatientRegistration = () => {
       )}
 
       {(selectedOption === "phone_number" && checkedOption && stepTwo) ||
-      (selectedOption === "aadhar" && stepThree && !checkedOption) ||
+      (selectedOption === "aadhaar" && stepThree && !checkedOption) ||
       (!checkedOption && stepOne && selectedOption === "phone_number") ? (
         <ExpandableCard
           title="Patient Details"
@@ -559,16 +554,16 @@ const PatientRegistration = () => {
           setExpanded={setUserDeatilsForm}
         >
           <div className="patient-registration-form">
-            {selectedOption === "aadhar" ? (
-              <AadharPatientRegForm
+            {selectedOption === "aadhaar" ? (
+              <AadhaarPatientRegForm
                 setUserCreated={setUserCreated}
-                txnId={aadharData.txn_id}
-                isForAabha={checkedOption}
+                txnId={aadhaarData.txn_id}
+                isForAbha={checkedOption}
               />
             ) : (
               <PatientRegistartionForm
                 setUserCreated={setUserCreated}
-                isForAabha={checkedOption}
+                isForAbha={checkedOption}
                 txnId={phoneData.txn_id}
               />
             )}

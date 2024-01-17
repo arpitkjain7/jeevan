@@ -6,8 +6,14 @@ import { fetchPMRList, fetchVistList, getDocument, getDocumentBytes } from "./pa
 import { useDispatch, useSelector } from "react-redux";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 import MyTable from "../TableComponent";
+import { Dialog, AppBar, Toolbar, IconButton, Typography, Slide } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { convertDateFormat } from "../../utils/utils";
 import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const VisitsWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
@@ -20,10 +26,16 @@ const Visits = styled("div")(({ theme }) => ({
 }));
 const SideList = styled("List")(({ theme }) => ({
   display: "flex",
-  flexDirection: "column",
   gap: theme.spacing(8),
   height: "100vh",
   overflow: "auto",
+  [theme.breakpoints.up('sm')]: {
+    flexDirection: "column",
+  },
+  [theme.breakpoints.down('sm')]: {
+    gap: theme.spacing(4),
+    height: "auto",
+  },
 }));
 
 // const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
@@ -63,6 +75,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
   "&": {
     height: "600px",
     overflow: "auto",
+    [theme.breakpoints.down('sm')]: {
+      height: "auto",
+      marginTop: "15px",
+    }
   },
   ".table-class": {
     "&.MuiPaper-root": {
@@ -77,6 +93,15 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
+      "& > tr >td:active": {
+        borderStyle: "inset",
+        backgroundColor: "#bde4ff"
+      },
+      [theme.breakpoints.down('sm')]: {
+        "& > tr >td": {
+          padding: "10px",
+        }
+      }
     },
   },
 }));
@@ -90,6 +115,10 @@ const VitalsListContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   width: "250px",
+  [theme.breakpoints.down('sm')]: {
+    width: "auto",
+
+  },
 
   "&.selected-vital": {
     border: `1px solid ${theme.palette.primaryBlue}`,
@@ -110,19 +139,33 @@ const tableStyle = {
 const PastVisits = ({isPatientHistory}) => {
   const [tableData, setTableData] = useState([]);
   const dataState = useSelector((state) => state);
+  const [documentType, setDocumentType] = useState("");
   const [base64data, setbase64data] = useState("");
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const patient = sessionStorage?.getItem("selectedPatient");
   const [visitList, setVisitList] = useState([]);
+  const [documentPopup, setDocumentPopup] = useState(false);
   const [pmrId, setPmrId] = useState("");
+  const isMobile = window.innerWidth < 600;
   const pdfFileName = "custom_filename.pdf";
+
   const selectVisit = (item) => {
     dispatch(fetchPMRList(item?.id)).then((res) => {
+      if(isMobile){
+        setDocumentPopup(true);
+      }
       setPmrId(item?.id);
       const docsList = res.payload;
       console.log(docsList);
-      setTableData(docsList);
+      const formattedDocsList = docsList?.map((item) => {
+        const DocDate = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aa");
+        return {
+          document_date: DocDate,
+          ...item,
+        };
+      });
+      setTableData(formattedDocsList);
     });
   };
   useEffect(() => {
@@ -135,7 +178,6 @@ const PastVisits = ({isPatientHistory}) => {
             return new Date(a.updated_at).getTime() - 
                 new Date(b.updated_at).getTime()
             }).reverse();
-            console.log(pmrData);
               setVisitList(pmrData);
           }
       });
@@ -144,23 +186,22 @@ const PastVisits = ({isPatientHistory}) => {
   const columns = [
     { key: "id", header: "Document Id" },
     { key: "document_name", header: "Document Name" },
-    { key: "created_at", header: "Uploaded Date" },
+    { key: "document_date", header: "Uploaded Date" },
     { key: "document_type_code", header: "Document Code" },
   ];
-  
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleDocPopupClose = () => {
+    setDocumentPopup(false);
+  }
   const openDoc = (row) => {
     // if(isPatientHistory){
       dispatch(getDocumentBytes(row?.id)).then((res) => {
-       console.log(res);
        if(res.payload != undefined ){
+        setDocumentType(row.document_mime_type);
         setbase64data(res.payload.data);
         setOpen(true);
       } else {
@@ -197,23 +238,62 @@ const PastVisits = ({isPatientHistory}) => {
             </VitalsListContainer>
           ))}
         </SideList>
-        <Vitals>
-          <VitalDetailsTable>
-            <MyTable
-              columns={columns}
-              data={tableData}
-              tableStyle={tableStyle}
-              tableClassName="table-class"
-              showSearch={false}
-              onRowClick={(row) => openDoc(row)}
-            />
-          </VitalDetailsTable>
-        </Vitals>
+        {!isMobile && (
+          <Vitals>
+            <VitalDetailsTable>
+              <MyTable
+                columns={columns}
+                data={tableData}
+                tableStyle={tableStyle}
+                tableClassName="table-class"
+                showSearch={false}
+                onRowClick={(row) => openDoc(row)}
+              />
+            </VitalDetailsTable>
+          </Vitals>
+        )}
+        {isMobile && (
+          <Dialog
+            fullScreen
+            open={documentPopup}
+            onClose={handleDocPopupClose}
+            TransitionComponent={Transition}
+          >
+            <AppBar sx={{ position: 'relative' }}>
+              <Toolbar>
+                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                  Document Details
+                </Typography>
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  onClick={handleDocPopupClose}
+                  aria-label="close"
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Toolbar>
+            </AppBar>
+            <Vitals>
+              <VitalDetailsTable>
+                <MyTable
+                  columns={columns}
+                  data={tableData}
+                  tableStyle={tableStyle}
+                  tableClassName="table-class"
+                  showSearch={false}
+                  onRowClick={(row) => openDoc(row)}
+                />
+              </VitalDetailsTable>
+            </Vitals>
+          </Dialog>
+        )}
       </VitalsDetailsContainer>
       {base64data && (
         <PdfFromDocumentBytes 
         open={open}
         handleClose={handleClose}
+        documentType={documentType}
         docBytes={base64data}
          />
       )}

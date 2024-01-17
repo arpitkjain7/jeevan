@@ -59,7 +59,7 @@ const OTPWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(8),
 }));
 
-const SyncAabha = ({
+const SyncAbha = ({
   showSync,
   handleModalClose,
   selectedAuthOption,
@@ -93,7 +93,6 @@ const SyncAabha = ({
     };
     dispatch(getPatientAuth(payload)).then((res) => {
       setTxnId(res.payload?.txn_id);
-      console.log(res.payload);
     });
   };
 
@@ -132,7 +131,7 @@ const SyncAabha = ({
       aria-describedby="modal-modal-description"
     >
       <StyledModalBox>
-        <PageTitle>Sync Aabha</PageTitle>
+        <PageTitle>Sync ABHA</PageTitle>
         <FormControl component="fieldset">
           <PageSubText>Select an authentication method</PageSubText>
           <RadioGroup
@@ -168,4 +167,4 @@ const SyncAabha = ({
   );
 };
 
-export default SyncAabha;
+export default SyncAbha;

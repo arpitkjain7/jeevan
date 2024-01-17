@@ -12,13 +12,14 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { downloadAabha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { fetchDoctorList } from "../AppointmentForm/AppointmentForm.slice";
 import { createAppointment } from "../ScheduleAppointment/scheduleAppointment.slice";
 import {
   getEMRId,
   getPatientDetails,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
+import { downloadAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -133,8 +134,10 @@ const RegisterationConfirmation = ({
 }) => {
   const dispatch = useDispatch();
   console.log(appointmentDetails, "details");
-  const [isAabhaDisabled, setIsAabhaDisabled] = useState(false);
+  const [isAbhaPresent, setIsAbhaPresent] = useState(false);
+  const [isAbhaDisabled, setIsAbhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
+  const [abhaCardBytes, setAbhaCardBytes] = useState("");
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const registeredPatient =
@@ -168,7 +171,7 @@ const RegisterationConfirmation = ({
       },
       { key: "Email Address", value: patientData?.email || "-" },
       {
-        key: "AABHA Address",
+        key: "ABHA Address",
         value: patientData?.abha_address || currentPatient?.abha_address || "-",
       },
     ];
@@ -189,13 +192,24 @@ const RegisterationConfirmation = ({
     setData(pageData);
   }, [patientData]);
 
-  const downloadAbha = () => {
-    console.log("Downloading Aabha");
-    setIsAabhaDisabled(true);
-    dispatch(downloadAabha({ patientId: patientData.id })).then((res) => {
-      setIsAabhaDisabled(false);
+  useEffect(() => {
+    dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
+      if (res?.error) {
+        return;
+      } else {
+        setIsAbhaPresent(true);
+        setAbhaCardBytes(res.payload.abha_bytes);
+      }
+    });
+  }, []);
+
+  const downloadAbhaCard = () => {
+    console.log("Downloading ABHA");
+    setIsAbhaDisabled(true);
+    dispatch(downloadAbha({ patientId: patientData.id })).then((res) => {
+      setIsAbhaDisabled(false);
       if (res?.error && Object.keys(res?.error)?.length > 0) {
-        console.log("Download Aabha failed");
+        console.log("Download ABHA failed");
         return;
       } else {
         const abha_url = res?.payload.abha_url;
@@ -387,17 +401,25 @@ const RegisterationConfirmation = ({
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
-        <Button
-          disabled={isAabhaDisabled}
-          style={{
-            backgroundColor: isAabhaDisabled ? "#9e9e9e" : "",
-          }}
-          className="submit-btn"
-          onClick={downloadAbha}
-        >
-          Download Aabha
-        </Button>
+        {isAbhaPresent && (
+          <Button
+            disabled={isAbhaDisabled}
+            style={{
+              backgroundColor: isAbhaDisabled ? "#9e9e9e" : "",
+            }}
+            className="submit-btn"
+            onClick={downloadAbhaCard}
+          >
+            Download ABHA
+          </Button>
+        )}
       </div>
+      {isAbhaPresent && (
+        <embed
+          style={{ width: "-webkit-fill-available" }}
+          src={`data:image/jpeg;base64,${abhaCardBytes}`}
+        />
+      )}
     </RegisterationConfirmationWrapper>
   );
 };
