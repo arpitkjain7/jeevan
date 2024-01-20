@@ -32,7 +32,9 @@ const Sidebar = ({ open, onClose, list }) => {
         "& .MuiDrawer-paper": {
           backgroundColor: "#fff",
           padding: "80px 0 30px 0",
-          minWidth: "60px",
+          [theme.breakpoints.up('md')]: {
+            minWidth: "60px",
+          },
           [theme.breakpoints.down('sm')]: {
             padding: "50px 0 30px 0",
           }

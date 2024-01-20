@@ -5,7 +5,12 @@ from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from datetime import datetime, timezone, timedelta
-from core.utils.aws.s3_helper import upload_to_s3, get_object, create_presigned_url
+from core.utils.aws.s3_helper import (
+    upload_to_s3,
+    get_object,
+    create_presigned_url,
+    read_object,
+)
 from core.utils.custom.encryption_helper import rsa_encryption
 import os
 import json
@@ -787,6 +792,111 @@ class HIDController:
             )
             raise error
 
+    def get_abha_card_bytes(self, patient_id: str):
+        try:
+            logging.info("executing  get_abha_card_bytes function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            if patient_obj:
+                logging.info("Getting ABHA S3 location")
+                if patient_obj.get("abha_s3_location"):
+                    logging.info("Generating Presigned URL for ABHA S3 location")
+                    abha_bytes = read_object(
+                        bucket_name=self.s3_location,
+                        prefix=patient_obj.get("abha_s3_location"),
+                    )
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_bytes": abha_bytes}
+                else:
+                    logging.info("Getting Abha card")
+                    linking_token = patient_obj.get("linking_token").get("value")
+                    byte_data, resp_code = APIInterface().get_bytes(
+                        route=f"{self.abha_url}/v1/account/getPngCard",
+                        headers={
+                            "Authorization": f"Bearer {gateway_access_token}",
+                            "X-Token": f"Bearer {linking_token}",
+                        },
+                    )
+                    if resp_code >= 400:
+                        logging.info(
+                            "Expired Linking Token. Generating new with Refresh token"
+                        )
+                        refresh_token = patient_obj.get("refresh_token").get("value")
+                        refresh_token_url = (
+                            f"{self.abha_url}/v1/auth/generate/access-token"
+                        )
+                        resp, resp_code = APIInterface().post(
+                            route=refresh_token_url,
+                            data={"refreshToken": refresh_token},
+                            headers={"Authorization": f"Bearer {gateway_access_token}"},
+                        )
+                        linking_token = resp.get("accessToken", None)
+                        if linking_token:
+                            self.CRUDPatientDetails.update(
+                                **{
+                                    "id": patient_id,
+                                    "linking_token": {"value": linking_token},
+                                }
+                            )
+                        logging.info("Getting Abha card")
+                        byte_data, resp_code = APIInterface().get_bytes(
+                            route=f"{self.abha_url}/v1/account/getPngCard",
+                            headers={
+                                "Authorization": f"Bearer {gateway_access_token}",
+                                "X-Token": f"Bearer {linking_token}",
+                            },
+                        )
+                        logging.info("Uploading Abha card to S3")
+                        upload_to_s3(
+                            bucket_name=self.s3_location,
+                            byte_data=byte_data,
+                            file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                        )
+                        logging.info("Uploading database with S3 location")
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                            }
+                        )
+                        logging.info("Generating Presigned URL for Abha S3")
+                        abha_bytes = read_object(
+                            bucket_name=self.s3_location,
+                            prefix=f"PATIENT_DATA/{patient_id}/abha.png",
+                        )
+                        logging.info("Returning S3 presigned url")
+                        return {"abha_bytes": abha_bytes}
+                    logging.info("Uploading Abha card to S3")
+                    upload_to_s3(
+                        bucket_name=self.s3_location,
+                        byte_data=byte_data,
+                        file_name=f"PATIENT_DATA/{patient_id}/abha.png",
+                    )
+                    logging.info("Uploading database with S3 location")
+                    self.CRUDPatientDetails.update(
+                        **{
+                            "id": patient_id,
+                            "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha.png",
+                        }
+                    )
+                    logging.info("Generating Presigned URL for Abha S3")
+                    abha_bytes = read_object(
+                        bucket_name=self.s3_location,
+                        prefix=f"PATIENT_DATA/{patient_id}/abha.png",
+                    )
+                    logging.info("Returning S3 presigned url")
+                    return {"abha_bytes": abha_bytes}
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.get_abha_card_bytes function: {error}"
+            )
+            raise error
+
     def search_abha(self, abha_number: str):
         try:
             logging.info("executing search_abha function")
@@ -864,14 +974,18 @@ class HIDController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             patient_id = request.patientId
-            patient_obj = self.CRUDPatientDetails.read_by_patientId(
-                patient_id=patient_id
-            )
-            health_id = patient_obj.get("abha_number")
+            health_id = request.abhaNumber
             auth_method = request.authMethod
-            verify_otp_url = f"{self.abha_url}/v1/auth/init"
+            logging.info(f"{patient_id=}")
+            if patient_id is not None:
+                patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                    patient_id=patient_id
+                )
+                health_id = patient_obj.get("abha_number")
+            logging.info(f"{health_id=}")
+            auth_init_url = f"{self.abha_url}/v1/auth/init"
             resp, resp_code = APIInterface().post(
-                route=verify_otp_url,
+                route=auth_init_url,
                 data={"authMethod": auth_method, "healthid": health_id},
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
@@ -888,8 +1002,9 @@ class HIDController:
             ).get("accessToken")
             txn_id = request.txnId
             otp = request.otp
-            pid = request.patientId
+            patient_id = request.patientId
             auth_mode = request.authMode
+            hid_id = request.hidId
             if auth_mode == "AADHAAR_OTP":
                 verify_otp_url = f"{self.abha_url}/v1/auth/confirmWithAadhaarOtp"
             elif auth_mode == "MOBILE_OTP":
@@ -918,9 +1033,58 @@ class HIDController:
                 refresh_token_validity = refresh_token_validity.strftime(
                     "%m/%d/%Y, %H:%M:%S"
                 )
-                self.CRUDPatientDetails.update(
-                    **{
-                        "id": pid,
+                if patient_id is not None:
+                    self.CRUDPatientDetails.update(
+                        **{
+                            "id": patient_id,
+                            "linking_token": {
+                                "value": linking_token,
+                                "valid_till": linking_token_validity,
+                            },
+                            "refresh_token": {
+                                "value": refresh_token,
+                                "valid_till": refresh_token_validity,
+                            },
+                        }
+                    )
+                    return {
+                        "patient_id": patient_id,
+                        "status": "Patient Already Exist, Updated Linking Token",
+                    }
+                else:
+                    logging.info("Getting patient details")
+                    get_profile_url = f"{self.abha_url}/v1/account/profile"
+                    patient_data, resp_code = APIInterface().get(
+                        route=get_profile_url,
+                        headers={
+                            "Authorization": f"Bearer {gateway_access_token}",
+                            "X-Token": f"Bearer {linking_token}",
+                        },
+                    )
+                    abha_number = patient_data["healthIdNumber"].replace("-", "")
+                    patient_record = self.CRUDPatientDetails.read_by_abhaId(
+                        abha_number=abha_number
+                    )
+                    patient_request = {
+                        "abha_number": abha_number,
+                        "abha_address": patient_data["healthId"],
+                        "mobile_number": patient_data["mobile"],
+                        "name": patient_data["name"],
+                        "gender": patient_data["gender"],
+                        "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
+                        "email": patient_data["email"],
+                        "address": patient_data["address"],
+                        "village": patient_data["villageName"],
+                        "village_code": patient_data["villageCode"],
+                        "town": patient_data["townName"],
+                        "town_code": patient_data["townCode"],
+                        "district": patient_data["districtName"],
+                        "district_code": patient_data["districtCode"],
+                        "pincode": patient_data["pincode"],
+                        "state_name": patient_data["stateName"],
+                        "state_code": patient_data["stateCode"],
+                        "hip_id": hid_id,
+                        "auth_methods": {"authMethods": patient_data["authMethods"]},
                         "linking_token": {
                             "value": linking_token,
                             "valid_till": linking_token_validity,
@@ -929,9 +1093,23 @@ class HIDController:
                             "value": refresh_token,
                             "valid_till": refresh_token_validity,
                         },
+                        "abha_status": "ACTIVE",
                     }
-                )
-            return resp
+                    if patient_record:
+                        patient_request.update({"id": patient_record["id"]})
+                        self.CRUDPatientDetails.update(**patient_request)
+                        return {
+                            "patient_id": patient_record["id"],
+                            "status": "Patient Already Exist, Updated Linking Token",
+                        }
+                    else:
+                        patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                        patient_request.update({"id": patient_id})
+                        self.CRUDPatientDetails.create(**patient_request)
+                        return {
+                            "patient_id": patient_id,
+                            "status": "New Patient Created",
+                        }
         except Exception as error:
             logging.error(f"Error in HIDController.abha_auth_confirm function: {error}")
             raise error

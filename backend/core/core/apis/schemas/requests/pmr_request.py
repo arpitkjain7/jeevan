@@ -215,8 +215,8 @@ class FollowUp(BaseModel):
 
 class FollowUp_ConsultationStatus(BaseModel):
     appointment_id: str
-    followup_date: date
-    consultation_status: ConsultationStatus
+    followup_date: date = None
+    consultation_status: ConsultationStatus = None
 
 
 class PMR(BaseModel):

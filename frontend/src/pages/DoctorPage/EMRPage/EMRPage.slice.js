@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apis } from "../../../utils/apis";
 import { apiRequest } from "../../../utils/request";
 import axios from "axios";
+import { BASE_URL, pdfUploadHeader } from "../../../utils/request";
 
 export const searchVitalsDetails = createAsyncThunk(
   "searchVitals/EMR",
@@ -68,6 +69,51 @@ export const uploadPmrPdf = createAsyncThunk(
     } catch (error) {
       console.error("Error uploading PDF:", error);
     }
+  }
+);
+
+// export const uploadHealthDocument = createAsyncThunk(
+//   "uploadHealthDocuments",
+//   async ({params, docPayload}) => {
+//     console.log(docPayload);
+//     const response = await apiRequest("POST", `${apis?.uploadHealthDocument}?patient_id=${params.patient_id}&appointment_id=${params.appointment_id}&hip_id=${params.hip_id}`,
+//     docPayload);
+//     return response;
+//   }
+// );
+
+export const submitHealthDocument = createAsyncThunk(
+  "PMR/uploadDocument",
+  async ({params, docPayload}) => {
+    const apiUrl = apis.uploadPmrPdf;
+    const access_token = sessionStorage.getItem("accesstoken");
+    const formData = new FormData();
+    const files = docPayload.files;
+    files.map((file) => {
+      formData.append("files", file);
+    })
+    try {
+      const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
+        params: {
+          document_type: params?.document_type,
+          pmr_id: params?.pmr_id,
+        },
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+    }
+    // const response = await apiRequest("POST", `${apis?.uploadPmrPdf}?pmr_id=${params.pmr_id}&document_type=${params.document_type}`,
+    // formData);
+    // return response;
   }
 );
 

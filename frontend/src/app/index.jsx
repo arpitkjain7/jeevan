@@ -32,16 +32,34 @@ const openedMixin = (theme) => ({
   overflowX: 'hidden',
 });
 
+const openedMobileMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: 'hidden',
-  width: `calc(${theme.spacing(9)} + 20px)`,
-  [theme.breakpoints.up('sm')]: {
+  // width: `calc(${theme.spacing(9)} + 20px)`,
+  [theme.breakpoints.up('md')]: {
     width: `calc(${theme.spacing(11)} + 20px)`,
   },
+});
+
+const closedMobileMixin = (theme) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: "0px",
 });
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -78,12 +96,24 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     whiteSpace: 'nowrap',
     boxSizing: 'border-box',
     ...(open && {
+      [theme.breakpoints.up('md')]: {
       ...openedMixin(theme),
       '& .MuiDrawer-paper': openedMixin(theme),
+    },
+    [theme.breakpoints.down('md')]: {
+      ...openedMobileMixin(theme),
+      '& .MuiDrawer-paper': openedMobileMixin(theme),
+    },
     }),
     ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
+      [theme.breakpoints.up('md')]: {
+        ...closedMixin(theme),
+        '& .MuiDrawer-paper': closedMixin(theme),
+      },
+      [theme.breakpoints.down('md')]: {
+        ...closedMobileMixin(theme),
+        '& .MuiDrawer-paper': closedMobileMixin(theme),
+      }
     }),
   }),
 );
@@ -99,7 +129,7 @@ function App() {
   const isAuthenticated = sessionStorage.getItem("accesstoken");
 
   useEffect(() => {
-    console.log("reduxStore", dataState);
+    // console.log("reduxStore", dataState);
   }, [dataState]);
 
   return (
@@ -128,7 +158,7 @@ function App() {
           )}
       </Box>
 
-      <Box sx={{ display: 'flex' }}>
+      <Box display={{ xs: "block", md: "flex"}}>
         <CssBaseline />
         {isAuthenticated && (
         <Drawer variant="permanent" open={open} >
@@ -139,7 +169,7 @@ function App() {
         </Drawer>
       )}
       
-      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 2, md: 3}}>
+      <Box component="main" style={{ flexGrow: 1, backgroundColor:"#f0f0f0a8" }} sx={{ overflow: "auto" }} p={{xs: 1, md: 3}}>
         <DrawerHeader/>
         {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
           <Routes>

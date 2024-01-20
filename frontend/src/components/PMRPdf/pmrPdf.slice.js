@@ -21,8 +21,7 @@ export const submitPdf = createAsyncThunk(
       const chunk = pdfBlob.slice(start, end);
 
       const formData = new FormData();
-      formData.append("file", chunk, "document.pdf");
-      console.log(pdfPayload);
+      formData.append("files", chunk, "document.pdf");
       try {
         const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
           params: {

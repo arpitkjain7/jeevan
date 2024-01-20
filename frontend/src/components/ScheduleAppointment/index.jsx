@@ -295,7 +295,6 @@ const BookingSlots = () => {
         const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
       }
-      console.log("slots");
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
       setSlots(removeBookedSlots(timeSlots, slotsBooked));
     }
@@ -322,6 +321,11 @@ const BookingSlots = () => {
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
+        sessionStorage.removeItem("doctorName");
+        sessionStorage.removeItem("encounterTypeValue");
+        sessionStorage.removeItem("appointmentTypeValue");
+        sessionStorage.removeItem("visitTypeValue");
+        sessionStorage.removeItem("billingTypeValue");
         if (res.payload?.appointment_id) {
           setAppointmentCompleted(true);
         }

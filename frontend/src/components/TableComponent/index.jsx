@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -15,7 +15,12 @@ import {
   Typography,
   TableFooter,
   TablePagination,
-  Box
+  Box,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Select,
+  FormLabel
 } from "@mui/material";
 import {
   Class, Search as SearchIcon,
@@ -25,6 +30,7 @@ import {
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import SettingsIcon from "@mui/icons-material/Settings";
+import { convertDateFormat } from "../../utils/utils";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -34,7 +40,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".search-wrap": {
     padding: theme.spacing(4),
     display: "flex",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     alignItems: "center",
     marginBottom: theme.spacing(4.5),
   },
@@ -132,15 +138,39 @@ const MyTable = ({
   tableClassName,
   searchClassName,
   onRowClick,
+  showFilter
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [filterValue, setFilterValue] = useState("");
+  const [filterDateValue, setFilterDateValue] = useState("");
+  
   const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    return columns.some((column) =>
+
+    if(showFilter){
+      let filterSearch;
+      if(filterValue === "All") filterSearch = ""
+      else filterSearch = filterValue.toLowerCase();
+
+      let formattedDate;
+      if(filterDateValue === "") formattedDate = ""
+      else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
+
+      return columns.some((column) =>
+        (item['patientId']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+        item['patientDetails']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+        item['mobileNumber']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+        item['docName']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)) &&
+        item['status']?.toString()?.toLowerCase()?.includes(filterSearch) &&
+        item['slotDate']?.toString()?.toLowerCase()?.includes(formattedDate)
+      );
+    } else {
+      return columns.some((column) =>
       item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
     );
+    }
   });
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -159,7 +189,15 @@ const MyTable = ({
     setSearchTerm(event.target.value);
   };
 
+  const handleFilterChange = (event) => {
+    setFilterValue(event.target.value);
+  }
 
+  const handleDateChange = (event) => {
+    // if(event.target.value !== "")
+    //   setFilterDateChange(convertDateFormat(event.target.value, "dd/MM/yyyy"));
+    setFilterDateValue(event.target.value);
+  }
 
   return (
     <TableComponentWrapper>
@@ -168,7 +206,7 @@ const MyTable = ({
           <TextField
             variant="outlined"
             fullWidth
-            sx={{ mb: 2 }}
+            style={{ margin: "0 10px" }}
             InputProps={{
               startAdornment: (
                 <IconButton size="small">
@@ -180,7 +218,36 @@ const MyTable = ({
             onChange={handleSearch}
             className={searchClassName}
           />
-        </div>
+       
+          {showFilter && (
+            <>
+              {/* <FormLabel>Date</FormLabel> */}
+              <TextField
+                placeholder="Select Date"
+                style={{width: "200px", margin: "0 10px"}}
+                type="date"
+                value={filterDateValue}
+                onChange={handleDateChange}
+              />
+              <FormControl style={{ margin: "0 10px" }}>
+                <InputLabel id="demo-simple-select-label">Filter by Status</InputLabel>
+                <Select
+                  style={{ width: "200px" }}
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  label="Filter by Status"
+                  value={filterValue}
+                  onChange={handleFilterChange}
+                >
+                  <MenuItem value="All">All</MenuItem>
+                  <MenuItem value="Scheduled">Scheduled</MenuItem>
+                  <MenuItem value="InProgress">InProgress</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
+                </Select>
+              </FormControl>
+            </>
+          )}
+       </div>
       )}
       <Paper sx={{ overflow: 'hidden' }} >
         <TableContainer
@@ -192,7 +259,7 @@ const MyTable = ({
             <TableHead className="table-component-header" >
               <TableRow>
                 {columns?.map((column) => (
-                  <TableCell key={column.key} classNamwe="table-header-cell">
+                  <TableCell key={column.key} className="table-header-cell">
                     {column.header}
                   </TableCell>
                 ))}

@@ -115,7 +115,7 @@ function VerificationSelection({
               <FormControlLabel
                 control={
                   <Checkbox
-                    disabled={selectedOption === "aadhar"}
+                    disabled={selectedOption === "aadhaar"}
                     checked={checkedOption}
                     onChange={handleOptionCheck}
                   />

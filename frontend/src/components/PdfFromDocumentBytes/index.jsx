@@ -38,8 +38,10 @@ function useWindowDimensions() {
         }, []);
         return windowDimensions;
     }
-const PdfFromDocumentBytes = ({open, handleClose, docBytes}) => {
+const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const { height, width } = useWindowDimensions();
+  const isMobile = window.innerWidth < 600;
+  const docType = documentType;
     return (
         <React.Fragment>
       <Dialog
@@ -62,7 +64,12 @@ const PdfFromDocumentBytes = ({open, handleClose, docBytes}) => {
             </IconButton>
           </Toolbar>
         </AppBar>
-            <embed style={{ width: width, height: height }} src={`data:application/pdf;base64,${docBytes}`}/>
+          {!isMobile && (
+            <embed style={{ width: "auto", height: height }} src={`data:${docType};base64,${docBytes}`}/>
+          )}
+          {isMobile && (
+            <embed style={{ width: width, height: "auto" }} src={`data:${docType};base64,${docBytes}`}/>
+          )}
       </Dialog>
     </React.Fragment>
     )

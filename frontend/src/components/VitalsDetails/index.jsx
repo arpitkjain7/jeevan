@@ -9,17 +9,28 @@ import { convertDateFormat } from "../../utils/utils";
 const VitalsDetailsWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryWhite,
   padding: theme.spacing(0, 6),
+  [theme.breakpoints.down('sm')]: {
+    padding: "0",
+  }
 }));
 const VitalsDetailsContainer = styled("div")(({ theme }) => ({
-  display: "flex",
   gap: theme.spacing(4),
   padding: theme.spacing(8, 0),
+  [theme.breakpoints.up('sm')]: {
+    display: "flex",
+  }
 }));
 const SideList = styled("List")(({ theme }) => ({
   flex: "0.3",
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(8),
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: "row",
+    gap: "12px;",
+    overflow: "auto",
+    marginBottom: "10px",
+  }
 }));
 
 // const VitalsList = styled("ListItem")(({ theme }) => ({}));
@@ -60,6 +71,9 @@ const VitalsListContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(2),
+  },
 
   "&.selected-vital": {
     border: `1px solid ${theme.palette.primaryBlue}`,

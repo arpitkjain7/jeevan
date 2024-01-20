@@ -44,11 +44,23 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".field-title": {
     "&.MuiTypography-root": theme.typography.body2,
   },
-
+  ".btn-wrapper": {
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
+      justifyContent: "center",
+    }
+  },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
+    "&:hover": {
+      backgroundColor: "#0089e999",
+    },
     float: "right",
     marginTop: theme.spacing(8),
+    marginBottom: "10px",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(5),
+    }
   },
 }));
 
@@ -70,21 +82,25 @@ const RadioFormControl = styled("div")(({ theme }) =>({
   display: "flex",
   alignItems: "center",
   [theme.breakpoints.down('sm')]: {
-    justifyContent: "space-between",
     marginBottom: "15px"
+  },
+  ".MuiFormGroup-root": {
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "space-between"
+    },
   }
 }));
 
 function AppointmentForm(props) {
-  const [doctorName, setDoctorName] = useState("");
-  const [encounterTypeValue, setEncounterTypeValue] = useState("");
-  const [appointmentTypeValue, setAppointmentTypeValue] = useState("");
-  const [visitTypeValue, setVisitTypeValue] = useState("");
-  const [billingTypeValue, setBillingTypeValue] = useState("");
+  const [doctorName, setDoctorName] = useState("" || sessionStorage.getItem("doctorName"));
+  const [encounterTypeValue, setEncounterTypeValue] = useState("" || sessionStorage.getItem("encounterTypeValue"));
+  const [appointmentTypeValue, setAppointmentTypeValue] = useState("" || sessionStorage.getItem("appointmentTypeValue"));
+  const [visitTypeValue, setVisitTypeValue] = useState("" || sessionStorage.getItem("visitTypeValue"));
+  const [billingTypeValue, setBillingTypeValue] = useState("" || sessionStorage.getItem("billingTypeValue"));
   const dispatch = useDispatch();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const selectedPatient = JSON.parse(
     sessionStorage?.getItem("selectedPatient")
   );
@@ -108,6 +124,7 @@ function AppointmentForm(props) {
   ];
 
   const handleDoctorNameChange = (event) => {
+    sessionStorage.setItem("doctorName", event?.target?.value);
     setDoctorName(event.target.value);
   };
 
@@ -137,18 +154,22 @@ function AppointmentForm(props) {
   }, []);
 
   const handleEncounterTypeChange = (event) => {
+    sessionStorage.setItem("encounterTypeValue", event?.target?.value);
     setEncounterTypeValue(event?.target?.value);
   };
 
   const handleVisitTypeChange = (event) => {
+    sessionStorage.setItem("visitTypeValue", event?.target?.value);
     setVisitTypeValue(event?.target?.value);
   };
 
   const handleBillingTypeChange = (event) => {
+    sessionStorage.setItem("billingTypeValue", event?.target?.value);
     setBillingTypeValue(event?.target?.value);
   };
 
   const handleAppointmentChange = (event) => {
+    sessionStorage.setItem("appointmentTypeValue", event?.target?.value);
     setAppointmentTypeValue(event?.target?.value);
   };
 
@@ -241,7 +262,7 @@ function AppointmentForm(props) {
             <Typography className="field-title">Visit Type</Typography>
             <FormControl>
               <RadioFormControl component="fieldset">
-                <RadioGroup
+                <RadioGroup 
                   row
                   value={visitTypeValue}
                   onChange={handleVisitTypeChange}
