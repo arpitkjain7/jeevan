@@ -741,6 +741,7 @@ class HIDController:
                         upload_to_s3(
                             bucket_name=self.s3_location,
                             byte_data=byte_data,
+                            content_type="image/png",
                             file_name=f"PATIENT_DATA/{patient_id}/abha.png",
                         )
                         logging.info("Uploading database with S3 location")
@@ -762,6 +763,7 @@ class HIDController:
                     upload_to_s3(
                         bucket_name=self.s3_location,
                         byte_data=byte_data,
+                        content_type="image/png",
                         file_name=f"PATIENT_DATA/{patient_id}/abha.png",
                     )
                     logging.info("Uploading database with S3 location")

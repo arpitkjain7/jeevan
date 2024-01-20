@@ -1146,6 +1146,7 @@ class PMRController:
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,
+                content_type="application/pdf",
             )
             document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
@@ -1230,6 +1231,7 @@ class PMRController:
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,
+                content_type="application/pdf",
             )
             document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
