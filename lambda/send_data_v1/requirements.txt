@@ -1,0 +1,17 @@
+boto3>=1.26.43
+fastapi>=0.88.0
+uvicorn>=0.20.0
+pydantic>=1.6.2
+requests>=2.22.0
+starlette>=0.13.2
+urllib3>=1.24.3
+uvloop>=0.14.0
+wcwidth>=0.1.9
+PyJWT>=2.1.0
+passlib>=1.7.4
+bcrypt>=3.2.0
+pytz>=2023.3
+fhir.resources==7.0.2
+cryptography==41.0.4
+merkle-json>=1.0.0
+awslambdaric
