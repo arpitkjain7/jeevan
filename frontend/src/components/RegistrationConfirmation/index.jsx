@@ -193,14 +193,16 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
-      if (res?.error) {
-        return;
-      } else {
-        setIsAbhaPresent(true);
-        setAbhaCardBytes(res.payload.abha_bytes);
-      }
-    });
+    if (!isAppointment) {
+      dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
+        if (res?.error) {
+          return;
+        } else {
+          setIsAbhaPresent(true);
+          setAbhaCardBytes(res.payload?.abha_bytes);
+        }
+      });
+    }
   }, []);
 
   const downloadAbhaCard = () => {
@@ -401,7 +403,7 @@ const RegisterationConfirmation = ({
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
-        {isAbhaPresent && (
+        {isAbhaPresent && !isAppointment && (
           <Button
             disabled={isAbhaDisabled}
             style={{
@@ -414,7 +416,7 @@ const RegisterationConfirmation = ({
           </Button>
         )}
       </div>
-      {isAbhaPresent && (
+      {isAbhaPresent && !isAppointment && (
         <embed
           style={{ width: "-webkit-fill-available" }}
           src={`data:image/jpeg;base64,${abhaCardBytes}`}
