@@ -17,6 +17,13 @@ export const parseDateFormat = (dateString, formatNeeded) => {
   }
 };
 
+export const customformatDate = (dateString, formatNeeded) => {
+  const parsedDate = parse(dateString, "EEEE, dd/MM/yyyy", new Date());
+  const formattedDate = format(parsedDate, formatNeeded);
+  return formattedDate;
+};
+
+//
 export const convertToNumber = (value) => {
   const parsedValue = parseFloat(value);
   return isNaN(parsedValue) ? value : parsedValue;
