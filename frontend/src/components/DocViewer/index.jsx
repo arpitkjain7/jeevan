@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 // import pdfjs from "pdfjs-dist/build/pdf";
-import { styled } from "@mui/material";
+import { List, ListItem, styled } from "@mui/material";
 import { useState } from "react";
 import { useRef } from "react";
 import MyTable from "../../components/TableComponent";
@@ -26,13 +26,13 @@ const PdfContainer = styled("div")(({ theme }) => ({
   flex: "1",
   height: "100%",
 }));
-const SideList = styled("List")(({ theme }) => ({
+const SideList = styled(List)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(8),
 }));
 
-const DiagnosisDetails = styled("ListItem")(({ theme }) => ({
+const DiagnosisDetails = styled(ListItem)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.spacing(1),
   border: `1px solid ${theme.palette.primaryGrey}`,

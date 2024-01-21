@@ -39,6 +39,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CustomizedDialogs from "../../../components/Dialog";
+import { Document, Page, pdfjs } from "react-pdf/dist/esm";
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+const isMobile = window.innerWidth < 1000;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
   ({ theme }) => `
@@ -168,8 +173,8 @@ const PDFViewerWrapper = styled("div")(({ theme }) => ({
   height: "800px",
   marginBottom: "32px",
   flex: "1",
-  [theme.breakpoints.down('sm')]: {
-    height: "500px",
+  [theme.breakpoints.down('md')]: {
+    height: "auto",
     marginBottom: "0"
   }
 }))
@@ -346,7 +351,29 @@ const Divider = styled("div")(({ theme }) => ({
   fontWeight: "bold",
 }));
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height
+  };
+}
+function useWindowDimensions() {
+const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+useEffect(() => {
+  function handleResize() {
+    setWindowDimensions(getWindowDimensions());
+  }
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+return windowDimensions;
+}
+
 const PatientEMRDetails = () => {
+  const { height, width } = useWindowDimensions();
   const [existingConditionsOpts, setExistingConditionOpts] = useState([]);
   const [symptomsOpts, setSymptomsOpts] = useState([]);
   const [examFindingsOpts, setExamFindingsOpts] = useState([]);
@@ -383,7 +410,7 @@ const PatientEMRDetails = () => {
   const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
-  const [showSync, setShowSync] = useState("");
+  const [showSync, setShowSync] = useState(false);
   const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [number, setNumber] = useState("");
   const [symptomNumber, setSymptomNumber] = useState("");
@@ -1371,8 +1398,8 @@ const PatientEMRDetails = () => {
     setSubmitEMRPayload(payload);
   };
 
-  const createPdfBlob = async () => {
-    const pdfBlob = await pdf(<PMRPdf patientData={patientData} />).toBlob();
+  const createPdfBlob = async (patientDetails) => {
+    const pdfBlob = await pdf(<PMRPdf patientData={patientDetails || patientData} />).toBlob();
 
     const pdfFile = new File([pdfBlob], "patient_record.pdf", {
       type: "application/pdf",
@@ -1398,18 +1425,18 @@ const PatientEMRDetails = () => {
       document_type: "Prescription",
       pmr_id: emrId,
     };
-    const current_patientt = JSON.parse(patient);
+    const current_patient = JSON.parse(patient);
     let appointment_request;
     if(followUp){
       appointment_request = {
-        appointment_id: current_patientt?.id,
+        appointment_id: current_patient?.id,
         followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed"
       }
     }
     else { 
         appointment_request = {
-        appointment_id: current_patientt?.id,
+        appointment_id: current_patient?.id,
         consultation_status: "Completed"
       }
     }
@@ -1461,7 +1488,8 @@ const PatientEMRDetails = () => {
     });
     return filteredvital;
   };
-  const submitEMR = () => {
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const submitEMR = async() => {
     console.log(
       medicalHistory,
       existingConditions,
@@ -1559,9 +1587,22 @@ const PatientEMRDetails = () => {
       "patientEMRDetails",
       JSON.stringify(submitEMRPayload)
     );
+    
     setPmrFinished(true);
     setStep("preview");
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; 
+    let pdf_data = await createPdfBlob(patientDetails);
+    const pdfUrls = URL.createObjectURL(pdf_data);
+    console.log(pdfUrls);
+    setPdfUrl(pdfUrls);
   };
+
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const onDocumentLoadSuccess = (({ numPages }) => {
+    setNumPages(numPages);
+  });
 
   const resetEMRForm = () => {
     setMedicalHistory([]);
@@ -1646,10 +1687,20 @@ const PatientEMRDetails = () => {
     pmr_request["advice"] = advices
     pmr_request["notes"] = prescriptionComment
 
-    const appointment_request = {
-      appointment_id: currentPatient?.id,
-      followup_date: followUp ? convertDateFormat(followUp, "yyyy-MM-dd") : "",
-      consultation_status: "Completed"
+    let appointment_request;
+    const current_patient = JSON.parse(patient);
+    if(followUp){
+      appointment_request = {
+        appointment_id: current_patient?.id,
+        followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
+        consultation_status: "InProgress"
+      }
+    }
+    else { 
+        appointment_request = {
+        appointment_id: current_patient?.id,
+        consultation_status: "InProgress"
+      }
     }
     const allData ={
       pmr_request, appointment_request
@@ -2716,15 +2767,32 @@ const PatientEMRDetails = () => {
             setSelectedAuthOption={setSelectedAuthOption}
             selectedAuthOption={selectedAuthOption}
           />
-          <PDFViewerWrapper>
-            <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
-              <PMRPdf pdfData={submitEMRPayload} patientData={patientData} />
-            </PDFViewer>
-          </PDFViewerWrapper>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
-            <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
-          </div>
+          {!isMobile && (
+            <>
+              <PDFViewerWrapper>
+                <PDFViewer  style={{ width: "100%", height: "100%" }} zoom={1}>
+                  <PMRPdf patientData={patientData} />
+                </PDFViewer>
+              </PDFViewerWrapper>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
+                <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
+              </div>
+            </>
+          )}
+          {isMobile && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "10px"}}>
+                <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
+                <PrimaryButton onClick={postPMR}>Finish Prescription</PrimaryButton>
+              </div>
+              <PDFViewerWrapper>
+                  <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
+                    <Page pageNumber={pageNumber} renderTextLayer={false} width={width - 10} /> 
+                </Document>
+              </PDFViewerWrapper>
+            </>
+          )}
         </PdfDisplayWrapper>
       )}
     </PatientEMRWrapper>

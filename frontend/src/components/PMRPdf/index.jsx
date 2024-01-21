@@ -201,9 +201,8 @@ const pmrPdfStyles = StyleSheet.create({
 
 const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
-  const [prescriptionData, setPrescriptionData] = useState([]);
+  // const [prescriptionData, setPrescriptionData] = useState([]);
   const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
-
   const columns = [
     { key: "medicine_name", label: "Medications" },
     { key: "frequency", label: "Frequency" },
@@ -252,8 +251,8 @@ const PMRPdf = ({ patientData }) => {
   const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
-    const rowData = pdfData?.medication?.data;
-    setPrescriptionData(rowData);
+    // const rowData = pdfData?.medication?.data;
+    // setPrescriptionData(rowData);
     // const transformedArr = transformPdfData(pdfData);
     // const filteredArr = transformedArr?.filter(
     //   (item) =>
@@ -478,7 +477,7 @@ const PMRPdf = ({ patientData }) => {
                 </Text>
               ))}
             </View>
-            {prescriptionData?.map((item) => (
+            {pdfData?.medication?.data?.map((item) => (
               <View style={pmrPdfStyles.tableRow} key={item.id}>
                 {columns.map((column) => (
                   <Text style={pmrPdfStyles.rowCell} key={column.key}>

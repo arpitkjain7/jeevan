@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
   Typography,
   styled,
 } from "@mui/material";
@@ -13,6 +14,7 @@ import {
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
+  parseDateFormat,
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,7 +25,12 @@ import {
 import Calendar from "../Calendar";
 import RegisterationConfirmation from "../RegistrationConfirmation";
 import { format } from "date-fns";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from "@mui/x-date-pickers";
 
+const isMobile = window.innerWidth < 600;
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
   ".slot-card": {},
@@ -107,6 +114,9 @@ const DateButton = styled("button")(({ theme }) => ({
     width: "140px",
     padding: theme.spacing(2, 1.5),
   },
+  [theme.breakpoints.down('350')]: {
+    width: "114px",
+  },
   "&.selected-btn": {
     backgroundColor: theme.palette.secondaryOpacityBlue,
     border: `1px solid ${theme.palette.secondaryBlue}`,
@@ -141,7 +151,7 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
- 
+
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
     let doctorWorking = false;
@@ -154,13 +164,12 @@ const BookingSlots = () => {
     let first = Object.keys(doctorDetails)?.length ? false : true;
     if (date !== selectedDate) {
       let currentHospital = {};
-
       if (hospital && doctorId) {
         currentHospital = JSON.parse(hospital);
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
+          appointment_date: date,
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -213,6 +222,22 @@ const BookingSlots = () => {
     }
   }, []);
 
+  const isWeekend = (date) => {
+    const day = convertDateFormat(date, "MM/dd/yyyy");
+    const week = [];
+    const currentDate = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = currentDate.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      week.push(date);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return week.includes(day);
+  };
+  
   const generateTimeSlots = (startTime, endTime, duration) => {
     const generatedSlots = [];
     const start = new Date(`1970-01-01T${startTime}`);
@@ -338,70 +363,101 @@ const BookingSlots = () => {
     return displayArr[0] + " " + displayArr[1];
   };
 
+  const formatDate = (date) => {
+    const displayArr = date?.split(" ");
+    const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
+    return formatedDate
+  };
+
   return (
     <>
       {!appointmentcompleted ? (
         <SlotWrapper>
           <StyledCard>
             <CardContent sx={{ minHeight: "350px" }}>
-              <Grid container>
-                <DateContainer>
-                  {dates?.map((date, index) => (
-                    <Button
-                      key={index}
-                      color="primary"
-                      onClick={() => handleDateSelect(date)}
-                      className={
-                        selectedDate === date ? "selected-date-btn" : "date-btn"
-                      }
-                    >
-                      <DateWrapper>
-                        <Typography
-                          className={
-                            selectedDate === date
-                              ? `selected-date-typography`
-                              : `btn-date-typography`
-                          }
-                        >
-                          {formatDisplayDate(date)}
-                        </Typography>
-                      </DateWrapper>
-                    </Button>
-                  ))}
-                  {/* <Calendar
-                  selectedDate={calendarDate}
-                  setSelectedDate={setCalendarDate}
-                /> */}
-                </DateContainer>
-
-                {selectedDate && (
-                  selectedDate != current_date ?
-                  <div className="slots-container">
-                    {slots?.map((slot) => (
-                      <DateButton
-                        key={slot}
+              {isMobile && (
+                <>
+                  <Typography>Select Date</Typography>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DesktopDatePicker 
+                        disablePast
+                        onChange={(newValue) => handleDateSelect(convertDateFormat(newValue, "yyyy-MM-dd"))}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </>
+              )}
+                <Grid container>
+                {!isMobile && (
+                  <DateContainer>
+                    {dates?.map((date, index) => (
+                      <Button
+                        key={index}
                         color="primary"
-                        onClick={() => handleSlotSelect(slot)}
-                        className={selectedSlot === slot ? "selected-btn" : ""}
+                        onClick={() => handleDateSelect(formatDate(date))}
+                        className={
+                          selectedDate === date ? "selected-date-btn" : "date-btn"
+                        }
                       >
-                        {slot}
+                        <DateWrapper>
+                          <Typography
+                            className={
+                              selectedDate === date
+                                ? `selected-date-typography`
+                                : `btn-date-typography`
+                            }
+                          >
+                            {formatDisplayDate(date)}
+                          
+                          </Typography>
+                        </DateWrapper>
+                      </Button>
+                    ))}
+                     {/* <Typography>Select Date</Typography> */}
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DesktopDatePicker sx={{ padding: "10px" }}
+                        disablePast
+                        shouldDisableDate={isWeekend}
+                        onChange={(newValue) => handleDateSelect(convertDateFormat(newValue, "yyyy-MM-dd"))}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                    {/* <Calendar
+                    selectedDate={calendarDate}
+                    setSelectedDate={setCalendarDate}
+                  /> */}
+                  </DateContainer>
+                )}
+                  {selectedDate && (
+                    selectedDate != current_date ?
+                    <div className="slots-container">
+                      {slots?.map((slot) => (
+                        <DateButton
+                          key={slot}
+                          color="primary"
+                          onClick={() => handleSlotSelect(slot)}
+                          className={selectedSlot === slot ? "selected-btn" : ""}
+                        >
+                          {slot}
+                        </DateButton>
+                      ))}
+                    </div> :
+                    <div className="slots-container">
+                    {todaySlots?.map((todayslot) => (
+                      <DateButton
+                        key={todayslot}
+                        color="primary"
+                        onClick={() => handleSlotSelect(todayslot)}
+                        className={selectedSlot === todayslot ? "selected-btn" : ""}
+                      >
+                        {todayslot}
                       </DateButton>
                     ))}
-                  </div> :
-                  <div className="slots-container">
-                  {todaySlots?.map((todayslot) => (
-                    <DateButton
-                      key={todayslot}
-                      color="primary"
-                      onClick={() => handleSlotSelect(todayslot)}
-                      className={selectedSlot === todayslot ? "selected-btn" : ""}
-                    >
-                      {todayslot}
-                    </DateButton>
-                  ))}
-                </div>
-                )}
-              </Grid>
+                  </div>
+                  )}
+                </Grid>
             </CardContent>
           </StyledCard>
 

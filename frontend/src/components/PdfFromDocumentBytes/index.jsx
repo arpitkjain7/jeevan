@@ -1,16 +1,14 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import ListItemText from '@mui/material/ListItemText';
-import ListItem from '@mui/material/ListItem';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
+import { Document, Page, pdfjs } from 'react-pdf/dist/esm/index';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { useState, useEffect } from 'react';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -23,27 +21,59 @@ function getWindowDimensions() {
       width,
       height
     };
-
 }
 function useWindowDimensions() {
-        const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-      
-        useEffect(() => {
-          function handleResize() {
-            setWindowDimensions(getWindowDimensions());
-          }
-      
-          window.addEventListener('resize', handleResize);
-          return () => window.removeEventListener('resize', handleResize);
-        }, []);
-        return windowDimensions;
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
     }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return windowDimensions;
+}
+
 const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const { height, width } = useWindowDimensions();
   const isMobile = window.innerWidth < 600;
   const docType = documentType;
+  const [isPDF, setIsPDF] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  useEffect(() => {
+    if(docType === "application/pdf" && isMobile){
+      setIsPDF(true);
+    
+      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; 
+      if (docBytes) {
+        const decodedByteCode = atob(docBytes);
+        const byteNumbers = new Array(decodedByteCode.length);
+        for (let i = 0; i < decodedByteCode.length; i++) {
+          byteNumbers[i] = decodedByteCode.charCodeAt(i);
+        }
+        const blobData = new Blob([new Uint8Array(byteNumbers)], {
+          type: "application/pdf",
+        });
+        const pdfUrls = URL.createObjectURL(blobData);
+        setPdfUrl(pdfUrls);
+        return () => {
+          URL.revokeObjectURL(pdfUrl);
+        };
+      }
+    }
+    }, [docBytes]);
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
+  
+    const onDocumentLoadSuccess = (({ numPages }) => {
+      setNumPages(numPages);
+    });
+    
     return (
-        <React.Fragment>
+    <React.Fragment>
       <Dialog
         fullScreen
         open={open}
@@ -67,8 +97,13 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           {!isMobile && (
             <embed style={{ width: "auto", height: height }} src={`data:${docType};base64,${docBytes}`}/>
           )}
-          {isMobile && (
+          {isMobile && !isPDF && (
             <embed style={{ width: width, height: "auto" }} src={`data:${docType};base64,${docBytes}`}/>
+          )}
+          {isMobile && isPDF && (
+            <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
+                <Page pageNumber={pageNumber} renderTextLayer={false} width={width} height="auto" /> 
+            </Document>        
           )}
       </Dialog>
     </React.Fragment>
