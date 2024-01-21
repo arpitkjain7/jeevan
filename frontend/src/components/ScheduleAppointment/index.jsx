@@ -15,6 +15,7 @@ import {
   convertToNumber,
   getDayFromString,
   customformatDate,
+  parseDateFormat
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -384,7 +385,7 @@ const BookingSlots = () => {
 
   const formatDate = (date) => {
     const displayArr = date?.split(" ");
-    const formatedDate = customformatDate(displayArr[1], "yyyy-MM-dd");
+    const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
     return formatedDate;
   };
 
