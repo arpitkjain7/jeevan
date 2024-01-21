@@ -6,9 +6,8 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
-import { Document, Page, pdfjs } from 'react-pdf/dist/esm/index';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf';
 import { useState, useEffect } from 'react';
 
 const Transition = React.forwardRef(function Transition(props, ref) {

@@ -39,9 +39,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomizedDialogs from "../../../components/Dialog";
-import { Document, Page, pdfjs } from "react-pdf/dist/esm";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -3042,7 +3041,7 @@ const PatientEMRDetails = () => {
                   <Page
                     pageNumber={pageNumber}
                     renderTextLayer={false}
-                    width={width - 10}
+                    width={width - 15}
                   />
                 </Document>
               </PDFViewerWrapper>
