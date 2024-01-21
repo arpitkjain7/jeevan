@@ -53,11 +53,20 @@ def create_bucket(bucket_name, region=None):
     return True
 
 
-def upload_to_s3(bucket_name: str, file_name: str, byte_data):
+def upload_to_s3(
+    bucket_name: str,
+    file_name: str,
+    byte_data,
+    content_type: str = "binary/octet-stream",
+):
     try:
         logging.info(f"Uploading file {file_name} to bucket {bucket_name}")
         _ = s3_client.put_object(
-            ACL="private", Body=byte_data, Bucket=bucket_name, Key=file_name
+            ACL="private",
+            Body=byte_data,
+            Bucket=bucket_name,
+            Key=file_name,
+            ContentType=content_type,
         )
         return f"{bucket_name}/{file_name}"
     except ClientError as e:

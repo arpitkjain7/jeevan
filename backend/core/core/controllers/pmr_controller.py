@@ -1151,6 +1151,7 @@ class PMRController:
                     bucket_name=self.cliniq_bucket,
                     byte_data=document_data,
                     file_name=document_key,
+                    content_type="application/pdf",
                 )
                 document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
                 self.CRUDPatientMedicalDocuments.create(
@@ -1238,6 +1239,7 @@ class PMRController:
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,
+                content_type=self.mime_type_mapping.get(document_ext),
             )
             document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
             self.CRUDPatientMedicalDocuments.create(
@@ -1256,7 +1258,6 @@ class PMRController:
                 f"Error in PMRController.upload_health_document function: {error}"
             )
             raise error
-
 
     def get_fhir(self, pmr_id):
         try:
