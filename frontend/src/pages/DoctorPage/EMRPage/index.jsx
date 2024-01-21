@@ -382,6 +382,7 @@ const PatientEMRDetails = () => {
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
+  const [emrId, setEMRId] = useState("");
 
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
@@ -1412,7 +1413,7 @@ const PatientEMRDetails = () => {
 
     const pdfPayload = {
       document_type: "Prescription",
-      pmr_id: pmrId,
+      pmr_id: emrId,
     };
     const current_patientt = JSON.parse(patient);
     let appointment_request;

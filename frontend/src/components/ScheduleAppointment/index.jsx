@@ -144,7 +144,7 @@ const BookingSlots = () => {
   });
 
   const checkDoctorAvailability = (days, checkDay) => {
-    const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
+    const daysArray = days?.split(",")?.map((day) => day?.trim().toLowerCase());
     let doctorWorking = false;
     if (daysArray?.length) {
       return daysArray?.includes(checkDay?.toLowerCase());

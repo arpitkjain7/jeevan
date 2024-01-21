@@ -91,38 +91,32 @@ const AppBar = styled(MuiAppBar, {
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open && {
-      [theme.breakpoints.up("md")]: {
-        ...openedMixin(theme),
-        "& .MuiDrawer-paper": openedMixin(theme),
-      },
-      [theme.breakpoints.down("md")]: {
-        ...openedMobileMixin(theme),
-        "& .MuiDrawer-paper": openedMobileMixin(theme),
-      },
-    }),
-    ...(!open && {
-      [theme.breakpoints.up("md")]: {
-        ...closedMixin(theme),
-        "& .MuiDrawer-paper": closedMixin(theme),
-      },
-      [theme.breakpoints.down("md")]: {
-        ...closedMobileMixin(theme),
-        "& .MuiDrawer-paper": closedMobileMixin(theme),
-      },
-    }),
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open && {
+    [theme.breakpoints.up("md")]: {
+      ...openedMixin(theme),
+      "& .MuiDrawer-paper": openedMixin(theme),
+    },
+    [theme.breakpoints.down("md")]: {
+      ...openedMobileMixin(theme),
+      "& .MuiDrawer-paper": openedMobileMixin(theme),
+    },
   }),
   ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  })
-);
+    [theme.breakpoints.up("md")]: {
+      ...closedMixin(theme),
+      "& .MuiDrawer-paper": closedMixin(theme),
+    },
+    [theme.breakpoints.down("md")]: {
+      ...closedMobileMixin(theme),
+      "& .MuiDrawer-paper": closedMobileMixin(theme),
+    },
+  }),
+}));
 
 function App() {
   const dataState = useSelector((state) => state);
