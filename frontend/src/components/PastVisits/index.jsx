@@ -1,13 +1,27 @@
-import { List, styled } from "@mui/material";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import React, { useEffect, useState } from "react";
 import PMRPdf from "../PMRPdf";
-import { fetchPMRList, fetchVistList, getDocument, getDocumentBytes } from "./pastvisits.slice";
+import {
+  fetchPMRList,
+  fetchVistList,
+  getDocument,
+  getDocumentBytes,
+} from "./pastvisits.slice";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
 import MyTable from "../TableComponent";
-import { Dialog, AppBar, Toolbar, IconButton, Typography, Slide } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import {
+  List,
+  ListItem,
+  styled,
+  Dialog,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Slide,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { convertDateFormat } from "../../utils/utils";
 import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
 
@@ -24,15 +38,15 @@ const Visits = styled("div")(({ theme }) => ({
   gap: theme.spacing(4),
   padding: theme.spacing(8, 0),
 }));
-const SideList = styled("List")(({ theme }) => ({
+const SideList = styled(List)(({ theme }) => ({
   display: "flex",
   gap: theme.spacing(8),
   height: "100vh",
   overflow: "auto",
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     flexDirection: "column",
   },
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(4),
     height: "auto",
   },
@@ -75,10 +89,10 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
   "&": {
     height: "600px",
     overflow: "auto",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       height: "auto",
       marginTop: "15px",
-    }
+    },
   },
   ".table-class": {
     "&.MuiPaper-root": {
@@ -87,21 +101,21 @@ const VitalDetailsTable = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": theme.typography.h3,
-      [theme.breakpoints.down('md')]: {
-        "&": theme.typography.body2
+      [theme.breakpoints.down("md")]: {
+        "&": theme.typography.body2,
       },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
       "& > tr >td:active": {
         borderStyle: "inset",
-        backgroundColor: "#bde4ff"
+        backgroundColor: "#bde4ff",
       },
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         "& > tr >td": {
           padding: "10px",
-        }
-      }
+        },
+      },
     },
   },
 }));
@@ -115,9 +129,8 @@ const VitalsListContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   width: "250px",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: "auto",
-
   },
 
   "&.selected-vital": {
@@ -136,7 +149,7 @@ const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
 
-const PastVisits = ({isPatientHistory}) => {
+const PastVisits = ({ isPatientHistory }) => {
   const [tableData, setTableData] = useState([]);
   const dataState = useSelector((state) => state);
   const [documentType, setDocumentType] = useState("");
@@ -152,14 +165,17 @@ const PastVisits = ({isPatientHistory}) => {
 
   const selectVisit = (item) => {
     dispatch(fetchPMRList(item?.id)).then((res) => {
-      if(isMobile){
+      if (isMobile) {
         setDocumentPopup(true);
       }
       setPmrId(item?.id);
       const docsList = res.payload;
       console.log(docsList);
       const formattedDocsList = docsList?.map((item) => {
-        const DocDate = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aa");
+        const DocDate = convertDateFormat(
+          item?.updated_at,
+          "dd-MM-yyyy hh:mm aa"
+        );
         return {
           document_date: DocDate,
           ...item,
@@ -171,15 +187,20 @@ const PastVisits = ({isPatientHistory}) => {
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
-      dispatch(fetchVistList(currentPatient?.patientId || currentPatient?.id)).then((res) => {
-        if(res.payload){
+      dispatch(
+        fetchVistList(currentPatient?.patientId || currentPatient?.id)
+      ).then((res) => {
+        if (res.payload) {
           const pmrData = res.payload
-          .sort((a,b) => {
-            return new Date(a.updated_at).getTime() - 
+            .sort((a, b) => {
+              return (
+                new Date(a.updated_at).getTime() -
                 new Date(b.updated_at).getTime()
-            }).reverse();
-              setVisitList(pmrData);
-          }
+              );
+            })
+            .reverse();
+          setVisitList(pmrData);
+        }
       });
     }
   }, []);
@@ -196,18 +217,18 @@ const PastVisits = ({isPatientHistory}) => {
 
   const handleDocPopupClose = () => {
     setDocumentPopup(false);
-  }
+  };
   const openDoc = (row) => {
     // if(isPatientHistory){
-      dispatch(getDocumentBytes(row?.id)).then((res) => {
-       if(res.payload != undefined ){
+    dispatch(getDocumentBytes(row?.id)).then((res) => {
+      if (res.payload != undefined) {
         setDocumentType(row.document_mime_type);
         setbase64data(res.payload.data);
         setOpen(true);
       } else {
         console.log("Error retrieving data");
       }
-      })
+    });
     // } else {
     //   dispatch(getDocument(row?.id)).then((res) => {
     //     const documentData = res.payload;
@@ -226,7 +247,11 @@ const PastVisits = ({isPatientHistory}) => {
               onClick={() => selectVisit(item)}
             >
               <VisitListContainer>
-                <listItem>{item.diagnosis_name != "" ? item.diagnosis_name : "Diagnosis"}</listItem>
+                <ListItem>
+                  {item.diagnosis_name != ""
+                    ? item.diagnosis_name
+                    : "Diagnosis"}
+                </ListItem>
                 <VisitDate>
                   {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
                 </VisitDate>
@@ -259,9 +284,13 @@ const PastVisits = ({isPatientHistory}) => {
             onClose={handleDocPopupClose}
             TransitionComponent={Transition}
           >
-            <AppBar sx={{ position: 'relative' }}>
+            <AppBar sx={{ position: "relative" }}>
               <Toolbar>
-                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                <Typography
+                  sx={{ ml: 2, flex: 1 }}
+                  variant="h6"
+                  component="div"
+                >
                   Document Details
                 </Typography>
                 <IconButton
@@ -290,12 +319,12 @@ const PastVisits = ({isPatientHistory}) => {
         )}
       </VitalsDetailsContainer>
       {base64data && (
-        <PdfFromDocumentBytes 
-        open={open}
-        handleClose={handleClose}
-        documentType={documentType}
-        docBytes={base64data}
-         />
+        <PdfFromDocumentBytes
+          open={open}
+          handleClose={handleClose}
+          documentType={documentType}
+          docBytes={base64data}
+        />
       )}
     </VisitsWrapper>
   );

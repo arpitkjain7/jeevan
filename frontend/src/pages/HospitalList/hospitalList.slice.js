@@ -6,8 +6,11 @@ import { apiRequest } from "../../utils/request";
 
 export const fetchHospital = createAsyncThunk(
   "hospital/fetchHospital",
-  async () => {
-    const response = await apiRequest("GET", apis?.list);
+  async (username) => {
+    const response = await apiRequest(
+      "GET",
+      apis?.listHospitalByUser + "?" + "username=" + username
+    );
     return response;
   }
 );

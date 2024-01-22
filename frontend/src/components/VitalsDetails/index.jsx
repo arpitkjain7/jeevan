@@ -1,4 +1,4 @@
-import { ListItem, styled } from "@mui/material";
+import { List, ListItem, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import MyTable from "../TableComponent";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
@@ -20,7 +20,7 @@ const VitalsDetailsContainer = styled("div")(({ theme }) => ({
     display: "flex",
   }
 }));
-const SideList = styled("List")(({ theme }) => ({
+const SideList = styled(List)(({ theme }) => ({
   flex: "0.3",
   display: "flex",
   flexDirection: "column",

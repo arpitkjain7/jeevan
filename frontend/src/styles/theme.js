@@ -12,7 +12,6 @@ const theme = createTheme({
     secondaryBlue: "#0561A0",
     primaryOpacityBlue: "rgba(0, 137, 233, 0.3)",
     secondaryOpacityBlue: "rgba(5, 97, 160, 0.10)",
-    // Add more colors as needed
   },
   typography: {
     fontFamily: ["Arial", "Helvetica", "sans-serif"].join(","),

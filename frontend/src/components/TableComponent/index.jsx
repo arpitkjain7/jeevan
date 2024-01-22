@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from 'prop-types';
-import { useTheme } from '@mui/material/styles';
+import PropTypes from "prop-types";
+import { useTheme } from "@mui/material/styles";
 import {
   Table,
   TableBody,
@@ -20,15 +20,16 @@ import {
   MenuItem,
   InputLabel,
   Select,
-  FormLabel
+  FormLabel,
 } from "@mui/material";
 import {
-  Class, Search as SearchIcon,
+  Class,
+  Search as SearchIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight
+  KeyboardArrowRight,
 } from "@mui/icons-material";
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import LastPageIcon from "@mui/icons-material/LastPage";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { convertDateFormat } from "../../utils/utils";
 
@@ -55,7 +56,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".table-body-container tr td": {
-    border: "1px solid #e0e0e0"
+    borderRight: "1px solid e0e0e0#",
   },
   ".table-component-wrapper": {},
   ".table-component-header": {
@@ -63,7 +64,8 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     //   backgroundColor: theme.palette.primaryOpacityBlue,
     // },
     "& > tr >th": {
-      backgroundColor: '#bde4ff',
+      backgroundColor: "#bde4ff",
+      // borderRight: "1px solid #e0e0e0",
     },
   },
 }));
@@ -95,28 +97,36 @@ function TablePaginationActions(props) {
         disabled={page === 0}
         aria-label="first page"
       >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
       </IconButton>
       <IconButton
         onClick={handleBackButtonClick}
         disabled={page === 0}
         aria-label="previous page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
       </IconButton>
       <IconButton
         onClick={handleNextButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="next page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
       </IconButton>
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="last page"
       >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </Box>
   );
@@ -129,7 +139,6 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-
 const MyTable = ({
   columns,
   data,
@@ -138,38 +147,54 @@ const MyTable = ({
   tableClassName,
   searchClassName,
   onRowClick,
-  showFilter
+  showFilter,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterValue, setFilterValue] = useState("");
   const [filterDateValue, setFilterDateValue] = useState("");
-  
+
   const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
 
-    if(showFilter){
+    if (showFilter) {
       let filterSearch;
-      if(filterValue === "All") filterSearch = ""
+      if (filterValue === "All") filterSearch = "";
       else filterSearch = filterValue.toLowerCase();
 
       let formattedDate;
-      if(filterDateValue === "") formattedDate = ""
+      if (filterDateValue === "") formattedDate = "";
       else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
 
-      return columns.some((column) =>
-        (item['patientId']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-        item['patientDetails']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-        item['mobileNumber']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-        item['docName']?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)) &&
-        item['status']?.toString()?.toLowerCase()?.includes(filterSearch) &&
-        item['slotDate']?.toString()?.toLowerCase()?.includes(formattedDate)
+      return columns.some(
+        (column) =>
+          (item["patientId"]
+            ?.toString()
+            ?.toLowerCase()
+            ?.includes(lowerCaseSearchTerm) ||
+            item["patientDetails"]
+              ?.toString()
+              ?.toLowerCase()
+              ?.includes(lowerCaseSearchTerm) ||
+            item["mobileNumber"]
+              ?.toString()
+              ?.toLowerCase()
+              ?.includes(lowerCaseSearchTerm) ||
+            item["docName"]
+              ?.toString()
+              ?.toLowerCase()
+              ?.includes(lowerCaseSearchTerm)) &&
+          item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) &&
+          item["slotDate"]?.toString()?.toLowerCase()?.includes(formattedDate)
       );
     } else {
       return columns.some((column) =>
-      item[column.key]?.toString()?.toLowerCase()?.includes(lowerCaseSearchTerm)
-    );
+        item[column.key]
+          ?.toString()
+          ?.toLowerCase()
+          ?.includes(lowerCaseSearchTerm)
+      );
     }
   });
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -191,18 +216,18 @@ const MyTable = ({
 
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
-  }
+  };
 
   const handleDateChange = (event) => {
     // if(event.target.value !== "")
     //   setFilterDateChange(convertDateFormat(event.target.value, "dd/MM/yyyy"));
     setFilterDateValue(event.target.value);
-  }
+  };
 
   return (
     <TableComponentWrapper>
       {showSearch && (
-        <div style={{ backgroundColor: '#fff' }} className="search-wrap">
+        <div style={{ backgroundColor: "#fff" }} className="search-wrap">
           <TextField
             variant="outlined"
             fullWidth
@@ -218,19 +243,21 @@ const MyTable = ({
             onChange={handleSearch}
             className={searchClassName}
           />
-       
+
           {showFilter && (
             <>
               {/* <FormLabel>Date</FormLabel> */}
               <TextField
                 placeholder="Select Date"
-                style={{width: "200px", margin: "0 10px"}}
+                style={{ width: "200px", margin: "0 10px" }}
                 type="date"
                 value={filterDateValue}
                 onChange={handleDateChange}
               />
               <FormControl style={{ margin: "0 10px" }}>
-                <InputLabel id="demo-simple-select-label">Filter by Status</InputLabel>
+                <InputLabel id="demo-simple-select-label">
+                  Filter by Status
+                </InputLabel>
                 <Select
                   style={{ width: "200px" }}
                   labelId="demo-simple-select-label"
@@ -247,16 +274,20 @@ const MyTable = ({
               </FormControl>
             </>
           )}
-       </div>
+        </div>
       )}
-      <Paper sx={{ overflow: 'hidden' }} >
+      <Paper sx={{ overflow: "hidden" }}>
         <TableContainer
           // style={tableStyle}
           className={tableClassName}
           sx={{ maxHeight: 540 }}
         >
-          <Table stickyHeader sx={{ minWidth: 500, flexShrink: "0" }} className="table-component-wrapper">
-            <TableHead className="table-component-header" >
+          <Table
+            stickyHeader
+            sx={{ minWidth: 500, flexShrink: "0" }}
+            className="table-component-wrapper"
+          >
+            <TableHead className="table-component-header">
               <TableRow>
                 {columns?.map((column) => (
                   <TableCell key={column.key} className="table-header-cell">
@@ -266,37 +297,50 @@ const MyTable = ({
               </TableRow>
             </TableHead>
             <TableBody className="table-body-container">
-              {filteredData && (rowsPerPage > 0
-                ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : filteredData).map((item) => (
+              {filteredData &&
+                (rowsPerPage > 0
+                  ? filteredData.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                  : filteredData
+                ).map((item) => (
                   <TableRow
                     key={item.id}
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns?.map((column) => {
-                      if (column.key == "consentStatus"){
+                      if (column.key == "consentStatus") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             <Typography
-                                style={{ color: `${item?.status}` === 'GRANTED' ? 'green' : 'red'}}
-                              >
-                                {item.status}
-                              </Typography>
-                            </TableCell>
-                          );
+                              style={{
+                                color:
+                                  `${item?.status}` === "GRANTED"
+                                    ? "green"
+                                    : "red",
+                              }}
+                            >
+                              {item.status}
+                            </Typography>
+                          </TableCell>
+                        );
                       }
                       if (column.key !== "actions" && column.key !== "p_name") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             {column?.render
                               ? column?.render(item[column?.key])
-                              : item[column.key]}
+                              : item[column?.key]}
                           </TableCell>
                         );
                       } else {
                         const actions = column.actions || [];
                         return (
-                          <TableCell key={`${item.id}-${column.key}`} align="right">
+                          <TableCell
+                            key={`${item.id}-${column.key}`}
+                            align="right"
+                          >
                             {actions?.map((action, index) => {
                               if (action?.type === "icon") {
                                 return (
@@ -328,7 +372,9 @@ const MyTable = ({
                                       onClick={() => action.onClick(item)}
                                       className="linkTypography"
                                     >
-                                      {action?.key ? item[action?.key] : action?.link}
+                                      {action?.key
+                                        ? item[action?.key]
+                                        : action?.link}
                                     </Typography>
                                   );
                                 }
@@ -339,7 +385,7 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-              ))}
+                ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={7} />
@@ -347,14 +393,12 @@ const MyTable = ({
               )}
             </TableBody>
             <TableFooter>
-              <TableRow>
-
-              </TableRow>
+              <TableRow></TableRow>
             </TableFooter>
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+          rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
           component="div"
           colSpan={columns.length}
           count={filteredData.length}
@@ -362,7 +406,7 @@ const MyTable = ({
           page={page}
           SelectProps={{
             inputProps: {
-              'aria-label': 'rows per page',
+              "aria-label": "rows per page",
             },
             native: true,
           }}

@@ -1,11 +1,10 @@
 FROM --platform=linux/amd64 node:20-alpine as build
 WORKDIR /app
 COPY package.json .
-RUN yarn install
+RUN npm install
 COPY . .
 
-
-RUN yarn build
+RUN npm run build
 
 FROM nginx
 

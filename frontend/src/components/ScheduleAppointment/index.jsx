@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
   Typography,
   styled,
 } from "@mui/material";
@@ -13,6 +14,8 @@ import {
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
+  customformatDate,
+  parseDateFormat
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,7 +26,12 @@ import {
 import Calendar from "../Calendar";
 import RegisterationConfirmation from "../RegistrationConfirmation";
 import { format } from "date-fns";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DesktopDatePicker } from "@mui/x-date-pickers";
 
+const isMobile = window.innerWidth < 600;
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
   ".slot-card": {},
@@ -63,7 +71,7 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     gap: "16px",
     flexWrap: "wrap",
     marginTop: "16px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       gap: "12px",
     },
   },
@@ -74,12 +82,12 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     width: "10%",
   },
   ".btn-date-typography": {
-    width: 'min-content',
+    width: "min-content",
     "&.MuiTypography-root": theme.typography.body1,
   },
 
   ".selected-date-typography": {
-     width: 'min-content',
+    width: "min-content",
     "&.MuiTypography-root": theme.typography.selectedBody1,
   },
 }));
@@ -103,9 +111,12 @@ const DateButton = styled("button")(({ theme }) => ({
   borderRadius: theme.spacing(1),
   textAlign: "center",
   backgroundColor: theme.palette.primaryWhite,
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: "140px",
     padding: theme.spacing(2, 1.5),
+  },
+  [theme.breakpoints.down("350")]: {
+    width: "114px",
   },
   "&.selected-btn": {
     backgroundColor: theme.palette.secondaryOpacityBlue,
@@ -141,9 +152,9 @@ const BookingSlots = () => {
     month: "numeric",
     day: "numeric",
   });
- 
+
   const checkDoctorAvailability = (days, checkDay) => {
-    const daysArray = days?.split(",")?.map((day) => day.trim().toLowerCase());
+    const daysArray = days?.split(",")?.map((day) => day?.trim().toLowerCase());
     let doctorWorking = false;
     if (daysArray?.length) {
       return daysArray?.includes(checkDay?.toLowerCase());
@@ -154,13 +165,12 @@ const BookingSlots = () => {
     let first = Object.keys(doctorDetails)?.length ? false : true;
     if (date !== selectedDate) {
       let currentHospital = {};
-
       if (hospital && doctorId) {
         currentHospital = JSON.parse(hospital);
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
+          appointment_date: date,
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -173,7 +183,7 @@ const BookingSlots = () => {
         });
       }
     }
-    
+
     setSelectedDate(date);
     setSelectedSlot("");
   };
@@ -195,7 +205,7 @@ const BookingSlots = () => {
         month: "numeric",
         day: "numeric",
       });
-      
+
       dates.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -204,7 +214,6 @@ const BookingSlots = () => {
   };
 
   useEffect(() => {
-    // const today = new Date();
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
@@ -212,6 +221,22 @@ const BookingSlots = () => {
       handleDateSelect(thisWeek[0]);
     }
   }, []);
+
+  const isWeekend = (date) => {
+    const day = convertDateFormat(date, "MM/dd/yyyy");
+    const week = [];
+    const currentDate = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = currentDate.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      week.push(date);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return week.includes(day);
+  };
 
   const generateTimeSlots = (startTime, endTime, duration) => {
     const generatedSlots = [];
@@ -222,19 +247,30 @@ const BookingSlots = () => {
         hour: "2-digit",
         minute: "2-digit",
       });
-      const slotStart = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
+      const slotStart = start.toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "numeric",
+        minute: "numeric",
+      });
       start.setMinutes(start.getMinutes() + duration);
-      const slotEnd = start.toLocaleTimeString(undefined, {hour12: false, hour: 'numeric', minute: 'numeric' });
+      const slotEnd = start.toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "numeric",
+        minute: "numeric",
+      });
       const meridiemSlotEnd = start.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
-     
-      setAllTimeSlots(allTimeSlots => [...allTimeSlots, `${slotStart}-${slotEnd}`]);
+
+      setAllTimeSlots((allTimeSlots) => [
+        ...allTimeSlots,
+        `${slotStart}-${slotEnd}`,
+      ]);
       const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
       generatedSlots.push(slot);
     }
-   
+
     return generatedSlots;
   };
 
@@ -281,18 +317,27 @@ const BookingSlots = () => {
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
 
-      const currentTime = today.toLocaleTimeString(undefined, { hour12: false});
-      if(currentTime > startTime && currentTime < endTime){
-       
-      let currentSlotStartTime;
-        allTimeSlots.map(slot => {
+      const currentTime = today.toLocaleTimeString(undefined, {
+        hour12: false,
+      });
+      if (currentTime > startTime && currentTime < endTime) {
+        let currentSlotStartTime;
+        allTimeSlots.map((slot) => {
           const [slotStartTime, slotEndTime] = slot.split("-");
-          const current_time = today.toLocaleTimeString(undefined, { hour12: false, hour: 'numeric', minute: 'numeric' });
-          if(current_time > slotStartTime && current_time < slotEndTime){
+          const current_time = today.toLocaleTimeString(undefined, {
+            hour12: false,
+            hour: "numeric",
+            minute: "numeric",
+          });
+          if (current_time > slotStartTime && current_time < slotEndTime) {
             currentSlotStartTime = slotEndTime;
           }
-        })
-        const todayTimeSlots = generateTimeSlots(currentSlotStartTime, endTime, duration);
+        });
+        const todayTimeSlots = generateTimeSlots(
+          currentSlotStartTime,
+          endTime,
+          duration
+        );
         setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
       }
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
@@ -338,69 +383,115 @@ const BookingSlots = () => {
     return displayArr[0] + " " + displayArr[1];
   };
 
+  const formatDate = (date) => {
+    const displayArr = date?.split(" ");
+    const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
+    return formatedDate;
+  };
+
   return (
     <>
       {!appointmentcompleted ? (
         <SlotWrapper>
           <StyledCard>
             <CardContent sx={{ minHeight: "350px" }}>
+              {isMobile && (
+                <>
+                  <Typography>Select Date</Typography>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={["DatePicker"]}>
+                      <DesktopDatePicker
+                        disablePast
+                        onChange={(newValue) =>
+                          handleDateSelect(
+                            convertDateFormat(newValue, "yyyy-MM-dd")
+                          )
+                        }
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </>
+              )}
               <Grid container>
-                <DateContainer>
-                  {dates?.map((date, index) => (
-                    <Button
-                      key={index}
-                      color="primary"
-                      onClick={() => handleDateSelect(date)}
-                      className={
-                        selectedDate === date ? "selected-date-btn" : "date-btn"
-                      }
-                    >
-                      <DateWrapper>
-                        <Typography
+                {!isMobile && (
+                  <DateContainer>
+                    {dates?.map((date, index) => (
+                      <Button
+                        key={index}
+                        color="primary"
+                        onClick={() => handleDateSelect(formatDate(date))}
+                        className={
+                          selectedDate === date
+                            ? "selected-date-btn"
+                            : "date-btn"
+                        }
+                      >
+                        <DateWrapper>
+                          <Typography
+                            className={
+                              selectedDate === date
+                                ? `selected-date-typography`
+                                : `btn-date-typography`
+                            }
+                          >
+                            {formatDisplayDate(date)}
+                          </Typography>
+                        </DateWrapper>
+                      </Button>
+                    ))}
+                    {/* <Typography>Select Date</Typography> */}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={["DatePicker"]}>
+                        <DesktopDatePicker
+                          sx={{ padding: "10px" }}
+                          disablePast
+                          shouldDisableDate={isWeekend}
+                          onChange={(newValue) =>
+                            handleDateSelect(
+                              convertDateFormat(newValue, "yyyy-MM-dd")
+                            )
+                          }
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                    {/* <Calendar
+                    selectedDate={calendarDate}
+                    setSelectedDate={setCalendarDate}
+                  /> */}
+                  </DateContainer>
+                )}
+                {selectedDate &&
+                  (selectedDate != current_date ? (
+                    <div className="slots-container">
+                      {slots?.map((slot) => (
+                        <DateButton
+                          key={slot}
+                          color="primary"
+                          onClick={() => handleSlotSelect(slot)}
                           className={
-                            selectedDate === date
-                              ? `selected-date-typography`
-                              : `btn-date-typography`
+                            selectedSlot === slot ? "selected-btn" : ""
                           }
                         >
-                          {formatDisplayDate(date)}
-                        </Typography>
-                      </DateWrapper>
-                    </Button>
+                          {slot}
+                        </DateButton>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="slots-container">
+                      {todaySlots?.map((todayslot) => (
+                        <DateButton
+                          key={todayslot}
+                          color="primary"
+                          onClick={() => handleSlotSelect(todayslot)}
+                          className={
+                            selectedSlot === todayslot ? "selected-btn" : ""
+                          }
+                        >
+                          {todayslot}
+                        </DateButton>
+                      ))}
+                    </div>
                   ))}
-                  {/* <Calendar
-                  selectedDate={calendarDate}
-                  setSelectedDate={setCalendarDate}
-                /> */}
-                </DateContainer>
-
-                {selectedDate && (
-                  selectedDate != current_date ?
-                  <div className="slots-container">
-                    {slots?.map((slot) => (
-                      <DateButton
-                        key={slot}
-                        color="primary"
-                        onClick={() => handleSlotSelect(slot)}
-                        className={selectedSlot === slot ? "selected-btn" : ""}
-                      >
-                        {slot}
-                      </DateButton>
-                    ))}
-                  </div> :
-                  <div className="slots-container">
-                  {todaySlots?.map((todayslot) => (
-                    <DateButton
-                      key={todayslot}
-                      color="primary"
-                      onClick={() => handleSlotSelect(todayslot)}
-                      className={selectedSlot === todayslot ? "selected-btn" : ""}
-                    >
-                      {todayslot}
-                    </DateButton>
-                  ))}
-                </div>
-                )}
               </Grid>
             </CardContent>
           </StyledCard>
