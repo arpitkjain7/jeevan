@@ -623,21 +623,23 @@ class PMRController:
                 )
                 consultation_status = appointment_obj["consultation_status"]
                 logging.debug(f"{consultation_status=}")
-                if consultation_status == "Completed":
-                    diagnosis_length = len(diagnosis_obj_list)
-                    if diagnosis_length == 1:
-                        diagnosis_name = f"{diagnosis_obj_list[0]['disease']}"
-                    elif diagnosis_length >= 2:
-                        diagnosis_name = f"{diagnosis_obj_list[0]['disease']} | {diagnosis_obj_list[1]['disease']}"
-                    else:
-                        diagnosis_name = "Diagnosis"
-                    pmr_obj.update(
-                        {
-                            "diagnosis_name": diagnosis_name,
-                        }
-                    )
+                # if consultation_status == "Completed":
+                # removing check to return only completed consultation
+                diagnosis_length = len(diagnosis_obj_list)
+                if diagnosis_length == 1:
+                    diagnosis_name = f"{diagnosis_obj_list[0]['disease']}"
+                elif diagnosis_length >= 2:
+                    diagnosis_name = f"{diagnosis_obj_list[0]['disease']} | {diagnosis_obj_list[1]['disease']}"
+                else:
+                    diagnosis_name = "Diagnosis"
+                pmr_obj.update(
+                    {
+                        "diagnosis_name": diagnosis_name,
+                        "consultation_status": consultation_status,
+                    }
+                )
 
-                    response.append(pmr_obj)
+                response.append(pmr_obj)
             return response
         except Exception as error:
             logging.error(
