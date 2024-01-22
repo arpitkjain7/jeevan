@@ -50,7 +50,7 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="CliniQ360 - Lobster",
+        title="CliniQ360 - Serverless",
         version="0.1 - Beta",
         description="ABDM complaint HIMS System for hospitals",
         routes=app.routes,
