@@ -494,6 +494,34 @@ const PMRPdf = ({ patientData }) => {
             ))}
           </View>
         </View>
+        {pdfData?.notes ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles?.dataContainer}>
+              <Text style={pmrPdfStyles?.dataTitle}>Notes</Text>
+              <View style={pmrPdfStyles?.dataWrapper}>
+                <View style={pmrPdfStyles?.dataBox}>
+                  <Text style={pmrPdfStyles?.dataLabel}>{pdfData?.notes}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+        {pdfData?.advice ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles?.dataContainer}>
+              <Text style={pmrPdfStyles?.dataTitle}>Advice</Text>
+              <View style={pmrPdfStyles?.dataWrapper}>
+                <View style={pmrPdfStyles?.dataBox}>
+                  <Text style={pmrPdfStyles?.dataLabel}>{pdfData?.advice}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
       </Page>
     </Document>
   );
