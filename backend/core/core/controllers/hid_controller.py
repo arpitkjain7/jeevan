@@ -11,7 +11,7 @@ from core.utils.aws.s3_helper import (
     create_presigned_url,
     read_object,
 )
-from core.utils.custom.encryption_helper import rsa_encryption
+from core.utils.custom.encryption_helper import rsa_encryption, rsa_encryption_oaep
 import os
 import json
 import uuid, pytz
@@ -25,6 +25,7 @@ class HIDController:
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.abha_url = os.environ["abha_url"]
         self.s3_location = os.environ["s3_location"]
+        self.abha_url_v3 = os.environ["abha_url_v3"]
 
     def aadhaar_generateOTP(self, aadhaar_number: str):
         """[Controller to fetch patient auth modes]
@@ -76,6 +77,69 @@ class HIDController:
         except Exception as error:
             logging.error(
                 f"Error in HIDController.aadhaar_generateOTP function: {error}"
+            )
+            raise error
+
+    def aadhaar_generateOTP_v3(self, aadhaar_number: str):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  aadhaar_generateOTP_v3 function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_aadhaar_otp_url = f"{self.abha_url_v3}/v3/enrollment/request/otp"
+            encrypted_aadhaar = rsa_encryption_oaep(data_to_encrypt=aadhaar_number)
+            payload = {
+                "txnId": "",
+                "scope": ["abha-enrol"],
+                "loginHint": "aadhaar",
+                "loginId": encrypted_aadhaar,
+                "otpSystem": "aadhaar",
+            }
+            resp, resp_code = APIInterface().post(
+                route=generate_aadhaar_otp_url,
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "TIMESTAMP": "2024-01-22T14:14:34.552Z",
+                },
+            )
+            if resp_code <= 250:
+                txn_id = resp.get("txnId")
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "AADHAAR_OTP_GENERATION",
+                    "request_status": "INIT",
+                }
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                gateway_request.update({"txn_id": txn_id})
+                return gateway_request
+            else:
+                gateway_request = {
+                    "request_type": "AADHAAR_OTP_GENERATION",
+                    "request_status": "FAILED",
+                    "error_message": resp.get("details")[0].get("message"),
+                    "error_code": resp.get("details")[0].get("code"),
+                }
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.aadhaar_generateOTP_v3 function: {error}"
             )
             raise error
 

@@ -503,3 +503,35 @@ def abha_auth_confirm(request: AbhaAuthConfirm, token: str = Depends(oauth2_sche
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/generateOTP")
+def aadhaar_generateOTP_v3(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v3/HID/registration/aadhaar/generateOTP endpoint")
+        logging.debug(f"Request: {request.aadhaarNumber=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().aadhaar_generateOTP_v3(
+                aadhaar_number=request.aadhaarNumber
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/generateOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/generateOTP endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
