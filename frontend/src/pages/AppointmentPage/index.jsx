@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { fetchAppointmentList } from "./AppointmentPage.slice";
@@ -66,12 +65,12 @@ const ListWrapper = styled("div")(({ theme }) => ({
     "&.MuiFormControl-root": {
       flex: 0.3,
       padding: 0,
-      margin: 0,
+      marginRight: "10px",
+      [theme.breakpoints.up('sm')]: {
+        width: "300px !important",
+      },
       [theme.breakpoints.down('sm')]: {
         flex: "1 "
-      },
-      "& .MuiInputBase-input": {
-        padding: "12px 16px",
       },
     },
   },
@@ -86,7 +85,6 @@ const searchInputStyle = {
 const AppointmentPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
-  const [hospitalDetails, setHospitalDetails] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -143,7 +141,6 @@ const AppointmentPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
@@ -221,6 +218,7 @@ const AppointmentPage = () => {
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"
         />

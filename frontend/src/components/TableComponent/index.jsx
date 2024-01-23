@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -20,17 +20,14 @@ import {
   MenuItem,
   InputLabel,
   Select,
-  FormLabel,
 } from "@mui/material";
 import {
-  Class,
   Search as SearchIcon,
   KeyboardArrowLeft,
   KeyboardArrowRight,
 } from "@mui/icons-material";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { convertDateFormat } from "../../utils/utils";
 
 const TableComponentWrapper = styled("div")(({ theme }) => ({
@@ -40,10 +37,25 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   },
   ".search-wrap": {
     padding: theme.spacing(4),
-    display: "flex",
+    // display: "flex",
     // justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing(4.5),
+    [theme.breakpoints.up('sm')]: {
+      marginBottom: theme.spacing(4.5),
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: "block",
+    },
+    "& .MuiFormControl-root": {
+      [theme.breakpoints.up('sm')]: {
+        marginRight: "10px",
+        width: "200px",
+      },
+      [theme.breakpoints.down('sm')]: {
+        marginBottom: "8px",
+        width: "100%",
+      },
+    },
   },
   ".linkTypography": {
     "&.MuiTypography-root": theme.typography.link,
@@ -56,7 +68,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
     },
   },
   ".table-body-container tr td": {
-    borderRight: "1px solid e0e0e0#",
+    borderRight: "1px solid #e0e0e0",
   },
   ".table-component-wrapper": {},
   ".table-component-header": {
@@ -153,7 +165,7 @@ const MyTable = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterValue, setFilterValue] = useState("");
-  const [filterDateValue, setFilterDateValue] = useState("");
+  const [filterDateValue, setFilterDateValue] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
 
   const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -231,7 +243,6 @@ const MyTable = ({
           <TextField
             variant="outlined"
             fullWidth
-            style={{ margin: "0 10px" }}
             InputProps={{
               startAdornment: (
                 <IconButton size="small">
@@ -249,17 +260,15 @@ const MyTable = ({
               {/* <FormLabel>Date</FormLabel> */}
               <TextField
                 placeholder="Select Date"
-                style={{ width: "200px", margin: "0 10px" }}
                 type="date"
                 value={filterDateValue}
                 onChange={handleDateChange}
               />
-              <FormControl style={{ margin: "0 10px" }}>
+              <FormControl className="filter_status">
                 <InputLabel id="demo-simple-select-label">
                   Filter by Status
                 </InputLabel>
                 <Select
-                  style={{ width: "200px" }}
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   label="Filter by Status"
@@ -310,7 +319,7 @@ const MyTable = ({
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns?.map((column) => {
-                      if (column.key == "consentStatus") {
+                      if (column.key === "consentStatus") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             <Typography
@@ -388,7 +397,7 @@ const MyTable = ({
                 ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={7} />
+                  <TableCell colSpan="auto" />
                 </TableRow>
               )}
             </TableBody>

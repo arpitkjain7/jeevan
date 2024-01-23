@@ -374,7 +374,7 @@ const RegisterationConfirmation = ({
             Success
           </Typography>
         </div>
-        <Grid container spacing={4} xs={12}>
+        <Grid container spacing={4}>
           {data?.map((item) => (
             <Grid item key={item.key} xs={12} md={5}>
               <Typography

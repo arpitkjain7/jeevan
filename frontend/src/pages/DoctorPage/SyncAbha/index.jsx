@@ -119,7 +119,7 @@ const SyncAbha = ({
     };
     dispatch(syncPMR(payload)).then((res) => {
       handleModalClose();
-      sessionStorage.removeItem("pmrId");
+      sessionStorage.removeItem("");
       navigate("/appointment-list");
     });
   };

@@ -30,6 +30,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 const isMobile = window.innerWidth < 600;
 const SlotWrapper = styled("div")(({ theme }) => ({
@@ -73,6 +74,8 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     marginTop: "16px",
     [theme.breakpoints.down("sm")]: {
       gap: "12px",
+      maxHeight: "350px",
+      overflow: "scroll",
     },
   },
   ".submit-btn": {
@@ -170,7 +173,7 @@ const BookingSlots = () => {
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: date,
+          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -183,7 +186,7 @@ const BookingSlots = () => {
         });
       }
     }
-
+    
     setSelectedDate(date);
     setSelectedSlot("");
   };
@@ -217,8 +220,7 @@ const BookingSlots = () => {
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
-      setSelectedDate(thisWeek[0]);
-      handleDateSelect(thisWeek[0]);
+      handleDateSelect(formatDate(thisWeek[0]));
     }
   }, []);
 
@@ -402,10 +404,9 @@ const BookingSlots = () => {
                     <DemoContainer components={["DatePicker"]}>
                       <DesktopDatePicker
                         disablePast
+                        defaultValue={dayjs(today)}
                         onChange={(newValue) =>
-                          handleDateSelect(
-                            convertDateFormat(newValue, "yyyy-MM-dd")
-                          )
+                          handleDateSelect(newValue)
                         }
                       />
                     </DemoContainer>
@@ -421,7 +422,7 @@ const BookingSlots = () => {
                         color="primary"
                         onClick={() => handleDateSelect(formatDate(date))}
                         className={
-                          selectedDate === date
+                          selectedDate === formatDate(date)
                             ? "selected-date-btn"
                             : "date-btn"
                         }
@@ -429,7 +430,7 @@ const BookingSlots = () => {
                         <DateWrapper>
                           <Typography
                             className={
-                              selectedDate === date
+                              selectedDate === formatDate(date)
                                 ? `selected-date-typography`
                                 : `btn-date-typography`
                             }
@@ -447,9 +448,7 @@ const BookingSlots = () => {
                           disablePast
                           shouldDisableDate={isWeekend}
                           onChange={(newValue) =>
-                            handleDateSelect(
-                              convertDateFormat(newValue, "yyyy-MM-dd")
-                            )
+                            handleDateSelect(newValue)
                           }
                         />
                       </DemoContainer>
