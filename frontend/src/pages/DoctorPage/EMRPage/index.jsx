@@ -162,10 +162,10 @@ const EMRFooter = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: theme.spacing(6),
+    marginTop: theme.spacing(2),
     border: `1px solid ${theme.palette.primaryBlue}`,
     backgroundColor: theme.palette.primaryOpacityBlue,
-    padding: theme.spacing(4.5, 8),
+    padding: theme.spacing(2, 8),
   },
   [theme.breakpoints.down("sm")]: {
     padding: "15px 5px",
@@ -2995,7 +2995,7 @@ const PatientEMRDetails = () => {
           )}
           </EMRFormInnerWrapper>
           <EMRFooter>
-            <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
+            <SecondaryButton onClick={resetEMRForm} style={{ padding: "8px 16px"}}>Clear</SecondaryButton>
             <PrimaryButton onClick={saveEMR}>Save</PrimaryButton>
             <PrimaryButton onClick={submitEMR}>
               Review Prescription

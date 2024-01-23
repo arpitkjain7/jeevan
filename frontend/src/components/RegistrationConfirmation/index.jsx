@@ -133,7 +133,6 @@ const RegisterationConfirmation = ({
   onSubmit,
 }) => {
   const dispatch = useDispatch();
-  console.log(appointmentDetails, "details");
   const [isAbhaPresent, setIsAbhaPresent] = useState(false);
   const [isAbhaDisabled, setIsAbhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
@@ -193,7 +192,8 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    if (!isAppointment) {
+    if(patientData?.abha_address || currentPatient?.abha_address){
+    // if (!isAppointment) {
       dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
         if (res?.error) {
           return;
@@ -302,13 +302,21 @@ const RegisterationConfirmation = ({
             hip_id: currentHospital?.hip_id,
             consultation_status: "InProgress",
           };
-          dispatch(getEMRId(emrPayload)).then((res) => {
-            sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
+        
+          dispatch(getEMRId(emrPayload)).then((response) => {
+            console.log(response);
+            sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              sessionStorage.setItem(
-                "selectedPatient",
-                JSON.stringify(res?.payload)
-              );
+              console.log(res);
+              const AllPatientData = Object.assign(
+                res.payload,
+                { patientId: response.payload?.pmr_details?.patient_id },
+                { doc_id: response.payload?.pmr_details?.doc_id },
+                { hip_id: response.payload?.pmr_details?.hip_id }, 
+                { id: response.payload?.appointment_details?.id }
+              )
+              console.log(AllPatientData);
+              sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
             });
             setTimeout(() => navigate("/patient-emr"), 2000);
           });

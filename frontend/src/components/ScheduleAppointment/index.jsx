@@ -374,6 +374,14 @@ const BookingSlots = () => {
         sessionStorage.removeItem("visitTypeValue");
         sessionStorage.removeItem("billingTypeValue");
         if (res.payload?.appointment_id) {
+          const AllPatientData = Object.assign(
+            selectedPatient,
+            { patientId: selectedPatient?.id },
+            { doc_id: appointmentDetails?.doctorId }, 
+            { appointment_id: res.payload?.appointment_id },
+            { id: res.payload?.appointment_id }
+          )
+          sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
           setAppointmentCompleted(true);
         }
       });
