@@ -75,6 +75,11 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   "&": {
     backgroundColor: theme.palette.primaryWhite,
     padding: theme.spacing(5, 6),
+    marginBottom: "10px",
+    display: "flex",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+    },
   },
   ".details-header": {
     display: "flex",
@@ -351,112 +356,113 @@ const PatientDetailsHeader = ({ documents }) => {
               aria-labelledby="scroll-dialog-title"
               aria-describedby="scroll-dialog-description"
             ></PatientDocuments>
+          
+            <HealthDocUpload>
+              <CustomizedDialogs
+                open={pmrDialogOpen}
+                handleClose={handlePmrDialogClose}
+              />
+              <PrimaryButton onClick={handleClick}>Upload Photo</PrimaryButton>
+              <label>
+                <input
+                  style={{ display: "none" }}
+                  type="file"
+                  id="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={handleFileInput}
+                  onChange={handleImageChange}
+                  multiple
+                />
+              </label>
+              {/* {imageObject &&  */}
+              <Dialog
+                fullScreen
+                open={openDocument}
+                onClose={handleCloseDocument}
+                TransitionComponent={Transition}
+              >
+                <CustomLoader open={showLoader} onClose={onLoaderClose} />
+                <AppBar sx={{ position: "relative" }}>
+                  <Toolbar>
+                    <Typography
+                      sx={{ ml: 2, flex: 1 }}
+                      variant="h6"
+                      component="div"
+                    >
+                      Patient History
+                    </Typography>
+                    <IconButton
+                      edge="start"
+                      color="inherit"
+                      onClick={handleCloseDocument}
+                      aria-label="close"
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Toolbar>
+                </AppBar>
+                <div>
+                  <PreviewImageWrapper>
+                    {renderPhotos(selectedImages)}
+                  </PreviewImageWrapper>
+                  <div style={{ display: "flex", margin: "10px" }}>
+                    <PrimaryButton
+                      style={{ margin: "0 10px" }}
+                      onClick={handleClick}
+                    >
+                      Upload Image
+                    </PrimaryButton>
+                    <PrimaryButton onClick={SaveDocument}>
+                      Save Document
+                    </PrimaryButton>
+                  </div>
+                  <div>
+                    <Modal
+                      open={openFollowUp}
+                      onClose={handleFollowUpClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                    >
+                      <Box sx={style}>
+                        <Toolbar stye={{ padding: 0 }}>
+                          <Typography
+                            sx={{ flex: 1, fontSize: "20px" }}
+                            component="div"
+                          >
+                            Follow Up Date
+                          </Typography>
+                          <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleFollowUpClose}
+                            aria-label="close"
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        </Toolbar>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={["DatePicker"]}>
+                            <DatePicker
+                              sx={{ width: "100%" }}
+                              disablePast
+                              value={followUp}
+                              onChange={(newValue) => setFollowUp(newValue)}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                        <br />
+                        <PrimaryButton onClick={postPMR}>
+                          Finish Prescription
+                        </PrimaryButton>
+                      </Box>
+                    </Modal>
+                  </div>
+                </div>
+              </Dialog>
+            </HealthDocUpload>
           </div>
 
-          <HealthDocUpload>
-            <CustomizedDialogs
-              open={pmrDialogOpen}
-              handleClose={handlePmrDialogClose}
-            />
-            <PrimaryButton onClick={handleClick}>Upload Photo</PrimaryButton>
-            <label>
-              <input
-                style={{ display: "none" }}
-                type="file"
-                id="file"
-                accept="image/*"
-                capture="environment"
-                ref={handleFileInput}
-                onChange={handleImageChange}
-                multiple
-              />
-            </label>
-            {/* {imageObject &&  */}
-            <Dialog
-              fullScreen
-              open={openDocument}
-              onClose={handleCloseDocument}
-              TransitionComponent={Transition}
-            >
-              <CustomLoader open={showLoader} onClose={onLoaderClose} />
-              <AppBar sx={{ position: "relative" }}>
-                <Toolbar>
-                  <Typography
-                    sx={{ ml: 2, flex: 1 }}
-                    variant="h6"
-                    component="div"
-                  >
-                    Patient History
-                  </Typography>
-                  <IconButton
-                    edge="start"
-                    color="inherit"
-                    onClick={handleCloseDocument}
-                    aria-label="close"
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Toolbar>
-              </AppBar>
-              <div>
-                <PreviewImageWrapper>
-                  {renderPhotos(selectedImages)}
-                </PreviewImageWrapper>
-                <div style={{ display: "flex", margin: "10px" }}>
-                  <PrimaryButton
-                    style={{ margin: "0 10px" }}
-                    onClick={handleClick}
-                  >
-                    Upload Image
-                  </PrimaryButton>
-                  <PrimaryButton onClick={SaveDocument}>
-                    Save Document
-                  </PrimaryButton>
-                </div>
-                <div>
-                  <Modal
-                    open={openFollowUp}
-                    onClose={handleFollowUpClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Toolbar stye={{ padding: 0 }}>
-                        <Typography
-                          sx={{ flex: 1, fontSize: "20px" }}
-                          component="div"
-                        >
-                          Follow Up Date
-                        </Typography>
-                        <IconButton
-                          edge="end"
-                          color="inherit"
-                          onClick={handleFollowUpClose}
-                          aria-label="close"
-                        >
-                          <CloseIcon />
-                        </IconButton>
-                      </Toolbar>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={["DatePicker"]}>
-                          <DatePicker
-                            sx={{ width: "100%" }}
-                            disablePast
-                            value={followUp}
-                            onChange={(newValue) => setFollowUp(newValue)}
-                          />
-                        </DemoContainer>
-                      </LocalizationProvider>
-                      <br />
-                      <PrimaryButton onClick={postPMR}>
-                        Finish Prescription
-                      </PrimaryButton>
-                    </Box>
-                  </Modal>
-                </div>
-              </div>
-            </Dialog>
-          </HealthDocUpload>
         </>
       )}
     </DetailsHeaderContainer>

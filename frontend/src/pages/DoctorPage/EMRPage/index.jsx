@@ -74,13 +74,17 @@ const style = {
 };
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
-  padding: "40px 10px 10px",
+  padding: "35px 10px 10px",
   [theme.breakpoints.down("sm")]: {
     padding: "10px 4px 0",
   },
 }));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({}));
+const EMRFormInnerWrapper = styled("div")(({ theme }) => ({
+  height: "500px",
+  overflow: "scroll",
+}));
 
 const VitalsContainer = styled("div")(({ theme }) => ({
   "&": {
@@ -158,10 +162,10 @@ const EMRFooter = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: theme.spacing(6),
+    marginTop: theme.spacing(2),
     border: `1px solid ${theme.palette.primaryBlue}`,
     backgroundColor: theme.palette.primaryOpacityBlue,
-    padding: theme.spacing(4.5, 8),
+    padding: theme.spacing(2, 8),
   },
   [theme.breakpoints.down("sm")]: {
     padding: "15px 5px",
@@ -455,7 +459,7 @@ const PatientEMRDetails = () => {
       console.log("vitals:", res);
     });
 
-    if (!sessionStorage.getItem("pmrID")) {
+    // if (!sessionStorage.getItem("pmrID")) {
       const currentPatient = JSON.parse(patient);
       if (Object.keys(currentPatient)?.length) {
         const emrPayload = {
@@ -618,7 +622,7 @@ const PatientEMRDetails = () => {
           }
         });
       }
-    }
+    // }
   }, []);
 
   const handleMeidcalHistoryChange = async (event) => {
@@ -1930,6 +1934,7 @@ const PatientEMRDetails = () => {
       {step === "create" && <PatientDetailsHeader documents={documents} />}
       {step === "create" && (
         <EMRFormWrapper>
+          <EMRFormInnerWrapper>
           <VitalsContainer>
             <SectionHeader>Vitals</SectionHeader>
             <form>
@@ -1940,6 +1945,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="pulseRate"
                         value={formValues.pulseRate}
@@ -1960,6 +1966,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="oxygenSaturation"
                         value={formValues.oxygenSaturation}
@@ -1979,6 +1986,7 @@ const PatientEMRDetails = () => {
                       <BPWrapper>
                         <DiastolicTextField
                           fullWidth
+                          type="number"
                           variant="outlined"
                           name="diastolicaBP"
                           value={formValues.diastolicaBP}
@@ -1988,6 +1996,7 @@ const PatientEMRDetails = () => {
                         <Divider>/</Divider>
                         <SystolicTextField
                           fullWidth
+                          type="number"
                           variant="outlined"
                           name="systolicBP"
                           value={formValues.systolicBP}
@@ -2007,6 +2016,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="respiratoryRate"
                         value={formValues.respiratoryRate}
@@ -2025,6 +2035,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="bodyTemp"
                         value={formValues.bodyTemp}
@@ -2043,6 +2054,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="bodyHeight"
                         value={formValues.bodyHeight}
@@ -2061,6 +2073,7 @@ const PatientEMRDetails = () => {
                     <Grid item xs={8}>
                       <TextField
                         fullWidth
+                        type="number"
                         variant="outlined"
                         name="bodyWeight"
                         value={formValues.bodyWeight}
@@ -2980,8 +2993,9 @@ const PatientEMRDetails = () => {
               </Grid>
             </>
           )}
+          </EMRFormInnerWrapper>
           <EMRFooter>
-            <SecondaryButton onClick={resetEMRForm}>Clear</SecondaryButton>
+            <SecondaryButton onClick={resetEMRForm} style={{ padding: "8px 16px"}}>Clear</SecondaryButton>
             <PrimaryButton onClick={saveEMR}>Save</PrimaryButton>
             <PrimaryButton onClick={submitEMR}>
               Review Prescription

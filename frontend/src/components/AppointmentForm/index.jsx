@@ -247,7 +247,7 @@ function AppointmentForm(props) {
                 <Select
                   value={encounterTypeValue}
                   onChange={handleEncounterTypeChange}
-                  placeholder="Encounte rType"
+                  placeholder="Encounter Type"
                 >
                   {encounterType?.map((option) => (
                     <MenuItem key={option.value} value={option.value}>

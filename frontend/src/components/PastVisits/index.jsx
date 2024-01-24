@@ -248,12 +248,22 @@ const PastVisits = ({ isPatientHistory }) => {
             >
               <VisitListContainer>
                 <ListItem>
-                  {item.diagnosis_name != ""
-                    ? item.diagnosis_name
+                  {item?.diagnosis_name != ""
+                    ? item?.diagnosis_name
                     : "Diagnosis"}
                 </ListItem>
                 <VisitDate>
                   {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
+                  <Typography
+                      style={{
+                        color:
+                          `${item?.consultation_status}` === "Completed"
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {item?.consultation_status}
+                  </Typography>
                 </VisitDate>
               </VisitListContainer>
               <img
