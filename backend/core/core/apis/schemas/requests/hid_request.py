@@ -19,6 +19,13 @@ class OTPVerification(BaseModel):
     txnId: str
 
 
+class OTPVerificationV3(BaseModel):
+    otp: str
+    mobileNumber: str
+    txnId: str
+    hipId: str
+
+
 class AbhaAuth(BaseModel):
     authMethod: str
     patientId: str = None

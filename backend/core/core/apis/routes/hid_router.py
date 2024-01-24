@@ -12,6 +12,7 @@ from core.apis.schemas.requests.hid_request import (
     MobileNumber,
     AbhaAuth,
     AbhaAuthConfirm,
+    OTPVerificationV3,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -530,6 +531,96 @@ def aadhaar_generateOTP_v3(request: AadhaarNumber, token: str = Depends(oauth2_s
         logging.error(
             f"Error in /v3/HID/registration/aadhaar/generateOTP endpoint: {error}"
         )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/verifyOTP")
+def aadhaar_verifyOTP(request: OTPVerificationV3, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/aadhaar/verifyOTP endpoint")
+        logging.debug(f"Request: {request.otp=}")
+        logging.debug(f"Request: {request.mobileNumber=}")
+        logging.debug(f"Request: {request.txnId=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().aadhaar_verifyOTP_v3(
+                otp=request.otp,
+                txn_id=request.txnId,
+                mobile_number=request.mobileNumber,
+                hip_id=request.hipId,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/aadhaar/verifyOTP endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/aadhaar/verifyOTP endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.get("/v3/HID/registration/aadhaar/suggestAbha")
+def suggest_abha(transaction_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/HID/aadhaar/suggestAbha endpoint")
+        logging.debug(f"Request: {transaction_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().suggest_abha(txn_id=transaction_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/aadhaar/suggestAbha endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/aadhaar/suggestAbha endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/abhaAddress")
+def aadhaar_verifyOTP(
+    abha_address: str, txnId: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v1/HID/aadhaar/abhaAddress endpoint")
+        logging.debug(f"Request: {abha_address=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().create_abha_address(
+                abha_address=abha_address,
+                txn_id=txnId,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HID/aadhaar/abhaAddress endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HID/aadhaar/abhaAddress endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

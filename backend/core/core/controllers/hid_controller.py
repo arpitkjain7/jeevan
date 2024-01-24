@@ -106,13 +106,20 @@ class HIDController:
                 "loginId": encrypted_aadhaar,
                 "otpSystem": "aadhaar",
             }
+            current_time = datetime.now()
+            timestamp = (
+                current_time.strftime("%Y-%m-%dT%H:%M:%S.")
+                + str(current_time.microsecond)[:3]
+                + "Z"
+            )
+
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
                 data=payload,
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
-                    "TIMESTAMP": "2024-01-22T14:14:34.552Z",
+                    "TIMESTAMP": timestamp,
                 },
             )
             if resp_code <= 250:
@@ -193,6 +200,229 @@ class HIDController:
                 )
         except Exception as error:
             logging.error(f"Error in HIDController.aadhaar_verifyOTP function: {error}")
+            raise error
+
+    def aadhaar_verifyOTP_v3(
+        self, otp: str, mobile_number: str, txn_id: str, hip_id: str
+    ):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  aadhaar_verifyOTP_v3 function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_aadhaar_otp_url = (
+                f"{self.abha_url_v3}/v3/enrollment/enrol/byAadhaar"
+            )
+            encrypted_otp = rsa_encryption_oaep(data_to_encrypt=otp)
+            payload = {
+                "authData": {
+                    "authMethods": ["otp"],
+                    "otp": {
+                        "timeStamp": "2024-01-14T11:39:04",
+                        "txnId": txn_id,
+                        "otpValue": encrypted_otp,
+                        "mobile": mobile_number,
+                    },
+                },
+                "consent": {"code": "abha-enrollment", "version": "1.4"},
+            }
+            current_time = datetime.now()
+            timestamp = (
+                current_time.strftime("%Y-%m-%dT%H:%M:%S.")
+                + str(current_time.microsecond)[:3]
+                + "Z"
+            )
+
+            resp, resp_code = APIInterface().post(
+                route=generate_aadhaar_otp_url,
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "TIMESTAMP": timestamp,
+                },
+            )
+            if resp_code <= 250:
+                gateway_request = {
+                    "request_id": str(uuid.uuid1()),  # why this?
+                    "request_type": "OTP_VERIFICATION",
+                    "request_status": "COMPLETED",
+                    "transaction_id": txn_id,
+                }
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                time_now = datetime.now()
+                linking_token_validity = time_now + timedelta(minutes=1800)
+                linking_token_validity = linking_token_validity.strftime(
+                    "%m/%d/%Y, %H:%M:%S"
+                )
+                refresh_token_validity = time_now + timedelta(minutes=1296000)
+                refresh_token_validity = refresh_token_validity.strftime(
+                    "%m/%d/%Y, %H:%M:%S"
+                )
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                phr_addresses = resp["ABHAProfile"]["phrAddress"]
+                abha_address = []
+                for phrAddress in phr_addresses:
+                    abha_address.append(phrAddress)
+                patient_request = {
+                    "id": patient_id,
+                    "abha_number": resp["ABHAProfile"]["ABHANumber"].replace("-", ""),
+                    "abha_address": abha_address,
+                    "mobile_number": resp["ABHAProfile"]["mobile"],
+                    "name": f"{resp['ABHAProfile']['firstName']} {resp['ABHAProfile']['middleName']} {resp['ABHAProfile']['lastName']}",
+                    "gender": resp["ABHAProfile"]["gender"],
+                    "DOB": resp["ABHAProfile"]["dob"],
+                    "email": resp["ABHAProfile"]["email"],
+                    "address": resp["ABHAProfile"]["address"],
+                    "pincode": resp["ABHAProfile"]["pinCode"],
+                    "hip_id": hip_id,
+                    "auth_methods": "AADHAAR_OTP",
+                    "linking_token": {
+                        "value": resp["tokens"]["token"],
+                        "valid_till": linking_token_validity,
+                    },
+                    "refresh_token": {
+                        "value": resp["tokens"]["refreshToken"],
+                        "valid_till": refresh_token_validity,
+                    },
+                    "abha_status": "ACTIVE",
+                }
+                patient_record = self.CRUDPatientDetails.read_by_abhaId(
+                    abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
+                )
+                if patient_record:
+                    patient_request.update({"id": patient_record["id"]})
+                    self.CRUDPatientDetails.update(**patient_request)
+                else:
+                    self.CRUDPatientDetails.create(**patient_request)
+                patient_request["txnId"] = resp["txnId"]
+                return patient_request
+            else:
+                gateway_request = {
+                    "request_id": txn_id,
+                    "request_type": "OTP_VERIFICATION",
+                    "request_status": "FAILED",
+                    "error_message": resp["message"],
+                    "error_code": resp["code"],
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.aadhaar_verifyOTP_v3 function: {error}"
+            )
+            raise error
+
+    def suggest_abha(
+        self,
+        txn_id: str,
+    ):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  suggest_abha function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            abha_suggestion_url = f"{self.abha_url_v3}/v3/enrollment/enrol/suggestion"
+
+            current_time = datetime.now()
+            timestamp = (
+                current_time.strftime("%Y-%m-%dT%H:%M:%S.")
+                + str(current_time.microsecond)[:3]
+                + "Z"
+            )
+
+            resp, resp_code = APIInterface().get(
+                route=abha_suggestion_url,
+                headers={
+                    "Transaction_id": txn_id,
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "TIMESTAMP": timestamp,
+                },
+            )
+            return resp
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.aadhaar_verifyOTP_v3 function: {error}"
+            )
+            raise error
+
+    def create_abha_address(self, abha_address: str, txn_id: str):
+        """[Controller to fetch patient auth modes]
+
+        Args:
+            request ([dict]): [fetch auth modes request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing  create_abha_address function")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            generate_aadhaar_otp_url = (
+                f"{self.abha_url_v3}/v3/enrollment/enrol/abha-address"
+            )
+            payload = {
+                "txnId": txn_id,
+                "abhaAddress": abha_address,
+                "preferred": 1,  # this we need to understnd and update accordingly
+            }
+            current_time = datetime.now()
+            timestamp = (
+                current_time.strftime("%Y-%m-%dT%H:%M:%S.")
+                + str(current_time.microsecond)[:3]
+                + "Z"
+            )
+
+            resp, resp_code = APIInterface().post(
+                route=generate_aadhaar_otp_url,
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "TIMESTAMP": timestamp,
+                },
+            )
+            if resp_code <= 250:
+                return resp
+
+            # need to update above
+
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.aadhaar_verifyOTP_v3 function: {error}"
+            )
             raise error
 
     def aadhaar_generateMobileOTP(self, mobile_number: str, txn_id: str):
