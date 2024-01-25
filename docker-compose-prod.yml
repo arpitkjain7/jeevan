@@ -32,7 +32,6 @@ services:
     volumes:
       - ./backend/core:/app
       - ./backend/logs:/core/logs
-      - ./backend/fidelius-cli-1.2.0:/app/fidelius-cli-1.2.0
     ports:
       - 8001:8000
     depends_on:
@@ -42,7 +41,7 @@ services:
     restart: "on-failure"
 
   lobster_ui:
-    image: cliniq360/lobster-ui:0.15
+    image: cliniq360/lobster-ui:0.16
 
     container_name: lobster-ui
     ports:

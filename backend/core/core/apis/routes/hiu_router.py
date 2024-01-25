@@ -292,3 +292,21 @@ def healthInfoOnRequest(receive_data: dict):
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@hiu_router.post("/v1/HIU/storeData")
+def store_processed_data(processed_data: dict):
+    try:
+        logging.info("Calling /v1/HIU/storeData endpoint")
+        logging.info(f"Request: {processed_data=}")
+        return HIUController().hiu_store_patient_data(request=processed_data)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/HIU/storeData endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/HIU/storeData endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )

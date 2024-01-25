@@ -1,9 +1,6 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+from fastapi import APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import BackgroundTasks
 from core import logger
-from commons.auth import decodeJWT
-from core.utils.custom.encryption_helper import encrypt_data
 from core.controllers.dataTransfer_controller import DataTransferController
 
 logging = logger(__name__)
@@ -53,24 +50,6 @@ def data_transfer_ack(data_transfer_ack_request: dict):
         )
     except Exception as error:
         logging.error(f"Error in /v1/data_transfer_ack endpoint: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@dataTransfer_router.post("/test")
-def encrypt_data_endpoint(consent_notify_request: dict):
-    try:
-        logging.info("Calling /v0.5/consents/hip/notify endpoint")
-        logging.debug(f"Request: {consent_notify_request}")
-        return encrypt_data(
-            stringToEncrypt=consent_notify_request.get("data"),
-            requesterKeyMaterial=consent_notify_request.get("key_details"),
-        )
-    except Exception as error:
-        logging.error(f"Error in /v0.5/consents/hip/notify endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

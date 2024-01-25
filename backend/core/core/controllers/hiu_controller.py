@@ -1,4 +1,3 @@
-from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
@@ -6,10 +5,10 @@ from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core import logger
 from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
-from core.utils.custom.encryption_helper import getEcdhKeyMaterial, decryptData
 import os
 import uuid, json
 from datetime import datetime, timezone
+from core.utils.aws.s3_helper import upload_to_s3
 from pytz import timezone as pytz_timezone
 from dateutil import parser
 import ast
@@ -19,12 +18,13 @@ logging = logger(__name__)
 
 class HIUController:
     def __init__(self):
-        self.CRUDHIP = CRUDHIP()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
         self.CRUDDocDetails = CRUDDocDetails()
         self.CRUDHIUConsents = CRUDHIUConsents()
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.gateway_url = os.environ["gateway_url"]
+        self.s3_location = os.environ["s3_location"]
+        self.encryption_base_url = os.environ["encryption_url"]
 
     def list_consent(self, patient_id: str):
         try:
@@ -329,7 +329,9 @@ class HIUController:
                 request_id = str(uuid.uuid1())
                 time_now = datetime.now(timezone.utc)
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-                requester_key_material = getEcdhKeyMaterial()
+                requester_key_material = APIInterface().get(
+                    route=f"{self.encryption_base_url}/v1/cliniq360/generateKey"
+                )
                 self.CRUDHIUConsents.update(
                     **{
                         "id": consent_id,
@@ -439,40 +441,45 @@ class HIUController:
             patient_data_list = []
             resources_dict = {}
             patient_data_transformed = []
-            for entry in patient_data:
-                encrypted_data = entry.get("content")
-                decrypted_data = decryptData(
-                    decryptParams={
-                        "encryptedData": encrypted_data,
-                        "requesterNonce": requester_key_material.get("nonce"),
-                        "senderNonce": sender_key_material.get("nonce"),
-                        "requesterPrivateKey": requester_key_material.get("privateKey"),
-                        "senderPublicKey": sender_key_material.get("dhPublicKey").get(
-                            "keyValue"
-                        ),
-                    }
-                )
-                decrypted_json = json.loads(decrypted_data)
-                fhir_data = decrypted_json.get("decryptedData")
-                fhir_json = ast.literal_eval(fhir_data)
-                data_entries = fhir_json["entry"]
-                for entry in data_entries:
-                    resources_dict[entry["resource"]["resourceType"]] = entry[
-                        "resource"
-                    ]
-                patient_data_transformed.append(resources_dict)
-                patient_data_list.append(fhir_json)
-            logging.info(f"{patient_data_list=}")
+            decrypt_payload = request.copy()
+            decrypt_payload.update(
+                {
+                    "requesterNonce": requester_key_material.get("nonce"),
+                    "senderNonce": sender_key_material.get("nonce"),
+                    "requesterPrivateKey": requester_key_material.get("privateKey"),
+                    "senderPublicKey": sender_key_material.get("dhPublicKey").get(
+                        "keyValue"
+                    ),
+                }
+            )
+            consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
+            hip_id = consent_obj.get("hip_id")
+            send_data_json = json.dumps(decrypt_payload)
+            uploaded_file_location = upload_to_s3(
+                bucket_name=self.s3_location,
+                file_name=f"{hip_id}/{transaction_id}/encrypt/{gateway_obj['request_id']}.json",
+                byte_data=send_data_json,
+            )
+            return uploaded_file_location
+        except Exception as error:
+            logging.error(
+                f"Error in HIUController.hiu_process_patient_data function: {error}"
+            )
+            raise error
+
+    def hiu_store_patient_data(self, request):
+        try:
+            logging.info(f"{request=}")
             self.CRUDHIUConsents.update(
                 **{
-                    "id": consent_id,
-                    "patient_data_raw": patient_data_list,
-                    "patient_data_transformed": patient_data_transformed,
+                    "id": request.get("consent_id"),
+                    "patient_data_raw": request.get("patient_data_list"),
+                    "patient_data_transformed": request.get("patient_data_transformed"),
                 }
             )
             return {"satatus": "success"}
         except Exception as error:
             logging.error(
-                f"Error in HIUController.hiu_process_patient_data function: {error}"
+                f"Error in HIUController.hiu_store_patient_data function: {error}"
             )
             raise error
