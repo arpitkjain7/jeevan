@@ -467,13 +467,9 @@ const PatientEMRDetails = () => {
         };
         dispatch(getEMRId(emrPayload)).then((res) => {
           setEMRId(res.payload?.pmr_details.id);
-
           sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
           const pmrDetails = res.payload?.pmr_details.pmr_data;
-          setAdvices(res.payload?.pmr_details?.advices || "");
-          setPrescriptionComment(res.payload?.pmr_details?.notes || "");
           if (pmrDetails) {
-            console.log(pmrDetails);
             if (pmrDetails.vital) {
               setFormValues({
                 pulseRate: pmrDetails.vital.pulse,
@@ -852,15 +848,11 @@ const PatientEMRDetails = () => {
 
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      // setShowMedicalHistory(true);
+      const fieldValue = value;
       setOptionTextValues({
         ...optionTextValues,
-        [value?.value]: {
-          since: "",
-          relationship: "",
-          severity: "",
-          notes: "",
-        },
+        [value]: { since: "", relationship: "", severity: "", notes: "" },
       });
       setMedicalHistory([...medicalHistory, fieldValue]);
       setMedicalHistoryOpts([]);
@@ -868,10 +860,10 @@ const PatientEMRDetails = () => {
   };
   const handleExistingConditions = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      const fieldValue = value;
       setExistingConditionsSpecs({
         ...existingConditionSpecs,
-        [value?.value]: { since: "", severity: "", notes: "" },
+        [value]: { since: "", severity: "", notes: "" },
       });
       setExistingCondition([...existingConditions, fieldValue]);
     }
@@ -879,22 +871,32 @@ const PatientEMRDetails = () => {
 
   const handleSymptoms = (event, value) => {
     if (value) {
-      const fieldValue = value.value;
+      const fieldValue = value;
       setSymptomsSpecs({
         ...symptomsSpecs,
-        [value?.value]: { since: "", severity: "", notes: "" },
+        [value]: { since: "", severity: "", notes: "" },
       });
       setSymptoms([...symptoms, fieldValue]);
       setSymptomsOpts([]);
     }
   };
+  // const handleMedicalHistory = (event, value) => {
+  //   if (value) {
+  //     const fieldValue = value;
+  //     setMedicalHistorySpecs({
+  //       ...medicalHistorySpecs,
+  //       [value]: { since: "", severity: "", notes: "" },
+  //     });
+  //     setMedicalHistory([...medicalHistory, fieldValue]);
+  //   }
+  // };
 
   const handleExaminationFindings = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      const fieldValue = value;
       setExaminationSpecs({
         ...symptomsSpecs,
-        [value?.value]: { notes: "" },
+        [value]: { notes: "" },
       });
 
       setExamFinding([...examFindings, fieldValue]);
@@ -904,10 +906,10 @@ const PatientEMRDetails = () => {
   };
   const handleDiagnosis = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      const fieldValue = value;
       setDiagnosisSpecs({
         ...diagnosisSpecs,
-        [value?.value]: { since: "", severity: "", notes: "" },
+        [value]: { since: "", severity: "", notes: "" },
       });
       setDiagnosis([...diagnosis, fieldValue]);
       setDiagnosisOpts([]);
@@ -915,10 +917,10 @@ const PatientEMRDetails = () => {
   };
   const handleMedications = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      const fieldValue = value;
       setMedicationsSpecs({
         ...medicationsSpecs,
-        [value?.value]: { since: "", severity: "", notes: "" },
+        [value]: { since: "", severity: "", notes: "" },
       });
       setMedications([...medications, fieldValue]);
       setMedicationsOpts([]);
@@ -926,10 +928,10 @@ const PatientEMRDetails = () => {
   };
   const handleLabInvestigations = (event, value) => {
     if (value) {
-      const fieldValue = value?.value;
+      const fieldValue = value;
       setLabInvestigationSpecs({
         ...labInvestigationSpecs,
-        [value?.value]: { since: "", severity: "", notes: "" },
+        [value]: { since: "", severity: "", notes: "" },
       });
       setLabInvestigation([...labInvestigation, fieldValue]);
       handleLabTextChange(value, "notes", "");
@@ -951,7 +953,7 @@ const PatientEMRDetails = () => {
       ...optionTextValues,
       [option?.label]: {
         ...optionTextValues[option?.label],
-        [textField]: newValue || "",
+        [textField]: newValue,
         snowmed_code: option?.snowmed_code,
         snowmed_display: option?.snowmed_display,
       },
@@ -982,7 +984,7 @@ const PatientEMRDetails = () => {
       ...existingConditionSpecs,
       [option?.label]: {
         ...existingConditionSpecs[option?.label],
-        [textField]: newValue || "",
+        [textField]: newValue,
         snowmed_code: option?.snowmed_code,
         snowmed_display: option?.snowmed_display,
       },
@@ -1004,7 +1006,7 @@ const PatientEMRDetails = () => {
       ...symptomsSpecs,
       [option?.label]: {
         ...symptomsSpecs[option?.label],
-        [textField]: newValue || "",
+        [textField]: newValue,
         snowmed_code: option?.snowmed_code,
         snowmed_display: option?.snowmed_display,
       },
@@ -1610,17 +1612,14 @@ const PatientEMRDetails = () => {
       };
     }
     setPatientData(patientDetails);
-    const pdfFormattedData = submitEMRPayload;
-    pdfFormattedData["advice"] = advices;
-    pdfFormattedData["notes"] = prescriptionComment;
-    setPdfData(pdfFormattedData);
+    setPdfData(submitEMRPayload);
 
-    console.log(pdfFormattedData, "payload");
+    console.log(submitEMRPayload, "payload");
 
     sessionStorage.setItem("patientDetailsPdf", JSON.stringify(patientDetails));
     sessionStorage.setItem(
       "patientEMRDetails",
-      JSON.stringify(pdfFormattedData)
+      JSON.stringify(submitEMRPayload)
     );
 
     setPmrFinished(true);
@@ -1833,10 +1832,10 @@ const PatientEMRDetails = () => {
 
   const generateOptions = (number, item) => {
     const parsedNumber = parseInt(number, 10);
-    if (isNaN(parsedNumber) || !item?.label) {
+    if (isNaN(parsedNumber) || !item) {
       return [];
     }
-    const sinceValue = medicationsSpecs[item?.label]?.since;
+    const sinceValue = medicationsSpecs[item]?.since;
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
     }
@@ -1846,25 +1845,24 @@ const PatientEMRDetails = () => {
   const generateSymptomsOptions = (number, item) => {
     const parsedNumber = parseInt(number, 10);
 
-    if (isNaN(parsedNumber) || !item?.label) {
+    if (isNaN(parsedNumber) || !item) {
       return [];
     }
 
-    const sinceValue = symptomsSpecs[item.label]?.since;
+    const sinceValue = symptomsSpecs[item]?.since;
 
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
     }
-
     return [];
   };
 
   const generateHistoryOptions = (number, item) => {
     const parsedNumber = parseInt(number, 10);
-    if (isNaN(parsedNumber) || !item?.label) {
+    if (isNaN(parsedNumber) || !item) {
       return [];
     }
-    const sinceValue = optionTextValues[item?.label]?.since;
+    const sinceValue = optionTextValues[item]?.since;
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
     }
@@ -1884,11 +1882,11 @@ const PatientEMRDetails = () => {
   const generateDoseOptions = (number, item) => {
     const parsedNumber = parseInt(number, 10);
 
-    if (isNaN(parsedNumber) || !item?.label) {
+    if (isNaN(parsedNumber) || !item) {
       return [];
     }
 
-    const sinceValue = medicationsSpecs[item?.label]?.dose || "";
+    const sinceValue = medicationsSpecs[item]?.dose || "";
 
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return doseOptions?.map((option) => `${parsedNumber}${option}`) || [];
@@ -2962,7 +2960,6 @@ const PatientEMRDetails = () => {
                         placeholder="Add your notes here"
                         className="notes-field"
                         onChange={prescriptionCommentChange}
-                        value={prescriptionComment}
                       />
                     </div>
                   </VitalsContainer>
@@ -2975,7 +2972,6 @@ const PatientEMRDetails = () => {
                         placeholder="Add your advices here"
                         className="notes-field"
                         onChange={adviceChange}
-                        value={advices}
                       />
                     </div>
                   </VitalsContainer>
