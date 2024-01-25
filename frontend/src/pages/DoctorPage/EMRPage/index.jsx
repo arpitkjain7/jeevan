@@ -460,168 +460,170 @@ const PatientEMRDetails = () => {
     });
 
     // if (!sessionStorage.getItem("pmrID")) {
-      const currentPatient = JSON.parse(patient);
-      if (Object.keys(currentPatient)?.length) {
-        const emrPayload = {
-          patient_id: currentPatient?.patientId,
-          doc_id: currentPatient?.doc_id,
-          appointment_id: currentPatient?.id,
-          hip_id: currentPatient?.hip_id,
-          consultation_status: "InProgress",
-        };
-        dispatch(getEMRId(emrPayload)).then((res) => {
-          setEMRId(res.payload?.pmr_details.id);
-          sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
-          const pmrDetails = res.payload?.pmr_details.pmr_data;
-          if (pmrDetails) {
-            if (pmrDetails.vital) {
-              setFormValues({
-                pulseRate: pmrDetails.vital.pulse,
-                oxygenSaturation: pmrDetails.vital.oxygen_saturation,
-                bloodPressure: pmrDetails.vital.blood_pressure,
-                respiratoryRate: pmrDetails.vital.respiratory_rate,
-                bodyTemp: pmrDetails.vital.body_temperature,
-                bodyHeight: pmrDetails.vital.height,
-                bodyWeight: pmrDetails.vital.weight,
-                bodyMass: pmrDetails.vital.body_mass_index,
-                systolicBP: pmrDetails.vital.systolic_blood_pressure,
-                diastolicaBP: pmrDetails.vital.diastolic_blood_pressure,
-              });
-            }
-            if (pmrDetails.symptom.data.length > 0) {
-              const symptomList = pmrDetails?.symptom.data;
-              symptomList.map((symptomsData) => {
-                setSymptoms((symptoms) => [
-                  ...symptoms,
-                  {
-                    label: symptomsData.symptom,
-                    value: symptomsData.symptom,
-                    snowmed_code: symptomsData.snowmed_code,
-                    snowmed_display: symptomsData.snowmed_display,
-                  },
-                ]);
-                setSymptomsSpecs((prevState) => ({
-                  ...prevState,
-                  [symptomsData.symptom]: {
-                    since: symptomsData.duration,
-                    severity: symptomsData.severity,
-                    notes: symptomsData.notes,
-                  },
-                }));
-              });
-            }
-            if (pmrDetails.medical_history.data.length > 0) {
-              const medicalHistoryList = pmrDetails?.medical_history.data;
-              medicalHistoryList.map((medicalHistoryData) => {
-                setMedicalHistory((medicalHistory) => [
-                  ...medicalHistory,
-                  {
-                    label: medicalHistoryData.medical_history,
-                    value: medicalHistoryData.medical_history,
-                    snowmed_code: medicalHistoryData.snowmed_code,
-                    snowmed_display: medicalHistoryData.snowmed_display,
-                  },
-                ]);
-                setOptionTextValues((prevState) => ({
-                  ...prevState,
-                  [medicalHistoryData.medical_history]: {
-                    since: medicalHistoryData.since,
-                    relationship: medicalHistoryData.relationship,
-                    severity: medicalHistoryData.severity,
-                    notes: medicalHistoryData.notes,
-                  },
-                }));
-              });
-            }
-            if (pmrDetails.examination_findings.data.length > 0) {
-              const examinationFindingsList =
-                pmrDetails?.examination_findings.data;
-              examinationFindingsList.map((findingsData) => {
-                setExamFinding((examFindings) => [
-                  ...examFindings,
-                  {
-                    label: findingsData.disease,
-                    value: findingsData.disease,
-                    snowmed_code: findingsData.snowmed_code,
-                    snowmed_display: findingsData.snowmed_display,
-                  },
-                ]);
-                setExaminationSpecs((prevState) => ({
-                  ...prevState,
-                  [findingsData.disease]: {
-                    notes: findingsData.notes,
-                  },
-                }));
-              });
-            }
-            if (pmrDetails.diagnosis.data.length > 0) {
-              const diagnosisList = pmrDetails?.diagnosis.data;
-              diagnosisList.map((diagnosisData) => {
-                setDiagnosis((diagnosis) => [
-                  ...diagnosis,
-                  {
-                    label: diagnosisData.disease,
-                    value: diagnosisData.disease,
-                    snowmed_code: diagnosisData.snowmed_code,
-                    snowmed_display: diagnosisData.snowmed_display,
-                  },
-                ]);
-                setDiagnosisSpecs((prevState) => ({
-                  ...prevState,
-                  [diagnosisData.disease]: {
-                    since: diagnosisData.status,
-                    severity: diagnosisData.diagnosis_type,
-                    notes: diagnosisData.notes,
-                  },
-                }));
-              });
-            }
-            if (pmrDetails.lab_investigation.data.length > 0) {
-              const labInvestigationList = pmrDetails?.lab_investigation.data;
-              labInvestigationList.map((labInvestigationData) => {
-                setLabInvestigation((labInvestigation) => [
-                  ...labInvestigation,
-                  {
-                    label: labInvestigationData.name,
-                    value: labInvestigationData.name,
-                    snowmed_code: labInvestigationData.snowmed_code,
-                    snowmed_display: labInvestigationData.snowmed_display,
-                  },
-                ]);
-                setLabInvestigationSpecs((prevState) => ({
-                  ...prevState,
-                  [labInvestigationData.name]: {
-                    notes: labInvestigationData.notes,
-                  },
-                }));
-              });
-            }
-            if (pmrDetails.medication.data.length > 0) {
-              const medicationList = pmrDetails?.medication.data;
-              medicationList.map((medicationData) => {
-                setMedications((medications) => [
-                  ...medications,
-                  {
-                    label: medicationData.medicine_name,
-                    value: medicationData.medicine_name,
-                    snowmed_code: medicationData.snowmed_code,
-                    snowmed_display: medicationData.snowmed_display,
-                  },
-                ]);
-                setMedicationsSpecs((prevState) => ({
-                  ...prevState,
-                  [medicationData.medicine_name]: {
-                    severity: medicationData.frequency,
-                    timing: medicationData.time_of_day,
-                    dose: medicationData.dosage,
-                    since: medicationData.duration,
-                  },
-                }));
-              });
-            }
+    const currentPatient = JSON.parse(patient);
+    if (Object.keys(currentPatient)?.length) {
+      const emrPayload = {
+        patient_id: currentPatient?.patientId,
+        doc_id: currentPatient?.doc_id,
+        appointment_id: currentPatient?.id,
+        hip_id: currentPatient?.hip_id,
+        consultation_status: "InProgress",
+      };
+      dispatch(getEMRId(emrPayload)).then((res) => {
+        setEMRId(res.payload?.pmr_details.id);
+        sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
+        const pmrDetails = res.payload?.pmr_details.pmr_data;
+        setAdvices(res.payload?.pmr_details?.advices || "");
+        setPrescriptionComment(res.payload?.pmr_details?.notes || "");
+        if (pmrDetails) {
+          if (pmrDetails.vital) {
+            setFormValues({
+              pulseRate: pmrDetails.vital.pulse,
+              oxygenSaturation: pmrDetails.vital.oxygen_saturation,
+              bloodPressure: pmrDetails.vital.blood_pressure,
+              respiratoryRate: pmrDetails.vital.respiratory_rate,
+              bodyTemp: pmrDetails.vital.body_temperature,
+              bodyHeight: pmrDetails.vital.height,
+              bodyWeight: pmrDetails.vital.weight,
+              bodyMass: pmrDetails.vital.body_mass_index,
+              systolicBP: pmrDetails.vital.systolic_blood_pressure,
+              diastolicaBP: pmrDetails.vital.diastolic_blood_pressure,
+            });
           }
-        });
-      }
+          if (pmrDetails.symptom.data.length > 0) {
+            const symptomList = pmrDetails?.symptom.data;
+            symptomList.map((symptomsData) => {
+              setSymptoms((symptoms) => [
+                ...symptoms,
+                {
+                  label: symptomsData.symptom,
+                  value: symptomsData.symptom,
+                  snowmed_code: symptomsData.snowmed_code,
+                  snowmed_display: symptomsData.snowmed_display,
+                },
+              ]);
+              setSymptomsSpecs((prevState) => ({
+                ...prevState,
+                [symptomsData.symptom]: {
+                  since: symptomsData.duration,
+                  severity: symptomsData.severity,
+                  notes: symptomsData.notes,
+                },
+              }));
+            });
+          }
+          if (pmrDetails.medical_history.data.length > 0) {
+            const medicalHistoryList = pmrDetails?.medical_history.data;
+            medicalHistoryList.map((medicalHistoryData) => {
+              setMedicalHistory((medicalHistory) => [
+                ...medicalHistory,
+                {
+                  label: medicalHistoryData.medical_history,
+                  value: medicalHistoryData.medical_history,
+                  snowmed_code: medicalHistoryData.snowmed_code,
+                  snowmed_display: medicalHistoryData.snowmed_display,
+                },
+              ]);
+              setOptionTextValues((prevState) => ({
+                ...prevState,
+                [medicalHistoryData.medical_history]: {
+                  since: medicalHistoryData.since,
+                  relationship: medicalHistoryData.relationship,
+                  severity: medicalHistoryData.severity,
+                  notes: medicalHistoryData.notes,
+                },
+              }));
+            });
+          }
+          if (pmrDetails.examination_findings.data.length > 0) {
+            const examinationFindingsList =
+              pmrDetails?.examination_findings.data;
+            examinationFindingsList.map((findingsData) => {
+              setExamFinding((examFindings) => [
+                ...examFindings,
+                {
+                  label: findingsData.disease,
+                  value: findingsData.disease,
+                  snowmed_code: findingsData.snowmed_code,
+                  snowmed_display: findingsData.snowmed_display,
+                },
+              ]);
+              setExaminationSpecs((prevState) => ({
+                ...prevState,
+                [findingsData.disease]: {
+                  notes: findingsData.notes,
+                },
+              }));
+            });
+          }
+          if (pmrDetails.diagnosis.data.length > 0) {
+            const diagnosisList = pmrDetails?.diagnosis.data;
+            diagnosisList.map((diagnosisData) => {
+              setDiagnosis((diagnosis) => [
+                ...diagnosis,
+                {
+                  label: diagnosisData.disease,
+                  value: diagnosisData.disease,
+                  snowmed_code: diagnosisData.snowmed_code,
+                  snowmed_display: diagnosisData.snowmed_display,
+                },
+              ]);
+              setDiagnosisSpecs((prevState) => ({
+                ...prevState,
+                [diagnosisData.disease]: {
+                  since: diagnosisData.status,
+                  severity: diagnosisData.diagnosis_type,
+                  notes: diagnosisData.notes,
+                },
+              }));
+            });
+          }
+          if (pmrDetails.lab_investigation.data.length > 0) {
+            const labInvestigationList = pmrDetails?.lab_investigation.data;
+            labInvestigationList.map((labInvestigationData) => {
+              setLabInvestigation((labInvestigation) => [
+                ...labInvestigation,
+                {
+                  label: labInvestigationData.name,
+                  value: labInvestigationData.name,
+                  snowmed_code: labInvestigationData.snowmed_code,
+                  snowmed_display: labInvestigationData.snowmed_display,
+                },
+              ]);
+              setLabInvestigationSpecs((prevState) => ({
+                ...prevState,
+                [labInvestigationData.name]: {
+                  notes: labInvestigationData.notes,
+                },
+              }));
+            });
+          }
+          if (pmrDetails.medication.data.length > 0) {
+            const medicationList = pmrDetails?.medication.data;
+            medicationList.map((medicationData) => {
+              setMedications((medications) => [
+                ...medications,
+                {
+                  label: medicationData.medicine_name,
+                  value: medicationData.medicine_name,
+                  snowmed_code: medicationData.snowmed_code,
+                  snowmed_display: medicationData.snowmed_display,
+                },
+              ]);
+              setMedicationsSpecs((prevState) => ({
+                ...prevState,
+                [medicationData.medicine_name]: {
+                  severity: medicationData.frequency,
+                  timing: medicationData.time_of_day,
+                  dose: medicationData.dosage,
+                  since: medicationData.duration,
+                },
+              }));
+            });
+          }
+        }
+      });
+    }
     // }
   }, []);
 
@@ -853,10 +855,15 @@ const PatientEMRDetails = () => {
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
       // setShowMedicalHistory(true);
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setOptionTextValues({
         ...optionTextValues,
-        [value]: { since: "", relationship: "", severity: "", notes: "" },
+        [value?.label]: {
+          since: "",
+          relationship: "",
+          severity: "",
+          notes: "",
+        },
       });
       setMedicalHistory([...medicalHistory, fieldValue]);
       setMedicalHistoryOpts([]);
@@ -864,10 +871,10 @@ const PatientEMRDetails = () => {
   };
   const handleExistingConditions = (event, value) => {
     if (value) {
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setExistingConditionsSpecs({
         ...existingConditionSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value?.label]: { since: "", severity: "", notes: "" },
       });
       setExistingCondition([...existingConditions, fieldValue]);
     }
@@ -875,10 +882,10 @@ const PatientEMRDetails = () => {
 
   const handleSymptoms = (event, value) => {
     if (value) {
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setSymptomsSpecs({
         ...symptomsSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value?.label]: { since: "", severity: "", notes: "" },
       });
       setSymptoms([...symptoms, fieldValue]);
       setSymptomsOpts([]);
@@ -897,10 +904,10 @@ const PatientEMRDetails = () => {
 
   const handleExaminationFindings = (event, value) => {
     if (value) {
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setExaminationSpecs({
         ...symptomsSpecs,
-        [value]: { notes: "" },
+        [value?.label]: { notes: "" },
       });
 
       setExamFinding([...examFindings, fieldValue]);
@@ -910,21 +917,21 @@ const PatientEMRDetails = () => {
   };
   const handleDiagnosis = (event, value) => {
     if (value) {
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setDiagnosisSpecs({
         ...diagnosisSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value?.label]: { since: "", severity: "", notes: "" },
       });
       setDiagnosis([...diagnosis, fieldValue]);
       setDiagnosisOpts([]);
     }
   };
   const handleMedications = (event, value) => {
-    if (value) {
+    if (value?.label) {
       const fieldValue = value;
       setMedicationsSpecs({
         ...medicationsSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value?.label]: { since: "", severity: "", notes: "" },
       });
       setMedications([...medications, fieldValue]);
       setMedicationsOpts([]);
@@ -932,10 +939,10 @@ const PatientEMRDetails = () => {
   };
   const handleLabInvestigations = (event, value) => {
     if (value) {
-      const fieldValue = value;
+      const fieldValue = value?.label;
       setLabInvestigationSpecs({
         ...labInvestigationSpecs,
-        [value]: { since: "", severity: "", notes: "" },
+        [value?.label]: { since: "", severity: "", notes: "" },
       });
       setLabInvestigation([...labInvestigation, fieldValue]);
       handleLabTextChange(value, "notes", "");
@@ -1616,15 +1623,16 @@ const PatientEMRDetails = () => {
         patientAge: "-",
       };
     }
+    const pdfFormattedData = submitEMRPayload;
+    pdfFormattedData["advice"] = advices;
+    pdfFormattedData["notes"] = prescriptionComment;
+    setPdfData(pdfFormattedData);
     setPatientData(patientDetails);
-    setPdfData(submitEMRPayload);
-
-    console.log(submitEMRPayload, "payload");
 
     sessionStorage.setItem("patientDetailsPdf", JSON.stringify(patientDetails));
     sessionStorage.setItem(
       "patientEMRDetails",
-      JSON.stringify(submitEMRPayload)
+      JSON.stringify(pdfFormattedData)
     );
 
     setPmrFinished(true);
@@ -1936,335 +1944,342 @@ const PatientEMRDetails = () => {
       {step === "create" && (
         <EMRFormWrapper>
           <EMRFormInnerWrapper>
-          <VitalsContainer>
-            <SectionHeader>Vitals</SectionHeader>
-            <form>
-              <Grid container spacing={{ xs: 6, md: 8 }}>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Pulse Rate</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="pulseRate"
-                        value={formValues.pulseRate}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>/min</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">
-                    Peripheral oxygen saturation
-                  </Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="oxygenSaturation"
-                        value={formValues.oxygenSaturation}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>%</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Blood Pressure</Typography>
-                  <BPTextFieldWrapper>
-                    <Grid item xs={8}>
-                      <BPWrapper>
-                        <DiastolicTextField
+            <VitalsContainer>
+              <SectionHeader>Vitals</SectionHeader>
+              <form>
+                <Grid container spacing={{ xs: 6, md: 8 }}>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">Pulse Rate</Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
                           fullWidth
                           type="number"
                           variant="outlined"
-                          name="diastolicaBP"
-                          value={formValues.diastolicaBP}
+                          name="pulseRate"
+                          value={formValues.pulseRate}
                           onChange={handleInputChange}
                           className="emr-input-field"
                         />
-                        <Divider>/</Divider>
-                        <SystolicTextField
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>/min</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">
+                      Peripheral oxygen saturation
+                    </Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
                           fullWidth
                           type="number"
                           variant="outlined"
-                          name="systolicBP"
-                          value={formValues.systolicBP}
+                          name="oxygenSaturation"
+                          value={formValues.oxygenSaturation}
                           onChange={handleInputChange}
                           className="emr-input-field"
                         />
-                      </BPWrapper>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>mmHg</VitalValue>
-                    </Grid>
-                  </BPTextFieldWrapper>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>%</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">Blood Pressure</Typography>
+                    <BPTextFieldWrapper>
+                      <Grid item xs={8}>
+                        <BPWrapper>
+                          <DiastolicTextField
+                            fullWidth
+                            type="number"
+                            variant="outlined"
+                            name="diastolicaBP"
+                            value={formValues.diastolicaBP}
+                            onChange={handleInputChange}
+                            className="emr-input-field"
+                          />
+                          <Divider>/</Divider>
+                          <SystolicTextField
+                            fullWidth
+                            type="number"
+                            variant="outlined"
+                            name="systolicBP"
+                            value={formValues.systolicBP}
+                            onChange={handleInputChange}
+                            className="emr-input-field"
+                          />
+                        </BPWrapper>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>mmHg</VitalValue>
+                      </Grid>
+                    </BPTextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">
+                      Respiratory rate
+                    </Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          variant="outlined"
+                          name="respiratoryRate"
+                          value={formValues.respiratoryRate}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>/min</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">
+                      Body Temperature
+                    </Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          variant="outlined"
+                          name="bodyTemp"
+                          value={formValues.bodyTemp}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>°C</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">Body height</Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          variant="outlined"
+                          name="bodyHeight"
+                          value={formValues.bodyHeight}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>Cms</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">Body weight</Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          variant="outlined"
+                          name="bodyWeight"
+                          value={formValues.bodyWeight}
+                          onChange={handleInputChange}
+                          className="emr-input-field"
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>Kgs</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <Typography variant="subtitle1">Body mass index</Typography>
+                    <TextFieldWrapper>
+                      <Grid item xs={8}>
+                        <BPWrapper>
+                          <RowWrapper>{bodyMassIndex}</RowWrapper>
+                        </BPWrapper>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <VitalValue>Kg/m2</VitalValue>
+                      </Grid>
+                    </TextFieldWrapper>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Respiratory rate</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="respiratoryRate"
-                        value={formValues.respiratoryRate}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>/min</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Body Temperature</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="bodyTemp"
-                        value={formValues.bodyTemp}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>°C</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Body height</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="bodyHeight"
-                        value={formValues.bodyHeight}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>Cms</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Body weight</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        variant="outlined"
-                        name="bodyWeight"
-                        value={formValues.bodyWeight}
-                        onChange={handleInputChange}
-                        className="emr-input-field"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>Kgs</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <Typography variant="subtitle1">Body mass index</Typography>
-                  <TextFieldWrapper>
-                    <Grid item xs={8}>
-                      <BPWrapper>
-                        <RowWrapper>{bodyMassIndex}</RowWrapper>
-                      </BPWrapper>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <VitalValue>Kg/m2</VitalValue>
-                    </Grid>
-                  </TextFieldWrapper>
-                </Grid>
-              </Grid>
-            </form>
-          </VitalsContainer>
-          {(userRole === "DOCTOR" || userRole === "ADMIN") && (
-            <>
-              <VitalsContainer>
-                <SectionHeader>Complaints</SectionHeader>
-                <CustomAutoComplete
-                  options={symptomsOpts}
-                  handleInputChange={handleSymptompsChange}
-                  setOptions={setSymptomsOpts}
-                  handleOptionChange={handleSymptoms}
-                />
-                {symptoms?.length > 0 && (
-                  <div>
-                    {symptoms
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout>
-                            <SelectedRecord>
-                              {item?.label || item || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              className="sinceAutocomplete"
-                              options={generateSymptomsOptions(
-                                symptomNumber,
-                                item
-                              )}
-                              value={symptomsSpecs[item?.label]?.since || ""}
-                              onChange={(e, newValue) =>
-                                generateSymptomsOptionChange(
-                                  item,
-                                  newValue,
-                                  "since"
-                                )
-                              }
-                              // inputValue={symptomNumber}
-                              onInputChange={(e, newValue) =>
-                                handleSymptomNumberOptions(item, newValue)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Since"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <NotesWrapper>
-                            <TextBoxLayout className="desktop">
-                              <RecordTextField
-                                placeholder="Notes"
-                                value={symptomsSpecs[item?.label]?.notes || ""}
-                                onChange={(e) =>
-                                  handleSymtomsTextChange(
+              </form>
+            </VitalsContainer>
+            {(userRole === "DOCTOR" || userRole === "ADMIN") && (
+              <>
+                <VitalsContainer>
+                  <SectionHeader>Complaints</SectionHeader>
+                  <CustomAutoComplete
+                    options={symptomsOpts}
+                    handleInputChange={handleSymptompsChange}
+                    setOptions={setSymptomsOpts}
+                    handleOptionChange={handleSymptoms}
+                  />
+                  {symptoms?.length > 0 && (
+                    <div>
+                      {symptoms
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout>
+                              <SelectedRecord>
+                                {item?.label || item || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                className="sinceAutocomplete"
+                                options={generateSymptomsOptions(
+                                  symptomNumber,
+                                  item
+                                )}
+                                value={symptomsSpecs[item?.label]?.since || ""}
+                                onChange={(e, newValue) =>
+                                  generateSymptomsOptionChange(
                                     item,
-                                    "notes",
-                                    e.target.value
+                                    newValue,
+                                    "since"
                                   )
                                 }
-                                label="Notes"
-                                variant="outlined"
+                                // inputValue={symptomNumber}
+                                onInputChange={(e, newValue) =>
+                                  handleSymptomNumberOptions(item, newValue)
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Since"
+                                    variant="outlined"
+                                  />
+                                )}
                               />
                             </TextBoxLayout>
-                          </NotesWrapper>
-                          <DeleteWrapper>
-                            <p
-                              onClick={handleOpenComplaintNotes}
-                              className="mobile"
-                            >
-                              <NotesField />
-                            </p>
-                            <Modal
-                              open={openComplaintNotes}
-                              onClose={handleCloseComplaintNotes}
-                              aria-labelledby="modal-modal-title"
-                              aria-describedby="modal-modal-description"
-                            >
-                              <Box sx={style}>
-                                <div style={{ position: "relative" }}>
-                                  <Toolbar>
-                                    <Typography
-                                      id="modal-modal-title"
-                                      sx={{ flex: 1 }}
-                                      variant="h3"
-                                    >
-                                      Complaints Note
-                                    </Typography>
-                                    <IconButton
-                                      edge="end"
-                                      color="inherit"
-                                      onClick={handleCloseComplaintNotes}
-                                      aria-label="close"
-                                    >
-                                      <CloseIcon />
-                                    </IconButton>
-                                  </Toolbar>
-                                </div>
-                                <Typography sx={{ mt: 2 }}>
-                                  <TextBoxLayout>
-                                    <TextareaAutosize
-                                      maxRows={3}
-                                      placeholder="Notes"
-                                      value={
-                                        symptomsSpecs[item?.label]?.notes || ""
-                                      }
-                                      onChange={(e) =>
-                                        handleSymtomsTextChange(
-                                          item,
-                                          "notes",
-                                          e.target.value
-                                        )
-                                      }
-                                      variant="outlined"
-                                    />
-                                  </TextBoxLayout>
-                                </Typography>
-                                <PrimaryButton
-                                  onClick={handleCloseComplaintNotes}
-                                  sx={{ marginTop: "10px", float: "right" }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              </Box>
-                            </Modal>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    symptomsSpecs[item?.label]?.notes || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleSymtomsTextChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
+                            <DeleteWrapper>
+                              <p
+                                onClick={handleOpenComplaintNotes}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openComplaintNotes}
+                                onClose={handleCloseComplaintNotes}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Complaints Note
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseComplaintNotes}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography sx={{ mt: 2 }}>
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          symptomsSpecs[item?.label]?.notes ||
+                                          ""
+                                        }
+                                        onChange={(e) =>
+                                          handleSymtomsTextChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseComplaintNotes}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
 
-                            <DeleteField
-                              onClick={handleSymptomsSpecsDelete(item?.label)}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-              <VitalsContainer>
-                <SectionHeader>Patient Medical History</SectionHeader>
-                <CustomAutoComplete
-                  options={medicalHistoryOpts}
-                  handleInputChange={handleMeidcalHistoryChange}
-                  setOptions={setMedicalHistoryOpts}
-                  handleOptionChange={handleMedicalHistoryValue}
-                  autocompleteRef={medicalHistoryRef}
-                />
-                {medicalHistory?.length > 0 && (
-                  <div>
-                    {medicalHistory
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout className="addMaxWidth">
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            {/* <RecordTextField
+                              <DeleteField
+                                onClick={handleSymptomsSpecsDelete(item?.label)}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
+                    </div>
+                  )}
+                </VitalsContainer>
+                <VitalsContainer>
+                  <SectionHeader>Patient Medical History</SectionHeader>
+                  <CustomAutoComplete
+                    options={medicalHistoryOpts}
+                    handleInputChange={handleMeidcalHistoryChange}
+                    setOptions={setMedicalHistoryOpts}
+                    handleOptionChange={handleMedicalHistoryValue}
+                    autocompleteRef={medicalHistoryRef}
+                  />
+                  {medicalHistory?.length > 0 && (
+                    <div>
+                      {medicalHistory
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout className="addMaxWidth">
+                              <SelectedRecord>
+                                {item?.label || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              {/* <RecordTextField
                             placeholder="Since"
                             value={optionTextValues[item?.label]?.since || ""}
                             onChange={(e) =>
@@ -2272,731 +2287,752 @@ const PatientEMRDetails = () => {
                             }
     variant="outlined"
                           /> */}
-                            <Autocomplete
-                              options={generateHistoryOptions(
-                                medicalHistoryNumber,
-                                item
-                              )}
-                              value={optionTextValues[item?.label]?.since || ""}
-                              onChange={(e, newValue) =>
-                                generateMedicalHistoryOptionChange(
-                                  item,
-                                  newValue
-                                )
-                              }
-                              // inputValue={symptomNumber}
-                              onInputChange={(e, newValue) =>
-                                handleHistoryNumberOptions(item, newValue)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Since"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              options={relationshipOptions}
-                              value={
-                                optionTextValues[item?.label]?.relationship ||
-                                ""
-                              }
-                              onChange={(e, newValue) =>
-                                handleRelationshipChange(item, newValue)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Relationship"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <NotesWrapper>
-                            <TextBoxLayout className="desktop">
-                              <RecordTextField
-                                placeholder="Notes"
+                              <Autocomplete
+                                options={generateHistoryOptions(
+                                  medicalHistoryNumber,
+                                  item
+                                )}
                                 value={
-                                  optionTextValues[item?.label]?.notes || ""
+                                  optionTextValues[item?.label]?.since || ""
                                 }
-                                onChange={(e) =>
-                                  handleTextFieldChange(
+                                onChange={(e, newValue) =>
+                                  generateMedicalHistoryOptionChange(
                                     item,
-                                    "notes",
-                                    e.target.value
+                                    newValue
                                   )
                                 }
-                                label="Notes"
-                                variant="outlined"
+                                // inputValue={symptomNumber}
+                                onInputChange={(e, newValue) =>
+                                  handleHistoryNumberOptions(item, newValue)
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Since"
+                                    variant="outlined"
+                                  />
+                                )}
                               />
                             </TextBoxLayout>
-                          </NotesWrapper>
-                          <DeleteWrapper>
-                            <p
-                              onClick={handleOpenMedicalHistory}
-                              className="mobile"
-                            >
-                              <NotesField />
-                            </p>
-                            <Modal
-                              open={openMedicalHistory}
-                              onClose={handleCloseMedicalHistory}
-                              aria-labelledby="modal-modal-title"
-                              aria-describedby="modal-modal-description"
-                            >
-                              <Box sx={style}>
-                                <div style={{ position: "relative" }}>
-                                  <Toolbar>
-                                    <Typography
-                                      id="modal-modal-title"
-                                      sx={{ flex: 1 }}
-                                      variant="h3"
-                                    >
-                                      Patient Medical History Notes
-                                    </Typography>
-                                    <IconButton
-                                      edge="end"
-                                      color="inherit"
-                                      onClick={handleCloseMedicalHistory}
-                                      aria-label="close"
-                                    >
-                                      <CloseIcon />
-                                    </IconButton>
-                                  </Toolbar>
-                                </div>
-                                <Typography
-                                  id="modal-modal-description"
-                                  sx={{ mt: 2 }}
-                                >
-                                  <TextBoxLayout>
-                                    <TextareaAutosize
-                                      maxRows={3}
-                                      placeholder="Notes"
-                                      value={
-                                        optionTextValues[item?.label]?.notes ||
-                                        ""
-                                      }
-                                      onChange={(e) =>
-                                        handleTextFieldChange(
-                                          item,
-                                          "notes",
-                                          e.target.value
-                                        )
-                                      }
-                                      variant="outlined"
-                                    />
-                                  </TextBoxLayout>
-                                </Typography>
-                                <PrimaryButton
-                                  onClick={handleCloseMedicalHistory}
-                                  sx={{ marginTop: "10px", float: "right" }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              </Box>
-                            </Modal>
-                            <DeleteField
-                              onClick={handleOptionRemove(item?.label)}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-              <VitalsContainer>
-                <SectionHeader>Examination Findings</SectionHeader>
-                <CustomAutoComplete
-                  options={examFindingsOpts}
-                  handleInputChange={handleExamFindingsChange}
-                  setOptions={setExamFindingsOpts}
-                  handleOptionChange={handleExaminationFindings}
-                />
-                {examFindings?.length > 0 && (
-                  <div>
-                    {examFindings
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout>
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <NotesWrapper>
-                            <TextBoxLayout className="desktop">
-                              <RecordTextField
-                                placeholder="Notes"
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                options={relationshipOptions}
                                 value={
-                                  examinationSpecs[item?.label]?.notes || ""
-                                }
-                                onChange={(e) =>
-                                  handleExaminationTextChange(
-                                    item,
-                                    "notes",
-                                    e.target.value
-                                  )
-                                }
-                                label="Notes"
-                                variant="outlined"
-                              />
-                            </TextBoxLayout>
-                          </NotesWrapper>
-                          <DeleteWrapper>
-                            <p
-                              onClick={handleOpenFindingNotes}
-                              className="mobile"
-                            >
-                              <NotesField />
-                            </p>
-                            <Modal
-                              open={openFindingNotes}
-                              onClose={handleCloseFindingNotes}
-                              aria-labelledby="modal-modal-title"
-                              aria-describedby="modal-modal-description"
-                            >
-                              <Box sx={style}>
-                                <div style={{ position: "relative" }}>
-                                  <Toolbar>
-                                    <Typography
-                                      id="modal-modal-title"
-                                      sx={{ flex: 1 }}
-                                      variant="h3"
-                                    >
-                                      Examination Finding Notes
-                                    </Typography>
-                                    <IconButton
-                                      edge="end"
-                                      color="inherit"
-                                      onClick={handleCloseFindingNotes}
-                                      aria-label="close"
-                                    >
-                                      <CloseIcon />
-                                    </IconButton>
-                                  </Toolbar>
-                                </div>
-                                <Typography
-                                  id="modal-modal-description"
-                                  sx={{ mt: 2 }}
-                                >
-                                  <TextBoxLayout>
-                                    <TextareaAutosize
-                                      maxRows={3}
-                                      placeholder="Notes"
-                                      value={
-                                        examinationSpecs[item?.label]?.notes ||
-                                        ""
-                                      }
-                                      onChange={(e) =>
-                                        handleExaminationTextChange(
-                                          item,
-                                          "notes",
-                                          e.target.value
-                                        )
-                                      }
-                                      variant="outlined"
-                                    />
-                                  </TextBoxLayout>
-                                </Typography>
-                                <PrimaryButton
-                                  onClick={handleCloseFindingNotes}
-                                  sx={{ marginTop: "10px", float: "right" }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              </Box>
-                            </Modal>
-                            <DeleteField
-                              onClick={handleExaminationSpecsDelete(
-                                item?.label
-                              )}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-              <VitalsContainer>
-                <SectionHeader>Diagnosis</SectionHeader>
-                <CustomAutoComplete
-                  options={diagnosisOpts}
-                  handleInputChange={handleDiagnosisChange}
-                  setOptions={setDiagnosisOpts}
-                  handleOptionChange={handleDiagnosis}
-                />
-                {diagnosis?.length > 0 && (
-                  <div>
-                    {diagnosis
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout className="addMaxWidth">
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              options={diagnosisStatusOpts}
-                              value={diagnosisSpecs[item?.label]?.since || ""}
-                              onChange={(e, newValue) =>
-                                handleDiganosisOptionChange(
-                                  item,
-                                  newValue,
-                                  "since"
-                                )
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Status"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              options={diagnosisTypeOpts}
-                              value={
-                                diagnosisSpecs[item?.label]?.severity || ""
-                              }
-                              onChange={(e, newValue) =>
-                                handleDiganosisOptionChange(
-                                  item,
-                                  newValue,
-                                  "severity"
-                                )
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Type"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <NotesWrapper>
-                            <TextBoxLayout className="desktop">
-                              <RecordTextField
-                                placeholder="Notes"
-                                value={diagnosisSpecs[item?.label]?.notes || ""}
-                                onChange={(e) =>
-                                  handleDiagnosisTextChange(
-                                    item,
-                                    "notes",
-                                    e.target.value
-                                  )
-                                }
-                                label="Notes"
-                                variant="outlined"
-                              />
-                            </TextBoxLayout>
-                          </NotesWrapper>
-                          <DeleteWrapper>
-                            <p
-                              onClick={handleOpenDiagnosisNotes}
-                              className="mobile"
-                            >
-                              <NotesField />
-                            </p>
-                            <Modal
-                              open={openDiagnosisNotes}
-                              onClose={handleCloseDiagnosisNotes}
-                              aria-labelledby="modal-modal-title"
-                              aria-describedby="modal-modal-description"
-                            >
-                              <Box sx={style}>
-                                <div style={{ position: "relative" }}>
-                                  <Toolbar>
-                                    <Typography
-                                      id="modal-modal-title"
-                                      sx={{ flex: 1 }}
-                                      variant="h3"
-                                    >
-                                      Diagnosis Notes
-                                    </Typography>
-                                    <IconButton
-                                      edge="end"
-                                      color="inherit"
-                                      onClick={handleCloseDiagnosisNotes}
-                                      aria-label="close"
-                                    >
-                                      <CloseIcon />
-                                    </IconButton>
-                                  </Toolbar>
-                                </div>
-                                <Typography
-                                  id="modal-modal-description"
-                                  sx={{ mt: 2 }}
-                                >
-                                  <TextBoxLayout>
-                                    <TextareaAutosize
-                                      maxRows={3}
-                                      placeholder="Notes"
-                                      value={
-                                        diagnosisSpecs[item?.label]?.notes || ""
-                                      }
-                                      onChange={(e) =>
-                                        handleDiagnosisTextChange(
-                                          item,
-                                          "notes",
-                                          e.target.value
-                                        )
-                                      }
-                                      variant="outlined"
-                                    />
-                                  </TextBoxLayout>
-                                </Typography>
-                                <PrimaryButton
-                                  onClick={handleCloseDiagnosisNotes}
-                                  sx={{ marginTop: "10px", float: "right" }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              </Box>
-                            </Modal>
-                            <DeleteField
-                              onClick={handleDiagnosisSpecsDelete(item?.label)}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-              <VitalsContainer>
-                <SectionHeader>Lab Investigations</SectionHeader>
-                <CustomAutoComplete
-                  options={labInvestigationsOpts}
-                  handleInputChange={handleLabInvestigationsChange}
-                  setOptions={setLabInvestigationsOpts}
-                  handleOptionChange={handleLabInvestigations}
-                />
-                {labInvestigation?.length > 0 && (
-                  <div>
-                    {labInvestigation
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout>
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <NotesWrapper>
-                            <TextBoxLayout className="desktop">
-                              <RecordTextField
-                                placeholder="Notes"
-                                value={
-                                  labInvestigationSpecs[item?.label]?.notes ||
+                                  optionTextValues[item?.label]?.relationship ||
                                   ""
                                 }
-                                onChange={(e) =>
-                                  handleLabTextChange(
+                                onChange={(e, newValue) =>
+                                  handleRelationshipChange(item, newValue)
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Relationship"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    optionTextValues[item?.label]?.notes || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleTextFieldChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
+                            <DeleteWrapper>
+                              <p
+                                onClick={handleOpenMedicalHistory}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openMedicalHistory}
+                                onClose={handleCloseMedicalHistory}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Patient Medical History Notes
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseMedicalHistory}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography
+                                    id="modal-modal-description"
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          optionTextValues[item?.label]
+                                            ?.notes || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleTextFieldChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseMedicalHistory}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
+                              <DeleteField
+                                onClick={handleOptionRemove(item?.label)}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
+                    </div>
+                  )}
+                </VitalsContainer>
+                <VitalsContainer>
+                  <SectionHeader>Examination Findings</SectionHeader>
+                  <CustomAutoComplete
+                    options={examFindingsOpts}
+                    handleInputChange={handleExamFindingsChange}
+                    setOptions={setExamFindingsOpts}
+                    handleOptionChange={handleExaminationFindings}
+                  />
+                  {examFindings?.length > 0 && (
+                    <div>
+                      {examFindings
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout>
+                              <SelectedRecord>
+                                {item?.label || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    examinationSpecs[item?.label]?.notes || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleExaminationTextChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
+                            <DeleteWrapper>
+                              <p
+                                onClick={handleOpenFindingNotes}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openFindingNotes}
+                                onClose={handleCloseFindingNotes}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Examination Finding Notes
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseFindingNotes}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography
+                                    id="modal-modal-description"
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          examinationSpecs[item?.label]
+                                            ?.notes || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleExaminationTextChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseFindingNotes}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
+                              <DeleteField
+                                onClick={handleExaminationSpecsDelete(
+                                  item?.label
+                                )}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
+                    </div>
+                  )}
+                </VitalsContainer>
+                <VitalsContainer>
+                  <SectionHeader>Diagnosis</SectionHeader>
+                  <CustomAutoComplete
+                    options={diagnosisOpts}
+                    handleInputChange={handleDiagnosisChange}
+                    setOptions={setDiagnosisOpts}
+                    handleOptionChange={handleDiagnosis}
+                  />
+                  {diagnosis?.length > 0 && (
+                    <div>
+                      {diagnosis
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout className="addMaxWidth">
+                              <SelectedRecord>
+                                {item?.label || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                options={diagnosisStatusOpts}
+                                value={diagnosisSpecs[item?.label]?.since || ""}
+                                onChange={(e, newValue) =>
+                                  handleDiganosisOptionChange(
                                     item,
-                                    "notes",
+                                    newValue,
+                                    "since"
+                                  )
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Status"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                options={diagnosisTypeOpts}
+                                value={
+                                  diagnosisSpecs[item?.label]?.severity || ""
+                                }
+                                onChange={(e, newValue) =>
+                                  handleDiganosisOptionChange(
+                                    item,
+                                    newValue,
+                                    "severity"
+                                  )
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Type"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    diagnosisSpecs[item?.label]?.notes || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleDiagnosisTextChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
+                            <DeleteWrapper>
+                              <p
+                                onClick={handleOpenDiagnosisNotes}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openDiagnosisNotes}
+                                onClose={handleCloseDiagnosisNotes}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Diagnosis Notes
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseDiagnosisNotes}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography
+                                    id="modal-modal-description"
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          diagnosisSpecs[item?.label]?.notes ||
+                                          ""
+                                        }
+                                        onChange={(e) =>
+                                          handleDiagnosisTextChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseDiagnosisNotes}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
+                              <DeleteField
+                                onClick={handleDiagnosisSpecsDelete(
+                                  item?.label
+                                )}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
+                    </div>
+                  )}
+                </VitalsContainer>
+                <VitalsContainer>
+                  <SectionHeader>Lab Investigations</SectionHeader>
+                  <CustomAutoComplete
+                    options={labInvestigationsOpts}
+                    handleInputChange={handleLabInvestigationsChange}
+                    setOptions={setLabInvestigationsOpts}
+                    handleOptionChange={handleLabInvestigations}
+                  />
+                  {labInvestigation?.length > 0 && (
+                    <div>
+                      {labInvestigation
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout>
+                              <SelectedRecord>
+                                {item?.label || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    labInvestigationSpecs[item?.label]?.notes ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    handleLabTextChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
+                            <DeleteWrapper>
+                              <p
+                                onClick={handleOpenLabNotes}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openLabNotes}
+                                onClose={handleCloseLabNotes}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Lab Investigation Notes
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseLabNotes}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography
+                                    id="modal-modal-description"
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          labInvestigationSpecs[item?.label]
+                                            ?.notes || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleLabTextChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseLabNotes}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
+                              <DeleteField
+                                onClick={handleLabSpecsDelete(item?.label)}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
+                    </div>
+                  )}
+                </VitalsContainer>
+                <VitalsContainer>
+                  <SectionHeader>Medications</SectionHeader>
+                  <CustomAutoComplete
+                    options={medicationsOpts}
+                    handleInputChange={handleMedicationsChange}
+                    setOptions={setMedicationsOpts}
+                    handleOptionChange={handleMedications}
+                  />
+                  {medications?.length > 0 && (
+                    <div>
+                      {medications
+                        ?.slice(0)
+                        .reverse()
+                        .map((item) => (
+                          <FieldSpecsContainer>
+                            <RecordLayout>
+                              <SelectedRecord>
+                                {item?.label || item}
+                              </SelectedRecord>
+                            </RecordLayout>
+                            <TextBoxLayout className="desktopTextBoxLayout">
+                              <RecordTextField
+                                placeholder="Frequency"
+                                value={
+                                  medicationsSpecs[item?.label]?.severity || ""
+                                }
+                                onChange={(e) =>
+                                  handleMedicationsTextChange(
+                                    item,
+                                    "severity",
                                     e.target.value
                                   )
                                 }
-                                label="Notes"
+                                label="Frequency"
                                 variant="outlined"
                               />
                             </TextBoxLayout>
-                          </NotesWrapper>
-                          <DeleteWrapper>
-                            <p onClick={handleOpenLabNotes} className="mobile">
-                              <NotesField />
-                            </p>
-                            <Modal
-                              open={openLabNotes}
-                              onClose={handleCloseLabNotes}
-                              aria-labelledby="modal-modal-title"
-                              aria-describedby="modal-modal-description"
-                            >
-                              <Box sx={style}>
-                                <div style={{ position: "relative" }}>
-                                  <Toolbar>
-                                    <Typography
-                                      id="modal-modal-title"
-                                      sx={{ flex: 1 }}
-                                      variant="h3"
-                                    >
-                                      Lab Investigation Notes
-                                    </Typography>
-                                    <IconButton
-                                      edge="end"
-                                      color="inherit"
-                                      onClick={handleCloseLabNotes}
-                                      aria-label="close"
-                                    >
-                                      <CloseIcon />
-                                    </IconButton>
-                                  </Toolbar>
-                                </div>
-                                <Typography
-                                  id="modal-modal-description"
-                                  sx={{ mt: 2 }}
-                                >
-                                  <TextBoxLayout>
-                                    <TextareaAutosize
-                                      maxRows={3}
-                                      placeholder="Notes"
-                                      value={
-                                        labInvestigationSpecs[item?.label]
-                                          ?.notes || ""
-                                      }
-                                      onChange={(e) =>
-                                        handleLabTextChange(
-                                          item,
-                                          "notes",
-                                          e.target.value
-                                        )
-                                      }
-                                      variant="outlined"
-                                    />
-                                  </TextBoxLayout>
-                                </Typography>
-                                <PrimaryButton
-                                  onClick={handleCloseLabNotes}
-                                  sx={{ marginTop: "10px", float: "right" }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              </Box>
-                            </Modal>
-                            <DeleteField
-                              onClick={handleLabSpecsDelete(item?.label)}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-              <VitalsContainer>
-                <SectionHeader>Medications</SectionHeader>
-                <CustomAutoComplete
-                  options={medicationsOpts}
-                  handleInputChange={handleMedicationsChange}
-                  setOptions={setMedicationsOpts}
-                  handleOptionChange={handleMedications}
-                />
-                {medications?.length > 0 && (
-                  <div>
-                    {medications
-                      ?.slice(0)
-                      .reverse()
-                      .map((item) => (
-                        <FieldSpecsContainer>
-                          <RecordLayout>
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
-                          </RecordLayout>
-                          <TextBoxLayout className="desktopTextBoxLayout">
-                            <RecordTextField
-                              placeholder="Frequency"
-                              value={
-                                medicationsSpecs[item?.label]?.severity || ""
-                              }
-                              onChange={(e) =>
-                                handleMedicationsTextChange(
-                                  item,
-                                  "severity",
-                                  e.target.value
-                                )
-                              }
-                              label="Frequency"
-                              variant="outlined"
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="desktopTextBoxLayout">
-                            <Autocomplete
-                              options={timingOptions} // Replace with your actual timing options
-                              value={
-                                medicationsSpecs[item?.label]?.timing || null
-                              }
-                              onChange={(event, newValue) =>
-                                handleMedicationsTextChange(
-                                  item,
-                                  "timing",
-                                  newValue
-                                )
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Timing"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              options={generateDoseOptions(dose, item)}
-                              value={medicationsSpecs[item?.label]?.dose || ""}
-                              onChange={(e, newValue) =>
-                                handleMedicationOptionsChange(
-                                  item,
-                                  newValue,
-                                  "dose"
-                                )
-                              }
-                              // inputValue={dose}
-                              onInputChange={(e, newVal) =>
-                                handleDoseOptions(e, newVal)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Dose"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="addMaxWidth">
-                            <Autocomplete
-                              options={generateOptions(number, item)}
-                              value={medicationsSpecs[item?.label]?.since || ""}
-                              onChange={(e, newValue) =>
-                                handleMedicationOptionsChange(
-                                  item,
-                                  newValue,
-                                  "since"
-                                )
-                              }
-                              // inputValue={number}
-                              onInputChange={(e, newValue) =>
-                                handleNumberOptions(item, newValue)
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Duration"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
-                            <RecordTextField
-                              placeholder="Frequency"
-                              value={
-                                medicationsSpecs[item?.label]?.severity || ""
-                              }
-                              onChange={(e) =>
-                                handleMedicationsTextChange(
-                                  item,
-                                  "severity",
-                                  e.target.value
-                                )
-                              }
-                              label="Frequency"
-                              variant="outlined"
-                            />
-                          </TextBoxLayout>
-                          <TextBoxLayout className="mobileTextBoxLayout addMaxWidth">
-                            <Autocomplete
-                              options={timingOptions} // Replace with your actual timing options
-                              value={
-                                medicationsSpecs[item?.label]?.timing || null
-                              }
-                              onChange={(event, newValue) =>
-                                handleMedicationsTextChange(
-                                  item,
-                                  "timing",
-                                  newValue
-                                )
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Timing"
-                                  variant="outlined"
-                                />
-                              )}
-                            />
-                          </TextBoxLayout>
-                          <DeleteWrapper>
-                            <DeleteField
-                              onClick={handleMedicationsSpecsDelete(
-                                item?.label
-                              )}
-                            >
-                              Delete
-                            </DeleteField>
-                          </DeleteWrapper>
-                        </FieldSpecsContainer>
-                      ))}
-                  </div>
-                )}
-              </VitalsContainer>
-
-              <VitalsContainer>
-                <SectionHeader>Follow Up</SectionHeader>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={["DatePicker"]}>
-                    <DatePicker
-                      sx={{ width: "100%" }}
-                      disablePast
-                      value={followUp}
-                      onChange={(newValue) => setFollowUp(newValue)}
-                    />
-                  </DemoContainer>
-                </LocalizationProvider>
-              </VitalsContainer>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <VitalsContainer>
-                    <SectionHeader>Notes</SectionHeader>
-                    <div>
-                      <RecordTextField
-                        placeholder="Add your notes here"
-                        className="notes-field"
-                        onChange={prescriptionCommentChange}
-                      />
+                            <TextBoxLayout className="desktopTextBoxLayout">
+                              <Autocomplete
+                                options={timingOptions} // Replace with your actual timing options
+                                value={
+                                  medicationsSpecs[item?.label]?.timing || null
+                                }
+                                onChange={(event, newValue) =>
+                                  handleMedicationsTextChange(
+                                    item,
+                                    "timing",
+                                    newValue
+                                  )
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Timing"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                options={generateDoseOptions(dose, item)}
+                                value={
+                                  medicationsSpecs[item?.label]?.dose || ""
+                                }
+                                onChange={(e, newValue) =>
+                                  handleMedicationOptionsChange(
+                                    item,
+                                    newValue,
+                                    "dose"
+                                  )
+                                }
+                                // inputValue={dose}
+                                onInputChange={(e, newVal) =>
+                                  handleDoseOptions(e, newVal)
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Dose"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <TextBoxLayout className="addMaxWidth">
+                              <Autocomplete
+                                options={generateOptions(number, item)}
+                                value={
+                                  medicationsSpecs[item?.label]?.since || ""
+                                }
+                                onChange={(e, newValue) =>
+                                  handleMedicationOptionsChange(
+                                    item,
+                                    newValue,
+                                    "since"
+                                  )
+                                }
+                                // inputValue={number}
+                                onInputChange={(e, newValue) =>
+                                  handleNumberOptions(item, newValue)
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Duration"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
+                              <RecordTextField
+                                placeholder="Frequency"
+                                value={
+                                  medicationsSpecs[item?.label]?.severity || ""
+                                }
+                                onChange={(e) =>
+                                  handleMedicationsTextChange(
+                                    item,
+                                    "severity",
+                                    e.target.value
+                                  )
+                                }
+                                label="Frequency"
+                                variant="outlined"
+                              />
+                            </TextBoxLayout>
+                            <TextBoxLayout className="mobileTextBoxLayout addMaxWidth">
+                              <Autocomplete
+                                options={timingOptions} // Replace with your actual timing options
+                                value={
+                                  medicationsSpecs[item?.label]?.timing || null
+                                }
+                                onChange={(event, newValue) =>
+                                  handleMedicationsTextChange(
+                                    item,
+                                    "timing",
+                                    newValue
+                                  )
+                                }
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Timing"
+                                    variant="outlined"
+                                  />
+                                )}
+                              />
+                            </TextBoxLayout>
+                            <DeleteWrapper>
+                              <DeleteField
+                                onClick={handleMedicationsSpecsDelete(
+                                  item?.label
+                                )}
+                              >
+                                Delete
+                              </DeleteField>
+                            </DeleteWrapper>
+                          </FieldSpecsContainer>
+                        ))}
                     </div>
-                  </VitalsContainer>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <VitalsContainer>
-                    <SectionHeader>Advices</SectionHeader>
-                    <div>
-                      <RecordTextField
-                        placeholder="Add your advices here"
-                        className="notes-field"
-                        onChange={adviceChange}
+                  )}
+                </VitalsContainer>
+
+                <VitalsContainer>
+                  <SectionHeader>Follow Up</SectionHeader>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={["DatePicker"]}>
+                      <DatePicker
+                        sx={{ width: "100%" }}
+                        disablePast
+                        value={followUp}
+                        onChange={(newValue) => setFollowUp(newValue)}
                       />
-                    </div>
-                  </VitalsContainer>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </VitalsContainer>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <VitalsContainer>
+                      <SectionHeader>Notes</SectionHeader>
+                      <div>
+                        <RecordTextField
+                          placeholder="Add your notes here"
+                          className="notes-field"
+                          onChange={prescriptionCommentChange}
+                          value={prescriptionComment}
+                        />
+                      </div>
+                    </VitalsContainer>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <VitalsContainer>
+                      <SectionHeader>Advices</SectionHeader>
+                      <div>
+                        <RecordTextField
+                          placeholder="Add your advices here"
+                          className="notes-field"
+                          onChange={adviceChange}
+                          value={advices}
+                        />
+                      </div>
+                    </VitalsContainer>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </>
-          )}
+              </>
+            )}
           </EMRFormInnerWrapper>
           <EMRFooter>
-            <SecondaryButton onClick={resetEMRForm} style={{ padding: "8px 16px"}}>Clear</SecondaryButton>
+            <SecondaryButton
+              onClick={resetEMRForm}
+              style={{ padding: "8px 16px" }}
+            >
+              Clear
+            </SecondaryButton>
             <PrimaryButton onClick={saveEMR}>Save</PrimaryButton>
             <PrimaryButton onClick={submitEMR}>
               Review Prescription

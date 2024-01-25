@@ -251,28 +251,6 @@ const PMRPdf = ({ patientData }) => {
   const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
-    // const rowData = pdfData?.medication?.data;
-    // setPrescriptionData(rowData);
-    // const transformedArr = transformPdfData(pdfData);
-    // const filteredArr = transformedArr?.filter(
-    //   (item) =>
-    //     item?.heading !== "Medications" || item?.heading === "Medical History"
-    // );
-    // setPmrPdfData(filteredArr);
-    // const medications = transformedArr?.filter(
-    //   (item) => item?.heading === "Medications"
-    // );
-    // let outputArray = [];
-    // medications[0]?.data?.map((item) => {
-    //   const outputObject = {};
-    //   item?.map((medicine) => {
-    //     outputObject[medicine.label] = medicine.value;
-    //   });
-    //   outputArray?.push(outputObject);
-    // });
-
-    // setPrescriptionData(outputArray);
-
     if (Object.keys(patientData)?.length) {
       const patientDetails = [
         {
