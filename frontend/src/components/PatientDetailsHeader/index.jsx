@@ -317,7 +317,7 @@ const PatientDetailsHeader = ({ documents }) => {
 
   return (
     <DetailsHeaderContainer>
-      <div container className="details-header">
+      <div className="details-header">
         <div className="details-avatar-container">
           <Avatar />
         </div>

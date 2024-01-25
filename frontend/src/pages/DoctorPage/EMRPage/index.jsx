@@ -41,6 +41,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomizedDialogs from "../../../components/Dialog";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
+import CustomLoader from "../../../components/CustomLoader";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -414,6 +415,7 @@ const PatientEMRDetails = () => {
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
   const [emrId, setEMRId] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
 
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
@@ -446,6 +448,7 @@ const PatientEMRDetails = () => {
   };
 
   useEffect(() => {
+    setShowLoader(true);
     const queryParams = {
       term: "hea",
       state: "active",
@@ -469,6 +472,7 @@ const PatientEMRDetails = () => {
           consultation_status: "InProgress",
         };
         dispatch(getEMRId(emrPayload)).then((res) => {
+          setShowLoader(false);
           setEMRId(res.payload?.pmr_details.id);
           sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
           const pmrDetails = res.payload?.pmr_details.pmr_data;
@@ -1926,6 +1930,9 @@ const PatientEMRDetails = () => {
 
   return (
     <PatientEMRWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <CustomizedDialogs
         open={pmrDialogOpen}
         handleClose={handlePmrDialogClose}

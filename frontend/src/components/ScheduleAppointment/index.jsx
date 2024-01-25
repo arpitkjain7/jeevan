@@ -526,7 +526,7 @@ const BookingSlots = () => {
                 {selectedDate &&
                   (selectedDate != current_date ? (
                     <div className="slots-container">
-                      {slots?.map((slot) => (
+                      {slots.length > 0 ? slots.map((slot) => (
                         <DateButton
                           key={slot}
                           color="primary"
@@ -537,11 +537,11 @@ const BookingSlots = () => {
                         >
                           {slot}
                         </DateButton>
-                      ))}
+                      )) : <h4>No slots available</h4>}
                     </div>
                   ) : (
                     <div className="slots-container">
-                      {todaySlots?.map((todayslot) => (
+                      {todaySlots.length > 0 ? todaySlots?.map((todayslot) => (
                         <DateButton
                           key={todayslot}
                           color="primary"
@@ -552,7 +552,7 @@ const BookingSlots = () => {
                         >
                           {todayslot}
                         </DateButton>
-                      ))}
+                      )) : <h4>No slots available</h4>}
                     </div>
                   ))}
               </Grid>

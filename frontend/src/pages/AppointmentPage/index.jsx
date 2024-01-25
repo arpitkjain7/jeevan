@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { fetchAppointmentList } from "./AppointmentPage.slice";
 import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
+import CustomLoader from "../../components/CustomLoader";
 
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -85,6 +86,7 @@ const searchInputStyle = {
 const AppointmentPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
+  const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -138,6 +140,7 @@ const AppointmentPage = () => {
   ];
 
   useEffect(() => {
+    setShowLoader(true);
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
@@ -145,6 +148,7 @@ const AppointmentPage = () => {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchAppointmentList(payload)).then((res) => {
+        setShowLoader(false);
         const mainList = res.payload;
         // let patientList = [];
         // mainList?.map((item) => {
@@ -205,6 +209,9 @@ const AppointmentPage = () => {
   const isMobile = window.innerWidth < 600;
   return (
     <ListWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="patientList-title-wrapper">
         <Typography className="patientList-heading">
           Appointment List
