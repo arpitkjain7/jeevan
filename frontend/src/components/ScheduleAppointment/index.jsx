@@ -40,14 +40,6 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     minHeight: "350px",
   }
   },
-  ".custom-datepicker-input": {
-    borderRadius: "15px",
-    border: "1px #0c8af8 solid",
-    padding: "4px 12px",
-    backgroundColor: "white",
-    height: "22px;",
-    boxShadow: "0 0 2px #0074d9",
-  },
   ".datepickerInputStyle .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
       border: `2px solid ${theme.palette.secondaryBlue}`,
     },
@@ -93,9 +85,6 @@ const SlotWrapper = styled("div")(({ theme }) => ({
       maxHeight: "350px",
       overflowX: "scroll",
     },
-  },
-  ".MuiOutlinedInput-root": {
-    borderColor: "blue",
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
