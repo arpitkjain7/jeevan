@@ -420,16 +420,16 @@ const PMRPdf = ({ patientData }) => {
         ) : (
           <View></View>
         )}
-        {pdfData?.examinationFindings?.data?.length ? (
+        {pdfData?.examination_findings?.data?.length ? (
           <View style={pmrPdfStyles.pdfContainer}>
             <View style={pmrPdfStyles.dataContainer}>
               <Text style={pmrPdfStyles.dataTitle}>Examination Findings</Text>
               <View style={pmrPdfStyles.dataWrapper}>
-                {pdfData.examinationFindings?.data?.map((item) => (
+                {pdfData.examination_findings?.data?.map((item) => (
                   <View style={pmrPdfStyles.dataBox}>
                     <Text style={pmrPdfStyles.dataLabel}>{item?.disease}</Text>
                     <View style={pmrPdfStyles.subDataContainer}>
-                      <Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>
+                      <Text style={pmrPdfStyles.dataValue}>{item?.notes}</Text>
                     </View>
                   </View>
                 ))}
