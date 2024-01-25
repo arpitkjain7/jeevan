@@ -416,6 +416,18 @@ const PatientEMRDetails = () => {
   const currentPatient = JSON.parse(patient);
   const [emrId, setEMRId] = useState("");
   const [showLoader, setShowLoader] = useState(false);
+  const [cleared, setCleared] = useState(false);
+
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
 
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
@@ -1940,7 +1952,7 @@ const PatientEMRDetails = () => {
      
         {step === "create" && (
           <div>
-            <div style={{ height: height - 150, overflowX: "scroll"}}>
+            <div style={{ height: height - 164, overflowX: "scroll"}}>
               <PatientDetailsHeader documents={documents} />
               <EMRFormWrapper>
                 <EMRFormInnerWrapper>
@@ -2965,6 +2977,12 @@ const PatientEMRDetails = () => {
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={["DatePicker"]}>
                           <DatePicker
+                            slotProps={{
+                              field: { clearable: true, onClear: () => setCleared(true) },
+                              actionBar: {
+                                actions: ['clear'],
+                              },
+                            }}
                             sx={{ width: "100%" }}
                             disablePast
                             value={followUp}

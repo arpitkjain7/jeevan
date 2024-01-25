@@ -40,6 +40,17 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     minHeight: "350px",
   }
   },
+  ".custom-datepicker-input": {
+    borderRadius: "15px",
+    border: "1px #0c8af8 solid",
+    padding: "4px 12px",
+    backgroundColor: "white",
+    height: "22px;",
+    boxShadow: "0 0 2px #0074d9",
+  },
+  ".datepickerInputStyle .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+      border: `2px solid ${theme.palette.secondaryBlue}`,
+    },
   ".slot-card": {},
   ".slots-btn": {
     "&.MuiButtonBase-root": {
@@ -82,6 +93,9 @@ const SlotWrapper = styled("div")(({ theme }) => ({
       maxHeight: "350px",
       overflowX: "scroll",
     },
+  },
+  ".MuiOutlinedInput-root": {
+    borderColor: "blue",
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -153,8 +167,9 @@ const BookingSlots = () => {
   const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
+  const [appointmentDate, setAppointmentDate] = useState(false);
   const [appointmentcompleted, setAppointmentCompleted] = useState(false);
-
+  const [cleared, setCleared] = useState(false);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const hospital = sessionStorage?.getItem("selectedHospital");
 
@@ -321,6 +336,18 @@ const BookingSlots = () => {
   }
 
   useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setAppointmentDate(false);
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
+
+  useEffect(() => {
     let filledSlots = [];
     if (doctorDetails?.slots) {
       doctorDetails.slots?.map((slot) => {
@@ -381,8 +408,8 @@ const BookingSlots = () => {
       var hours = Number(startTime.match(/^(\d+)/)[1]);
       var minutes = Number(startTime.match(/:(\d+)/)[1]);
       var meridiem = startTime.slice(-2);
-      if(meridiem == "PM" && hours < 12) hours = hours + 12;
-      else if(meridiem == "AM" && hours == 12) hours = hours-12;
+      if(meridiem === "PM" && hours < 12) hours = hours + 12;
+      else if(meridiem === "AM" && hours === 12) hours = hours-12;
       var sHours = hours.toString();
       var sMinutes = minutes.toString();
       if(hours<10) sHours = "0" + sHours;
@@ -393,8 +420,8 @@ const BookingSlots = () => {
       var hours = Number(endTime.match(/^(\d+)/)[1]);
       var minutes = Number(endTime.match(/:(\d+)/)[1]);
       var meridiem = endTime.slice(-2);
-      if(meridiem == "PM" && hours < 12) hours = hours + 12;
-      else if(meridiem == "AM" && hours == 12) hours = hours-12;
+      if(meridiem === "PM" && hours < 12) hours = hours + 12;
+      else if(meridiem === "AM" && hours === 12) hours = hours-12;
       var sHours = hours.toString();
       var sMinutes = minutes.toString();
       if(hours<10) sHours = "0" + sHours;
@@ -462,6 +489,12 @@ const BookingSlots = () => {
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={["DatePicker"]}>
                       <DesktopDatePicker
+                        slotProps={{
+                          field: { clearable: true, onClear: () => setCleared(true) },
+                          actionBar: {
+                            actions: ['clear'],
+                          },
+                        }}
                         disablePast
                         defaultValue={dayjs(today)}
                         onChange={(newValue) =>
@@ -479,7 +512,10 @@ const BookingSlots = () => {
                       <Button
                         key={index}
                         color="primary"
-                        onClick={() => handleDateSelect(formatDate(date))}
+                        onClick={() => {
+                          setAppointmentDate(false);
+                          handleDateSelect(formatDate(date))
+                        }}
                         className={
                           selectedDate === formatDate(date)
                             ? "selected-date-btn"
@@ -504,6 +540,7 @@ const BookingSlots = () => {
                       <DemoContainer components={["DatePicker"]}>
                         <DesktopDatePicker
                           slotProps={{
+                            field: { clearable: true, onClear: () => setCleared(true) },
                             actionBar: {
                               actions: ['clear'],
                             },
@@ -511,8 +548,12 @@ const BookingSlots = () => {
                           sx={{ padding: "10px" }}
                           disablePast
                           shouldDisableDate={isWeekend}
-                          onChange={(newValue) =>
+                          onChange={(newValue) => {
+                            setAppointmentDate(true)
                             handleDateSelect(newValue)
+                          }}
+                          className={
+                            appointmentDate ? "datepickerInputStyle" : ""
                           }
                         />
                       </DemoContainer>

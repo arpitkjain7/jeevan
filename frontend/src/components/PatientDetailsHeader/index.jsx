@@ -189,6 +189,18 @@ const PatientDetailsHeader = ({ documents }) => {
 
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
+  const [cleared, setCleared] = useState(false);
+
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
 
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
@@ -444,6 +456,12 @@ const PatientDetailsHeader = ({ documents }) => {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DemoContainer components={["DatePicker"]}>
                             <DatePicker
+                              slotProps={{
+                                field: { clearable: true, onClear: () => setCleared(true) },
+                                actionBar: {
+                                  actions: ['clear'],
+                                },
+                              }}
                               sx={{ width: "100%" }}
                               disablePast
                               value={followUp}
