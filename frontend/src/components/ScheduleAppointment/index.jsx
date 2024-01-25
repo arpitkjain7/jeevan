@@ -35,6 +35,11 @@ import dayjs from "dayjs";
 const isMobile = window.innerWidth < 600;
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
+  "& .cardContentStyle": {
+  [theme.breakpoints.up("sm")]: {
+    minHeight: "350px",
+  }
+  },
   ".slot-card": {},
   ".slots-btn": {
     "&.MuiButtonBase-root": {
@@ -75,7 +80,7 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     [theme.breakpoints.down("sm")]: {
       gap: "12px",
       maxHeight: "350px",
-      overflow: "scroll",
+      overflowX: "scroll",
     },
   },
   ".submit-btn": {
@@ -83,6 +88,17 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     float: "right",
     marginTop: theme.spacing(8),
     width: "10%",
+    marginBottom: "8px",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: "20px",
+      width: "28%",
+    }
+  },
+  ".btn-wrapper": {
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
+      justifyContent: "center",
+    }
   },
   ".btn-date-typography": {
     width: "min-content",
@@ -108,7 +124,7 @@ const StyledCard = styled(Card)({
 
 const DateButton = styled("button")(({ theme }) => ({
   "&": theme.typography.body1,
-  width: "auto",
+  width: "180px",
   border: `1px solid ${theme.palette.primaryGrey}`,
   padding: theme.spacing(2, 4),
   borderRadius: theme.spacing(1),
@@ -225,7 +241,8 @@ const BookingSlots = () => {
   }, []);
 
   const isWeekend = (date) => {
-    const day = convertDateFormat(date, "MM/dd/yyyy");
+    const day = convertDateFormat(date, "dd/MM/yyyy");
+    const dayFormat = convertDateFormat(date, "MM/dd/yyyy");
     const week = [];
     const currentDate = new Date();
     for (let i = 0; i < 7; i++) {
@@ -237,7 +254,7 @@ const BookingSlots = () => {
       week.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    return week.includes(day);
+    return week.includes(day || dayFormat);
   };
 
   const generateTimeSlots = (startTime, endTime, duration) => {
@@ -340,16 +357,50 @@ const BookingSlots = () => {
           endTime,
           duration
         );
-        setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
+        const todayRemovedBookedSlots = removeBookedSlots(todayTimeSlots, slotsBooked);
+        const todayFinalSlots = todayRemovedBookedSlots.map(item => {
+          return convertTimeSlot(item)
+        })
+        setTodaySlots(todayFinalSlots);
       }
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
-      setSlots(removeBookedSlots(timeSlots, slotsBooked));
+      const removedBookedSlots = removeBookedSlots(timeSlots, slotsBooked);
+      const finalSlots = removedBookedSlots.map(item => {
+        return convertTimeSlot(item)
+      })
+      setSlots(finalSlots);
     }
   }, [doctorDetails]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
-    const [startTime, endTime] = timeRange.split("-");
+    const [startTime, endTime] = timeRange.split(" - ");
+    let start24hourTime;
+    let end24hourTime;
+    if(startTime){
+      var hours = Number(startTime.match(/^(\d+)/)[1]);
+      var minutes = Number(startTime.match(/:(\d+)/)[1]);
+      var meridiem = startTime.slice(-2);
+      if(meridiem == "PM" && hours < 12) hours = hours + 12;
+      else if(meridiem == "AM" && hours == 12) hours = hours-12;
+      var sHours = hours.toString();
+      var sMinutes = minutes.toString();
+      if(hours<10) sHours = "0" + sHours;
+      if(minutes<10) sMinutes = "0" + sMinutes;
+        start24hourTime = sHours + ":" + sMinutes;
+    }
+    if(endTime){
+      var hours = Number(endTime.match(/^(\d+)/)[1]);
+      var minutes = Number(endTime.match(/:(\d+)/)[1]);
+      var meridiem = endTime.slice(-2);
+      if(meridiem == "PM" && hours < 12) hours = hours + 12;
+      else if(meridiem == "AM" && hours == 12) hours = hours-12;
+      var sHours = hours.toString();
+      var sMinutes = minutes.toString();
+      if(hours<10) sHours = "0" + sHours;
+      if(minutes<10) sMinutes = "0" + sMinutes;
+        end24hourTime = sHours + ":" + sMinutes;
+    }
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
@@ -361,10 +412,10 @@ const BookingSlots = () => {
         encounter_type: appointmentDetails?.encounterType,
         hip_id: currentHospital?.hip_id,
         appointment_start: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + start24hourTime
         ),
         appointment_end: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + end24hourTime
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
@@ -404,7 +455,7 @@ const BookingSlots = () => {
       {!appointmentcompleted ? (
         <SlotWrapper>
           <StyledCard>
-            <CardContent sx={{ minHeight: "350px" }}>
+            <CardContent className="cardContentStyle">
               {isMobile && (
                 <>
                   <Typography>Select Date</Typography>
@@ -452,6 +503,11 @@ const BookingSlots = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
                         <DesktopDatePicker
+                          slotProps={{
+                            actionBar: {
+                              actions: ['clear'],
+                            },
+                          }}
                           sx={{ padding: "10px" }}
                           disablePast
                           shouldDisableDate={isWeekend}

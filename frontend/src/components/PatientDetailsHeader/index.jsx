@@ -411,10 +411,10 @@ const PatientDetailsHeader = ({ documents }) => {
                       style={{ margin: "0 10px" }}
                       onClick={handleClick}
                     >
-                      Upload Image
+                      Add Image
                     </PrimaryButton>
                     <PrimaryButton onClick={SaveDocument}>
-                      Save Document
+                      Finish Prescription
                     </PrimaryButton>
                   </div>
                   <div>
