@@ -855,7 +855,7 @@ const PatientEMRDetails = () => {
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
       // setShowMedicalHistory(true);
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setOptionTextValues({
         ...optionTextValues,
         [value?.label]: {
@@ -871,7 +871,7 @@ const PatientEMRDetails = () => {
   };
   const handleExistingConditions = (event, value) => {
     if (value) {
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setExistingConditionsSpecs({
         ...existingConditionSpecs,
         [value?.label]: { since: "", severity: "", notes: "" },
@@ -882,7 +882,7 @@ const PatientEMRDetails = () => {
 
   const handleSymptoms = (event, value) => {
     if (value) {
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setSymptomsSpecs({
         ...symptomsSpecs,
         [value?.label]: { since: "", severity: "", notes: "" },
@@ -904,7 +904,7 @@ const PatientEMRDetails = () => {
 
   const handleExaminationFindings = (event, value) => {
     if (value) {
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setExaminationSpecs({
         ...symptomsSpecs,
         [value?.label]: { notes: "" },
@@ -917,7 +917,7 @@ const PatientEMRDetails = () => {
   };
   const handleDiagnosis = (event, value) => {
     if (value) {
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setDiagnosisSpecs({
         ...diagnosisSpecs,
         [value?.label]: { since: "", severity: "", notes: "" },
@@ -939,7 +939,7 @@ const PatientEMRDetails = () => {
   };
   const handleLabInvestigations = (event, value) => {
     if (value) {
-      const fieldValue = value?.label;
+      const fieldValue = value;
       setLabInvestigationSpecs({
         ...labInvestigationSpecs,
         [value?.label]: { since: "", severity: "", notes: "" },
@@ -1035,6 +1035,7 @@ const PatientEMRDetails = () => {
 
   const handleSymptomsSpecsDelete = (optionToRemove) => () => {
     setSymptoms(symptoms.filter((option) => option?.label !== optionToRemove));
+    console.log(optionToRemove, "Remove");
     setSymptomsSpecs((prevState) => {
       const { [optionToRemove]: _, ...restOptionTextValues } = prevState;
       return restOptionTextValues;
