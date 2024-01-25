@@ -335,14 +335,18 @@ const PMRPdf = ({ patientData }) => {
             <View style={pmrPdfStyles?.dataContainer}>
               <Text style={pmrPdfStyles.dataTitle}>Vitals</Text>
               <View style={pmrPdfStyles?.dataWrapper}>
-                {Object.entries(pdfData?.vital).map(([key, value]) => (
-                  <View style={pmrPdfStyles?.dataBox}>
-                    <Text style={pmrPdfStyles?.dataLabel}>
-                      {key.replace("_", " ")}
-                    </Text>
-                    <Text style={pmrPdfStyles?.dataValue}>{value || "-"}</Text>
-                  </View>
-                ))}
+                {Object.entries(pdfData?.vital).map(([key, value]) =>
+                  value ? (
+                    <View style={pmrPdfStyles?.dataBox}>
+                      <Text style={pmrPdfStyles?.dataLabel}>
+                        {key.replace("_", " ")}
+                      </Text>
+                      <Text style={pmrPdfStyles?.dataValue}>{value}</Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )
+                )}
               </View>
             </View>
           )}

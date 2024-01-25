@@ -1551,6 +1551,7 @@ const PatientEMRDetails = () => {
           respiratory_rate: formValues?.respiratoryRate,
           systolic_blood_pressure: formValues?.systolicBP,
           diastolic_blood_pressure: formValues?.diastolicaBP,
+          body_mass_index: bodyMassIndex,
         },
       },
       {
@@ -1679,6 +1680,7 @@ const PatientEMRDetails = () => {
           respiratory_rate: formValues?.respiratoryRate,
           systolic_blood_pressure: formValues?.systolicBP,
           diastolic_blood_pressure: formValues?.diastolicaBP,
+          body_mass_index: bodyMassIndex,
         },
       },
       {
