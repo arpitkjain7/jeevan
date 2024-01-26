@@ -541,7 +541,7 @@ def aadhaar_generateOTP_v3(request: AadhaarNumber, token: str = Depends(oauth2_s
 @hid_router.post("/v3/HID/registration/aadhaar/verifyOTP")
 def aadhaar_verifyOTP(request: OTPVerificationV3, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/HID/aadhaar/verifyOTP endpoint")
+        logging.info(f"Calling /v3/HID/registration/aadhaar/verifyOTP endpoint")
         logging.debug(f"Request: {request.otp=}")
         logging.debug(f"Request: {request.mobileNumber=}")
         logging.debug(f"Request: {request.txnId=}")
@@ -560,10 +560,14 @@ def aadhaar_verifyOTP(request: OTPVerificationV3, token: str = Depends(oauth2_sc
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/HID/aadhaar/verifyOTP endpoint: {httperror}")
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/verifyOTP endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/HID/aadhaar/verifyOTP endpoint: {error}")
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/verifyOTP endpoint: {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -574,7 +578,7 @@ def aadhaar_verifyOTP(request: OTPVerificationV3, token: str = Depends(oauth2_sc
 @hid_router.get("/v3/HID/registration/aadhaar/suggestAbha")
 def suggest_abha(transaction_id: str, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/HID/aadhaar/suggestAbha endpoint")
+        logging.info(f"Calling /v3/HID/registration/aadhaar/suggestAbha endpoint")
         logging.debug(f"Request: {transaction_id=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
@@ -586,10 +590,14 @@ def suggest_abha(transaction_id: str, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/HID/aadhaar/suggestAbha endpoint: {httperror}")
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/suggestAbha endpoint: {httperror}"
+        )
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/HID/aadhaar/suggestAbha endpoint: {error}")
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/suggestAbha endpoint: {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -599,7 +607,7 @@ def suggest_abha(transaction_id: str, token: str = Depends(oauth2_scheme)):
 
 @hid_router.post("/v3/HID/registration/aadhaar/abhaAddress")
 def aadhaar_verifyOTP(
-    abha_address: str, txnId: str, token: str = Depends(oauth2_scheme)
+    abha_address: str, txnId: str, patient_id: str, token: str = Depends(oauth2_scheme)
 ):
     try:
         logging.info(f"Calling /v1/HID/aadhaar/abhaAddress endpoint")
@@ -607,8 +615,7 @@ def aadhaar_verifyOTP(
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().create_abha_address(
-                abha_address=abha_address,
-                txn_id=txnId,
+                selected_abha_address=abha_address, txn_id=txnId, patient_id=patient_id
             )
         else:
             raise HTTPException(

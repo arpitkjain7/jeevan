@@ -272,13 +272,11 @@ class HIDController:
                 )
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 phr_addresses = resp["ABHAProfile"]["phrAddress"]
-                abha_address = []
-                for phrAddress in phr_addresses:
-                    abha_address.append(phrAddress)
+                abha_address_list = ",".join(phr_addresses)
                 patient_request = {
                     "id": patient_id,
                     "abha_number": resp["ABHAProfile"]["ABHANumber"].replace("-", ""),
-                    "abha_address": abha_address,
+                    "abha_address": abha_address_list,
                     "mobile_number": resp["ABHAProfile"]["mobile"],
                     "name": f"{resp['ABHAProfile']['firstName']} {resp['ABHAProfile']['middleName']} {resp['ABHAProfile']['lastName']}",
                     "gender": resp["ABHAProfile"]["gender"],
@@ -296,7 +294,6 @@ class HIDController:
                         "value": resp["tokens"]["refreshToken"],
                         "valid_till": refresh_token_validity,
                     },
-                    "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaId(
                     abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
@@ -373,7 +370,9 @@ class HIDController:
             )
             raise error
 
-    def create_abha_address(self, abha_address: str, txn_id: str):
+    def create_abha_address(
+        self, selected_abha_address: str, txn_id: str, patient_id: str
+    ):
         """[Controller to fetch patient auth modes]
 
         Args:
@@ -395,7 +394,7 @@ class HIDController:
             )
             payload = {
                 "txnId": txn_id,
-                "abhaAddress": abha_address,
+                "abhaAddress": selected_abha_address,
                 "preferred": 1,  # this we need to understnd and update accordingly
             }
             current_time = datetime.now()
@@ -415,9 +414,13 @@ class HIDController:
                 },
             )
             if resp_code <= 250:
-                return resp
-
-            # need to update above
+                patient_request = {
+                    "id": patient_id,
+                    "primary_abha_address": resp["preferredAbhaAddress"],
+                    "abha_status": "Active",
+                }
+                self.CRUDPatientDetails.update(**patient_request)
+                return patient_request
 
         except Exception as error:
             logging.error(
@@ -922,7 +925,7 @@ class HIDController:
                 patient_request = {
                     "id": patient_id,
                     "abha_number": resp["healthIdNumber"],
-                    "abha_address": resp["healthId"],
+                    "abha_addresses": resp["healthId"],
                     "mobile_number": resp["mobile"],
                     "name": name,
                     "gender": resp["gender"],
@@ -1361,7 +1364,7 @@ class HIDController:
                     )
                     patient_request = {
                         "abha_number": abha_number,
-                        "abha_address": patient_data["healthId"],
+                        "abha_addresses": patient_data["healthId"],
                         "mobile_number": patient_data["mobile"],
                         "name": patient_data["name"],
                         "gender": patient_data["gender"],
