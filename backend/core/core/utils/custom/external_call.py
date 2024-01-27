@@ -43,7 +43,7 @@ class APIInterface:
                 return response.text, response.status_code
             return None, response.status_code
         except Exception as error:
-            logging.error(f"Error in POST API request: {error}")
+            logging.error(f"Error in post_v1 API request: {error}")
             raise error
 
     @staticmethod

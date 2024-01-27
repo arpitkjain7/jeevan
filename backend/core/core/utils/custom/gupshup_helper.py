@@ -77,7 +77,7 @@ class whatsappHelper:
                 "cache-control": "no-cache",
             }
             send_document_router = f"{self.gupshup_base_url}/wa/api/v1/template/msg"
-            response, status_code = APIInterface().post(
+            response, status_code = APIInterface().post_v1(
                 route=send_document_router,
                 data=payload_encoded,
                 headers=headers,
