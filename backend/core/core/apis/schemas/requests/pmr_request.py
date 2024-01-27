@@ -245,3 +245,14 @@ class DocumentTypes(str, Enum):
 class UploadDocument(BaseModel):
     pmr_id: str
     document_type: DocumentTypes
+
+
+class NotificationChannel(str, Enum):
+    WhatsApp = "whatsapp"
+    SMS = "sms"
+
+
+class SendNotification(BaseModel):
+    pmr_id: str
+    channel: NotificationChannel
+    mobile_number: str = None
