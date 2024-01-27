@@ -1188,7 +1188,7 @@ class PMRController:
             logging.error(f"Error in PMRController.list_documents function: {error}")
             raise error
 
-    def get_document(self, document_id):
+    def get_document(self, document_id, expires_in=1800):
         try:
             logging.info("executing get_document function")
             document_obj = self.CRUDPatientMedicalDocuments.read(
@@ -1201,7 +1201,7 @@ class PMRController:
             logging.info(f"{bucket_name=}")
             logging.info(f"{document_key=}")
             presigned_url = create_presigned_url(
-                bucket_name=bucket_name, key=document_key, expires_in=1800
+                bucket_name=bucket_name, key=document_key, expires_in=expires_in
             )
             return {"document_url": presigned_url}
         except Exception as error:
@@ -1210,7 +1210,7 @@ class PMRController:
 
     def get_document_bytes(self, document_id):
         try:
-            logging.info("executing get_document function")
+            logging.info("executing get_document_bytes function")
             document_obj = self.CRUDPatientMedicalDocuments.read(
                 document_id=document_id
             )
@@ -1226,7 +1226,9 @@ class PMRController:
             )
             return {"data": document_bytes}
         except Exception as error:
-            logging.error(f"Error in PMRController.get_document function: {error}")
+            logging.error(
+                f"Error in PMRController.get_document_bytes function: {error}"
+            )
             raise error
 
     def upload_health_document(
@@ -1312,7 +1314,7 @@ class PMRController:
             logging.info(f"{document_obj_list=}")
             for document_obj in document_obj_list:
                 document_details_obj = self.get_document(
-                    document_id=document_obj.get("id")
+                    document_id=document_obj.get("id"), expires_in=604800
                 )
                 document_url = document_details_obj.get("document_url")
                 if channel == "whatsapp":
