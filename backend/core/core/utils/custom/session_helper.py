@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timedelta
 from core import logger
 from pytz import timezone
+import json
 
 logging = logger(__name__)
 
@@ -57,7 +58,7 @@ def get_session_token(session_parameter: str):
             logging.info("No session data available, generating access Token")
             resp_json, _ = APIInterface().post(
                 route=session_url,
-                data={"clientId": client_id, "clientSecret": client_secret},
+                data=json.dumps({"clientId": client_id, "clientSecret": client_secret}),
             )
             new_valid_till = time_now_tz + timedelta(seconds=resp_json.get("expiresIn"))
             logging.info(f"{new_valid_till=}")
