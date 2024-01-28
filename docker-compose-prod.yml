@@ -23,12 +23,6 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_DEFAULT_REGION=ap-south-1
-      - secret='b9c8e5acc65e88f817ec58d94b9664cba1385a77a1a63c1e8fa8cd5e5c5852c2'
-      - algorithm=HS256
-      - msg91_auth_key=395349A10sSXh0sK64460a51P1
-      - msg91_template_id=647ae4efd6fc050215318912
-      - msg91_otp_template_id=658f896fd6fc055fe638e0a2
-      - msg91_base_url=https://control.msg91.com/api/v5/otp
     volumes:
       - ./backend/core:/app
       - ./backend/logs:/core/logs
@@ -41,7 +35,7 @@ services:
     restart: "on-failure"
 
   lobster_ui:
-    image: cliniq360/lobster-ui:0.15
+    image: cliniq360/lobster-ui:0.16
 
     container_name: lobster-ui
     ports:

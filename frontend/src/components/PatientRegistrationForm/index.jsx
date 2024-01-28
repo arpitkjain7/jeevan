@@ -175,7 +175,6 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             name="lastname"
             value={formData.lastname}
             onChange={handleChange}
-            required
             fullWidth
           />
         </Grid>
