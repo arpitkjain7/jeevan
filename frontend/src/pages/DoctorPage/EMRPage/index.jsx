@@ -858,14 +858,23 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setOptionTextValues({
         ...optionTextValues,
-        [value?.label]: {
+        [value?.label || value]: {
           since: "",
           relationship: "",
           severity: "",
           notes: "",
         },
       });
-      setMedicalHistory([...medicalHistory, fieldValue]);
+      if(value?.label){
+        setMedicalHistory([...medicalHistory, fieldValue]);
+      } else {
+        setMedicalHistory((medicalHistory) => [...medicalHistory, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
       setMedicalHistoryOpts([]);
     }
   };
@@ -885,9 +894,18 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setSymptomsSpecs({
         ...symptomsSpecs,
-        [value?.label]: { since: "", severity: "", notes: "" },
+        [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      setSymptoms([...symptoms, fieldValue]);
+      if(value?.label){
+        setSymptoms([...symptoms, fieldValue]);
+      } else {
+        setSymptoms((symptoms) => [...symptoms, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
       setSymptomsOpts([]);
     }
   };
@@ -907,10 +925,19 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setExaminationSpecs({
         ...symptomsSpecs,
-        [value?.label]: { notes: "" },
+        [value?.label || value]: { notes: "" },
       });
 
-      setExamFinding([...examFindings, fieldValue]);
+      if(value?.label){
+        setExamFinding([...examFindings, fieldValue]);
+      } else {
+        setExamFinding((examFindings) => [...examFindings, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
       handleExaminationTextChange(value, "notes", "");
       setExamFindingsOpts([]);
     }
@@ -920,20 +947,40 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setDiagnosisSpecs({
         ...diagnosisSpecs,
-        [value?.label]: { since: "", severity: "", notes: "" },
+        [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      setDiagnosis([...diagnosis, fieldValue]);
+
+      if(value?.label){
+        setDiagnosis([...diagnosis, fieldValue]);
+      } else {
+        setDiagnosis((diagnosis) => [...diagnosis, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
       setDiagnosisOpts([]);
     }
   };
   const handleMedications = (event, value) => {
-    if (value?.label) {
+    if (value) {
       const fieldValue = value;
       setMedicationsSpecs({
         ...medicationsSpecs,
-        [value?.label]: { since: "", severity: "", notes: "" },
+        [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      setMedications([...medications, fieldValue]);
+     
+      if(value?.label){
+        setMedications([...medications, fieldValue]);
+      } else {
+        setMedications((medications) => [...medications, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
       setMedicationsOpts([]);
     }
   };
@@ -942,10 +989,20 @@ const PatientEMRDetails = () => {
       const fieldValue = value;
       setLabInvestigationSpecs({
         ...labInvestigationSpecs,
-        [value?.label]: { since: "", severity: "", notes: "" },
+        [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      setLabInvestigation([...labInvestigation, fieldValue]);
-      handleLabTextChange(value, "notes", "");
+      
+      if(value?.label){
+        setLabInvestigation([...labInvestigation, fieldValue]); 
+      } else {
+        setLabInvestigation((labInvestigation) => [...labInvestigation, {
+          label: fieldValue,
+          value: fieldValue,
+          snowmed_code: "",
+          snowmed_display: "",
+        }]);
+      }
+      // handleLabTextChange(value, "notes", "");
       setLabInvestigationsOpts([]);
     }
   };
