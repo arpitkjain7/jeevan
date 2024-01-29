@@ -41,6 +41,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomizedDialogs from "../../../components/Dialog";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
+import dayjs from "dayjs";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -74,7 +75,7 @@ const style = {
 };
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
-  padding: "35px 10px 10px",
+  padding: "35px 10px 2px",
   [theme.breakpoints.down("sm")]: {
     padding: "10px 4px 0",
   },
@@ -473,8 +474,10 @@ const PatientEMRDetails = () => {
         setEMRId(res.payload?.pmr_details.id);
         sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
         const pmrDetails = res.payload?.pmr_details.pmr_data;
-        setAdvices(res.payload?.pmr_details?.advices || "");
-        setPrescriptionComment(res.payload?.pmr_details?.notes || "");
+        setAdvices(res.payload?.pmr_details?.advices);
+        setPrescriptionComment(res.payload?.pmr_details?.notes);
+        console.log(res.payload?.appointment_details.followup_date);
+        const fd = res.payload?.appointment_details.followup_date;
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
@@ -622,6 +625,7 @@ const PatientEMRDetails = () => {
             });
           }
         }
+        setFollowUp(dayjs(fd));
       });
     }
     // }
@@ -938,7 +942,7 @@ const PatientEMRDetails = () => {
           snowmed_display: "",
         }]);
       }
-      handleExaminationTextChange(value, "notes", "");
+      // handleExaminationTextChange(value, "notes", "");
       setExamFindingsOpts([]);
     }
   };
@@ -1684,6 +1688,7 @@ const PatientEMRDetails = () => {
     const pdfFormattedData = submitEMRPayload;
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
+    pdfFormattedData["followup"] = convertDateFormat(followUp, "yyyy-MM-dd");
     setPdfData(pdfFormattedData);
     setPatientData(patientDetails);
 
@@ -1838,13 +1843,13 @@ const PatientEMRDetails = () => {
   const diagnosisStatusOpts = ["Suspected", "Confirmed", "Ruled out"];
   const diagnosisTypeOpts = ["Primary Diagnosis", "Differential Diagnosis"];
   const timeOptions = ["Days", "Weeks", "Months", "Years"];
-  const doseOptions = ["Tablet"];
+  const doseOptions = ["Tablet", "ML"];
   const timingOptions = [
     "After Meal",
     "Before Meal",
     "With Meal",
     "Empty Stomach",
-    "before breakfast",
+    "Before breakfast",
     "After breakfast",
     "Before lunch",
     "After lunch",

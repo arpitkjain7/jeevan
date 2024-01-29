@@ -203,6 +203,7 @@ const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
   // const [prescriptionData, setPrescriptionData] = useState([]);
   const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
+  console.log(pdfData);
   const columns = [
     { key: "medicine_name", label: "Medications" },
     { key: "frequency", label: "Frequency" },
@@ -342,9 +343,12 @@ const PMRPdf = ({ patientData }) => {
                           {item?.medical_history}
                         </Text>
                         <View style={pmrPdfStyles?.subDataContainer}>
-                          <Text style={pmrPdfStyles?.dataValue}>
-                            {item?.relationship}
-                          </Text>
+                          { 
+                            item?.relationship ? (
+                              <Text style={pmrPdfStyles.dataValue}>{item?.relationship}</Text>
+                            ) : 
+                              <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                          }
                         </View>
                       </View>
                     )
@@ -364,9 +368,12 @@ const PMRPdf = ({ patientData }) => {
                   <View style={pmrPdfStyles.dataBox}>
                     <Text style={pmrPdfStyles.dataLabel}>{item?.symptom}</Text>
                     <View style={pmrPdfStyles.subDataContainer}>
-                      <Text style={pmrPdfStyles.dataValue}>
-                        {item?.duration}
-                      </Text>
+                      { 
+                        item?.duration ? (
+                          <Text style={pmrPdfStyles.dataValue}>{item?.duration}</Text>
+                        ) : 
+                          <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                      }
                     </View>
                   </View>
                 ))}
@@ -388,7 +395,11 @@ const PMRPdf = ({ patientData }) => {
                       <Text style={pmrPdfStyles.dataValue}>
                         {item?.diagnosis_type}
                       </Text>
-                      <Text style={pmrPdfStyles.dataValue}>|</Text>
+                      {
+                        item?.diagnosis_type.length > 1 ? (
+                        <Text style={pmrPdfStyles.dataValue}>|</Text>) :
+                        <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                      }
                       <Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>
                     </View>
                   </View>
@@ -429,7 +440,12 @@ const PMRPdf = ({ patientData }) => {
                   <View style={pmrPdfStyles.dataBox}>
                     <Text style={pmrPdfStyles.dataLabel}>{item?.disease}</Text>
                     <View style={pmrPdfStyles.subDataContainer}>
+                    { 
+                      item?.notes ? (
                       <Text style={pmrPdfStyles.dataValue}>{item?.notes}</Text>
+                      ) : 
+                      <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                    }
                     </View>
                   </View>
                 ))}
@@ -497,6 +513,20 @@ const PMRPdf = ({ patientData }) => {
               <View style={pmrPdfStyles?.dataWrapper}>
                 <View style={pmrPdfStyles?.dataBox}>
                   <Text style={pmrPdfStyles?.dataLabel}>{pdfData?.advice}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+         {pdfData?.followup ? (
+          <View style={pmrPdfStyles.pdfContainer}>
+            <View style={pmrPdfStyles?.dataContainer}>
+              <Text style={pmrPdfStyles?.dataTitle}>Follow Up</Text>
+              <View style={pmrPdfStyles?.dataWrapper}>
+                <View style={pmrPdfStyles?.dataBox}>
+                  <Text style={pmrPdfStyles?.dataLabel}>{pdfData?.followup}</Text>
                 </View>
               </View>
             </View>
