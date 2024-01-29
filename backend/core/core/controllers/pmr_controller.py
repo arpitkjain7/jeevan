@@ -14,11 +14,15 @@ from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.crud.hims_hip_crud import CRUDHIP
 from core.utils.fhir.op_consult import opConsultUnstructured
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url, read_object
 from core.utils.custom.session_helper import get_session_token
+from core.utils.custom.gupshup_helper import whatsappHelper
+from core.utils.custom.msg91_helper import smsHelper
 from core import logger
 from datetime import datetime, timezone
+from urllib.parse import quote
 import uuid, os
 from pytz import timezone as pytz_timezone
 
@@ -44,6 +48,7 @@ class PMRController:
         self.CRUDCurrentMedicines = CRUDCurrentMedicines()
         self.CRUDCondition = CRUDCondition()
         self.CRUDPatientMedicalDocuments = CRUDPatientMedicalDocuments()
+        self.CRUDHIP = CRUDHIP()
         self.mime_type_mapping = {
             "pdf": "application/pdf",
             "jpeg": "image/jpg",
@@ -1183,7 +1188,7 @@ class PMRController:
             logging.error(f"Error in PMRController.list_documents function: {error}")
             raise error
 
-    def get_document(self, document_id):
+    def get_document(self, document_id, expires_in=1800):
         try:
             logging.info("executing get_document function")
             document_obj = self.CRUDPatientMedicalDocuments.read(
@@ -1196,7 +1201,7 @@ class PMRController:
             logging.info(f"{bucket_name=}")
             logging.info(f"{document_key=}")
             presigned_url = create_presigned_url(
-                bucket_name=bucket_name, key=document_key, expires_in=1800
+                bucket_name=bucket_name, key=document_key, expires_in=expires_in
             )
             return {"document_url": presigned_url}
         except Exception as error:
@@ -1205,7 +1210,7 @@ class PMRController:
 
     def get_document_bytes(self, document_id):
         try:
-            logging.info("executing get_document function")
+            logging.info("executing get_document_bytes function")
             document_obj = self.CRUDPatientMedicalDocuments.read(
                 document_id=document_id
             )
@@ -1221,7 +1226,9 @@ class PMRController:
             )
             return {"data": document_bytes}
         except Exception as error:
-            logging.error(f"Error in PMRController.get_document function: {error}")
+            logging.error(
+                f"Error in PMRController.get_document_bytes function: {error}"
+            )
             raise error
 
     def upload_health_document(
@@ -1273,4 +1280,68 @@ class PMRController:
             )
         except Exception as error:
             logging.error(f"Error in PMRController.get_fhir function: {error}")
+            raise error
+
+    def send_notification(self, request):
+        try:
+            logging.info("executing  PMRController.send_notification function")
+            request = request.dict()
+            logging.info(f"{request=}")
+            channel = request.get("channel").value
+            logging.info(f"{channel=}")
+            alternate_mobile_number = request.get("mobile_number", None)
+            pmr_id = request.get("pmr_id")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            logging.info(f"{pmr_obj=}")
+            document_id = pmr_obj.get("doc_id")
+            hip_id = pmr_obj.get("hip_id")
+            date_of_consultation = pmr_obj.get("date_of_consultation")
+            patient_id = pmr_obj.get("patient_id")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            patient_name = patient_obj.get("name")
+            hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
+            logging.info(f"{hip_obj=}")
+            document_obj_list = self.CRUDPatientMedicalDocuments.read_by_pmr_id(
+                pmr_id=pmr_id
+            )
+            if alternate_mobile_number:
+                mobile_number = alternate_mobile_number
+            else:
+                mobile_number = patient_obj.get("mobile_number")
+            logging.info(f"{document_obj_list=}")
+            for document_obj in document_obj_list:
+                document_details_obj = self.get_document(
+                    document_id=document_obj.get("id"), expires_in=604800
+                )
+                document_url = document_details_obj.get("document_url")
+                if channel == "whatsapp":
+                    opt_in_response, opt_in_status_code = whatsappHelper().optin_user(
+                        mobile_number=mobile_number
+                    )
+                    logging.info(f"{opt_in_response=} | {opt_in_status_code=}")
+                    (
+                        send_msg_response,
+                        send_msg_status_code,
+                    ) = whatsappHelper().send_prescription(
+                        mobile_number=mobile_number,
+                        document_url=document_url,
+                        patient_name=patient_name,
+                        hospital_name=hip_obj.get("name"),
+                        date_of_consultation=date_of_consultation,
+                    )
+                    logging.info(f"{send_msg_response=} | {send_msg_status_code=}")
+                elif channel == "sms":
+                    encoded_url = quote(document_url)
+                    double_encoded_url = quote(encoded_url)
+                    sms_response, sms_response_code = smsHelper().send_prescription(
+                        mobile_number=mobile_number,
+                        hospital_name=hip_obj.get("name"),
+                        document_url=double_encoded_url,
+                    )
+                    logging.info(f"{sms_response=} | {sms_response_code=}")
+        except Exception as error:
+            logging.error(f"Error in PMRController.send_notification function: {error}")
             raise error
