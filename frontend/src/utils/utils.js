@@ -88,7 +88,6 @@ export const validateAbhaAddress = (address) => {
 };
 
 export const calculateBMI = (bodyHeight, bodyWeight) => {
-  console.log("typeof", typeof bodyHeight, typeof bodyWeight);
   // Check if bodyHeight and bodyWeight are numbers
   const height = Number(bodyHeight);
   const weight = Number(bodyWeight);

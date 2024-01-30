@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchAppointmentList } from "./AppointmentPage.slice";
+import { AppointmentPageActions, fetchAppointmentList } from "./AppointmentPage.slice";
 import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
 
@@ -89,7 +89,20 @@ const AppointmentPage = () => {
   const navigate = useNavigate();
 
   const columns = [
-    { key: "patientDetails", header: "Patient Name" },
+    { 
+      key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ]
+    },
     { key: "patientId", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
@@ -113,7 +126,19 @@ const AppointmentPage = () => {
   ];
 
   const mobileColumns = [
-    { key: "patientDetails", header: "Patient Name" },
+    { key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ]
+    },
     {
       key: "actions",
       header: "Start Visit",
@@ -174,6 +199,7 @@ const AppointmentPage = () => {
           // const createdDate = convertDateFormat(item?.created_at);
           return {
             patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
+            p_name: `${item?.patient_details?.name}`,
             patientId: patientId,
             mobileNumber: mobileNumber,
             encounterType: encounterType,

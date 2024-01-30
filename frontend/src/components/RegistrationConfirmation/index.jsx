@@ -20,6 +20,7 @@ import {
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import { downloadAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import CustomLoader from "../CustomLoader";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -137,6 +138,7 @@ const RegisterationConfirmation = ({
   const [isAbhaDisabled, setIsAbhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
   const [abhaCardBytes, setAbhaCardBytes] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const registeredPatient =
@@ -221,6 +223,7 @@ const RegisterationConfirmation = ({
   };
 
   const navigateStartVisit = () => {
+    setShowLoader(true);
     let currentHospital = {};
     if (!isAppointment) {
       if (hospital) {
@@ -244,6 +247,7 @@ const RegisterationConfirmation = ({
         });
       }
       setDrListPopup(true);
+      setShowLoader(false);
     } else {
       navigate("/patient-emr");
     }
@@ -328,6 +332,9 @@ const RegisterationConfirmation = ({
   };
   return (
     <RegisterationConfirmationWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <Modal
         open={drListPopup}
         onClose={handleCloseDrPopup}

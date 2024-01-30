@@ -17,7 +17,6 @@ import {
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
 import { Delete, Assignment } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Unstable_Popup as BasePopup } from "@mui/base/Unstable_Popup";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -416,7 +415,12 @@ const PatientEMRDetails = () => {
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
   const [emrId, setEMRId] = useState("");
-
+  const [symptomOptions, setSymptomOptions] = useState("");
+  const [medicalHistoryOptions, setMedicalHistoryOptions] = useState("");
+  const [diagnosisOptions, setDiagnosisOptions] = useState("");
+  const [examinationFindingOptions, setExaminationFindingOptions] = useState("");
+  const [medicationOptions, setMedicationOptions] = useState("");
+  const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -430,9 +434,9 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
-  const [followUp, setFollowUp] = useState(null);
+  const [followUp, setFollowUp] = useState(dayjs());
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
-
+  
   const handlePmrDialogClose = () => {
     setPmrDialogOpen(false);
   };
@@ -448,17 +452,17 @@ const PatientEMRDetails = () => {
   };
 
   useEffect(() => {
-    const queryParams = {
-      term: "hea",
-      state: "active",
-      semantictag: "finding",
-      acceptability: "preferred",
-      returnlimit: 15,
-    };
+    // const queryParams = {
+    //   term: "hea",
+    //   state: "active",
+    //   semantictag: "finding",
+    //   acceptability: "preferred",
+    //   returnlimit: 15,
+    // };
 
-    dispatch(searchVitalsDetails(queryParams)).then((res) => {
-      console.log("vitals:", res);
-    });
+    // dispatch(searchVitalsDetails(queryParams)).then((res) => {
+    //   console.log("vitals:", res);
+    // });
 
     // if (!sessionStorage.getItem("pmrID")) {
     const currentPatient = JSON.parse(patient);
@@ -475,9 +479,10 @@ const PatientEMRDetails = () => {
         sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
         const pmrDetails = res.payload?.pmr_details.pmr_data;
         setAdvices(res.payload?.pmr_details?.advices);
-        setPrescriptionComment(res.payload?.pmr_details?.notes);
-        console.log(res.payload?.appointment_details.followup_date);
-        const fd = res.payload?.appointment_details.followup_date;
+        setPrescriptionComment(res.payload?.pmr_details?.notes);       
+        { res.payload?.appointment_details?.followup_date !== null ? 
+          setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
+        }
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
@@ -508,7 +513,7 @@ const PatientEMRDetails = () => {
               setSymptomsSpecs((prevState) => ({
                 ...prevState,
                 [symptomsData.symptom]: {
-                  since: symptomsData.duration,
+                  since: symptomsData.duration || null,
                   severity: symptomsData.severity,
                   notes: symptomsData.notes,
                 },
@@ -530,7 +535,7 @@ const PatientEMRDetails = () => {
               setOptionTextValues((prevState) => ({
                 ...prevState,
                 [medicalHistoryData.medical_history]: {
-                  since: medicalHistoryData.since,
+                  since: medicalHistoryData.since || null,
                   relationship: medicalHistoryData.relationship,
                   severity: medicalHistoryData.severity,
                   notes: medicalHistoryData.notes,
@@ -574,7 +579,7 @@ const PatientEMRDetails = () => {
               setDiagnosisSpecs((prevState) => ({
                 ...prevState,
                 [diagnosisData.disease]: {
-                  since: diagnosisData.status,
+                  since: diagnosisData.status || null,
                   severity: diagnosisData.diagnosis_type,
                   notes: diagnosisData.notes,
                 },
@@ -602,7 +607,7 @@ const PatientEMRDetails = () => {
             });
           }
           if (pmrDetails.medication.data.length > 0) {
-            const medicationList = pmrDetails?.medication.data;
+            const medicationList = pmrDetails?.medication?.data;
             medicationList.map((medicationData) => {
               setMedications((medications) => [
                 ...medications,
@@ -616,34 +621,61 @@ const PatientEMRDetails = () => {
               setMedicationsSpecs((prevState) => ({
                 ...prevState,
                 [medicationData.medicine_name]: {
-                  severity: medicationData.frequency,
-                  timing: medicationData.time_of_day,
-                  dose: medicationData.dosage,
-                  since: medicationData.duration,
+                  severity: medicationData?.frequency,
+                  timing: medicationData?.time_of_day,
+                  dose: medicationData?.dosage,
+                  since: medicationData?.duration,
+                  notes: medicationData?.notes
                 },
               }));
             });
           }
         }
-        setFollowUp(dayjs(fd));
       });
     }
     // }
   }, []);
-
-  const handleMeidcalHistoryChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
+  
+  useEffect(() => {
+    if (symptomOptions.length >= 2) {
       // Call your API here and fetch data based on the inputValue
       const queryParams = {
-        term: inputValue,
+        term: symptomOptions,
+        state: "active",
+        semantictag: "finding",
+        acceptability: "all",
+        groupbyconcept: "true",
+        returnlimit: 15,
+      };
+
+      dispatch(searchVitalsDetails(queryParams)).then((res) => {
+        const customData = [];
+        const resData = res.payload?.data;
+        resData?.map((item) => {
+          const customItem = {
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
+          };
+          customData.push(customItem);
+        });
+        setSymptomsOpts(customData);
+      });
+    } else {
+      setSymptomsOpts([]);
+    }
+  }, [symptomOptions])
+
+  useEffect(() => {
+    if (medicalHistoryOptions.length >= 2) {
+      const queryParams = {
+        term: medicalHistoryOptions,
         state: "active",
         semantictag: "situation",
         acceptability: "all",
         returnlimit: 15,
       };
-
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
@@ -661,8 +693,133 @@ const PatientEMRDetails = () => {
     } else {
       setMedicalHistoryOpts([]);
     }
-  };
+  }, [medicalHistoryOptions])
 
+  useEffect(() => {
+    if (examinationFindingOptions.length >= 2) {
+      const queryParams = {
+        term: examinationFindingOptions,
+        state: "active",
+        semantictag: "finding++observable entity++morphologic abnormality",
+        acceptability: "all",
+        groupbyconcept: "true",
+        returnlimit: 15,
+      };
+
+      dispatch(searchVitalsDetails(queryParams)).then((res) => {
+        const customData = [];
+        const resData = res.payload?.data;
+        resData?.map((item) => {
+          const customItem = {
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
+          };
+          customData.push(customItem);
+        });
+        setExamFindingsOpts(customData);
+      });
+    } else {
+      setExamFindingsOpts([]);
+    }
+  }, [examinationFindingOptions])
+
+  useEffect(() => {
+    if (diagnosisOptions.length >= 2) {
+      const queryParams = {
+        term: diagnosisOptions,
+        state: "active",
+        semantictag: "disorder",
+        acceptability: "all",
+        groupbyconcept: "true",
+        returnlimit: 15,
+      };
+
+      dispatch(searchVitalsDetails(queryParams)).then((res) => {
+        const customData = [];
+        const resData = res.payload?.data;
+        resData?.map((item) => {
+          const customItem = {
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
+          };
+          customData.push(customItem);
+        });
+        setDiagnosisOpts(customData);
+      });
+    } else {
+      setDiagnosisOpts([]);
+    }
+  }, [diagnosisOptions])
+
+  useEffect(() => {
+    if (labInvestigationOptions.length >= 2) {
+      const queryParams = {
+        term: labInvestigationOptions,
+        state: "active",
+        semantictag: "procedure",
+        acceptability: "all",
+        groupbyconcept: "true",
+        returnlimit: 15,
+      };
+
+      dispatch(searchVitalsDetails(queryParams)).then((res) => {
+        const customData = [];
+        const resData = res.payload?.data;
+        resData?.map((item) => {
+          const customItem = {
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
+          };
+          customData.push(customItem);
+        });
+        setLabInvestigationsOpts(customData);
+      });
+    } else {
+      setLabInvestigationsOpts([]);
+    }
+  }, [labInvestigationOptions])
+
+  useEffect(() => {
+    if (medicationOptions.length >= 2) {
+      const queryParams = {
+        term: medicationOptions,
+        state: "active",
+        semantictag: "real clinical drug++substance++product name",
+        acceptability: "all",
+        groupbyconcept: "true",
+        returnlimit: 15,
+      };
+
+      dispatch(searchVitalsDetails(queryParams)).then((res) => {
+        const customData = [];
+        const resData = res.payload?.data;
+        resData?.map((item) => {
+          const customItem = {
+            label: item?.term,
+            value: item?.term,
+            snowmed_code: item?.conceptId,
+            snowmed_display: item?.conceptFsn,
+          };
+          customData.push(customItem);
+        });
+        setMedicationsOpts(customData);
+      });
+    } else {
+      setMedicationsOpts([]);
+    }
+  }, [medicationOptions])
+
+  const handleMeidcalHistoryChange = async (event) => {
+    setTimeout(() => {
+      setMedicalHistoryOptions(event.target.value); 
+    }, 1000);
+  };
   const handleExistingConditionsChange = async (event) => {
     const inputValue = event.target.value;
 
@@ -695,165 +852,29 @@ const PatientEMRDetails = () => {
     }
   };
   const handleSymptompsChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
-      // Call your API here and fetch data based on the inputValue
-      const queryParams = {
-        term: inputValue,
-        state: "active",
-        semantictag: "finding",
-        acceptability: "all",
-        groupbyconcept: "true",
-        returnlimit: 15,
-      };
-
-      dispatch(searchVitalsDetails(queryParams)).then((res) => {
-        const customData = [];
-        const resData = res.payload?.data;
-        resData?.map((item) => {
-          const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
-          };
-          customData.push(customItem);
-        });
-        setSymptomsOpts(customData);
-      });
-    } else {
-      setSymptomsOpts([]);
-    }
+    setTimeout(() => {
+      setSymptomOptions(event.target.value);
+    }, 1000)
   };
   const handleExamFindingsChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
-      // Call your API here and fetch data based on the inputValue
-      const queryParams = {
-        term: inputValue,
-        state: "active",
-        semantictag: "finding++observable entity++morphologic abnormality",
-        acceptability: "all",
-        groupbyconcept: "true",
-        returnlimit: 15,
-      };
-
-      dispatch(searchVitalsDetails(queryParams)).then((res) => {
-        const customData = [];
-        const resData = res.payload?.data;
-        resData?.map((item) => {
-          const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
-          };
-          customData.push(customItem);
-        });
-        setExamFindingsOpts(customData);
-      });
-    } else {
-      setExamFindingsOpts([]);
-    }
+    setTimeout(() => {
+      setExaminationFindingOptions(event.target.value);
+    }, 2000)
   };
   const handleDiagnosisChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
-      // Call your API here and fetch data based on the inputValue
-      const queryParams = {
-        term: inputValue,
-        state: "active",
-        semantictag: "disorder",
-        acceptability: "all",
-        groupbyconcept: "true",
-        returnlimit: 15,
-      };
-
-      dispatch(searchVitalsDetails(queryParams)).then((res) => {
-        const customData = [];
-        const resData = res.payload?.data;
-        resData?.map((item) => {
-          const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
-          };
-          customData.push(customItem);
-        });
-        setDiagnosisOpts(customData);
-      });
-    } else {
-      setDiagnosisOpts([]);
-    }
+    setTimeout(() => {
+      setDiagnosisOptions(event.target.value);
+    }, 1000)
   };
   const handleMedicationsChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
-      // Call your API here and fetch data based on the inputValue
-      const queryParams = {
-        term: inputValue,
-        state: "active",
-        semantictag: "real clinical drug++substance++product name",
-        acceptability: "all",
-        groupbyconcept: "true",
-        returnlimit: 15,
-      };
-
-      dispatch(searchVitalsDetails(queryParams)).then((res) => {
-        const customData = [];
-        const resData = res.payload?.data;
-        resData?.map((item) => {
-          const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
-          };
-          customData.push(customItem);
-        });
-        setMedicationsOpts(customData);
-      });
-    } else {
-      setMedicationsOpts([]);
-    }
+    setTimeout(() => {
+      setMedicationOptions(event.target.value);
+    }, 1000)
   };
-
   const handleLabInvestigationsChange = async (event) => {
-    const inputValue = event.target.value;
-
-    if (inputValue.length >= 2) {
-      // Call your API here and fetch data based on the inputValue
-      const queryParams = {
-        term: inputValue,
-        state: "active",
-        semantictag: "procedure",
-        acceptability: "all",
-        groupbyconcept: "true",
-        returnlimit: 15,
-      };
-
-      dispatch(searchVitalsDetails(queryParams)).then((res) => {
-        const customData = [];
-        const resData = res.payload?.data;
-        resData?.map((item) => {
-          const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
-          };
-          customData.push(customItem);
-        });
-        setLabInvestigationsOpts(customData);
-      });
-    } else {
-      setLabInvestigationsOpts([]);
-    }
+    setTimeout(() => {
+      setLabInvestigationOptions(event.target.value);
+    }, 1000)
   };
 
   const handleMedicalHistoryValue = (event, value) => {
@@ -1159,20 +1180,18 @@ const PatientEMRDetails = () => {
     });
   };
   const handleMedicationsTextChange = (option, textField, newValue) => {
+    let inputValue;
+    if(textField === "severity"){
+      const severityValue = newValue.trim().replace(/[^0-9]/g, "");
+      inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
+    } else {
+      inputValue = newValue
+    }
     setMedicationsSpecs({
       ...medicationsSpecs,
       [option?.label]: {
         ...medicationsSpecs[option?.label],
-        [textField]: newValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
-      },
-    });
-    console.log("MEDICATIONS", {
-      ...medicationsSpecs,
-      [option?.label]: {
-        ...medicationsSpecs[option?.label],
-        [textField]: newValue,
+        [textField]: inputValue,
         snowmed_code: option?.snowmed_code,
         snowmed_display: option?.snowmed_display,
       },
@@ -1520,7 +1539,7 @@ const PatientEMRDetails = () => {
     };
     const current_patient = JSON.parse(patient);
     let appointment_request;
-    if (followUp) {
+    if (followUp !== null) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -1589,17 +1608,6 @@ const PatientEMRDetails = () => {
   };
   const [pdfUrl, setPdfUrl] = useState(null);
   const submitEMR = async () => {
-    console.log(
-      medicalHistory,
-      existingConditions,
-      symptoms,
-      examFindings,
-      diagnosis,
-      medications,
-      labInvestigation,
-      "---------Selected Data------------"
-    );
-
     const symptomsEMR = symptomObj(symptomsSpecs);
     const diagnosisEMR = diagnosisObj(diagnosisSpecs);
     const conditionEMR = conditonObject(existingConditionSpecs);
@@ -1688,7 +1696,9 @@ const PatientEMRDetails = () => {
     const pdfFormattedData = submitEMRPayload;
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
-    pdfFormattedData["followup"] = convertDateFormat(followUp, "yyyy-MM-dd");
+    if(followUp !== null){
+      pdfFormattedData["followup"] = convertDateFormat(followUp, "yyyy-MM-dd");
+    }
     setPdfData(pdfFormattedData);
     setPatientData(patientDetails);
 
@@ -1800,7 +1810,7 @@ const PatientEMRDetails = () => {
 
     let appointment_request;
     const current_patient = JSON.parse(patient);
-    if (followUp) {
+    if (followUp !== null) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -1996,6 +2006,10 @@ const PatientEMRDetails = () => {
   const [openLabNotes, setOpenLabNotes] = React.useState(false);
   const handleOpenLabNotes = () => setOpenLabNotes(true);
   const handleCloseLabNotes = () => setOpenLabNotes(false);
+
+  const [openMedicationNotes, setOpenMedicationNotes] = React.useState(false);
+  const handleOpenMedicationNotes = () => setOpenMedicationNotes(true);
+  const handleCloseMedicationNotes = () => setOpenMedicationNotes(false);
 
   return (
     <PatientEMRWrapper>
@@ -3029,7 +3043,88 @@ const PatientEMRDetails = () => {
                                 )}
                               />
                             </TextBoxLayout>
+                            <NotesWrapper>
+                              <TextBoxLayout className="desktop">
+                                <RecordTextField
+                                  placeholder="Notes"
+                                  value={
+                                    medicationsSpecs[item?.label]?.notes || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleMedicationsTextChange(
+                                      item,
+                                      "notes",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Notes"
+                                  variant="outlined"
+                                />
+                              </TextBoxLayout>
+                            </NotesWrapper>
                             <DeleteWrapper>
+                            <p
+                                onClick={handleOpenMedicationNotes}
+                                className="mobile"
+                              >
+                                <NotesField />
+                              </p>
+                              <Modal
+                                open={openMedicationNotes}
+                                onClose={handleCloseMedicationNotes}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
+                              >
+                                <Box sx={style}>
+                                  <div style={{ position: "relative" }}>
+                                    <Toolbar>
+                                      <Typography
+                                        id="modal-modal-title"
+                                        sx={{ flex: 1 }}
+                                        variant="h3"
+                                      >
+                                        Medication Notes
+                                      </Typography>
+                                      <IconButton
+                                        edge="end"
+                                        color="inherit"
+                                        onClick={handleCloseMedicationNotes}
+                                        aria-label="close"
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Toolbar>
+                                  </div>
+                                  <Typography
+                                    id="modal-modal-description"
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <TextBoxLayout>
+                                      <TextareaAutosize
+                                        maxRows={3}
+                                        placeholder="Notes"
+                                        value={
+                                          medicationsSpecs[item?.label]?.notes || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleMedicationsTextChange(
+                                            item,
+                                            "notes",
+                                            e.target.value
+                                          )
+                                        }
+                                        variant="outlined"
+                                      />
+                                    </TextBoxLayout>
+                                  </Typography>
+                                  <PrimaryButton
+                                    onClick={handleCloseMedicationNotes}
+                                    sx={{ marginTop: "10px", float: "right" }}
+                                  >
+                                    Submit
+                                  </PrimaryButton>
+                                </Box>
+                              </Modal>
                               <DeleteField
                                 onClick={handleMedicationsSpecsDelete(
                                   item?.label

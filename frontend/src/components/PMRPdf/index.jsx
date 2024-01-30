@@ -149,7 +149,7 @@ const pmrPdfStyles = StyleSheet.create({
     margin: "auto",
   },
   tableCell: {
-    width: "25%", // Distribute columns evenly
+    width: "20%", // Distribute columns evenly
     padding: 5,
     textAlign: "center",
     fontFamily: "Source Sans Pro Bold",
@@ -158,7 +158,7 @@ const pmrPdfStyles = StyleSheet.create({
     fontWeight: "400",
   },
   rowCell: {
-    width: "25%", // Distribute columns evenly
+    width: "20%", // Distribute columns evenly
     padding: 5,
     textAlign: "center",
     fontFamily: "Source Sans Pro",
@@ -203,12 +203,12 @@ const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
   // const [prescriptionData, setPrescriptionData] = useState([]);
   const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
-  console.log(pdfData);
   const columns = [
     { key: "medicine_name", label: "Medications" },
     { key: "frequency", label: "Frequency" },
     { key: "duration", label: "Duration" },
     { key: "dosage", label: "Dosage" },
+    { key: "notes", label: "Notes" },
   ];
 
   const transformPdfData = (inputObject) => {

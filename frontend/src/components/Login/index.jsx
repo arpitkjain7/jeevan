@@ -3,6 +3,7 @@ import { TextField, Button, Typography, styled, Checkbox } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../app/auth.slice";
 import { useNavigate } from "react-router-dom";
+import CustomLoader from "../CustomLoader";
 
 const LogInWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -22,11 +23,12 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-form": {
     "& > .MuiFormControl-root": {
-      marginBottom: "32px",
+      marginBottom: "22px",
     },
   },
   ".login-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
+    marginTop: "10px"
   },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,
@@ -57,6 +59,8 @@ const LogInWrapper = styled("div")(({ theme }) => ({
 const LoginPage = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
+  const [isLoginError, setIsLoginError] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const data = useSelector((state) => state?.auth?.user);
@@ -70,6 +74,7 @@ const LoginPage = (props) => {
   };
 
   const handleSignIn = () => {
+    setShowLoader(true);
     // Handle sign-in logic here
     // let urlencoded = new URLSearchParams();
     // urlencoded.append("username", email);
@@ -86,13 +91,28 @@ const LoginPage = (props) => {
         sessionStorage.setItem("accesstoken", resData?.access_token);
         sessionStorage.setItem("userRole", resData?.user_role);
         sessionStorage.setItem("userName", resData?.username);
-        props?.setIndex(1);
+        let hipDetails = {};
+        const hospitalDetails = resData?.hip_details;
+        for (var key in hospitalDetails) {
+          hipDetails.hip_id = key;
+          hipDetails.name = hospitalDetails[key];
+        }
+        sessionStorage.setItem("selectedHospital", JSON.stringify(hipDetails));
+        navigate("/dashboard");
+        setShowLoader(false);
+        // props?.setIndex(1);
+      } else {
+        setIsLoginError(true);
+        setShowLoader(false);
       }
     });
   };
 
   return (
     <LogInWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="login-content">
         <div className="login-heading">
           <Typography align="center" className="login-title">
@@ -117,7 +137,7 @@ const LoginPage = (props) => {
             placeholder="Enter Your username"
             className="login-text-field"
           />
-          <Typography className="login-field-title">Password</Typography>
+          <Typography>Password</Typography>
           <TextField
             value={password}
             onChange={handlePasswordChange}
@@ -127,6 +147,9 @@ const LoginPage = (props) => {
             placeholder="Enter your password"
             className="login-text-field"
           />
+          <span style={{ color: "red", marginBottom: "10px" }}>
+            {isLoginError ? "Wrong username or password" : ""}
+          </span>
           {/* <div>
               <div className="flex items-center space-x-2">
                 <Checkbox />
