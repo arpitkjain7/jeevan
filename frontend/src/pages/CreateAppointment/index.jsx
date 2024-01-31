@@ -7,7 +7,10 @@ import AppointmentIcon from "../../assets/icons/prescription-icon.svg";
 import CalendarIcon from "../../assets/icons/calendar-icon.svg";
 
 const AppointmentWrapper = styled("div")(({ theme }) => ({
-  padding: "40px 10px 10px"
+  padding: "40px 10px 10px",
+  [theme.breakpoints.down('sm')]: {
+    padding: "25px 10px 10px",
+  },
 }));
 
 const PageTitle = styled(Typography)(({ theme }) => ({

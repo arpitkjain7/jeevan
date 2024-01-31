@@ -306,7 +306,7 @@ const MyTable = ({
               </TableRow>
             </TableHead>
             <TableBody className="table-body-container">
-              {filteredData &&
+              {filteredData.length > 0 ? (
                 (rowsPerPage > 0
                   ? filteredData.slice(
                       page * rowsPerPage,
@@ -394,7 +394,7 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-                ))}
+                ))) : <h3 style={{ padding: "10px 20px" }}>No data found</h3>}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan="auto" />

@@ -7,6 +7,7 @@ import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice";
 import MenuIcon from "../../assets/icons/kebabIcon.svg";
+import CustomLoader from "../../components/CustomLoader";
 const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
@@ -91,6 +92,7 @@ const PatientPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
+  const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 600;
@@ -192,6 +194,7 @@ const PatientPage = () => {
   ];
 
   useEffect(() => {
+    setShowLoader(true);
     dispatch(AppointmentPageActions.setSelectedPatientData({}));
     let currentHospital = {};
     if (hospital) {
@@ -202,6 +205,7 @@ const PatientPage = () => {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
+        setShowLoader(false);
         const patientList = res.payload;
         const formattedPatientList = patientList?.map((item) => {
           const patientGender = item?.gender.toLowerCase()?.includes("m")
@@ -226,6 +230,9 @@ const PatientPage = () => {
 
   return (
     <ListWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="patientList-title-wrapper">
         <div>
           <Typography className="patientList-heading">Patient List</Typography>

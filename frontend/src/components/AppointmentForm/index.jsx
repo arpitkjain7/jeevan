@@ -100,6 +100,7 @@ function AppointmentForm(props) {
   const dispatch = useDispatch();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
+  const [showLoader, setShowLoader] = useState(false);
   // const dataState = useSelector((state) => state);
   const selectedPatient = JSON.parse(
     sessionStorage?.getItem("selectedPatient")
@@ -129,6 +130,7 @@ function AppointmentForm(props) {
   };
 
   useEffect(() => {
+    setShowLoader(true);
     let currentHospital = {};
 
     if (hospital) {
@@ -138,6 +140,7 @@ function AppointmentForm(props) {
       };
 
       dispatch(fetchDoctorList(payload)).then((res) => {
+        setShowLoader(false);
         const doctorData = res.payload;
         let drList = [];
         doctorData?.map((item) => {
