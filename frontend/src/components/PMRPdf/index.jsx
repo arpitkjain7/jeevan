@@ -10,6 +10,7 @@ import {
 import RedHatFont from "../../assets/fonts/Red_Hat_Display/static/RedHatDisplay-Regular.ttf";
 import SourceSansFont from "../../assets/fonts/source-sans-pro/SourceSansPro-Regular.otf";
 import SourceSansFontBold from "../../assets/fonts/source-sans-pro/SourceSansPro-Bold.otf";
+import { convertDateFormat } from "../../utils/utils";
 
 Font.register({ family: "Red Hat Display", src: RedHatFont });
 Font.register({ family: "Source Sans Pro", src: SourceSansFont });
@@ -83,6 +84,18 @@ const pmrPdfStyles = StyleSheet.create({
     padding: "4px 0px",
     backgroundColor: "#0089E9",
     gap: "6px",
+  },
+  pdfDetailsWrapper: {
+    alignItems: "right",
+  },
+  pdfText: {
+    fontFamily: "Source Sans Pro Bold",
+    color: "#ffffff",
+    fontSize: "12px",
+    fontWeight: "400",
+    alignContent: "flex-end",
+    alignItems: "right",
+    alignSelf: "flex-end"
   },
   pdfVitalsWrapper: {
     display: "flex",
@@ -165,6 +178,7 @@ const pmrPdfStyles = StyleSheet.create({
     color: "#171717",
     fontSize: "12px",
     fontWeight: "400",
+    wordWrap: "break-word"
   },
   rowText: {
     fontFamily: "Source Sans Pro",
@@ -201,6 +215,7 @@ const pmrPdfStyles = StyleSheet.create({
 
 const PMRPdf = ({ patientData }) => {
   const [currentPatientData, setCurrentPatientData] = useState([]);
+  const pdfDate = convertDateFormat(new Date(), "dd/MM/yyyy");
   // const [prescriptionData, setPrescriptionData] = useState([]);
   const pdfData = JSON.parse(sessionStorage.getItem("patientEMRDetails"));
   const columns = [
@@ -301,12 +316,16 @@ const PMRPdf = ({ patientData }) => {
             </Text>
           </View>
           <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
-            {currentPatientData?.map((item) => (
-              <View style={pmrPdfStyles.pdfPatientOtherDetails}>
-                <Text style={pmrPdfStyles.dataLabel}>{item.label}</Text>
-                <Text style={pmrPdfStyles.dataValue}>{item?.value}</Text>
+              {currentPatientData?.map((item) => (
+                <View style={pmrPdfStyles.pdfPatientOtherDetails}>
+                  <Text style={pmrPdfStyles.dataLabel}>{item.label}</Text>
+                  <Text style={pmrPdfStyles.dataValue}>{item?.value}</Text>
+                </View>
+              
+              ))}
+              <View style={pmrPdfStyles.pdfDetailsWrapper}>
+                <Text style={pmrPdfStyles.pdfText}>{pdfDate}</Text>             
               </View>
-            ))}
           </View>
         </View>
         <View style={pmrPdfStyles.pdfContainer}>
@@ -343,11 +362,13 @@ const PMRPdf = ({ patientData }) => {
                           {item?.medical_history}
                         </Text>
                         <View style={pmrPdfStyles?.subDataContainer}>
-                          { 
-                            item?.relationship ? (
-                              <Text style={pmrPdfStyles.dataValue}>{item?.relationship}</Text>
-                            ) : 
-                              <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                          <Text style={pmrPdfStyles.dataValue}>
+                            {item?.relationship}
+                          </Text>
+                          {
+                            item?.relationship && item?.since ? 
+                            (<Text style={pmrPdfStyles.dataValue}>| {item?.since}</Text>) :
+                            (<Text style={pmrPdfStyles.dataValue}>{item?.since}</Text>)
                           }
                         </View>
                       </View>
@@ -396,11 +417,10 @@ const PMRPdf = ({ patientData }) => {
                         {item?.diagnosis_type}
                       </Text>
                       {
-                        item?.diagnosis_type.length > 1 ? (
-                        <Text style={pmrPdfStyles.dataValue}>|</Text>) :
-                        <Text style={pmrPdfStyles.dataValue}>&nbsp;</Text>
+                        item?.diagnosis_type && item?.status ? 
+                        (<Text style={pmrPdfStyles.dataValue}>| {item?.status}</Text>) :
+                        (<Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>)
                       }
-                      <Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>
                     </View>
                   </View>
                 ))}

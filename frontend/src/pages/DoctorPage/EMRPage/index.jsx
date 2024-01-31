@@ -74,16 +74,19 @@ const style = {
 };
 
 const PatientEMRWrapper = styled("div")(({ theme }) => ({
-  padding: "35px 10px 2px",
+  // position: "absolute",
+  padding: "20px 10px 2px",
   [theme.breakpoints.down("sm")]: {
     padding: "10px 4px 0",
   },
 }));
 
-const EMRFormWrapper = styled("div")(({ theme }) => ({}));
+const EMRFormWrapper = styled("div")(({ theme }) => ({
+  position: "absolute"
+}));
 const EMRFormInnerWrapper = styled("div")(({ theme }) => ({
-  height: "500px",
-  overflow: "scroll",
+    // height: "500px",
+    // overflow: "scroll",
 }));
 
 const VitalsContainer = styled("div")(({ theme }) => ({
@@ -164,8 +167,9 @@ const EMRFooter = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     marginTop: theme.spacing(2),
     border: `1px solid ${theme.palette.primaryBlue}`,
-    backgroundColor: theme.palette.primaryOpacityBlue,
+    backgroundColor: "#b2d6f0",
     padding: theme.spacing(2, 8),
+    zIndex: 1,
   },
   [theme.breakpoints.down("sm")]: {
     padding: "15px 5px",
@@ -180,6 +184,18 @@ const PDFViewerWrapper = styled("div")(({ theme }) => ({
     height: "auto",
     marginBottom: "0",
   },
+}));
+
+const PDFButtonWrapper = styled("div")(({ theme }) => ({
+  display: "flex", 
+  justifyContent: "center",
+  gap: "16px", 
+  position: "sticky", 
+  bottom: 0,  
+  border: `1px solid ${theme.palette.primaryBlue}`,
+  backgroundColor: "#b2d6f0",
+  padding: theme.spacing(2, 2),
+  zIndex: 1,
 }));
 
 const PrimaryButton = styled("button")(({ theme }) => ({
@@ -859,7 +875,7 @@ const PatientEMRDetails = () => {
   const handleExamFindingsChange = async (event) => {
     setTimeout(() => {
       setExaminationFindingOptions(event.target.value);
-    }, 2000)
+    }, 1000)
   };
   const handleDiagnosisChange = async (event) => {
     setTimeout(() => {
@@ -1183,6 +1199,9 @@ const PatientEMRDetails = () => {
     let inputValue;
     if(textField === "severity"){
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
+      if (severityValue.length < 3) {
+        inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
+      } else 
       inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
     } else {
       inputValue = newValue
@@ -3184,7 +3203,7 @@ const PatientEMRDetails = () => {
               </>
             )}
           </EMRFormInnerWrapper>
-          <EMRFooter>
+          <EMRFooter style={{ position: "sticky", bottom: 0 }}>
             <SecondaryButton
               onClick={resetEMRForm}
               style={{ padding: "8px 16px" }}
@@ -3211,21 +3230,19 @@ const PatientEMRDetails = () => {
             selectedAuthOption={selectedAuthOption}
           />
           {!isMobile && (
-            <>
+            <div style={{ position: "absolute", width: "-webkit-fill-available"}}>
               <PDFViewerWrapper>
                 <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
                   <PMRPdf patientData={patientData} />
                 </PDFViewer>
               </PDFViewerWrapper>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "16px" }}
-              >
-                <SecondaryButton onClick={editPMR}>Edit</SecondaryButton>
+              <PDFButtonWrapper>
+                <SecondaryButton onClick={editPMR} style={{ padding: "8px 16px" }}>Edit</SecondaryButton>
                 <PrimaryButton onClick={postPMR}>
                   Finish Prescription
                 </PrimaryButton>
-              </div>
-            </>
+              </PDFButtonWrapper>
+            </div>
           )}
           {isMobile && (
             <>

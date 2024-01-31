@@ -87,7 +87,7 @@ function SignInPage() {
            </BannerInfo>
          </div>
          <div className="login-right-form">
-          <LoginPage />
+          <LoginPage setIndex={setIndex} />
          </div>
        </div>
       {/* {index == 0 ? (

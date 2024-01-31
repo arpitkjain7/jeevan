@@ -98,8 +98,8 @@ const LoginPage = (props) => {
           hipDetails.name = hospitalDetails[key];
         }
         sessionStorage.setItem("selectedHospital", JSON.stringify(hipDetails));
-        navigate("/dashboard");
         setShowLoader(false);
+        window.location.replace("/dashboard");
         // props?.setIndex(1);
       } else {
         setIsLoginError(true);
