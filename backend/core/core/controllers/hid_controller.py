@@ -115,8 +115,9 @@ class HIDController:
 
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -245,8 +246,9 @@ class HIDController:
             }
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -356,6 +358,7 @@ class HIDController:
             resp, resp_code = APIInterface().get(
                 route=abha_suggestion_url,
                 headers={
+                    "Content-Type": "application/json",
                     "Transaction_id": txn_id,
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
@@ -406,8 +409,9 @@ class HIDController:
 
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1447,7 +1451,7 @@ class HIDController:
 
             resp, resp_code = APIInterface().post(
                 route=generate_otp_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
@@ -1514,7 +1518,7 @@ class HIDController:
             }
             resp, resp_code = APIInterface().post(
                 route=abha_detail_otp_update_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
@@ -1558,14 +1562,15 @@ class HIDController:
             ).get("accessToken")
             retrieve_abha_url = f"{self.abha_url_v3}/v3/profile/login/request/otp"
             if request_dict.get("mode").value == "mobile":
-                scope = ["abha-enrol", "mobile-verify"]
+                scope = ["abha-login", "mobile-verify"]
                 login_hint = "mobile"
+                # login_id = rsa_encryption(data_to_encrypt=request_dict.get("mobile"))
                 login_id = rsa_encryption_oaep(
                     data_to_encrypt=request_dict.get("mobile")
                 )
                 otp_system = "abdm"
             elif request_dict.get("mode").value == "aadhaar":
-                scope = ["abha-enrol", "aadhaar-verify"]
+                scope = ["abha-login", "aadhaar-verify"]
                 login_hint = "aadhaar"
                 login_id = rsa_encryption_oaep(
                     data_to_encrypt=request_dict.get("aadhaar")
@@ -1587,8 +1592,9 @@ class HIDController:
 
             resp, resp_code = APIInterface().post(
                 route=retrieve_abha_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1662,8 +1668,9 @@ class HIDController:
             }
             resp, resp_code = APIInterface().post(
                 route=retrieve_abha_verify_otp_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1716,6 +1723,7 @@ class HIDController:
             resp, resp_code = APIInterface().get(
                 route=get_profile_url,
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1794,6 +1802,7 @@ class HIDController:
             byte_data, resp_code = APIInterface().get_bytes(
                 route=get_qr_url,
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1845,6 +1854,7 @@ class HIDController:
             byte_data, resp_code = APIInterface().get_bytes(
                 route=get_abha_card_url,
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
