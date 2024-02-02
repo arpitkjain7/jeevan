@@ -1654,10 +1654,11 @@ class HIDController:
                 + "Z"
             )
             if request_dict.get("mode").value == "mobile":
-                scope = ["abha-enrol", "mobile-verify"]
+                scope = ["abha-login", "mobile-verify"]
             elif request_dict.get("mode").value == "aadhaar":
-                scope = ["abha-enrol", "aadhaar-verify"]
+                scope = ["abha-login", "aadhaar-verify"]
             payload = {
+                "scope": scope,
                 "authData": {
                     "authMethods": ["otp"],
                     "otp": {
@@ -1749,20 +1750,20 @@ class HIDController:
                     "DOB": f"{resp['dayOfBirth']}/{resp['monthOfBirth']}/{resp['yearOfBirth']}",
                     "email": resp["email"],
                     "address": resp["address"],
-                    "pincode": resp["pinCode"],
+                    "pincode": resp["pincode"],
                     "hip_id": hip_id,
                     "auth_methods": ",".join(resp["authMethods"]),
                 }
                 if create_record:
                     patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                        abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
+                        abha_number=resp["ABHANumber"].replace("-", "")
                     )
                     if patient_record:
                         patient_request.update({"id": patient_record["id"]})
                         self.CRUDPatientDetails.update(**patient_request)
                     else:
                         self.CRUDPatientDetails.create(**patient_request)
-                patient_request["txnId"] = resp["txnId"]
+                # patient_request["txnId"] = resp["txnId"]
                 return patient_request
             else:
                 gateway_request = {
