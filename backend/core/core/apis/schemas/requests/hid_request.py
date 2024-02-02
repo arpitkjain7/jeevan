@@ -82,6 +82,7 @@ class PatientData(BaseModel):
 class AbhaDetailsUpdateMode(str, Enum):
     mobile = "mobile"
     email = "email"
+    aadhaar = "aadhaar"
 
 
 class UpdateAbhaDetails(BaseModel):
