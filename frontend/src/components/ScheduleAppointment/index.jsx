@@ -290,7 +290,7 @@ const BookingSlots = () => {
         ...allTimeSlots,
         `${slotStart}-${slotEnd}`,
       ]);
-      const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
+      const slot = `${slotStart}-${slotEnd}`;
       generatedSlots.push(slot);
     }
 
@@ -391,31 +391,32 @@ const BookingSlots = () => {
   const submitAppointment = () => {
     const timeRange = selectedSlot;
     const [startTime, endTime] = timeRange.split(" - ");
-    let start24hourTime;
-    let end24hourTime;
+    console.log(startTime, endTime);
+    let startTime24hour;
+    let endTime24hour;
     if(startTime){
-      var hours = Number(startTime.match(/^(\d+)/)[1]);
-      var minutes = Number(startTime.match(/:(\d+)/)[1]);
+      var startTimeHour = Number(startTime.match(/^(\d+)/)[1]);
+      var startTimeMinutes = Number(startTime.match(/:(\d+)/)[1]);
       var meridiem = startTime.slice(-2);
-      if(meridiem === "PM" && hours < 12) hours = hours + 12;
-      else if(meridiem === "AM" && hours === 12) hours = hours-12;
-      var sHours = hours.toString();
-      var sMinutes = minutes.toString();
-      if(hours<10) sHours = "0" + sHours;
-      if(minutes<10) sMinutes = "0" + sMinutes;
-        start24hourTime = sHours + ":" + sMinutes;
+      if(meridiem === "PM" && startTimeHour < 12) startTimeHour = startTimeHour + 12;
+      else if(meridiem === "AM" && startTimeHour === 12) startTimeHour = startTimeHour-12;
+      var sHours = startTimeHour.toString();
+      var sMinutes = startTimeMinutes.toString();
+      if(startTimeHour<10) sHours = "0" + sHours;
+      if(startTimeMinutes<10) sMinutes = "0" + sMinutes;
+        startTime24hour = sHours + ":" + sMinutes;
     }
     if(endTime){
-      var hours = Number(endTime.match(/^(\d+)/)[1]);
-      var minutes = Number(endTime.match(/:(\d+)/)[1]);
+      var endTimeHour = Number(endTime.match(/^(\d+)/)[1]);
+      var endTimeMinutes = Number(endTime.match(/:(\d+)/)[1]);
       var meridiem = endTime.slice(-2);
-      if(meridiem === "PM" && hours < 12) hours = hours + 12;
-      else if(meridiem === "AM" && hours === 12) hours = hours-12;
-      var sHours = hours.toString();
-      var sMinutes = minutes.toString();
-      if(hours<10) sHours = "0" + sHours;
-      if(minutes<10) sMinutes = "0" + sMinutes;
-        end24hourTime = sHours + ":" + sMinutes;
+      if(meridiem === "PM" && endTimeHour < 12) endTimeHour = endTimeHour + 12;
+      else if(meridiem === "AM" && endTimeHour === 12) endTimeHour = endTimeHour-12;
+      var sHours = endTimeHour.toString();
+      var sMinutes = endTimeMinutes.toString();
+      if(endTimeHour<10) sHours = "0" + sHours;
+      if(endTimeMinutes<10) sMinutes = "0" + sMinutes;
+      endTime24hour = sHours + ":" + sMinutes;
     }
     let currentHospital = {};
     if (hospital) {
@@ -428,30 +429,30 @@ const BookingSlots = () => {
         encounter_type: appointmentDetails?.encounterType,
         hip_id: currentHospital?.hip_id,
         appointment_start: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + start24hourTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime24hour
         ),
         appointment_end: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + end24hourTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
         ),
       };
-      dispatch(createAppointment(payload)).then((res) => {
-        sessionStorage.removeItem("doctorName");
-        sessionStorage.removeItem("encounterTypeValue");
-        sessionStorage.removeItem("appointmentTypeValue");
-        sessionStorage.removeItem("visitTypeValue");
-        sessionStorage.removeItem("billingTypeValue");
-        if (res.payload?.appointment_id) {
-          const AllPatientData = Object.assign(
-            selectedPatient,
-            { patientId: selectedPatient?.id },
-            { doc_id: appointmentDetails?.doctorId }, 
-            { appointment_id: res.payload?.appointment_id },
-            { id: res.payload?.appointment_id }
-          )
-          sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-          setAppointmentCompleted(true);
-        }
-      });
+      // dispatch(createAppointment(payload)).then((res) => {
+      //   sessionStorage.removeItem("doctorName");
+      //   sessionStorage.removeItem("encounterTypeValue");
+      //   sessionStorage.removeItem("appointmentTypeValue");
+      //   sessionStorage.removeItem("visitTypeValue");
+      //   sessionStorage.removeItem("billingTypeValue");
+      //   if (res.payload?.appointment_id) {
+      //     const AllPatientData = Object.assign(
+      //       selectedPatient,
+      //       { patientId: selectedPatient?.id },
+      //       { doc_id: appointmentDetails?.doctorId }, 
+      //       { appointment_id: res.payload?.appointment_id },
+      //       { id: res.payload?.appointment_id }
+      //     )
+      //     sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+      //     setAppointmentCompleted(true);
+      //   }
+      // });
     }
   };
 

@@ -149,13 +149,14 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
         status={"error"}
         onClose={onSnackbarClose}
       />
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={5}>
           <TextField
             name="firstname"
             label="First Name"
             value={formData.firstname}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             required
             fullWidth
           />
@@ -166,6 +167,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             label="Middle Name"
             value={formData.middlename}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             fullWidth
           />
         </Grid>
@@ -175,6 +177,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             label="Last Name"
             value={formData.lastname}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             fullWidth
           />
         </Grid>
@@ -225,6 +228,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             value={formData.email}
             onChange={handleChange}
             type="email"
+            InputLabelProps={{ shrink: true }}
             // required
             fullWidth
           />
@@ -238,6 +242,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
               value={mobile}
               error={isMobileError}
               onChange={handleNumberChange}
+              InputLabelProps={{ shrink: true }}
               required
               fullWidth
             />
@@ -252,6 +257,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
                 error={abhaAddressError}
                 value={formData.abhaAddress}
                 onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
                 required
                 fullWidth
                 helperText={
@@ -268,6 +274,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
                 value={formData.password}
                 onChange={handleChange}
                 type="password"
+                InputLabelProps={{ shrink: true }}
                 required
                 fullWidth
               />

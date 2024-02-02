@@ -129,7 +129,7 @@ const VitalsDetails = () => {
       selectedVital
     ) {
       const payload = {
-        patient_id: currentPatient?.id,
+        patient_id: currentPatient?.patientId || currentPatient?.id,
         vital_type: selectedVital,
       };
       dispatch(fetchVitalDetails(payload)).then((res) => {

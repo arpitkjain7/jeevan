@@ -394,7 +394,14 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-                ))) : <h3 style={{ padding: "10px 20px" }}>No data found</h3>}
+                ))) 
+                : 
+                  <TableRow>
+                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                     <h3>No data found</h3>
+                    </TableCell>
+                  </TableRow>
+                }
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan="auto" />

@@ -13,12 +13,12 @@ const CustomAutoComplete = ({
 }) => {
   return (
     <Autocomplete
-      freeSolo
+      // freeSolo
       // ref={autocompleteRef}
       options={options}
       getOptionLabel={(option) => option?.label}
       isOptionEqualToValue={(option, value) =>
-        value === null || value === "" || option.label === value
+        value === null || value === "" || option.label == value
       }
       filterSelectedOptions
       clearOnEscape
@@ -34,6 +34,7 @@ const CustomAutoComplete = ({
       value={null}
       blurOnSelect={true}
       clearOnBlur={true}
+      loading
       onChange={handleOptionChange}
     />
   );

@@ -42,6 +42,8 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
 import dayjs from "dayjs";
 import CustomLoader from "../../../components/CustomLoader";
+import { MobileDatePicker } from "@mui/x-date-pickers";
+import { format } from "date-fns";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -83,7 +85,11 @@ const PatientEMRWrapper = styled("div")(({ theme }) => ({
 }));
 
 const EMRFormWrapper = styled("div")(({ theme }) => ({
-  position: "absolute"
+  position: "absolute",
+  paddingRight: "15px",
+  [theme.breakpoints.down("sm")]: {
+    paddingRight: "8px",
+  },
 }));
 const EMRFormInnerWrapper = styled("div")(({ theme }) => ({
     // height: "500px",
@@ -455,7 +461,7 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
-  const [followUp, setFollowUp] = useState(dayjs());
+  const [followUp, setFollowUp] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   
   useEffect(() => {
@@ -484,6 +490,7 @@ const PatientEMRDetails = () => {
   };
 
   useEffect(() => {
+    setShowLoader(true);
     // const queryParams = {
     //   term: "hea",
     //   state: "active",
@@ -507,14 +514,16 @@ const PatientEMRDetails = () => {
         consultation_status: "InProgress",
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
+        setShowLoader(false);
         setEMRId(res.payload?.pmr_details.id);
         sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
         const pmrDetails = res.payload?.pmr_details.pmr_data;
         setAdvices(res.payload?.pmr_details?.advices);
         setPrescriptionComment(res.payload?.pmr_details?.notes);       
-        { res.payload?.appointment_details?.followup_date !== null ? 
-          setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
-        }
+        // { res.payload?.appointment_details?.followup_date !== null ? 
+        //   setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
+        // }
+        setFollowUp(res.payload?.appointment_details?.followup_date);
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
@@ -683,16 +692,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setSymptomsOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: symptomOptions,
+            value: symptomOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setSymptomsOpts(customData);
+          setSymptomsOpts(customData);
+        }
       });
     } else {
       setSymptomsOpts([]);
@@ -711,16 +731,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setMedicalHistoryOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: medicalHistoryOptions,
+            value: medicalHistoryOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setMedicalHistoryOpts(customData);
+          setMedicalHistoryOpts(customData);
+        }
       });
     } else {
       setMedicalHistoryOpts([]);
@@ -741,16 +772,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setExamFindingsOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: examinationFindingOptions,
+            value: examinationFindingOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setExamFindingsOpts(customData);
+          setExamFindingsOpts(customData);
+        }
       });
     } else {
       setExamFindingsOpts([]);
@@ -771,16 +813,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setDiagnosisOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: diagnosisOptions,
+            value: diagnosisOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setDiagnosisOpts(customData);
+          setDiagnosisOpts(customData);
+        }
       });
     } else {
       setDiagnosisOpts([]);
@@ -801,16 +854,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setLabInvestigationsOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: labInvestigationOptions,
+            value: labInvestigationOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setLabInvestigationsOpts(customData);
+          setLabInvestigationsOpts(customData);
+        }
       });
     } else {
       setLabInvestigationsOpts([]);
@@ -831,16 +895,27 @@ const PatientEMRDetails = () => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        resData?.map((item) => {
+        if(resData.length > 0){
+          resData?.map((item) => {
+            const customItem = {
+              label: item?.term,
+              value: item?.term,
+              snowmed_code: item?.conceptId,
+              snowmed_display: item?.conceptFsn,
+            };
+            customData.push(customItem);
+          });
+          setMedicationsOpts(customData);
+        } else {
           const customItem = {
-            label: item?.term,
-            value: item?.term,
-            snowmed_code: item?.conceptId,
-            snowmed_display: item?.conceptFsn,
+            label: medicationOptions,
+            value: medicationOptions,
+            snowmed_code: "",
+            snowmed_display: "",
           };
           customData.push(customItem);
-        });
-        setMedicationsOpts(customData);
+          setMedicationsOpts(customData);
+        }
       });
     } else {
       setMedicationsOpts([]);
@@ -1576,7 +1651,7 @@ const PatientEMRDetails = () => {
     if (followUp !== null) {
       appointment_request = {
         appointment_id: current_patient?.id,
-        followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
+        followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed",
       };
     } else {
@@ -1731,7 +1806,7 @@ const PatientEMRDetails = () => {
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
     if(followUp !== null){
-      pdfFormattedData["followup"] = convertDateFormat(followUp, "yyyy-MM-dd");
+      pdfFormattedData["followup"] = followUp;
     }
     setPdfData(pdfFormattedData);
     setPatientData(patientDetails);
@@ -1847,7 +1922,7 @@ const PatientEMRDetails = () => {
     if (followUp !== null) {
       appointment_request = {
         appointment_id: current_patient?.id,
-        followup_date: convertDateFormat(followUp, "yyyy-MM-dd"),
+        followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "InProgress",
       };
     } else {
@@ -2044,6 +2119,10 @@ const PatientEMRDetails = () => {
   const [openMedicationNotes, setOpenMedicationNotes] = React.useState(false);
   const handleOpenMedicationNotes = () => setOpenMedicationNotes(true);
   const handleCloseMedicationNotes = () => setOpenMedicationNotes(false);
+
+  const handleDateChange = (event) => {
+    setFollowUp(event.target.value);
+  };
 
   return (
     <PatientEMRWrapper>
@@ -2272,11 +2351,13 @@ const PatientEMRDetails = () => {
                                     handleSymptomNumberOptions(item, newValue)
                                   }
                                   renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      label="Since"
-                                      variant="outlined"
-                                    />
+                                    <div style={{ display: "flex" }}>
+                                      <TextField
+                                        {...params}
+                                        label="Since"
+                                        variant="outlined"
+                                      />
+                                    </div>
                                   )}
                                 />
                               </TextBoxLayout>
@@ -2951,7 +3032,7 @@ const PatientEMRDetails = () => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="desktopTextBoxLayout">
+                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "60px" }}>
                                 <RecordTextField
                                   placeholder="Frequency"
                                   value={
@@ -3179,16 +3260,26 @@ const PatientEMRDetails = () => {
 
                   <VitalsContainer>
                     <SectionHeader>Follow Up</SectionHeader>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TextField
+                      sx={{ width: "100%" }}
+                      placeholder="Select Date"
+                      type="date"
+                      inputProps={{
+                        min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                      }}
+                      value={followUp}
+                      onChange={handleDateChange}
+                      />
+                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
-                        <DatePicker
+                        <MobileDatePicker
                           sx={{ width: "100%" }}
                           disablePast
                           value={followUp}
                           onChange={(newValue) => setFollowUp(newValue)}
                         />
                       </DemoContainer>
-                    </LocalizationProvider>
+                    </LocalizationProvider> */}
                   </VitalsContainer>
 
                   <Grid container spacing={2}>

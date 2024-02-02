@@ -76,25 +76,24 @@ const pmrPdfStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  pdfPatientOtherDetailsWrapper: {
+  pdfOuterWrapper: {
     display: "flex",
+    justifyContent: "space-between",
     flexDirection: "row",
     flexWrap: "wrap",
+  },
+  pdfPatientOtherDetailsWrapper: {
     flexDirection: "row",
     padding: "4px 0px",
     backgroundColor: "#0089E9",
     gap: "6px",
   },
-  pdfDetailsWrapper: {
-    alignItems: "right",
-  },
+  pdfDetailsWrapper: {},
   pdfText: {
     fontFamily: "Source Sans Pro Bold",
     color: "#ffffff",
     fontSize: "12px",
     fontWeight: "400",
-    alignContent: "flex-end",
-    alignItems: "right",
     alignSelf: "flex-end"
   },
   pdfVitalsWrapper: {
@@ -315,7 +314,8 @@ const PMRPdf = ({ patientData }) => {
               {patientData?.patientId}
             </Text>
           </View>
-          <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
+          <div style={pmrPdfStyles.pdfOuterWrapper}>
+            <View style={pmrPdfStyles.pdfPatientOtherDetailsWrapper}>
               {currentPatientData?.map((item) => (
                 <View style={pmrPdfStyles.pdfPatientOtherDetails}>
                   <Text style={pmrPdfStyles.dataLabel}>{item.label}</Text>
@@ -323,10 +323,11 @@ const PMRPdf = ({ patientData }) => {
                 </View>
               
               ))}
-              <View style={pmrPdfStyles.pdfDetailsWrapper}>
-                <Text style={pmrPdfStyles.pdfText}>{pdfDate}</Text>             
-              </View>
-          </View>
+            </View>
+            <View style={pmrPdfStyles.pdfDetailsWrapper}>
+              <Text style={pmrPdfStyles.pdfText}>{pdfDate}</Text>             
+            </View>
+          </div>
         </View>
         <View style={pmrPdfStyles.pdfContainer}>
           {pdfData?.vital && (
@@ -368,7 +369,7 @@ const PMRPdf = ({ patientData }) => {
                           {
                             item?.relationship && item?.since ? 
                             (<Text style={pmrPdfStyles.dataValue}>| {item?.since}</Text>) :
-                            (<Text style={pmrPdfStyles.dataValue}>{item?.since}</Text>)
+                            (<Text style={pmrPdfStyles.dataValue}>{item?.since} &nbsp;</Text>)
                           }
                         </View>
                       </View>
@@ -419,7 +420,7 @@ const PMRPdf = ({ patientData }) => {
                       {
                         item?.diagnosis_type && item?.status ? 
                         (<Text style={pmrPdfStyles.dataValue}>| {item?.status}</Text>) :
-                        (<Text style={pmrPdfStyles.dataValue}>{item?.status}</Text>)
+                        (<Text style={pmrPdfStyles.dataValue}>{item?.status} &nbsp;</Text>)
                       }
                     </View>
                   </View>

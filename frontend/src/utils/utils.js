@@ -40,7 +40,6 @@ export const convertTimeSlot = (timeSlot24hr) => {
     let timeParts = timeSlot24hr.split("-");
     let startTime = timeParts[0].trim();
     let endTime = timeParts[1].trim();
-
     let startTimeParts = startTime.split(":");
     let startHours = parseInt(startTimeParts[0]);
     let startMinutes = parseInt(startTimeParts[1]);
