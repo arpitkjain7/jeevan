@@ -149,32 +149,35 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
         status={"error"}
         onClose={onSnackbarClose}
       />
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={5}>
           <TextField
-            placeholder="First Name"
             name="firstname"
+            label="First Name"
             value={formData.firstname}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             required
             fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>
           <TextField
-            placeholder="Middle Name"
             name="middlename"
+            label="Middle Name"
             value={formData.middlename}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>
           <TextField
-            placeholder="Last Name"
             name="lastname"
+            label="Last Name"
             value={formData.lastname}
             onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
             fullWidth
           />
         </Grid>
@@ -205,7 +208,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
         </Grid>
         <Grid item xs={12} md={5}>
           <TextField
-            placeholder="Date of Birth"
+            label="DOB"
             name="dob"
             value={formData.dob}
             onChange={handleChange}
@@ -213,17 +216,19 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             inputProps={{
               max: formatDob(new Date()), // Set max date to the current date
             }}
+            InputLabelProps={{ shrink: true }}
             required
             fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>
           <TextField
-            placeholder="Email Address"
+            label="Email Address"
             name="email"
             value={formData.email}
             onChange={handleChange}
             type="email"
+            InputLabelProps={{ shrink: true }}
             // required
             fullWidth
           />
@@ -231,12 +236,13 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
         {!isForAbha && (
           <Grid item xs={12} md={5}>
             <TextField
-              placeholder="Mobile Number"
               name="mobile"
+              label="Mobile Number"
               type="number"
               value={mobile}
               error={isMobileError}
               onChange={handleNumberChange}
+              InputLabelProps={{ shrink: true }}
               required
               fullWidth
             />
@@ -251,6 +257,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
                 error={abhaAddressError}
                 value={formData.abhaAddress}
                 onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
                 required
                 fullWidth
                 helperText={
@@ -267,6 +274,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
                 value={formData.password}
                 onChange={handleChange}
                 type="password"
+                InputLabelProps={{ shrink: true }}
                 required
                 fullWidth
               />

@@ -23,6 +23,7 @@ import {
   visitType,
 } from "./constant";
 import { ScheduleAppointmentActions } from "../ScheduleAppointment/scheduleAppointment.slice";
+import CustomLoader from "../CustomLoader";
 
 const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -177,6 +178,7 @@ function AppointmentForm(props) {
   };
 
   const handleSubmit = () => {
+    setShowLoader(true);
     sessionStorage.setItem("appointment_doctor_id", doctorName);
     const data = {
       doctorId: doctorName,
@@ -186,12 +188,16 @@ function AppointmentForm(props) {
       billingType: billingTypeValue,
     };
     dispatch(ScheduleAppointmentActions.setAppointmentDetails(data));
+    setShowLoader(false);
     props?.setTab(1);
     props?.setCompleted(true);
   };
 
   return (
     <AppointmentFormWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <StyledCard>
         <CardContent>
           <Grid container>
