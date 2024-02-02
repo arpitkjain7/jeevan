@@ -310,6 +310,36 @@ class CRUDPatientDetails:
             )
             raise error
 
+    def read_by_mobile_name(self, mobile_number: str, name: str):
+        """[CRUD function to read a PatientDetails record]
+
+        Args:
+            name (str): [name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [PatientDetails record matching the criteria]
+        """
+        try:
+            logging.info("CRUDPatientDetails read_by_mobile_dob request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.mobile_number == mobile_number)
+                    .filter(PatientDetails.name == name)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_mobile_dob function : {error}"
+            )
+            raise error
+
     def read_all(self, hip_id: str):
         """[CRUD function to read_all PatientDetails record]
 

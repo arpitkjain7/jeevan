@@ -262,50 +262,50 @@ class HIDController:
                     "transaction_id": txn_id,
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
-                time_now = datetime.now()
-                linking_token_validity = time_now + timedelta(minutes=1800)
-                linking_token_validity = linking_token_validity.strftime(
-                    "%m/%d/%Y, %H:%M:%S"
-                )
-                refresh_token_validity = time_now + timedelta(minutes=1296000)
-                refresh_token_validity = refresh_token_validity.strftime(
-                    "%m/%d/%Y, %H:%M:%S"
-                )
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                phr_addresses = resp["ABHAProfile"]["phrAddress"]
-                abha_address_list = ",".join(phr_addresses)
-                patient_request = {
-                    "id": patient_id,
-                    "abha_number": resp["ABHAProfile"]["ABHANumber"].replace("-", ""),
-                    "abha_address": abha_address_list,
-                    "mobile_number": resp["ABHAProfile"]["mobile"],
-                    "name": f"{resp['ABHAProfile']['firstName']} {resp['ABHAProfile']['middleName']} {resp['ABHAProfile']['lastName']}",
-                    "gender": resp["ABHAProfile"]["gender"],
-                    "DOB": resp["ABHAProfile"]["dob"],
-                    "email": resp["ABHAProfile"]["email"],
-                    "address": resp["ABHAProfile"]["address"],
-                    "pincode": resp["ABHAProfile"]["pinCode"],
-                    "hip_id": hip_id,
-                    "auth_methods": "AADHAAR_OTP",
-                    "linking_token": {
-                        "value": resp["tokens"]["token"],
-                        "valid_till": linking_token_validity,
-                    },
-                    "refresh_token": {
-                        "value": resp["tokens"]["refreshToken"],
-                        "valid_till": refresh_token_validity,
-                    },
-                }
-                patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                    abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
-                )
-                if patient_record:
-                    patient_request.update({"id": patient_record["id"]})
-                    self.CRUDPatientDetails.update(**patient_request)
-                else:
-                    self.CRUDPatientDetails.create(**patient_request)
-                patient_request["txnId"] = resp["txnId"]
-                return patient_request
+                # time_now = datetime.now()
+                # linking_token_validity = time_now + timedelta(minutes=1800)
+                # linking_token_validity = linking_token_validity.strftime(
+                #     "%m/%d/%Y, %H:%M:%S"
+                # )
+                # refresh_token_validity = time_now + timedelta(minutes=1296000)
+                # refresh_token_validity = refresh_token_validity.strftime(
+                #     "%m/%d/%Y, %H:%M:%S"
+                # )
+                # patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                # phr_addresses = resp["ABHAProfile"]["phrAddress"]
+                # abha_address_list = ",".join(phr_addresses)
+                # patient_request = {
+                #     "id": patient_id,
+                #     "abha_number": resp["ABHAProfile"]["ABHANumber"].replace("-", ""),
+                #     "abha_address": abha_address_list,
+                #     "mobile_number": resp["ABHAProfile"]["mobile"],
+                #     "name": f"{resp['ABHAProfile']['firstName']} {resp['ABHAProfile']['middleName']} {resp['ABHAProfile']['lastName']}",
+                #     "gender": resp["ABHAProfile"]["gender"],
+                #     "DOB": resp["ABHAProfile"]["dob"],
+                #     "email": resp["ABHAProfile"]["email"],
+                #     "address": resp["ABHAProfile"]["address"],
+                #     "pincode": resp["ABHAProfile"]["pinCode"],
+                #     "hip_id": hip_id,
+                #     "auth_methods": "AADHAAR_OTP",
+                #     "linking_token": {
+                #         "value": resp["tokens"]["token"],
+                #         "valid_till": linking_token_validity,
+                #     },
+                #     "refresh_token": {
+                #         "value": resp["tokens"]["refreshToken"],
+                #         "valid_till": refresh_token_validity,
+                #     },
+                # }
+                # patient_record = self.CRUDPatientDetails.read_by_abhaId(
+                #     abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
+                # )
+                # if patient_record:
+                #     patient_request.update({"id": patient_record["id"]})
+                #     self.CRUDPatientDetails.update(**patient_request)
+                # else:
+                #     self.CRUDPatientDetails.create(**patient_request)
+                # patient_request["txnId"] = resp["txnId"]
+                return resp
             else:
                 gateway_request = {
                     "request_id": txn_id,
@@ -1739,32 +1739,7 @@ class HIDController:
                     "transaction_id": txn_id,
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                patient_request = {
-                    "id": patient_id,
-                    "abha_number": resp["ABHANumber"].replace("-", ""),
-                    "primary_abha_address": resp["preferredAbhaAddress"],
-                    "mobile_number": resp["mobile"],
-                    "name": f"{resp['name']}",
-                    "gender": resp["gender"],
-                    "DOB": f"{resp['dayOfBirth']}/{resp['monthOfBirth']}/{resp['yearOfBirth']}",
-                    "email": resp["email"],
-                    "address": resp["address"],
-                    "pincode": resp["pincode"],
-                    "hip_id": hip_id,
-                    "auth_methods": ",".join(resp["authMethods"]),
-                }
-                if create_record:
-                    patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                        abha_number=resp["ABHANumber"].replace("-", "")
-                    )
-                    if patient_record:
-                        patient_request.update({"id": patient_record["id"]})
-                        self.CRUDPatientDetails.update(**patient_request)
-                    else:
-                        self.CRUDPatientDetails.create(**patient_request)
-                # patient_request["txnId"] = resp["txnId"]
-                return patient_request
+                return resp
             else:
                 gateway_request = {
                     "request_id": txn_id,

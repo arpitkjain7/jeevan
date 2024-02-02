@@ -822,6 +822,45 @@ class PatientController:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error
 
+    def register_patient_v3_controller(self, request):
+        """[Controller to register new user]
+
+        Args:
+            request ([dict]): [create new user request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing register new patient v3 function")
+            request_json = request.dict()
+            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
+            #     mobile_number=request_json.get("mobile_number")
+            # )
+            patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+                mobile_number=request_json.get("mobile_number"),
+                name=request_json.get("name"),
+            )
+            if patient_obj:
+                request_json.update({"id": patient_obj["id"]})
+                self.CRUDPatientDetails.update(**request_json)
+                request_json.update(
+                    {"status": "Patient already exist, Updated database"}
+                )
+                return request_json
+            else:
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                request_json.update({"id": patient_id})
+                self.CRUDPatientDetails.create(**request_json)
+                request_json.update({"status": "New Patient created successfully"})
+                return request_json
+        except Exception as error:
+            logging.error(f"Error in register_patient_controller function: {error}")
+            raise error
+
     def update_patient(self, request):
         try:
             logging.info("Updating patient records")
