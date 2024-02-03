@@ -372,9 +372,7 @@ class HIDController:
             )
             raise error
 
-    def create_abha_address(
-        self, request, selected_abha_address: str, txn_id: str, patient_id: str
-    ):
+    def create_abha_address(self, request):
         """[Controller to fetch patient auth modes]
 
         Args:
@@ -417,15 +415,15 @@ class HIDController:
                     "TIMESTAMP": timestamp,
                 },
             )
-            if resp_code <= 250:
-                patient_request = {
-                    "abha_number": request_json.get("abha_number"),
-                    "primary_abha_address": resp["preferredAbhaAddress"],
-                    "abha_status": "Active",
-                }
-                self.CRUDPatientDetails.update_by_abhaNumber(**patient_request)
-                return patient_request
-
+            # if resp_code <= 250:
+            #     patient_request = {
+            #         "abha_number": request_json.get("abha_number"),
+            #         "primary_abha_address": resp["preferredAbhaAddress"],
+            #         "abha_status": "Active",
+            #     }
+            #     self.CRUDPatientDetails.update_by_abhaNumber(**patient_request)
+            #     return patient_request
+            return resp
         except Exception as error:
             logging.error(
                 f"Error in HIDController.aadhaar_verifyOTP_v3 function: {error}"

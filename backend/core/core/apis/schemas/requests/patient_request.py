@@ -55,6 +55,7 @@ class UpdatePatient(BaseModel):
 class RegisterPatientV3(BaseModel):
     abha_number: str = None
     abha_address: str = None
+    primary_abha_address: str = None
     mobile_number: str = None
     name: str = None
     gender: str = None
