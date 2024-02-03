@@ -18,6 +18,7 @@ from core.apis.schemas.requests.hid_request import (
     UpdateAbhaDetails,
     RetrieveAbhaGenerateOTP,
     RetrieveAbhaVerifyOTP,
+    RetrieveAbhaVerifyUser,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -414,6 +415,33 @@ def retrieveAbha_verifyOTP(
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().retrieve_abha_verifyOTP(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/HID/retrieveAbha/verifyOTP endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/verifyOTP endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/retrieveAbha/verifyUser")
+def retrieveAbha_verifyOTP(
+    request: RetrieveAbhaVerifyUser, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/verifyOTP endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha_verifyUser(request=request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

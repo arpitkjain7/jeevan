@@ -112,3 +112,9 @@ class RetrieveAbhaVerifyOTP(BaseModel):
     txnId: str
     mode: AbhaDetailsUpdateMode
     otp: str
+
+
+class RetrieveAbhaVerifyUser(BaseModel):
+    txnId: str
+    abhaNumber: str
+    token: str
