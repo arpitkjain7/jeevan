@@ -78,8 +78,20 @@ function SignInPage() {
 
   return (
     <LoginPageWrapper>
-      {index == 0 ? (
-         <div className="login-page-container">
+      <div className="login-page-container">
+         <div className="login-left-banner">
+           <LogoText>cliniQ360</LogoText>
+           <BannerInfo>
+             Elevate patient care with a seamless experience and innovative
+             technology
+           </BannerInfo>
+         </div>
+         <div className="login-right-form">
+          <LoginPage setIndex={setIndex} />
+         </div>
+       </div>
+      {/* {index == 0 ? (
+        <div className="login-page-container">
          <div className="login-left-banner">
            <LogoText>cliniQ360</LogoText>
            <BannerInfo>
@@ -104,7 +116,7 @@ function SignInPage() {
             {index === 1 && <HospitalList setIndex={setIndex} />}
           </div>
         </div>
-      )}
+      )} */}
     </LoginPageWrapper>
   );
 }

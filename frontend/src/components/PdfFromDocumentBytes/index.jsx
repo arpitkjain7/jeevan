@@ -41,6 +41,8 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const docType = documentType;
   const [isPDF, setIsPDF] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     if(docType === "application/pdf" && isMobile){
@@ -62,10 +64,10 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           URL.revokeObjectURL(pdfUrl);
         };
       }
+    } else{
+      setIsPDF(false);
     }
     }, [docBytes]);
-    const [numPages, setNumPages] = useState(null);
-    const [pageNumber, setPageNumber] = useState(1);
   
     const onDocumentLoadSuccess = (({ numPages }) => {
       setNumPages(numPages);

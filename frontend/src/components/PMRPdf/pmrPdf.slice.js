@@ -3,6 +3,7 @@ import axios from "axios";
 import { apis } from "../../utils/apis";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { BASE_URL, pdfUploadHeader } from "../../utils/request";
+import { convertDateFormat } from "../../utils/utils";
 
 // Assuming you have the PdfDocument component defined
 
@@ -21,7 +22,7 @@ export const submitPdf = createAsyncThunk(
       const chunk = pdfBlob.slice(start, end);
 
       const formData = new FormData();
-      formData.append("files", chunk, "document.pdf");
+      formData.append("files", chunk, `document ${convertDateFormat(new Date(), "yyyy-MM-dd HH:mm:ss")}.pdf`);
       try {
         const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
           params: {

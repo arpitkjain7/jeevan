@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchAppointmentList } from "./AppointmentPage.slice";
+import { AppointmentPageActions, fetchAppointmentList } from "./AppointmentPage.slice";
 import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
+import CustomLoader from "../../components/CustomLoader";
 
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -85,11 +86,25 @@ const searchInputStyle = {
 const AppointmentPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
+  const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const columns = [
-    { key: "patientDetails", header: "Patient Name" },
+    { 
+      key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ]
+    },
     { key: "patientId", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
@@ -113,7 +128,19 @@ const AppointmentPage = () => {
   ];
 
   const mobileColumns = [
-    { key: "patientDetails", header: "Patient Name" },
+    { key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            navigate("/patient-details");
+          },
+        },
+      ]
+    },
     {
       key: "actions",
       header: "Start Visit",
@@ -138,6 +165,7 @@ const AppointmentPage = () => {
   ];
 
   useEffect(() => {
+    setShowLoader(true);
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
@@ -145,6 +173,7 @@ const AppointmentPage = () => {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchAppointmentList(payload)).then((res) => {
+        setShowLoader(false);
         const mainList = res.payload;
         // let patientList = [];
         // mainList?.map((item) => {
@@ -174,6 +203,7 @@ const AppointmentPage = () => {
           // const createdDate = convertDateFormat(item?.created_at);
           return {
             patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
+            p_name: `${item?.patient_details?.name}`,
             patientId: patientId,
             mobileNumber: mobileNumber,
             encounterType: encounterType,
@@ -205,6 +235,9 @@ const AppointmentPage = () => {
   const isMobile = window.innerWidth < 600;
   return (
     <ListWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="patientList-title-wrapper">
         <Typography className="patientList-heading">
           Appointment List
