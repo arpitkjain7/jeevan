@@ -12,6 +12,12 @@ from core.apis.schemas.requests.hid_request import (
     MobileNumber,
     AbhaAuth,
     AbhaAuthConfirm,
+    OTPVerificationV3,
+    abhaAddressCreation,
+    UpdateAbhaDetailsVerifyOTP,
+    UpdateAbhaDetails,
+    RetrieveAbhaGenerateOTP,
+    RetrieveAbhaVerifyOTP,
 )
 from core.controllers.hid_controller import HIDController
 from core import logger
@@ -164,6 +170,350 @@ def aadhaar_abhaRegistration(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/HID/aadhaar/abhaRegistration endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/generateOTP")
+def aadhaar_generateOTP_v3(request: AadhaarNumber, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v3/HID/registration/aadhaar/generateOTP endpoint")
+        logging.debug(f"Request: {request.aadhaarNumber=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().aadhaar_generateOTP_v3(
+                aadhaar_number=request.aadhaarNumber
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/generateOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/generateOTP endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/verifyOTP")
+def aadhaar_verifyOTP(request: OTPVerificationV3, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v3/HID/registration/aadhaar/verifyOTP endpoint")
+        logging.debug(f"Request: {request.otp=}")
+        logging.debug(f"Request: {request.mobileNumber=}")
+        logging.debug(f"Request: {request.txnId=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().aadhaar_verifyOTP_v3(
+                otp=request.otp,
+                txn_id=request.txnId,
+                mobile_number=request.mobileNumber,
+                hip_id=request.hipId,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/verifyOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/verifyOTP endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.get("/v3/HID/registration/aadhaar/suggestAbha")
+def suggest_abha(transaction_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v3/HID/registration/aadhaar/suggestAbha endpoint")
+        logging.debug(f"Request: {transaction_id=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().suggest_abha(txn_id=transaction_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/suggestAbha endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/suggestAbha endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/aadhaar/createAbhaAddress")
+def aadhaar_verifyOTP(
+    request: abhaAddressCreation, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/registration/aadhaar/createAbhaAddress endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().create_abha_address(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/createAbhaAddress endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/createAbhaAddress endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/updateProfileDetails/generateOTP")
+def updateAbhaDetails_generateOTP(
+    request: UpdateAbhaDetails, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(
+            f"Calling /v3/HID/registration/updateProfileDetails/generateOTP endpoint"
+        )
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().abha_details_update(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/updateProfileDetails/generateOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/updateProfileDetails/generateOTP endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/registration/updateProfileDetails/verifyOTP")
+def updateAbhaDetails_verifyOTP(
+    request: UpdateAbhaDetailsVerifyOTP, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(
+            f"Calling /v3/HID/registration/updateProfileDetails/verifyOTP endpoint"
+        )
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().abha_details_update_verifyOTP(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/registration/updateProfileDetails/verifyOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v3/HID/registration/aadhaar/verifyOTP endpoint: {error}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/retrieveAbha/generateOTP")
+def retrieveAbha_generateOTP(
+    request: RetrieveAbhaGenerateOTP, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/generateOTP endpoint")
+        logging.debug(f"Request: {request=}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/retrieveAbha/generateOTP endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/generateOTP endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/retrieveAbha/verifyOTP")
+def retrieveAbha_verifyOTP(
+    request: RetrieveAbhaVerifyOTP, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/verifyOTP endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha_verifyOTP(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/HID/retrieveAbha/verifyOTP endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/verifyOTP endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.post("/v3/HID/retrieveAbha/getProfile")
+def retrieveAbha_getProfile(
+    txnId: str, createRecord: bool, hip_id: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/getProfile endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha_getProfile(
+                txn_id=txnId, create_record=createRecord, hip_id=hip_id
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/HID/retrieveAbha/getProfile endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/getProfile endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.get("/v3/HID/retrieveAbha/getQRCode")
+def retrieveAbha_getQRCode(
+    txnId: str, patient_id: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/getQRCode endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha_getQRCode(
+                txn_id=txnId, patient_id=patient_id
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/HID/retrieveAbha/getQRCode endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/getQRCode endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hid_router.get("/v3/HID/retrieveAbha/getAbhaCard")
+def retrieveAbha_getQRCode(
+    txnId: str, patient_id: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v3/HID/retrieveAbha/getAbhaCard endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return HIDController().retrieve_abha_getAbhaCard(
+                txn_id=txnId, patient_id=patient_id
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v3/HID/retrieveAbha/getAbhaCard endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/HID/retrieveAbha/getAbhaCard endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

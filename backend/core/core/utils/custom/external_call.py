@@ -12,7 +12,7 @@ class APIInterface:
         try:
             url = route
             logging.info("POST request sent")
-            logging.debug(f"url = {url}, data = {data}")
+            logging.debug(f"url = {url}, data = {data}, headers={headers}")
             response = requests.post(url, data=data, json=json, headers=headers)
             # if response.status_code >= 400:
             #     raise Exception(
@@ -23,7 +23,7 @@ class APIInterface:
                 f"response.text = {response.text}, response.status_code = {response.status_code}"
             )
             if response.text:
-                return json.loads(response.text), response.status_code
+                return response.json(), response.status_code
             return None, response.status_code
         except Exception as error:
             logging.error(f"Error in POST API request: {error}")
@@ -33,7 +33,7 @@ class APIInterface:
     def post_v1(route, data=None, json=None, headers=None):
         try:
             url = route
-            logging.info("POST request sent")
+            logging.info("POST V1 request sent")
             logging.debug(f"url = {url}, data = {data}")
             response = requests.post(url, data=data, json=json, headers=headers)
             logging.debug(

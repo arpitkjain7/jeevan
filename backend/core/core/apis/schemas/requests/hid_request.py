@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from datetime import date
+from enum import Enum
 
 
 class AbhaRegistration(BaseModel):
@@ -16,6 +17,19 @@ class AbhaRegistration(BaseModel):
 
 class OTPVerification(BaseModel):
     otp: str
+    txnId: str
+
+
+class OTPVerificationV3(BaseModel):
+    otp: str
+    mobileNumber: str
+    txnId: str
+    hipId: str
+
+
+class abhaAddressCreation(BaseModel):
+    abhaAddress: str
+    abhaNumber: str
     txnId: str
 
 
@@ -63,3 +77,39 @@ class MobileNumber(BaseModel):
 
 class PatientData(BaseModel):
     patientId: str
+
+
+class AbhaDetailsUpdateMode(str, Enum):
+    mobile = "mobile"
+    email = "email"
+    aadhaar = "aadhaar"
+
+
+class UpdateAbhaDetails(BaseModel):
+    txnId: str
+    mode: AbhaDetailsUpdateMode
+    mobile: str = None
+    email: str = None
+
+
+class UpdateAbhaDetailsVerifyOTP(BaseModel):
+    txnId: str
+    mode: AbhaDetailsUpdateMode
+    otp: str
+
+
+class RetrieveAbhaMode(str, Enum):
+    mobile = "mobile"
+    aadhaar = "aadhaar"
+
+
+class RetrieveAbhaGenerateOTP(BaseModel):
+    mode: AbhaDetailsUpdateMode
+    mobile: str = None
+    aadhaar: str = None
+
+
+class RetrieveAbhaVerifyOTP(BaseModel):
+    txnId: str
+    mode: AbhaDetailsUpdateMode
+    otp: str
