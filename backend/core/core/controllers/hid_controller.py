@@ -395,8 +395,8 @@ class HIDController:
                 f"{self.abha_url_v3}/v3/enrollment/enrol/abha-address"
             )
             payload = {
-                "txnId": request_json.get("txn_id"),
-                "abhaAddress": request_json.get("abha_address"),
+                "txnId": request_json.get("txnId"),
+                "abhaAddress": request_json.get("abhaAddress"),
                 "preferred": 1,  # this we need to understnd and update accordingly
             }
             current_time = datetime.now()
