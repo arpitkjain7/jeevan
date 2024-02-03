@@ -120,7 +120,7 @@ const SyncAbha = ({
     dispatch(syncPMR(payload)).then((res) => {
       handleModalClose();
       sessionStorage.removeItem("pmrId");
-      navigate("/appointment-list");
+      // navigate("/appointment-list");
     });
   };
   return (
@@ -132,7 +132,7 @@ const SyncAbha = ({
     >
       <StyledModalBox>
         <PageTitle>Sync ABHA</PageTitle>
-        <FormControl component="fieldset">
+        {/* <FormControl component="fieldset">
           <PageSubText>Select an authentication method</PageSubText>
           <RadioGroup
             row
@@ -157,7 +157,7 @@ const SyncAbha = ({
         </FormControl>
         <OTPWrapper>
           {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
-        </OTPWrapper>
+        </OTPWrapper> */}
         <ModalFooter>
           <SecondaryButton onClick={clearData}>Clear</SecondaryButton>
           <PrimaryButton onClick={onSync}>Sync PMR</PrimaryButton>

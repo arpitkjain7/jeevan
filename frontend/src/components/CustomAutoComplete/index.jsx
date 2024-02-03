@@ -13,7 +13,7 @@ const CustomAutoComplete = ({
 }) => {
   return (
     <Autocomplete
-      // freeSolo
+      freeSolo
       // ref={autocompleteRef}
       options={options}
       getOptionLabel={(option) => option?.label}

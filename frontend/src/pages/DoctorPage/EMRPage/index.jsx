@@ -6,11 +6,9 @@ import {
   styled,
   TextField,
   Grid,
-  filledInputClasses,
   Autocomplete,
   Modal,
   Box,
-  AppBar,
   Toolbar,
   IconButton,
 } from "@mui/material";
@@ -26,24 +24,17 @@ import {
   searchVitalsDetails,
 } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
-import { Button } from "@mui/base";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
-import SyncAbha from "../SyncAbha";
 import { calculateBMI, convertDateFormat } from "../../../utils/utils";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomizedDialogs from "../../../components/Dialog";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
-import dayjs from "dayjs";
 import CustomLoader from "../../../components/CustomLoader";
-import { MobileDatePicker } from "@mui/x-date-pickers";
 import { format } from "date-fns";
+import SendPMR from "../SendPMR";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -242,9 +233,9 @@ const RecordLayout = styled("div")(({ theme }) => ({
     justifyContent: "center",
     alignItems: "center",
   },
-  "&.addMaxWidth": {
+  "&.addMinWidth": {
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "110px",
+      minWidth: "90px",
     },
   },
 }));
@@ -261,12 +252,12 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
       display: "none",
     },
     "&.frequencyInput": {
-      maxWidth: "95px",
+      minWidth: "90px",
     },
   },
-  "&.addMaxWidth": {
+  "&.addMinWidth": {
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "95px",
+      minWidth: "90px",
       ".MuiOutlinedInput-root": {
         padding: "6px",
       },
@@ -393,7 +384,7 @@ function useWindowDimensions() {
   return windowDimensions;
 }
 
-const PatientEMRDetails = () => {
+const PatientEMRDetails = (props) => {
   const { height, width } = useWindowDimensions();
   const [existingConditionsOpts, setExistingConditionOpts] = useState([]);
   const [symptomsOpts, setSymptomsOpts] = useState([]);
@@ -430,8 +421,6 @@ const PatientEMRDetails = () => {
   const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
-  const [showSync, setShowSync] = useState(false);
-  const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [number, setNumber] = useState("");
   const [symptomNumber, setSymptomNumber] = useState("");
   const [medicalHistoryNumber, setMedicalHistoryNumber] = useState("");
@@ -448,6 +437,8 @@ const PatientEMRDetails = () => {
   const [examinationFindingOptions, setExaminationFindingOptions] = useState("");
   const [medicationOptions, setMedicationOptions] = useState("");
   const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
+  const [notifyModal, setNotifyModal] = useState(false);
+  const [documentId, setDocumentId] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -461,7 +452,7 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
-  const [followUp, setFollowUp] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
+  const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   
   useEffect(() => {
@@ -1293,8 +1284,6 @@ const PatientEMRDetails = () => {
         inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
       } else 
       inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
-    } else {
-      inputValue = newValue
     }
     setMedicationsSpecs({
       ...medicationsSpecs,
@@ -1631,12 +1620,12 @@ const PatientEMRDetails = () => {
 
     return pdfFile;
   };
-
-  const handleModalClose = () => {
-    setShowSync(false);
+  const handleNotifyModalClose = () => {
+    setNotifyModal(false);
   };
 
   const postPMR = async () => {
+    setShowLoader(true);
     const pmr_request = pdfData;
     pmr_request["pmr_id"] = emrId;
     pmr_request["advice"] = advices;
@@ -1648,7 +1637,7 @@ const PatientEMRDetails = () => {
     };
     const current_patient = JSON.parse(patient);
     let appointment_request;
-    if (followUp !== null) {
+    if (followUp) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -1666,40 +1655,35 @@ const PatientEMRDetails = () => {
     };
     const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload }))
-      .then(
+      .then((pdfResponse) => {
         dispatch(postEMR(allData))
           .then((res) => {
+            setShowLoader(false);
             if (res.meta.requestStatus === "rejected") {
               setPmrDialogOpen(true);
             } else {
-              if (
-                !(
-                  currentPatient?.patient_details?.abha_number &&
-                  currentPatient?.patient_details?.abha_number !== ""
-                )
-              ) {
-                navigate("/appointment-list");
-                sessionStorage.removeItem("pmrID");
-              }
+              setDocumentId(pdfResponse?.payload?.data[0]?.document_id);
+              setNotifyModal(true);
             }
           })
           .catch((error) => {
             console.log(error);
           })
+        }
       )
       .catch((error) => {
         console.log(error);
       });
-    const currentPatient = JSON.parse(
-      sessionStorage.getItem("selectedPatient")
-    );
-    if (
-      userRole === "ADMIN" &&
-      currentPatient?.patient_details?.abha_number &&
-      currentPatient?.patient_details?.abha_number !== ""
-    ) {
-      setShowSync(true);
-    }
+    // const currentPatient = JSON.parse(
+    //   sessionStorage.getItem("selectedPatient")
+    // );
+    // if (
+    //   userRole === "ADMIN" &&
+    //   currentPatient?.patient_details?.abha_number &&
+    //   currentPatient?.patient_details?.abha_number !== ""
+    // ) {
+    //   setShowSync(true);
+    // }
   };
 
   const filterVitals = (vitalsArr) => {
@@ -1805,7 +1789,7 @@ const PatientEMRDetails = () => {
     const pdfFormattedData = submitEMRPayload;
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
-    if(followUp !== null){
+    if(followUp){
       pdfFormattedData["followup"] = followUp;
     }
     setPdfData(pdfFormattedData);
@@ -1919,7 +1903,7 @@ const PatientEMRDetails = () => {
 
     let appointment_request;
     const current_patient = JSON.parse(patient);
-    if (followUp !== null) {
+    if (followUp) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -2331,7 +2315,7 @@ const PatientEMRDetails = () => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   className="sinceAutocomplete"
                                   options={generateSymptomsOptions(
@@ -2469,12 +2453,12 @@ const PatientEMRDetails = () => {
                           .reverse()
                           .map((item) => (
                             <FieldSpecsContainer>
-                              <RecordLayout className="addMaxWidth">
+                              <RecordLayout className="addMinWidth">
                                 <SelectedRecord>
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 {/* <RecordTextField
                               placeholder="Since"
                               value={optionTextValues[item?.label]?.since || ""}
@@ -2510,7 +2494,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={relationshipOptions}
                                   value={
@@ -2754,12 +2738,12 @@ const PatientEMRDetails = () => {
                           .reverse()
                           .map((item) => (
                             <FieldSpecsContainer>
-                              <RecordLayout className="addMaxWidth">
+                              <RecordLayout className="addMinWidth">
                                 <SelectedRecord>
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={diagnosisStatusOpts}
                                   value={diagnosisSpecs[item?.label]?.since || ""}
@@ -2779,7 +2763,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={diagnosisTypeOpts}
                                   value={
@@ -3032,7 +3016,7 @@ const PatientEMRDetails = () => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "60px" }}>
+                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "90px" }}>
                                 <RecordTextField
                                   placeholder="Frequency"
                                   value={
@@ -3071,7 +3055,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={generateDoseOptions(dose, item)}
                                   value={
@@ -3097,7 +3081,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={generateOptions(number, item)}
                                   value={
@@ -3140,7 +3124,7 @@ const PatientEMRDetails = () => {
                                   variant="outlined"
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="mobileTextBoxLayout addMaxWidth">
+                              <TextBoxLayout className="mobileTextBoxLayout addMinWidth">
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
                                   value={
@@ -3340,12 +3324,11 @@ const PatientEMRDetails = () => {
           <PageSubText>
             Closely Review the Details Before Confirming
           </PageSubText> */}
-          <SyncAbha
-            showSync={showSync}
-            handleModalClose={handleModalClose}
-            setSelectedAuthOption={setSelectedAuthOption}
-            selectedAuthOption={selectedAuthOption}
-          />
+          <SendPMR
+            notifyModal={notifyModal}
+            handleNotifyModalClose={handleNotifyModalClose}
+            documentId={documentId}
+          />          
           {!isMobile && (
             <div style={{ position: "absolute", width: "-webkit-fill-available"}}>
               <PDFViewerWrapper>
