@@ -29,7 +29,6 @@ class OTPVerificationV3(BaseModel):
 
 class abhaAddressCreation(BaseModel):
     abhaAddress: str
-    abhaNumber: str
     txnId: str
 
 

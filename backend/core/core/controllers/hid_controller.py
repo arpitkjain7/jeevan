@@ -387,6 +387,7 @@ class HIDController:
         try:
             logging.info("executing  create_abha_address function")
             request_json = request.dict()
+            logging.info(f"{request_json=}")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
