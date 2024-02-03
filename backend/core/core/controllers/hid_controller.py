@@ -1705,6 +1705,65 @@ class HIDController:
                 f"Error in HIDController.retrieve_abha_verifyOTP function: {error}"
             )
 
+    def retrieve_abha_verifyUser(self, request):
+        try:
+            logging.info("executing  retrieve_abha_verifyUser function")
+            request_dict = request.dict()
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            retrieve_abha_verify_user_url = (
+                f"{self.abha_url_v3}/v3/profile/login/verify/user"
+            )
+            current_time = datetime.now()
+            timestamp = (
+                current_time.strftime("%Y-%m-%dT%H:%M:%S.")
+                + str(current_time.microsecond)[:3]
+                + "Z"
+            )
+            payload = {
+                "ABHANumber": request_dict.get("abhaNumber"),
+                "txnId": request_dict.get("txnId"),
+            }
+            resp, resp_code = APIInterface().post(
+                route=retrieve_abha_verify_user_url,
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "TIMESTAMP": timestamp,
+                    'T-Token': f'Bearer {request_dict.get("token")}'}
+            )
+            if resp_code <= 250:
+                gateway_request = {
+                    "request_id": request.txnId,
+                    "request_type": "RETRIEVE_ABHA_USER_VERIFICATION",
+                    "request_status": "COMPLETED",
+                    "transaction_id": request.txnId,
+                    "gateway_metadata": resp,
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                return resp
+            else:
+                gateway_request = {
+                    "request_id": request.txnId,
+                    "request_type": "RETRIEVE_ABHA_USER_VERIFICATION",
+                    "request_status": "FAILED",
+                    "error_message": resp["message"],
+                    "error_code": resp["code"],
+                }
+                self.CRUDGatewayInteraction.update(**gateway_request)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=gateway_request,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except Exception as error:
+            logging.error(
+                f"Error in HIDController.retrieve_abha_verifyUser function: {error}"
+            )
+
     def retrieve_abha_getProfile(self, create_record: bool, txn_id: str, hip_id: str):
         try:
             logging.info("executing  retrieve_abha_getProfile function")
