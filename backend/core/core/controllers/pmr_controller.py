@@ -1345,3 +1345,67 @@ class PMRController:
         except Exception as error:
             logging.error(f"Error in PMRController.send_notification function: {error}")
             raise error
+
+    def send_notification_by_documentId(self, request):
+        try:
+            logging.info(
+                "executing  PMRController.send_notification_by_documentId function"
+            )
+            request = request.dict()
+            logging.info(f"{request=}")
+            channel = request.get("channel").value
+            logging.info(f"{channel=}")
+            alternate_mobile_number = request.get("mobile_number", None)
+            pmr_id = request.get("pmr_id")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            logging.info(f"{pmr_obj=}")
+            hip_id = pmr_obj.get("hip_id")
+            date_of_consultation = pmr_obj.get("date_of_consultation")
+            patient_id = pmr_obj.get("patient_id")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            patient_name = patient_obj.get("name")
+            hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
+            logging.info(f"{hip_obj=}")
+            document_id = request.get("document_id", None)
+            document_obj = self.CRUDPatientMedicalDocuments.read(
+                document_id=document_id
+            )
+            if alternate_mobile_number:
+                mobile_number = alternate_mobile_number
+            document_details_obj = self.get_document(
+                document_id=document_obj.get("id"), expires_in=604800
+            )
+            document_url = document_details_obj.get("document_url")
+            if channel == "whatsapp":
+                opt_in_response, opt_in_status_code = whatsappHelper().optin_user(
+                    mobile_number=mobile_number
+                )
+                logging.info(f"{opt_in_response=} | {opt_in_status_code=}")
+                (
+                    send_msg_response,
+                    send_msg_status_code,
+                ) = whatsappHelper().send_prescription(
+                    mobile_number=mobile_number,
+                    document_url=document_url,
+                    patient_name=patient_name,
+                    hospital_name=hip_obj.get("name"),
+                    date_of_consultation=date_of_consultation,
+                )
+                logging.info(f"{send_msg_response=} | {send_msg_status_code=}")
+            elif channel == "sms":
+                encoded_url = quote(document_url)
+                double_encoded_url = quote(encoded_url)
+                sms_response, sms_response_code = smsHelper().send_prescription(
+                    mobile_number=mobile_number,
+                    hospital_name=hip_obj.get("name"),
+                    document_url=double_encoded_url,
+                )
+                logging.info(f"{sms_response=} | {sms_response_code=}")
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.send_notification_by_documentId function: {error}"
+            )
+            raise error
