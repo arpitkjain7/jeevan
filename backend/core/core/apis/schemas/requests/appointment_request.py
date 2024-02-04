@@ -25,8 +25,8 @@ class AppointmentType(str, Enum):
 class Create(BaseModel):
     doc_id: int
     patient_id: str
-    appointment_type: AppointmentType
-    encounter_type: EncounterType
+    appointment_type: AppointmentType = None
+    encounter_type: EncounterType = None
     hip_id: str
     appointment_start: str
     appointment_end: str = None
