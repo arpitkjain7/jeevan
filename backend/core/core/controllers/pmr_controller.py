@@ -1180,6 +1180,54 @@ class PMRController:
             logging.error(f"Error in PMRController.upload_document function: {error}")
             raise error
 
+    async def upload_prescription(self, pmr_id, files, mode):
+        try:
+            logging.info("executing upload_prescription function")
+            document_type = f"Prescription_{mode}"
+            document_type_code = "Prescription"
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            pmr_doc_obj = self.CRUDPatientMedicalDocuments.read_by_type(
+                pmr_id=pmr_id, document_type=document_type_code
+            )
+            patient_id = pmr_obj.get("patient_id")
+            uploaded_document_list = []
+            if len(pmr_doc_obj) > 0:
+                pass
+            for document in files:
+                logging.info(f"{document=}")
+                document_name = document.filename
+                document_data = await document.read()
+                document_ext = document_name.split(".")[-1]
+                document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+                # TODO: merge document logic
+            s3_location = upload_to_s3(
+                bucket_name=self.cliniq_bucket,
+                byte_data=document_data,
+                file_name=document_key,
+                content_type="application/pdf",
+            )
+            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+            self.CRUDPatientMedicalDocuments.create(
+                **{
+                    "id": document_id,
+                    "pmr_id": pmr_id,
+                    "document_name": document_name,
+                    "document_mime_type": self.mime_type_mapping.get(document_ext),
+                    "document_type": document_type,
+                    "document_type_code": document_type_code,
+                    "document_location": s3_location,
+                }
+            )
+            uploaded_document_list.append(
+                {"document_id": document_id, "status": "success"}
+            )
+            return uploaded_document_list
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.upload_prescription function: {error}"
+            )
+            raise error
+
     def list_documents(self, pmr_id):
         try:
             logging.info("executing list_documents function")
