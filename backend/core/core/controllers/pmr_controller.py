@@ -19,6 +19,7 @@ from core.utils.fhir.op_consult import opConsultUnstructured
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url, read_object
 from core.utils.custom.session_helper import get_session_token
 from core.utils.custom.gupshup_helper import whatsappHelper
+from core.utils.custom.prescription_helper import create_pdf_from_images
 from core.utils.custom.msg91_helper import smsHelper
 from core import logger
 from datetime import datetime, timezone
@@ -1190,38 +1191,49 @@ class PMRController:
                 pmr_id=pmr_id, document_type=document_type_code
             )
             patient_id = pmr_obj.get("patient_id")
+            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/test.pdf"
             uploaded_document_list = []
             if len(pmr_doc_obj) > 0:
-                pass
-            for document in files:
-                logging.info(f"{document=}")
-                document_name = document.filename
-                document_data = await document.read()
-                document_ext = document_name.split(".")[-1]
-                document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
-                # TODO: merge document logic
-            s3_location = upload_to_s3(
-                bucket_name=self.cliniq_bucket,
-                byte_data=document_data,
-                file_name=document_key,
-                content_type="application/pdf",
-            )
-            document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
-            self.CRUDPatientMedicalDocuments.create(
-                **{
-                    "id": document_id,
-                    "pmr_id": pmr_id,
-                    "document_name": document_name,
-                    "document_mime_type": self.mime_type_mapping.get(document_ext),
-                    "document_type": document_type,
-                    "document_type_code": document_type_code,
-                    "document_location": s3_location,
-                }
-            )
-            uploaded_document_list.append(
-                {"document_id": document_id, "status": "success"}
-            )
-            return uploaded_document_list
+                if mode == "digital":
+                    pass
+                elif mode == "handwritten":
+                    pdf = create_pdf_from_images(files=files)
+                    s3_location = upload_to_s3(
+                        bucket_name=self.cliniq_bucket,
+                        byte_data=pdf,
+                        file_name=document_key,
+                        content_type="application/pdf",
+                    )
+                    logging.info(f"{s3_location=}")
+            # for document in files:
+            #     logging.info(f"{document=}")
+            #     document_name = document.filename
+            #     document_data = await document.read()
+            #     document_ext = document_name.split(".")[-1]
+            #     document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
+            #     # TODO: merge document logic
+            # s3_location = upload_to_s3(
+            #     bucket_name=self.cliniq_bucket,
+            #     byte_data=document_data,
+            #     file_name=document_key,
+            #     content_type="application/pdf",
+            # )
+            # document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+            # self.CRUDPatientMedicalDocuments.create(
+            #     **{
+            #         "id": document_id,
+            #         "pmr_id": pmr_id,
+            #         "document_name": document_name,
+            #         "document_mime_type": self.mime_type_mapping.get(document_ext),
+            #         "document_type": document_type,
+            #         "document_type_code": document_type_code,
+            #         "document_location": s3_location,
+            #     }
+            # )
+            # uploaded_document_list.append(
+            #     {"document_id": document_id, "status": "success"}
+            # )
+            # return uploaded_document_list
         except Exception as error:
             logging.error(
                 f"Error in PMRController.upload_prescription function: {error}"
