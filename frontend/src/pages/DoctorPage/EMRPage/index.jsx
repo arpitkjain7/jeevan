@@ -975,6 +975,9 @@ const PatientEMRDetails = (props) => {
     }, 1000)
   };
 
+  const clearMedicalHistoryOptions = (event) => {
+    setMedicalHistoryOpts([]);
+  }
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
       // setShowMedicalHistory(true);
@@ -1011,7 +1014,9 @@ const PatientEMRDetails = (props) => {
       setExistingCondition([...existingConditions, fieldValue]);
     }
   };
-
+  const clearSymptomsOptions = (event) => {
+    setSymptomsOpts([]);
+  }
   const handleSymptoms = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1042,7 +1047,9 @@ const PatientEMRDetails = (props) => {
   //     setMedicalHistory([...medicalHistory, fieldValue]);
   //   }
   // };
-
+  const clearExaminationFindingOptions = (event) => {
+    setExamFindingsOpts([]);
+  }
   const handleExaminationFindings = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1065,6 +1072,9 @@ const PatientEMRDetails = (props) => {
       setExamFindingsOpts([]);
     }
   };
+  const clearDiagnosisOptions = (event) => {
+    setDiagnosisOpts([]);
+  }
   const handleDiagnosis = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1086,6 +1096,9 @@ const PatientEMRDetails = (props) => {
       setDiagnosisOpts([]);
     }
   };
+  const clearMedicationOptions = (event) => {
+    setMedicationsOpts([]);
+  }
   const handleMedications = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1107,6 +1120,9 @@ const PatientEMRDetails = (props) => {
       setMedicationsOpts([]);
     }
   };
+  const clearLabInvestigationOptions = (event) => {
+    setLabInvestigationsOpts([]);
+  }
   const handleLabInvestigations = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1282,8 +1298,9 @@ const PatientEMRDetails = (props) => {
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
       if (severityValue.length < 3) {
         inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
-      } else 
-      inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
+      } else if (severityValue.length < 6) {
+        inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
+      } else inputValue = ""
     }
     setMedicationsSpecs({
       ...medicationsSpecs,
@@ -2302,6 +2319,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleSymptompsChange}
                       setOptions={setSymptomsOpts}
                       handleOptionChange={handleSymptoms}
+                      handleClearOptions={clearSymptomsOptions}
                     />
                     {symptoms?.length > 0 && (
                       <div>
@@ -2335,13 +2353,12 @@ const PatientEMRDetails = (props) => {
                                     handleSymptomNumberOptions(item, newValue)
                                   }
                                   renderInput={(params) => (
-                                    <div style={{ display: "flex" }}>
                                       <TextField
                                         {...params}
+                                        type="tel"
                                         label="Since"
                                         variant="outlined"
                                       />
-                                    </div>
                                   )}
                                 />
                               </TextBoxLayout>
@@ -2444,6 +2461,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleMeidcalHistoryChange}
                       setOptions={setMedicalHistoryOpts}
                       handleOptionChange={handleMedicalHistoryValue}
+                      handleClearOptions={clearMedicalHistoryOptions}
                       autocompleteRef={medicalHistoryRef}
                     />
                     {medicalHistory?.length > 0 && (
@@ -2614,6 +2632,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleExamFindingsChange}
                       setOptions={setExamFindingsOpts}
                       handleOptionChange={handleExaminationFindings}
+                      handleClearOptions={clearExaminationFindingOptions}
                     />
                     {examFindings?.length > 0 && (
                       <div>
@@ -2730,6 +2749,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleDiagnosisChange}
                       setOptions={setDiagnosisOpts}
                       handleOptionChange={handleDiagnosis}
+                      handleClearOptions={clearDiagnosisOptions}
                     />
                     {diagnosis?.length > 0 && (
                       <div>
@@ -2888,6 +2908,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleLabInvestigationsChange}
                       setOptions={setLabInvestigationsOpts}
                       handleOptionChange={handleLabInvestigations}
+                      handleClearOptions={clearLabInvestigationOptions}
                     />
                     {labInvestigation?.length > 0 && (
                       <div>
@@ -3003,6 +3024,7 @@ const PatientEMRDetails = (props) => {
                       handleInputChange={handleMedicationsChange}
                       setOptions={setMedicationsOpts}
                       handleOptionChange={handleMedications}
+                      handleClearOptions={clearMedicationOptions}
                     />
                     {medications?.length > 0 && (
                       <div>
@@ -3029,6 +3051,7 @@ const PatientEMRDetails = (props) => {
                                       e.target.value
                                     )
                                   }
+                                  inputProps={{maxLength: 5}}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3075,6 +3098,7 @@ const PatientEMRDetails = (props) => {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
+                                      type="tel"
                                       label="Dose"
                                       variant="outlined"
                                     />
@@ -3101,6 +3125,7 @@ const PatientEMRDetails = (props) => {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
+                                      type="tel"
                                       label="Duration"
                                       variant="outlined"
                                     />
@@ -3110,6 +3135,7 @@ const PatientEMRDetails = (props) => {
                               <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
                                 <RecordTextField
                                   placeholder="Frequency"
+                                  type="tel"
                                   value={
                                     medicationsSpecs[item?.label]?.severity || ""
                                   }
