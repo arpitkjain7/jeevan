@@ -1233,7 +1233,7 @@ class PMRController:
             )
             raise error
 
-    async def upload_prescription(self, pmr_id, files, mode):
+    def upload_prescription(self, pmr_id, files, mode):
         try:
             logging.info("executing upload_prescription function")
             document_type = f"Prescription_{mode}"
@@ -1245,11 +1245,14 @@ class PMRController:
             )
             logging.debug(f"{pmr_doc_obj=}")
             patient_id = pmr_obj.get("patient_id")
-            document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_type}.pdf"
+
             if mode == "digital":
-                document_data = await files[0].read()
+                document_data = files[0]
                 if pmr_doc_obj is not None:
                     document_id = pmr_doc_obj.get("id")
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
                     s3_location = upload_to_s3(
                         bucket_name=self.cliniq_bucket,
                         byte_data=document_data,
@@ -1263,6 +1266,9 @@ class PMRController:
                     return {"document_id": document_id}
                 else:
                     document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
                     s3_location = upload_to_s3(
                         bucket_name=self.cliniq_bucket,
                         byte_data=document_data,
@@ -1274,9 +1280,7 @@ class PMRController:
                             "id": document_id,
                             "pmr_id": pmr_id,
                             "document_name": document_type,
-                            "document_mime_type": self.mime_type_mapping.get(
-                                "application/pdf"
-                            ),
+                            "document_mime_type": self.mime_type_mapping.get("pdf"),
                             "document_type": document_type,
                             "document_type_code": document_type_code,
                             "document_location": s3_location,
@@ -1287,12 +1291,15 @@ class PMRController:
             elif mode == "handwritten":
                 if pmr_doc_obj is not None:
                     document_id = pmr_doc_obj.get("id")
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
                     pdf1_data = self.get_document_bytes(document_id=document_id)
                     logging.info("1")
                     pdf1_bytes_str = pdf1_data["data"]
                     pdf1_bytes = base64.b64decode(pdf1_bytes_str)
                     logging.info(f"{type(pdf1_bytes)}")
-                    pdf = await merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
+                    pdf =  merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
                     s3_location = upload_to_s3(
                         bucket_name=self.cliniq_bucket,
                         byte_data=pdf,
@@ -1302,8 +1309,11 @@ class PMRController:
                     logging.info(f"{s3_location=}")
                     return {"document_id": document_id}
                 else:
-                    pdf = await create_pdf_from_images(files=files)
+                    pdf =  create_pdf_from_images(files=files)
                     document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
                     s3_location = upload_to_s3(
                         bucket_name=self.cliniq_bucket,
                         byte_data=pdf,
@@ -1315,9 +1325,7 @@ class PMRController:
                             "id": document_id,
                             "pmr_id": pmr_id,
                             "document_name": document_type,
-                            "document_mime_type": self.mime_type_mapping.get(
-                                "application/pdf"
-                            ),
+                            "document_mime_type": self.mime_type_mapping.get("pdf"),
                             "document_type": document_type,
                             "document_type_code": document_type_code,
                             "document_location": s3_location,

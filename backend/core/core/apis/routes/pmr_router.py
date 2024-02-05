@@ -954,8 +954,11 @@ async def uploadPrescription(
         logging.info("Calling /v1/PMR/uploadPrescription endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return await PMRController().upload_prescription(
-                pmr_id=pmr_id, mode=mode.value, files=files
+            file_bytes = []
+            for file in files:
+                file_bytes.append(await file.read())
+            return PMRController().upload_prescription(
+                pmr_id=pmr_id, mode=mode.value, files =file_bytes
             )
         else:
             raise HTTPException(

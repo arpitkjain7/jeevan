@@ -15,16 +15,15 @@ logging = logger(__name__)
 s3_location = os.environ["s3_location"]
 
 
-async def create_pdf_from_images(
+def create_pdf_from_images(
     files,
 ):
     try:
         logging.info("executing create_pdf_from_images function")
         images = []
         for document in files:
-            logging.info(f"{document=}")
-            document_data = await document.read()
-            image = Image.open(BytesIO(document_data))
+            # logging.info(f"{document=}")
+            image = Image.open(BytesIO(document))
             images.append(image)
         pdf_buffer = io.BytesIO()
         images[0].save(
@@ -37,13 +36,13 @@ async def create_pdf_from_images(
         raise error
 
 
-async def merge_pdf(
+def merge_pdf(
     pdf1_bytes,
     files,
 ):
     try:
         logging.info("executing merge_pdf function")
-        pdf2_bytes = await create_pdf_from_images(files=files)
+        pdf2_bytes = create_pdf_from_images(files=files)
         #  logging.debug(f"{pdf2_bytes}")
         merger = PdfMerger()
         pdf1 = PdfReader(io.BytesIO(pdf1_bytes))
