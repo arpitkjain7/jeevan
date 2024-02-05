@@ -7,6 +7,7 @@ from core.apis.schemas.requests.patient_request import (
     VerifyDemographic,
     RegisterWithoutABHA,
     UpdatePatient,
+    RegisterPatientV3,
 )
 from core.apis.schemas.requests.vital_request import Read, VitalType
 from core.controllers.patient_controller import PatientController
@@ -341,6 +342,39 @@ def register_patient(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/patient/register endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/register")
+def register_patient_v3(
+    register_patient_request: RegisterPatientV3, token: str = Depends(oauth2_scheme)
+):
+    """[API router to register new patient into the system]
+    Args:
+        register_patient_request (Register): [New user details]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v3/patient/register endpoint")
+        logging.debug(f"Request: {register_patient_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().register_patient_v3_controller(
+                register_patient_request
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/register endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/register endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

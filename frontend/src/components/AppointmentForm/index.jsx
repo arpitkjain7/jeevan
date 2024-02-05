@@ -23,6 +23,7 @@ import {
   visitType,
 } from "./constant";
 import { ScheduleAppointmentActions } from "../ScheduleAppointment/scheduleAppointment.slice";
+import CustomLoader from "../CustomLoader";
 
 const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   "&": {},
@@ -100,6 +101,7 @@ function AppointmentForm(props) {
   const dispatch = useDispatch();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
+  const [showLoader, setShowLoader] = useState(false);
   // const dataState = useSelector((state) => state);
   const selectedPatient = JSON.parse(
     sessionStorage?.getItem("selectedPatient")
@@ -129,6 +131,7 @@ function AppointmentForm(props) {
   };
 
   useEffect(() => {
+    setShowLoader(true);
     let currentHospital = {};
 
     if (hospital) {
@@ -138,6 +141,7 @@ function AppointmentForm(props) {
       };
 
       dispatch(fetchDoctorList(payload)).then((res) => {
+        setShowLoader(false);
         const doctorData = res.payload;
         let drList = [];
         doctorData?.map((item) => {
@@ -174,6 +178,7 @@ function AppointmentForm(props) {
   };
 
   const handleSubmit = () => {
+    setShowLoader(true);
     sessionStorage.setItem("appointment_doctor_id", doctorName);
     const data = {
       doctorId: doctorName,
@@ -183,12 +188,16 @@ function AppointmentForm(props) {
       billingType: billingTypeValue,
     };
     dispatch(ScheduleAppointmentActions.setAppointmentDetails(data));
+    setShowLoader(false);
     props?.setTab(1);
     props?.setCompleted(true);
   };
 
   return (
     <AppointmentFormWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <StyledCard>
         <CardContent>
           <Grid container>

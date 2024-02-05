@@ -35,6 +35,14 @@ import dayjs from "dayjs";
 const isMobile = window.innerWidth < 600;
 const SlotWrapper = styled("div")(({ theme }) => ({
   "&": {},
+  "& .cardContentStyle": {
+  [theme.breakpoints.up("sm")]: {
+    minHeight: "350px",
+  }
+  },
+  ".datepickerInputStyle .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+      border: `2px solid ${theme.palette.secondaryBlue}`,
+    },
   ".slot-card": {},
   ".slots-btn": {
     "&.MuiButtonBase-root": {
@@ -75,7 +83,7 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     [theme.breakpoints.down("sm")]: {
       gap: "12px",
       maxHeight: "350px",
-      overflow: "scroll",
+      overflowX: "scroll",
     },
   },
   ".submit-btn": {
@@ -83,6 +91,17 @@ const SlotWrapper = styled("div")(({ theme }) => ({
     float: "right",
     marginTop: theme.spacing(8),
     width: "10%",
+    marginBottom: "8px",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: "20px",
+      width: "28%",
+    }
+  },
+  ".btn-wrapper": {
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
+      justifyContent: "center",
+    }
   },
   ".btn-date-typography": {
     width: "min-content",
@@ -108,7 +127,7 @@ const StyledCard = styled(Card)({
 
 const DateButton = styled("button")(({ theme }) => ({
   "&": theme.typography.body1,
-  width: "auto",
+  width: "180px",
   border: `1px solid ${theme.palette.primaryGrey}`,
   padding: theme.spacing(2, 4),
   borderRadius: theme.spacing(1),
@@ -137,8 +156,9 @@ const BookingSlots = () => {
   const [todaySlots, setTodaySlots] = useState([]);
   const [dates, setDates] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
+  const [appointmentDate, setAppointmentDate] = useState(false);
   const [appointmentcompleted, setAppointmentCompleted] = useState(false);
-
+  const [cleared, setCleared] = useState(false);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const hospital = sessionStorage?.getItem("selectedHospital");
 
@@ -225,7 +245,8 @@ const BookingSlots = () => {
   }, []);
 
   const isWeekend = (date) => {
-    const day = convertDateFormat(date, "MM/dd/yyyy");
+    const day = convertDateFormat(date, "dd/MM/yyyy");
+    const dayFormat = convertDateFormat(date, "MM/dd/yyyy");
     const week = [];
     const currentDate = new Date();
     for (let i = 0; i < 7; i++) {
@@ -237,7 +258,7 @@ const BookingSlots = () => {
       week.push(date);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    return week.includes(day);
+    return week.includes(day || dayFormat);
   };
 
   const generateTimeSlots = (startTime, endTime, duration) => {
@@ -269,7 +290,7 @@ const BookingSlots = () => {
         ...allTimeSlots,
         `${slotStart}-${slotEnd}`,
       ]);
-      const slot = `${meridiemSlotStart}-${meridiemSlotEnd}`;
+      const slot = `${slotStart}-${slotEnd}`;
       generatedSlots.push(slot);
     }
 
@@ -302,6 +323,18 @@ const BookingSlots = () => {
 
     return `${datePart} ${formattedTime}`;
   }
+
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setAppointmentDate(false);
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
 
   useEffect(() => {
     let filledSlots = [];
@@ -340,16 +373,51 @@ const BookingSlots = () => {
           endTime,
           duration
         );
-        setTodaySlots(removeBookedSlots(todayTimeSlots, slotsBooked));
+        const todayRemovedBookedSlots = removeBookedSlots(todayTimeSlots, slotsBooked);
+        const todayFinalSlots = todayRemovedBookedSlots.map(item => {
+          return convertTimeSlot(item)
+        })
+        setTodaySlots(todayFinalSlots);
       }
       const timeSlots = generateTimeSlots(startTime, endTime, duration);
-      setSlots(removeBookedSlots(timeSlots, slotsBooked));
+      const removedBookedSlots = removeBookedSlots(timeSlots, slotsBooked);
+      const finalSlots = removedBookedSlots.map(item => {
+        return convertTimeSlot(item)
+      })
+      setSlots(finalSlots);
     }
   }, [doctorDetails]);
 
   const submitAppointment = () => {
     const timeRange = selectedSlot;
-    const [startTime, endTime] = timeRange.split("-");
+    const [startTime, endTime] = timeRange.split(" - ");
+    console.log(startTime, endTime);
+    let startTime24hour;
+    let endTime24hour;
+    if(startTime){
+      var startTimeHour = Number(startTime.match(/^(\d+)/)[1]);
+      var startTimeMinutes = Number(startTime.match(/:(\d+)/)[1]);
+      var meridiem = startTime.slice(-2);
+      if(meridiem === "PM" && startTimeHour < 12) startTimeHour = startTimeHour + 12;
+      else if(meridiem === "AM" && startTimeHour === 12) startTimeHour = startTimeHour-12;
+      var sHours = startTimeHour.toString();
+      var sMinutes = startTimeMinutes.toString();
+      if(startTimeHour<10) sHours = "0" + sHours;
+      if(startTimeMinutes<10) sMinutes = "0" + sMinutes;
+        startTime24hour = sHours + ":" + sMinutes;
+    }
+    if(endTime){
+      var endTimeHour = Number(endTime.match(/^(\d+)/)[1]);
+      var endTimeMinutes = Number(endTime.match(/:(\d+)/)[1]);
+      var meridiem = endTime.slice(-2);
+      if(meridiem === "PM" && endTimeHour < 12) endTimeHour = endTimeHour + 12;
+      else if(meridiem === "AM" && endTimeHour === 12) endTimeHour = endTimeHour-12;
+      var sHours = endTimeHour.toString();
+      var sMinutes = endTimeMinutes.toString();
+      if(endTimeHour<10) sHours = "0" + sHours;
+      if(endTimeMinutes<10) sMinutes = "0" + sMinutes;
+      endTime24hour = sHours + ":" + sMinutes;
+    }
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
@@ -361,10 +429,10 @@ const BookingSlots = () => {
         encounter_type: appointmentDetails?.encounterType,
         hip_id: currentHospital?.hip_id,
         appointment_start: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime24hour
         ),
         appointment_end: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime
+          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
@@ -404,13 +472,19 @@ const BookingSlots = () => {
       {!appointmentcompleted ? (
         <SlotWrapper>
           <StyledCard>
-            <CardContent sx={{ minHeight: "350px" }}>
+            <CardContent className="cardContentStyle">
               {isMobile && (
                 <>
                   <Typography>Select Date</Typography>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={["DatePicker"]}>
                       <DesktopDatePicker
+                        slotProps={{
+                          field: { clearable: true, onClear: () => setCleared(true) },
+                          actionBar: {
+                            actions: ['clear'],
+                          },
+                        }}
                         disablePast
                         defaultValue={dayjs(today)}
                         onChange={(newValue) =>
@@ -428,7 +502,10 @@ const BookingSlots = () => {
                       <Button
                         key={index}
                         color="primary"
-                        onClick={() => handleDateSelect(formatDate(date))}
+                        onClick={() => {
+                          setAppointmentDate(false);
+                          handleDateSelect(formatDate(date))
+                        }}
                         className={
                           selectedDate === formatDate(date)
                             ? "selected-date-btn"
@@ -452,11 +529,21 @@ const BookingSlots = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
                         <DesktopDatePicker
+                          slotProps={{
+                            field: { clearable: true, onClear: () => setCleared(true) },
+                            actionBar: {
+                              actions: ['clear'],
+                            },
+                          }}
                           sx={{ padding: "10px" }}
                           disablePast
                           shouldDisableDate={isWeekend}
-                          onChange={(newValue) =>
+                          onChange={(newValue) => {
+                            setAppointmentDate(true)
                             handleDateSelect(newValue)
+                          }}
+                          className={
+                            appointmentDate ? "datepickerInputStyle" : ""
                           }
                         />
                       </DemoContainer>
@@ -470,7 +557,7 @@ const BookingSlots = () => {
                 {selectedDate &&
                   (selectedDate != current_date ? (
                     <div className="slots-container">
-                      {slots?.map((slot) => (
+                      {slots.length > 0 ? slots.map((slot) => (
                         <DateButton
                           key={slot}
                           color="primary"
@@ -481,11 +568,11 @@ const BookingSlots = () => {
                         >
                           {slot}
                         </DateButton>
-                      ))}
+                      )) : <h4>No slots available</h4>}
                     </div>
                   ) : (
                     <div className="slots-container">
-                      {todaySlots?.map((todayslot) => (
+                      {todaySlots.length > 0 ? todaySlots?.map((todayslot) => (
                         <DateButton
                           key={todayslot}
                           color="primary"
@@ -496,7 +583,7 @@ const BookingSlots = () => {
                         >
                           {todayslot}
                         </DateButton>
-                      ))}
+                      )) : <h4>No slots available</h4>}
                     </div>
                   ))}
               </Grid>

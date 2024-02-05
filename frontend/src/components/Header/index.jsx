@@ -20,7 +20,7 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "20px 32px",
+    padding: "10px 32px",
     zIndex: "9999",
     [theme.breakpoints.down('sm')]: {
      padding: "10px 0"
