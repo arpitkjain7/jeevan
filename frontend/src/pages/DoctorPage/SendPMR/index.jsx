@@ -39,7 +39,6 @@ const SendPMR= ({
 
   const handleModalClose = () => {
     setShowSync(false);
-    navigate("/appointment-list");
   };
 
   const onSubmit = () => {

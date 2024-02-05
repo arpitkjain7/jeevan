@@ -13,7 +13,7 @@ const tableStyle = {
 
 const ListWrapper = styled("div")(({ theme }) => ({
   "&": {
-    padding: "40px 10px 10px",
+    padding: "20px 10px 10px",
     [theme.breakpoints.down('sm')]: {
       padding: "10px",
     }
