@@ -1293,6 +1293,7 @@ const PatientEMRDetails = (props) => {
     });
   };
   const handleMedicationsTextChange = (option, textField, newValue) => {
+    console.log(option, textField, newValue);
     let inputValue;
     if(textField === "severity"){
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
@@ -1301,7 +1302,7 @@ const PatientEMRDetails = (props) => {
       } else if (severityValue.length < 6) {
         inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
       } else inputValue = ""
-    }
+    } else inputValue = newValue;
     setMedicationsSpecs({
       ...medicationsSpecs,
       [option?.label]: {
@@ -1938,15 +1939,15 @@ const PatientEMRDetails = (props) => {
     };
 
     dispatch(postEMR(allData)).then((res) => {
-      if (
-        !(
-          currentPatient?.patient_details?.abha_number &&
-          currentPatient?.patient_details?.abha_number !== ""
-        )
-      ) {
+      // if (
+      //   !(
+      //     currentPatient?.patient_details?.abha_number &&
+      //     currentPatient?.patient_details?.abha_number !== ""
+      //   )
+      // ) {
         navigate("/appointment-list");
         sessionStorage.removeItem("pmrID");
-      }
+      // }
     });
   };
 
@@ -2015,7 +2016,6 @@ const PatientEMRDetails = (props) => {
 
   const handleHistoryNumberOptions = (event, value) => {
     const isValidInput = /^([1-9]\d{0,2}(Days|Weeks|Months)?)?$/.test(value);
-
     if (isValidInput) {
       setMedicalHistoryNumber(value);
     }
@@ -2477,14 +2477,6 @@ const PatientEMRDetails = (props) => {
                                 </SelectedRecord>
                               </RecordLayout>
                               <TextBoxLayout className="addMinWidth">
-                                {/* <RecordTextField
-                              placeholder="Since"
-                              value={optionTextValues[item?.label]?.since || ""}
-                              onChange={(e) =>
-                                handleTextFieldChange(item, "since", e.target.value)
-                              }
-      variant="outlined"
-                            /> */}
                                 <Autocomplete
                                   options={generateHistoryOptions(
                                     medicalHistoryNumber,
@@ -2505,6 +2497,7 @@ const PatientEMRDetails = (props) => {
                                   }
                                   renderInput={(params) => (
                                     <TextField
+                                      type="tel"
                                       {...params}
                                       label="Since"
                                       variant="outlined"
@@ -3060,7 +3053,7 @@ const PatientEMRDetails = (props) => {
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
                                   value={
-                                    medicationsSpecs[item?.label]?.timing || null
+                                    medicationsSpecs[item?.label]?.timing 
                                   }
                                   onChange={(event, newValue) =>
                                     handleMedicationsTextChange(

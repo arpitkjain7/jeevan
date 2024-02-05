@@ -25,9 +25,9 @@ const SendPMR= ({
   const patient = sessionStorage?.getItem("selectedPatient");
   const currentPatient = JSON.parse(patient);
   const [showSync, setShowSync] = useState(false);
-  const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [channel, setChannel] = useState('whatsapp');
   const [mobile, setMobile] = useState(currentPatient?.mobileNumber);
+  const [showAbha, setShowAbha] = useState(false);
 
   const handleMobileChange = (event) => {
     setMobile(event.target.value);
@@ -39,7 +39,36 @@ const SendPMR= ({
 
   const handleModalClose = () => {
     setShowSync(false);
+    navigate("/appointment-list");
   };
+
+  const onSubmit = () => {
+    const payload = {
+      document_id: documentId,
+      pmr_id: sessionStorage.getItem("pmrID"),
+      channel: channel,
+      mobile_number: mobile
+    }
+    dispatch(sendNotification(payload)).then((res) => {
+      handleNotifyModalClose();
+      if(res){
+        if (
+          !(
+            currentPatient?.patient_details?.abha_number &&
+            currentPatient?.patient_details?.abha_number !== ""
+          )
+        ) {
+          sessionStorage.removeItem("pmrID");
+          navigate("/appointment-list");
+        } else {
+          setShowAbha(true);
+          setShowSync(true);
+        }
+      }
+    }).catch((error) => {
+      console.log(error);
+    })
+  }
 
   return (
     <React.Fragment>
@@ -48,31 +77,6 @@ const SendPMR= ({
         onClose={handleNotifyModalClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            // event.preventDefault();
-            // const formData = new FormData(event.currentTarget);
-            // const formJson = Object.fromEntries(formData.entries());
-            const payload = {
-              document_id: documentId,
-              pmr_id: sessionStorage.getItem("pmrID"),
-              channel: channel,
-              mobile_number: mobile
-            }
-            dispatch(sendNotification(payload)).then((res) => {
-              handleNotifyModalClose();
-              if (
-                !(
-                  currentPatient?.patient_details?.abha_number &&
-                  currentPatient?.patient_details?.abha_number !== ""
-                )
-              ) {
-                sessionStorage.removeItem("pmrID");
-                navigate("/appointment-list");
-              } else {
-                setShowSync(true);
-              }
-            });
-          },
         }}
       >
         <DialogTitle>
@@ -123,20 +127,15 @@ const SendPMR= ({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleNotifyModalClose}>Cancel</Button>
-          <Button type="submit">Continue</Button>
+          <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>
       </Dialog>
-      {/* {pmrNotification && (
-        <EMRPage
-          notificationData={notificationData}
+      {showAbha && (
+        <SyncAbha
+          showSync={showSync}
+          handleModalClose={handleModalClose}
         />
-      )} */}
-      <SyncAbha
-        showSync={showSync}
-        handleModalClose={handleModalClose}
-        setSelectedAuthOption={setSelectedAuthOption}
-        selectedAuthOption={selectedAuthOption}
-      />
+      )}
     </React.Fragment>
   );
 }

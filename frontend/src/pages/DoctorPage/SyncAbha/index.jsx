@@ -7,8 +7,14 @@ import {
   Box,
   Button,
   Radio,
-  Typography, // Added Typography
+  Typography,
+  Dialog,
+  DialogTitle,
+  IconButton,
+  DialogContent, // Added Typography
+  DialogActions
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -62,9 +68,10 @@ const OTPWrapper = styled("div")(({ theme }) => ({
 const SyncAbha = ({
   showSync,
   handleModalClose,
-  selectedAuthOption,
-  setSelectedAuthOption,
+  // selectedAuthOption,
+  // setSelectedAuthOption,
 }) => {
+  const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [options, setOptions] = useState([]);
   const dispatch = useDispatch();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
@@ -120,19 +127,33 @@ const SyncAbha = ({
     dispatch(syncPMR(payload)).then((res) => {
       handleModalClose();
       sessionStorage.removeItem("pmrId");
-      // navigate("/appointment-list");
+      navigate("/appointment-list");
     });
   };
   return (
-    <Modal
+    <Dialog
       open={showSync}
       onClose={handleModalClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      fullWidth={true}
+      maxWidth={'sm'}
     >
-      <StyledModalBox>
-        <PageTitle>Sync ABHA</PageTitle>
-        {/* <FormControl component="fieldset">
+      <DialogTitle>Sync ABHA</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleModalClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogContent dividers>
+        <FormControl component="fieldset">
           <PageSubText>Select an authentication method</PageSubText>
           <RadioGroup
             row
@@ -157,13 +178,13 @@ const SyncAbha = ({
         </FormControl>
         <OTPWrapper>
           {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
-        </OTPWrapper> */}
-        <ModalFooter>
-          <SecondaryButton onClick={clearData}>Clear</SecondaryButton>
-          <PrimaryButton onClick={onSync}>Sync PMR</PrimaryButton>
-        </ModalFooter>
-      </StyledModalBox>
-    </Modal>
+        </OTPWrapper>
+      </DialogContent>
+      <DialogActions>
+        <SecondaryButton onClick={clearData}>Clear</SecondaryButton>
+        <PrimaryButton onClick={onSync}>Sync PMR</PrimaryButton>
+      </DialogActions>
+    </Dialog>
   );
 };
 
