@@ -27,6 +27,12 @@ class AppointmentsController:
             doc_id = request.doc_id
             patient_id = request.patient_id
             appointment_type = request.appointment_type
+            if request.encounter_type is None:
+                encounter_type_code = ""
+                encounter_type = request.encounter_type
+            else:
+                encounter_type_code = request.encounter_type.name
+                encounter_type = request.encounter_type.value
             if request.appointment_end is None:
                 doc_obj = self.CRUDDocDetails.read_by_docId(doc_id=doc_id)
                 logging.info(f"{doc_obj=}")
@@ -52,8 +58,8 @@ class AppointmentsController:
                 "hip_id": request.hip_id,
                 "doc_id": doc_id,
                 "appointment_type": appointment_type,
-                "encounter_type_code": request.encounter_type.name,
-                "encounter_type": request.encounter_type.value,
+                "encounter_type_code": encounter_type_code,
+                "encounter_type": encounter_type,
                 "patient_id": patient_id,
                 "consultation_status": "Scheduled",
                 "slot_id": slot_id,

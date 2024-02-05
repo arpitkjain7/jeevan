@@ -256,3 +256,10 @@ class SendNotification(BaseModel):
     pmr_id: str
     channel: NotificationChannel
     mobile_number: str = None
+
+
+class SendNotificationByDocumentId(BaseModel):
+    document_id: str
+    pmr_id: str
+    channel: NotificationChannel
+    mobile_number: str = None

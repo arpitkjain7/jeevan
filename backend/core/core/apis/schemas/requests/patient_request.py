@@ -50,3 +50,18 @@ class UpdatePatient(BaseModel):
     DOB: str
     mobile_number: str
     hip_id: str
+
+
+class RegisterPatientV3(BaseModel):
+    abha_number: str = None
+    abha_address: str = None
+    primary_abha_address: str = None
+    mobile_number: str = None
+    name: str = None
+    gender: str = None
+    DOB: str = None
+    email: str = None
+    address: str = None
+    pincode: str = None
+    hip_id: str = None
+    auth_methods: str = None
