@@ -14,6 +14,7 @@ import { Box } from '@mui/system';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useDispatch } from 'react-redux';
 import { fetchAppointmentList } from '../AppointmentPage/AppointmentPage.slice';
+import { convertDateFormat } from '../../utils/utils';
 
 const DashboardWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -55,99 +56,10 @@ const bull = (
 const chartSetting = {
   xAxis: [
     {
-      label: 'rainfall (mm)',
+      label: 'No. of patients',
     },
   ],
-  // width: 500,
-  // height: 400,
 };
-
-const dataset = [
-  {
-    london: 59,
-    paris: 57,
-    newYork: 86,
-    seoul: 21,
-    month: 'Jan',
-  },
-  {
-    london: 50,
-    paris: 52,
-    newYork: 78,
-    seoul: 28,
-    month: 'Fev',
-  },
-  {
-    london: 47,
-    paris: 53,
-    newYork: 106,
-    seoul: 41,
-    month: 'Mar',
-  },
-  {
-    london: 54,
-    paris: 56,
-    newYork: 92,
-    seoul: 73,
-    month: 'Apr',
-  },
-  {
-    london: 57,
-    paris: 69,
-    newYork: 92,
-    seoul: 99,
-    month: 'May',
-  },
-  {
-    london: 60,
-    paris: 63,
-    newYork: 103,
-    seoul: 144,
-    month: 'June',
-  },
-  {
-    london: 59,
-    paris: 60,
-    newYork: 105,
-    seoul: 319,
-    month: 'July',
-  },
-  {
-    london: 65,
-    paris: 60,
-    newYork: 106,
-    seoul: 249,
-    month: 'Aug',
-  },
-  {
-    london: 51,
-    paris: 51,
-    newYork: 95,
-    seoul: 131,
-    month: 'Sept',
-  },
-  {
-    london: 60,
-    paris: 65,
-    newYork: 97,
-    seoul: 55,
-    month: 'Oct',
-  },
-  {
-    london: 67,
-    paris: 64,
-    newYork: 76,
-    seoul: 48,
-    month: 'Nov',
-  },
-  {
-    london: 61,
-    paris: 70,
-    newYork: 103,
-    seoul: 25,
-    month: 'Dec',
-  },
-];
 
 const valueFormatter = (value) => `${value}mm`;
 
@@ -161,7 +73,9 @@ function Dashboard() {
   const [pendingAppointment, setPendingAppointment] = useState(0);
   const [followupCases, setFollowupCases] = useState(0);
   const [newCases, setNewCases] = useState(0);
-
+  const [chartData, setChartData] = useState([]);
+  const [isChart, setIsChart] = useState(false);
+  let finalArray;
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
@@ -169,27 +83,28 @@ function Dashboard() {
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
-      // const dates = [];
-      // const currentDate = new Date();
+      const dates = [];
+      const currentDate = new Date();
 
-      // for (let i = 0; i < 7; i++) {
-      //   const date = currentDate.toLocaleDateString(undefined, {
-      //     weekday: "long",
-      //     year: "numeric",
-      //     month: "numeric",
-      //     day: "numeric",
-      //   });
+      for (let i = 0; i < 7; i++) {
+        const date = currentDate.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })
+        const day = currentDate.toLocaleDateString(undefined, {
+          weekday: "long",
+        })
 
-      //   dates.push(date);
-      //   currentDate.setDate(currentDate.getDate() + 1);
-      // }
-      // console.log(dates);
-      // const displayArr = date?.split(" ");
-      // const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
+        dates.push({ date: convertDateFormat(date, "yyyy-MM-dd"), day: day });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      console.log(dates);
       dispatch(fetchAppointmentList(payload)).then((res) => {
         const mainList = res.payload;
         console.log(mainList);
         setAppointmentList(mainList);
+        let chart_data = [];
         mainList.map((list) => {
           if(list?.appointment_type === "first visit"){
             setNewCases(prevCount => prevCount + 1);
@@ -203,7 +118,27 @@ function Dashboard() {
           else if(list?.consultation_status === "InProgress"){
             setPendingAppointment(prevCount => prevCount + 1)
           }
-        })
+          dates.map((date) => {
+            if(date.date === list?.slot_details?.date){
+              console.log("data", date.date, list?.slot_details?.date);
+              // setChartData(data => [...data, { date: date.date, day: date.day }]);
+              chart_data.push({ date: date.date, day: date.day });
+            }
+          });
+        });
+        console.log(chart_data);
+        const countsByCs = {};
+        chart_data.forEach(({ day }) => {
+          countsByCs[day] = (countsByCs[day] || 0) + 1;
+        });
+        console.log(countsByCs);
+        finalArray = Object.entries(countsByCs)
+          .map(([day, count]) => ({ day, count }))
+          // .sort((a, b) => b.count - a.count);
+    
+        console.log(finalArray);
+        setChartData(finalArray);
+        setIsChart(true);
       })
     }
   }, [])
@@ -278,16 +213,17 @@ function Dashboard() {
       </Grid>
      
       <br/>
-      <Paper sx={{ width: '100%', height: 400 }} elevation={3}>
-        <BarChart       
-          dataset={dataset}
-          yAxis={[{ scaleType: 'band', dataKey: 'month' }]}
-          series={[{ dataKey: 'seoul', label: 'Weekly Patient Visits Overview', valueFormatter }]}
-          layout="horizontal"
-          {...chartSetting}
-          // width='100%'
-        />
-      </Paper>
+      {isChart && (
+        <Paper sx={{ width: '100%', height: 400 }} elevation={3}>
+          <BarChart       
+            dataset={chartData}
+            yAxis={[{ scaleType: 'band', dataKey: 'day' }]}
+            series={[{ dataKey: 'count', label: 'Weekly Patient Visits Overview' }]}
+            layout="horizontal"
+            {...chartSetting}
+          />
+        </Paper>
+      )}
     </DashboardWrapper>
   )
 }
