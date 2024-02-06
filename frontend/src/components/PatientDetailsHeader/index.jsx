@@ -297,7 +297,7 @@ const PatientDetailsHeader = ({ documents }) => {
     };
 
     dispatch(submitHealthDocument({ params, docPayload })).then((res) => {
-      setDocumentId(res?.payload?.data[0]?.document_id);
+      setDocumentId(res?.payload?.data?.document_id);
       setShowLoader(false);
       if (res?.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);

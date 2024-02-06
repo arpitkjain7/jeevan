@@ -1696,7 +1696,7 @@ const PatientEMRDetails = (props) => {
             if (res.meta.requestStatus === "rejected") {
               setPmrDialogOpen(true);
             } else {
-              setDocumentId(pdfResponse?.payload?.data[0]?.document_id);
+              setDocumentId(pdfResponse?.payload?.data?.document_id);
               setNotifyModal(true);
             }
           })

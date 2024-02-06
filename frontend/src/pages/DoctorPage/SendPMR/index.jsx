@@ -20,6 +20,7 @@ const SendPMR= ({
   handleNotifyModalClose,
   documentId
 }) => {
+  console.log(documentId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patient = sessionStorage?.getItem("selectedPatient");
