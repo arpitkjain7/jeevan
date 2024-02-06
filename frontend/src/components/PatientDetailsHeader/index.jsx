@@ -289,7 +289,7 @@ const PatientDetailsHeader = ({ documents }) => {
     const pmr_id = sessionStorage?.getItem("pmrID");
     const params = {
       pmr_id: pmr_id,
-      document_type: "Prescription",
+      mode: "handwritten",
     };
 
     const docPayload = {
@@ -299,7 +299,7 @@ const PatientDetailsHeader = ({ documents }) => {
     dispatch(submitHealthDocument({ params, docPayload })).then((res) => {
       setDocumentId(res?.payload?.data[0]?.document_id);
       setShowLoader(false);
-      if (res.meta.requestStatus === "rejected") {
+      if (res?.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);
       } else {
         setOpenFollowUp(true);
@@ -332,10 +332,14 @@ const PatientDetailsHeader = ({ documents }) => {
       appointment_request,
     };
     dispatch(postEMR(allData)).then((res) => {
-      if (res.payload) {
+      setOpenFollowUp(false);
+      if (res?.payload) {
         setNotifyModal(true);
       }
-    });
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   };
 
   return (

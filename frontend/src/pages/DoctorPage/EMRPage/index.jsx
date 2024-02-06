@@ -97,6 +97,10 @@ const VitalsContainer = styled("div")(({ theme }) => ({
       padding: theme.spacing(4, 2),
     },
   },
+  "& .textareaAutoSizeStyle": {
+    minWidth: "100%",
+    maxWidth: "100%",
+  },
   "& .notes-field": {
     "&.MuiFormControl-root": {
       width: "100%",
@@ -265,6 +269,11 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
   },
   ".MuiAutocomplete-input": {
     textOverflow: "clip",
+  },
+  "& .textareaAutoSizeStyle": {
+    minWidth: "100%",
+    maxWidth: "100%",
+    maxHeight: "81px",
   },
 }));
 
@@ -1284,7 +1293,7 @@ const PatientEMRDetails = (props) => {
         inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
       } else 
       inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
-    }
+    } else inputValue = newValue;
     setMedicationsSpecs({
       ...medicationsSpecs,
       [option?.label]: {
@@ -1632,7 +1641,7 @@ const PatientEMRDetails = (props) => {
     pmr_request["notes"] = prescriptionComment;
 
     const pdfPayload = {
-      document_type: "Prescription",
+      mode: "digital",
       pmr_id: emrId,
     };
     const current_patient = JSON.parse(patient);
@@ -2401,6 +2410,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             symptomsSpecs[item?.label]?.notes ||
@@ -2572,6 +2582,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             optionTextValues[item?.label]
@@ -2686,6 +2697,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             examinationSpecs[item?.label]
@@ -2844,6 +2856,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             diagnosisSpecs[item?.label]?.notes ||
@@ -2961,6 +2974,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             labInvestigationSpecs[item?.label]
@@ -3205,6 +3219,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             medicationsSpecs[item?.label]?.notes || ""
@@ -3272,11 +3287,11 @@ const PatientEMRDetails = (props) => {
                         <SectionHeader>Notes</SectionHeader>
                         <div>
                           <TextareaAutosize
-                            style={{ width: "100%" }}
+                            style={{ height: "165px", minHeight: "165px", maxHeight: "165px" }}
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your notes here"
-                            className="notes-field"
                             onChange={prescriptionCommentChange}
                             value={prescriptionComment}
                           />
@@ -3287,12 +3302,12 @@ const PatientEMRDetails = (props) => {
                       <VitalsContainer>
                         <SectionHeader>Advices</SectionHeader>
                         <div>
-                        <TextareaAutosize
-                            style={{ width: "100%" }}
+                          <TextareaAutosize
+                            style={{ height: "165px", minHeight: "165px", maxHeight: "165px" }}
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your advices here"
-                            className="notes-field"
                             onChange={adviceChange}
                             value={advices}
                           />
