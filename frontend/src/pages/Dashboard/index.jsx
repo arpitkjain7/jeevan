@@ -8,10 +8,10 @@ import {
   CardActions,
   CardContent,
   Button,
+  Paper,
 } from "@mui/material";
 import { Box } from '@mui/system';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { blue } from '@mui/material/colors';
 import { useDispatch } from 'react-redux';
 import { fetchAppointmentList } from '../AppointmentPage/AppointmentPage.slice';
 
@@ -58,8 +58,8 @@ const chartSetting = {
       label: 'rainfall (mm)',
     },
   ],
-  width: 500,
-  height: 400,
+  // width: 500,
+  // height: 400,
 };
 
 const dataset = [
@@ -169,8 +169,8 @@ function Dashboard() {
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
-      const dates = [];
-      const currentDate = new Date();
+      // const dates = [];
+      // const currentDate = new Date();
 
       // for (let i = 0; i < 7; i++) {
       //   const date = currentDate.toLocaleDateString(undefined, {
@@ -278,7 +278,7 @@ function Dashboard() {
       </Grid>
      
       <br/>
-      <div className='chart-wrapper'>
+      <Paper sx={{ width: '100%', height: 400 }} elevation={3}>
         <BarChart       
           dataset={dataset}
           yAxis={[{ scaleType: 'band', dataKey: 'month' }]}
@@ -287,7 +287,7 @@ function Dashboard() {
           {...chartSetting}
           // width='100%'
         />
-      </div>
+      </Paper>
     </DashboardWrapper>
   )
 }
