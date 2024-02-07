@@ -42,30 +42,23 @@ const DashboardWrapper = styled("div")(({ theme }) => ({
   ".chart-wrapper": {
     backgroundColor: "#fff"
   },
+  ".chartStyling": {
+    width: "100%", 
+    height: "450px"
+  },
+  ".chartStyling .MuiChartsAxis-tickLabel": {
+    fontSize: "16px !important"
+  },
 }));
 
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-  >
-    •
-  </Box>
-);
-
 const chartSetting = {
-  xAxis: [
-    {
-      label: 'No. of patients',
-    },
-  ],
+  yAxis: [{
+    tickNumber: 1
+ }]
 };
-
-const valueFormatter = (value) => `${value}mm`;
 
 function Dashboard() {
   const hospital = sessionStorage?.getItem("selectedHospital");
-  const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const username = sessionStorage.getItem("userName");
   const dispatch = useDispatch();
   const [appointmentList, setAppointmentList] = useState({});
@@ -75,7 +68,7 @@ function Dashboard() {
   const [newCases, setNewCases] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [isChart, setIsChart] = useState(false);
-  let finalArray;
+  
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
@@ -85,7 +78,7 @@ function Dashboard() {
       };
       const dates = [];
       const currentDate = new Date();
-
+      currentDate.setDate(currentDate.getDate() - 6);
       for (let i = 0; i < 7; i++) {
         const date = currentDate.toLocaleDateString(undefined, {
           year: "numeric",
@@ -95,16 +88,20 @@ function Dashboard() {
         const day = currentDate.toLocaleDateString(undefined, {
           weekday: "long",
         })
-
-        dates.push({ date: convertDateFormat(date, "yyyy-MM-dd"), day: day });
+        const day_date = currentDate.toLocaleDateString(undefined, {
+          weekday: "long",
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })
+        dates.push({ date: convertDateFormat(date, "yyyy-MM-dd"), day: day, count: 0, day_date: day_date });
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      console.log(dates);
       dispatch(fetchAppointmentList(payload)).then((res) => {
         const mainList = res.payload;
-        console.log(mainList);
         setAppointmentList(mainList);
-        let chart_data = [];
+        let appointment_days = [];
+        let finalArray;
         mainList.map((list) => {
           if(list?.appointment_type === "first visit"){
             setNewCases(prevCount => prevCount + 1);
@@ -120,24 +117,24 @@ function Dashboard() {
           }
           dates.map((date) => {
             if(date.date === list?.slot_details?.date){
-              console.log("data", date.date, list?.slot_details?.date);
-              // setChartData(data => [...data, { date: date.date, day: date.day }]);
-              chart_data.push({ date: date.date, day: date.day });
+              appointment_days.push({ date: date.date, day: date.day });
             }
           });
         });
-        console.log(chart_data);
-        const countsByCs = {};
-        chart_data.forEach(({ day }) => {
-          countsByCs[day] = (countsByCs[day] || 0) + 1;
+
+        const countsByDays = { };
+        appointment_days.forEach(({ day }) => {
+          countsByDays[day] = (countsByDays[day] || 0) + 1;
         });
-        console.log(countsByCs);
-        finalArray = Object.entries(countsByCs)
+       
+        finalArray = Object.entries(countsByDays)
           .map(([day, count]) => ({ day, count }))
-          // .sort((a, b) => b.count - a.count);
-    
-        console.log(finalArray);
-        setChartData(finalArray);
+       
+        const chart_data = dates.map((item) => {
+          const matchedObject = finalArray.find((obj) => obj.day === item.day);
+          return { ...item, ...matchedObject };
+        });
+        setChartData(chart_data);
         setIsChart(true);
       })
     }
@@ -214,13 +211,13 @@ function Dashboard() {
      
       <br/>
       {isChart && (
-        <Paper sx={{ width: '100%', height: 400 }} elevation={3}>
+        <Paper className="chartStyling" elevation={3}>
           <BarChart       
             dataset={chartData}
-            yAxis={[{ scaleType: 'band', dataKey: 'day' }]}
-            series={[{ dataKey: 'count', label: 'Weekly Patient Visits Overview' }]}
-            layout="horizontal"
+            xAxis={[{ scaleType: 'band', dataKey: 'day' }]}
+            series={[{ dataKey: 'count', label: 'Weekly Patient Visits Overview', color: "#1976d2" }]}
             {...chartSetting}
+            sx={{ width: "85% !important", fontSize: "18px" }}
           />
         </Paper>
       )}
