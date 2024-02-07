@@ -52,6 +52,14 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
       paddingRight: "10px",
     }
   },
+  ".header-content": {
+    display: "flex",
+  },
+  ".header-username": {
+    alignItems: "center",
+    display: "flex",
+    marginRight: "10px",
+  },
   ".header-question-text": {
     color: theme.palette.secondaryGrey,
     fontFamily: "Inter",
@@ -96,6 +104,7 @@ const ProfileMenu = styled(Menu)(({ theme }) => ({
 const Header = () => {
   const accessToken = sessionStorage.getItem("accesstoken");
   const hospital = sessionStorage?.getItem("selectedHospital");
+  const username = sessionStorage.getItem("userName");
   const currentHospital = JSON.parse(hospital);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -127,6 +136,9 @@ const Header = () => {
         </div>
         {accessToken ? (
           <div className="header-content">
+            <div className="header-username">
+             {username}
+            </div>
             <ProfileIconWrapper>
               <ProfileIcon onClick={handleClick}>
                 <Person />

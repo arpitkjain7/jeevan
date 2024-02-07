@@ -30,6 +30,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { uploadHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
+import SendPMR from "../../pages/DoctorPage/SendPMR";
 
 const previewStyling = {
   margin: "1rem .5rem",
@@ -77,7 +78,7 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
     padding: theme.spacing(5, 6),
     marginBottom: "10px",
     display: "flex",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "block",
     },
   },
@@ -89,14 +90,14 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
     },
   },
   ".details-avatar-container": {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "inline",
     },
   },
   ".details-Patientdetails": {
     padding: theme.spacing(0, 6),
     borderRight: `1px solid ${theme.palette.primaryGrey}`,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "inline",
       borderRight: "0",
     },
@@ -128,6 +129,9 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".documents-subContainer": {
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.only("md")]: {
+      marginTop: "10px",
+    },
     [theme.breakpoints.down("sm")]: {
       display: "block ",
     },
@@ -186,6 +190,8 @@ const PatientDetailsHeader = ({ documents }) => {
   const [followUp, setFollowUp] = useState(null);
   const [showLoader, setShowLoader] = useState(false);
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+  const [notifyModal, setNotifyModal] = useState(false);
+  const [documentId, setDocumentId] = useState("");
 
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
@@ -212,6 +218,10 @@ const PatientDetailsHeader = ({ documents }) => {
       }
     }
   }, []);
+
+  const handleNotifyModalClose = () => {
+    setNotifyModal(false);
+  };
 
   const handlePmrDialogClose = () => {
     setPmrDialogOpen(false);
@@ -287,6 +297,7 @@ const PatientDetailsHeader = ({ documents }) => {
     };
 
     dispatch(submitHealthDocument({ params, docPayload })).then((res) => {
+      setDocumentId(res?.payload?.data?.document_id);
       setShowLoader(false);
       if (res.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);
@@ -322,7 +333,7 @@ const PatientDetailsHeader = ({ documents }) => {
     };
     dispatch(postEMR(allData)).then((res) => {
       if (res.payload) {
-        navigate("/appointment-list");
+        setNotifyModal(true);
       }
     });
   };
@@ -483,6 +494,11 @@ const PatientDetailsHeader = ({ documents }) => {
 
         </>
       )}
+      <SendPMR
+        notifyModal={notifyModal}
+        handleNotifyModalClose={handleNotifyModalClose}
+        documentId={documentId}
+      />
     </DetailsHeaderContainer>
   );
 };

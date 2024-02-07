@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 const CustomAutoComplete = ({
   handleInputChange,
   handleOptionChange,
+  handleClearOptions,
   options,
   setOptions,
   autocompleteRef,
@@ -13,7 +14,7 @@ const CustomAutoComplete = ({
 }) => {
   return (
     <Autocomplete
-      // freeSolo
+      freeSolo
       // ref={autocompleteRef}
       options={options}
       getOptionLabel={(option) => option?.label}
@@ -34,8 +35,8 @@ const CustomAutoComplete = ({
       value={null}
       blurOnSelect={true}
       clearOnBlur={true}
-      loading
       onChange={handleOptionChange}
+      onBlur={handleClearOptions}
     />
   );
 };
