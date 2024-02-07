@@ -53,8 +53,12 @@ const DashboardWrapper = styled("div")(({ theme }) => ({
 
 const chartSetting = {
   yAxis: [{
-    tickNumber: 1
- }]
+    tickNumber: 0
+ }],
+  // xAxis: [
+  //   {
+  //   }
+  // ],
 };
 
 function Dashboard() {
@@ -68,7 +72,8 @@ function Dashboard() {
   const [newCases, setNewCases] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [isChart, setIsChart] = useState(false);
-  
+  const isMobile = window.innerWidth < 600;
+
   useEffect(() => {
     let currentHospital = {};
     if (hospital) {
@@ -210,14 +215,32 @@ function Dashboard() {
       </Grid>
      
       <br/>
-      {isChart && (
+      {isChart && isMobile && (
         <Paper className="chartStyling" elevation={3}>
           <BarChart       
             dataset={chartData}
-            xAxis={[{ scaleType: 'band', dataKey: 'day' }]}
             series={[{ dataKey: 'count', label: 'Weekly Patient Visits Overview', color: "#1976d2" }]}
             {...chartSetting}
             sx={{ width: "85% !important", fontSize: "18px" }}
+            xAxis={[{
+              scaleType: 'band', dataKey: 'day',
+              tickLabelStyle: {
+                angle: 45,
+                textAnchor: 'start',
+                fontSize: 12,
+              },
+            }]}
+          />
+        </Paper>
+      )}
+      {isChart && !isMobile && (
+        <Paper className="chartStyling" elevation={3}>
+          <BarChart       
+            dataset={chartData}
+            series={[{ dataKey: 'count', label: 'Weekly Patient Visits Overview', color: "#1976d2" }]}
+            {...chartSetting}
+            sx={{ width: "85% !important", fontSize: "18px" }}
+            xAxis={[{ scaleType: 'band', dataKey: 'day' }]}
           />
         </Paper>
       )}
