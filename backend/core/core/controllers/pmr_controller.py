@@ -19,8 +19,10 @@ from core.utils.fhir.op_consult import opConsultUnstructured
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url, read_object
 from core.utils.custom.session_helper import get_session_token
 from core.utils.custom.gupshup_helper import whatsappHelper
+from core.utils.custom.prescription_helper import create_pdf_from_images, merge_pdf
 from core.utils.custom.msg91_helper import smsHelper
 from core import logger
+import base64
 from datetime import datetime, timezone
 from urllib.parse import quote
 import uuid, os
@@ -1231,6 +1233,112 @@ class PMRController:
             )
             raise error
 
+    def upload_prescription(self, pmr_id, files, mode):
+        try:
+            logging.info("executing upload_prescription function")
+            document_type = f"Prescription_{mode}"
+            logging.debug(f"{mode=}")
+            document_type_code = "Prescription"
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            pmr_doc_obj = self.CRUDPatientMedicalDocuments.read_by_type(
+                pmr_id=pmr_id, document_type=document_type
+            )
+            logging.debug(f"{pmr_doc_obj=}")
+            patient_id = pmr_obj.get("patient_id")
+
+            if mode == "digital":
+                document_data = files[0]
+                if pmr_doc_obj is not None:
+                    document_id = pmr_doc_obj.get("id")
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
+                    s3_location = upload_to_s3(
+                        bucket_name=self.cliniq_bucket,
+                        byte_data=document_data,
+                        file_name=document_key,
+                        content_type="application/pdf",
+                    )
+                    self.CRUDPatientMedicalDocuments.update(
+                        document_id=document_id,
+                        **{"id": document_id, "document_location": s3_location},
+                    )
+                    return {"document_id": document_id}
+                else:
+                    document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
+                    s3_location = upload_to_s3(
+                        bucket_name=self.cliniq_bucket,
+                        byte_data=document_data,
+                        file_name=document_key,
+                        content_type="application/pdf",
+                    )
+                    self.CRUDPatientMedicalDocuments.create(
+                        **{
+                            "id": document_id,
+                            "pmr_id": pmr_id,
+                            "document_name": document_type,
+                            "document_mime_type": self.mime_type_mapping.get("pdf"),
+                            "document_type": document_type,
+                            "document_type_code": document_type_code,
+                            "document_location": s3_location,
+                        }
+                    )
+                    logging.info(f"{s3_location=}")
+                    return {"document_id": document_id}
+            elif mode == "handwritten":
+                if pmr_doc_obj is not None:
+                    document_id = pmr_doc_obj.get("id")
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
+                    pdf1_data = self.get_document_bytes(document_id=document_id)
+                    logging.info("1")
+                    pdf1_bytes_str = pdf1_data["data"]
+                    pdf1_bytes = base64.b64decode(pdf1_bytes_str)
+                    logging.info(f"{type(pdf1_bytes)}")
+                    pdf =  merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
+                    s3_location = upload_to_s3(
+                        bucket_name=self.cliniq_bucket,
+                        byte_data=pdf,
+                        file_name=document_key,
+                        content_type="application/pdf",
+                    )
+                    logging.info(f"{s3_location=}")
+                    return {"document_id": document_id}
+                else:
+                    pdf =  create_pdf_from_images(files=files)
+                    document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
+                    document_key = (
+                        f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
+                    )
+                    s3_location = upload_to_s3(
+                        bucket_name=self.cliniq_bucket,
+                        byte_data=pdf,
+                        file_name=document_key,
+                        content_type="application/pdf",
+                    )
+                    self.CRUDPatientMedicalDocuments.create(
+                        **{
+                            "id": document_id,
+                            "pmr_id": pmr_id,
+                            "document_name": document_type,
+                            "document_mime_type": self.mime_type_mapping.get("pdf"),
+                            "document_type": document_type,
+                            "document_type_code": document_type_code,
+                            "document_location": s3_location,
+                        }
+                    )
+                    logging.info(f"{s3_location=}")
+                    return {"document_id": document_id}
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.upload_prescription function: {error}"
+            )
+            raise error
+
     def upload_health_document(
         self,
         pmr_id,
@@ -1344,4 +1452,68 @@ class PMRController:
                     logging.info(f"{sms_response=} | {sms_response_code=}")
         except Exception as error:
             logging.error(f"Error in PMRController.send_notification function: {error}")
+            raise error
+
+    def send_notification_by_documentId(self, request):
+        try:
+            logging.info(
+                "executing  PMRController.send_notification_by_documentId function"
+            )
+            request = request.dict()
+            logging.info(f"{request=}")
+            channel = request.get("channel").value
+            logging.info(f"{channel=}")
+            alternate_mobile_number = request.get("mobile_number", None)
+            pmr_id = request.get("pmr_id")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            logging.info(f"{pmr_obj=}")
+            hip_id = pmr_obj.get("hip_id")
+            date_of_consultation = pmr_obj.get("date_of_consultation")
+            patient_id = pmr_obj.get("patient_id")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=patient_id
+            )
+            logging.info(f"{patient_obj=}")
+            patient_name = patient_obj.get("name")
+            hip_obj = self.CRUDHIP.read(hip_ip=hip_id)
+            logging.info(f"{hip_obj=}")
+            document_id = request.get("document_id", None)
+            document_obj = self.CRUDPatientMedicalDocuments.read(
+                document_id=document_id
+            )
+            if alternate_mobile_number:
+                mobile_number = alternate_mobile_number
+            document_details_obj = self.get_document(
+                document_id=document_obj.get("id"), expires_in=604800
+            )
+            document_url = document_details_obj.get("document_url")
+            if channel == "whatsapp":
+                opt_in_response, opt_in_status_code = whatsappHelper().optin_user(
+                    mobile_number=mobile_number
+                )
+                logging.info(f"{opt_in_response=} | {opt_in_status_code=}")
+                (
+                    send_msg_response,
+                    send_msg_status_code,
+                ) = whatsappHelper().send_prescription(
+                    mobile_number=mobile_number,
+                    document_url=document_url,
+                    patient_name=patient_name,
+                    hospital_name=hip_obj.get("name"),
+                    date_of_consultation=date_of_consultation,
+                )
+                logging.info(f"{send_msg_response=} | {send_msg_status_code=}")
+            elif channel == "sms":
+                encoded_url = quote(document_url)
+                double_encoded_url = quote(encoded_url)
+                sms_response, sms_response_code = smsHelper().send_prescription(
+                    mobile_number=mobile_number,
+                    hospital_name=hip_obj.get("name"),
+                    document_url=double_encoded_url,
+                )
+                logging.info(f"{sms_response=} | {sms_response_code=}")
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.send_notification_by_documentId function: {error}"
+            )
             raise error

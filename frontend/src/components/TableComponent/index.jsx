@@ -37,12 +37,7 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   },
   ".search-wrap": {
     padding: theme.spacing(4),
-    // display: "flex",
-    // justifyContent: "space-between",
     alignItems: "center",
-    [theme.breakpoints.up('sm')]: {
-      marginBottom: theme.spacing(4.5),
-    },
     [theme.breakpoints.down('sm')]: {
       display: "block",
     },

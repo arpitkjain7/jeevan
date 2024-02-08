@@ -4,8 +4,9 @@ import json
 import subprocess
 import re
 from merkle_json import MerkleJson
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.backends import default_backend
 import base64
 
@@ -102,3 +103,18 @@ def rsa_encryption(data_to_encrypt: str):
     encrypted_data = public_key.encrypt(data_to_encrypt.encode(), padding.PKCS1v15())
     base64_encrypted_data = base64.b64encode(encrypted_data)
     return base64_encrypted_data.decode()
+
+
+def rsa_encryption_oaep(data_to_encrypt: str):
+    public_key = open("/app/core/utils/custom/publickey.txt", "r").read()
+    public_key = serialization.load_pem_public_key(
+        public_key.encode(), backend=default_backend()
+    )
+    oaep_padding = padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA1()), algorithm=hashes.SHA1(), label=None
+    )
+
+    encrypted_data = public_key.encrypt(data_to_encrypt.encode(), oaep_padding)
+
+    base64_encrypted_data = base64.b64encode(encrypted_data)
+    return base64_encrypted_data.decode("utf-8")

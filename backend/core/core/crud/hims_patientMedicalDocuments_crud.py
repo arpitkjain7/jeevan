@@ -85,11 +85,11 @@ class CRUDPatientMedicalDocuments:
                     transaction_session.query(PatientMedicalDocuments)
                     .filter(PatientMedicalDocuments.pmr_id == pmr_id)
                     .filter(PatientMedicalDocuments.document_type == document_type)
-                    .all()
+                    .first()
                 )
             if obj is not None:
-                return [row.__dict__ for row in obj]
-            return []
+                return obj.__dict__
+            return None
         except Exception as error:
             logging.error(
                 f"Error in CRUDPatientMedicalDocuments read function : {error}"

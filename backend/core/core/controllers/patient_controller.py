@@ -72,7 +72,7 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            existing_abha_address = patient_obj.get("abha_address")
+            existing_abha_address = patient_obj.get("primary_abha_address")
             linking_token = patient_obj.get("linking_token").get("value")
             refresh_token = patient_obj.get("refresh_token").get("value")
             refresh_token_url = f"{self.abha_url}/v1/auth/generate/access-token"
@@ -102,7 +102,7 @@ class PatientController:
                     **{
                         "id": patient_id,
                         "linking_token": {"value": linking_token},
-                        "abha_address": abha_address,
+                        "primary_abha_address": abha_address,
                     }
                 )
                 return {
@@ -125,7 +125,7 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            existing_abha_address = patient_obj.get("abha_address")
+            existing_abha_address = patient_obj.get("primary_abha_address")
             # linking_token = patient_obj.get("access_token").get("value")
             linking_token = patient_obj.get("linking_token").get("value")
             refresh_token = patient_obj.get("refresh_token").get("value")
@@ -812,6 +812,45 @@ class PatientController:
                 # ]
                 patient_obj.update({"status": "Patient already exist"})
                 return patient_obj
+            else:
+                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                request_json.update({"id": patient_id})
+                self.CRUDPatientDetails.create(**request_json)
+                request_json.update({"status": "New Patient created successfully"})
+                return request_json
+        except Exception as error:
+            logging.error(f"Error in register_patient_controller function: {error}")
+            raise error
+
+    def register_patient_v3_controller(self, request):
+        """[Controller to register new user]
+
+        Args:
+            request ([dict]): [create new user request]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing register new patient v3 function")
+            request_json = request.dict()
+            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
+            #     mobile_number=request_json.get("mobile_number")
+            # )
+            patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+                mobile_number=request_json.get("mobile_number"),
+                name=request_json.get("name"),
+            )
+            if patient_obj:
+                request_json.update({"id": patient_obj["id"]})
+                self.CRUDPatientDetails.update(**request_json)
+                request_json.update(
+                    {"status": "Patient already exist, Updated database"}
+                )
+                return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id})

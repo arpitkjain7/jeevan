@@ -233,7 +233,6 @@ class PMR(BaseModel):
 
 
 class DocumentTypes(str, Enum):
-    Prescription = "Prescription"
     DiagnosticReport = "Diagnostic Report"
     OPConsultation = "OP Consultation"
     DischargeSummary = "Discharge Summary"
@@ -253,6 +252,17 @@ class NotificationChannel(str, Enum):
 
 
 class SendNotification(BaseModel):
+    pmr_id: str
+    channel: NotificationChannel
+    mobile_number: str = None
+
+
+class PrescriptionMode(str, Enum):
+    digital = "digital"
+    handwritten = "handwritten"
+
+class SendNotificationByDocumentId(BaseModel):
+    document_id: str
     pmr_id: str
     channel: NotificationChannel
     mobile_number: str = None
