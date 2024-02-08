@@ -59,6 +59,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           type: "application/pdf",
         });
         const pdfUrls = URL.createObjectURL(blobData);
+        console.log(pdfUrls);
         setPdfUrl(pdfUrls);
         return () => {
           URL.revokeObjectURL(pdfUrl);

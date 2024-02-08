@@ -9,6 +9,7 @@ import {
   Typography,
   styled,
   Button,
+  TextField,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
@@ -31,6 +32,7 @@ import { uploadHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.sli
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
+import { format } from "date-fns";
 
 const previewStyling = {
   margin: "1rem .5rem",
@@ -53,7 +55,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 320,
   bgcolor: "background.paper",
   border: "1px solid #000",
   boxShadow: 24,
@@ -187,7 +189,7 @@ const PatientDetailsHeader = ({ documents }) => {
   const handleFollowUpClose = () => setOpenFollowUp(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [followUp, setFollowUp] = useState(null);
+  const [followUp, setFollowUp] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [notifyModal, setNotifyModal] = useState(false);
@@ -269,6 +271,10 @@ const PatientDetailsHeader = ({ documents }) => {
         </div>
       );
     });
+  };
+
+  const handleDateChange = (event) => {
+    setFollowUp(event.target.value);
   };
 
   const handleClickOpen = () => {
@@ -468,7 +474,7 @@ const PatientDetailsHeader = ({ documents }) => {
                             <CloseIcon />
                           </IconButton>
                         </Toolbar>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DemoContainer components={["DatePicker"]}>
                             <DatePicker
                               slotProps={{
@@ -483,9 +489,17 @@ const PatientDetailsHeader = ({ documents }) => {
                               onChange={(newValue) => setFollowUp(newValue)}
                             />
                           </DemoContainer>
-                        </LocalizationProvider>
-                        <br />
-                        <PrimaryButton onClick={postPMR}>
+                        </LocalizationProvider> */}
+                        <TextField
+                          sx={{ width: "100%", marginBottom: "20px"  }}
+                          type="date"
+                          inputProps={{
+                            min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                          }}
+                          value={followUp}
+                          onChange={handleDateChange}
+                        />
+                        <PrimaryButton onClick={postPMR} >
                           Finish Prescription
                         </PrimaryButton>
                       </Box>

@@ -2204,17 +2204,7 @@ const PatientEMRDetails = (props) => {
                       <BPTextFieldWrapper>
                         <Grid item xs={8}>
                           <BPWrapper>
-                            <DiastolicTextField
-                              fullWidth
-                              type="number"
-                              variant="outlined"
-                              name="diastolicaBP"
-                              value={formValues.diastolicaBP}
-                              onChange={handleInputChange}
-                              className="emr-input-field"
-                            />
-                            <Divider>/</Divider>
-                            <SystolicTextField
+                          <SystolicTextField
                               fullWidth
                               type="number"
                               variant="outlined"
@@ -2223,6 +2213,16 @@ const PatientEMRDetails = (props) => {
                               onChange={handleInputChange}
                               className="emr-input-field"
                             />
+                            <Divider>/</Divider>
+                            <DiastolicTextField
+                              fullWidth
+                              type="number"
+                              variant="outlined"
+                              name="diastolicaBP"
+                              value={formValues.diastolicaBP}
+                              onChange={handleInputChange}
+                              className="emr-input-field"
+                            />                           
                           </BPWrapper>
                         </Grid>
                         <Grid item xs={4}>

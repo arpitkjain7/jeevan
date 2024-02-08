@@ -20,14 +20,13 @@ const SendPMR= ({
   handleNotifyModalClose,
   documentId
 }) => {
-  console.log(documentId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patient = sessionStorage?.getItem("selectedPatient");
   const currentPatient = JSON.parse(patient);
   const [showSync, setShowSync] = useState(false);
   const [channel, setChannel] = useState('whatsapp');
-  const [mobile, setMobile] = useState(currentPatient?.mobileNumber);
+  const [mobile, setMobile] = useState(currentPatient?.mobile_number);
   const [showAbha, setShowAbha] = useState(false);
 
   const handleMobileChange = (event) => {

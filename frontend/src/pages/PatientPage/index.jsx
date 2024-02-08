@@ -211,8 +211,8 @@ const PatientPage = () => {
           const patientGender = item?.gender.toLowerCase()?.includes("m")
             ? "M"
             : "F";
-          const updatedDate = convertDateFormat(item?.updated_at, "dd-MM-yyyy");
-          const createdDate = convertDateFormat(item?.created_at, "dd-MM-yyyy");
+          const updatedDate = convertDateFormat(item?.updated_at, "dd/MM/yyyy");
+          const createdDate = convertDateFormat(item?.created_at, "dd/MM/yyyy");
           return {
             patientDetails: `${item.name || ""} | ${patientGender || ""}`,
             p_name: `${item.name}`,
