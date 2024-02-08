@@ -8,6 +8,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 import { useState, useEffect } from 'react';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -59,7 +61,6 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           type: "application/pdf",
         });
         const pdfUrls = URL.createObjectURL(blobData);
-        console.log(pdfUrls);
         setPdfUrl(pdfUrls);
         return () => {
           URL.revokeObjectURL(pdfUrl);
@@ -73,7 +74,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
     const onDocumentLoadSuccess = (({ numPages }) => {
       setNumPages(numPages);
     });
-    
+
     return (
     <React.Fragment>
       <Dialog
@@ -103,9 +104,16 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
             <embed style={{ width: width, height: "auto" }} src={`data:${docType};base64,${docBytes}`}/>
           )}
           {isMobile && isPDF && (
-            <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
-                <Page pageNumber={pageNumber} renderTextLayer={false} width={width} height="auto" /> 
-            </Document>        
+            <>
+            
+              <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
+                {Array.apply(null, Array(numPages))
+                  .map((x, i)=>i+1)
+                  .map(page =>
+                    <Page wrap pageNumber={page} renderTextLayer={true} width={width} height="auto" />
+                )}
+              </Document>
+            </>
           )}
       </Dialog>
     </React.Fragment>

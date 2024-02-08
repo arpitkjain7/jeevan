@@ -41,9 +41,6 @@ const AadhaarConsent = ({ open, scroll, handleClose, handleConsentConfirmation})
 
   useEffect(() => {
     const result = Object.values(checkboxes).every(v => v);
-
-    console.log(result);
-
     setAllChecked(result);
   }, [checkboxes]);
 

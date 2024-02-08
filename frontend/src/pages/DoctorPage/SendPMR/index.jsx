@@ -26,7 +26,7 @@ const SendPMR= ({
   const currentPatient = JSON.parse(patient);
   const [showSync, setShowSync] = useState(false);
   const [channel, setChannel] = useState('whatsapp');
-  const [mobile, setMobile] = useState(currentPatient?.mobile_number);
+  const [mobile, setMobile] = useState(currentPatient?.mobile_number || currentPatient?.mobileNumber);
   const [showAbha, setShowAbha] = useState(false);
 
   const handleMobileChange = (event) => {

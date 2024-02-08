@@ -89,7 +89,6 @@ const LoginPage = (props) => {
     };
     dispatch(loginUser(payload)).then((response) => {
       const resData = response?.payload;
-      console.log(resData, "data");
       if (resData?.access_token) {
         sessionStorage.setItem("accesstoken", resData?.access_token);
         sessionStorage.setItem("userRole", resData?.user_role);

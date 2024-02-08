@@ -385,7 +385,6 @@ const BookingSlots = () => {
   const submitAppointment = () => {
     const timeRange = selectedSlot;
     const [startTime, endTime] = timeRange.split(" - ");
-    console.log(startTime, endTime);
     let startTime24hour;
     let endTime24hour;
     if(startTime){

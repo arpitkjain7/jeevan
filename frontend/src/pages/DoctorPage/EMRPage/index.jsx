@@ -455,6 +455,8 @@ const PatientEMRDetails = (props) => {
   const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -1171,17 +1173,7 @@ const PatientEMRDetails = (props) => {
   };
 
   const handleTextFieldChange = (option, textField, newValue) => {
-    console.log(option, textField, newValue, "valuecheck");
     setOptionTextValues({
-      ...optionTextValues,
-      [option?.label]: {
-        ...optionTextValues[option?.label],
-        [textField]: newValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
-      },
-    });
-    console.log({
       ...optionTextValues,
       [option?.label]: {
         ...optionTextValues[option?.label],
@@ -1234,15 +1226,6 @@ const PatientEMRDetails = (props) => {
         snowmed_display: option?.snowmed_display,
       },
     });
-    console.log({
-      ...symptomsSpecs,
-      [option?.label]: {
-        ...symptomsSpecs[option?.label],
-        [textField]: newValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
-      },
-    });
   };
 
   const handleSymptomsSpecsDelete = (optionToRemove) => () => {
@@ -1263,18 +1246,6 @@ const PatientEMRDetails = (props) => {
         snowmed_display: option?.snowmed_display,
       },
     });
-    console.log(
-      {
-        ...examinationSpecs,
-        [option?.label]: {
-          ...examinationSpecs[option?.label],
-          [textField]: newValue,
-          snowmed_code: option?.snowmed_code,
-          snowmed_display: option?.snowmed_display,
-        },
-      },
-      "EXAM"
-    );
   };
 
   const handleExaminationSpecsDelete = (optionToRemove) => () => {
@@ -1309,7 +1280,6 @@ const PatientEMRDetails = (props) => {
     });
   };
   const handleMedicationsTextChange = (option, textField, newValue) => {
-    console.log(option, textField, newValue);
     let inputValue;
     if(textField === "severity"){
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
@@ -1609,9 +1579,7 @@ const PatientEMRDetails = (props) => {
       if (key === "array") {
         continue;
       }
-      console.log(inputObject, "inputobj");
       const objectDetails = inputObject[key];
-      console.log(objectDetails, "objectdet");
       const transformedItem = {
         medical_history: key,
         relationship: objectDetails.relationship,
@@ -1744,8 +1712,6 @@ const PatientEMRDetails = (props) => {
     const labInvestigationEMR = labInvestigationObj(labInvestigationSpecs);
     const medicalHistoryEMR = medicalHistoryObj(optionTextValues);
 
-    console.log(formValues, "formValues");
-
     const payloadArr = [
       {
         key: "vital",
@@ -1840,12 +1806,8 @@ const PatientEMRDetails = (props) => {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     let pdf_data = await createPdfBlob(patientDetails);
     const pdfUrls = URL.createObjectURL(pdf_data);
-    console.log(pdfUrls);
     setPdfUrl(pdfUrls);
   };
-
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -2083,12 +2045,10 @@ const PatientEMRDetails = (props) => {
   };
 
   const generateSymptomsOptionChange = (option, newValue, key) => {
-    console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
   };
 
   const generateMedicalHistoryOptionChange = (option, newValue) => {
-    console.log("options", option, newValue, "since");
     handleTextFieldChange(option, "since", newValue);
   };
 
@@ -3405,11 +3365,15 @@ const PatientEMRDetails = (props) => {
                   file={{ url: `${pdfUrl}` }}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
-                  <Page
-                    pageNumber={pageNumber}
-                    renderTextLayer={false}
-                    width={width - 15}
-                  />
+                   {Array.apply(null, Array(numPages))
+                  .map((x, i)=>i+1)
+                  .map(page =>
+                    <Page
+                      pageNumber={page}
+                      renderTextLayer={true}
+                      width={width - 15}
+                    />
+                  )}
                 </Document>
               </PDFViewerWrapper>
             </>

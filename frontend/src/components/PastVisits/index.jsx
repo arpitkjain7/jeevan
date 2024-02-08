@@ -170,7 +170,6 @@ const PastVisits = ({ isPatientHistory }) => {
       }
       setPmrId(item?.id);
       const docsList = res.payload;
-      console.log(docsList);
       const formattedDocsList = docsList?.map((item) => {
         const DocDate = convertDateFormat(
           item?.updated_at,

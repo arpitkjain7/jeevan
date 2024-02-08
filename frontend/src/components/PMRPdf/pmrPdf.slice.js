@@ -32,7 +32,7 @@ export const submitPdf = createAsyncThunk(
           headers: pdfUploadHeader(),
         });
 
-        console.log("Chunk uploaded:", response.data);
+        console.log("Chunk uploaded:");
         return response;
       } catch (error) {
         console.error("Error uploading chunk:", error);
