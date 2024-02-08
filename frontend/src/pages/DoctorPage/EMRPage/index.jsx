@@ -105,6 +105,17 @@ const VitalsContainer = styled("div")(({ theme }) => ({
       },
     },
   },
+  "& .textareaAutoSizeStyle": {
+    height: "165px", 
+    minHeight: "165px", 
+    maxHeight: "165px", 
+    width: "100%", 
+    minWidth: "100%",
+    maxWidth: "100%",
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: "430px",
+    },
+  },
 }));
 
 const TextFieldWrapper = styled("div")(({ theme }) => ({
@@ -202,7 +213,7 @@ const PrimaryButton = styled("button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
   float: "right",
   [theme.breakpoints.down("sm")]: {
-    padding: "5px 8px",
+    padding: "5px 7px",
   },
 }));
 
@@ -265,6 +276,11 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
   },
   ".MuiAutocomplete-input": {
     textOverflow: "clip",
+  },
+  "& .textareaAutoSizeStyle": {
+    minWidth: "100%",
+    maxWidth: "100%",
+    maxHeight: "81px",
   },
 }));
 
@@ -1650,7 +1666,7 @@ const PatientEMRDetails = (props) => {
     pmr_request["notes"] = prescriptionComment;
 
     const pdfPayload = {
-      document_type: "Prescription",
+      mode: "digital",
       pmr_id: emrId,
     };
     const current_patient = JSON.parse(patient);
@@ -2188,17 +2204,7 @@ const PatientEMRDetails = (props) => {
                       <BPTextFieldWrapper>
                         <Grid item xs={8}>
                           <BPWrapper>
-                            <DiastolicTextField
-                              fullWidth
-                              type="number"
-                              variant="outlined"
-                              name="diastolicaBP"
-                              value={formValues.diastolicaBP}
-                              onChange={handleInputChange}
-                              className="emr-input-field"
-                            />
-                            <Divider>/</Divider>
-                            <SystolicTextField
+                          <SystolicTextField
                               fullWidth
                               type="number"
                               variant="outlined"
@@ -2207,6 +2213,16 @@ const PatientEMRDetails = (props) => {
                               onChange={handleInputChange}
                               className="emr-input-field"
                             />
+                            <Divider>/</Divider>
+                            <DiastolicTextField
+                              fullWidth
+                              type="number"
+                              variant="outlined"
+                              name="diastolicaBP"
+                              value={formValues.diastolicaBP}
+                              onChange={handleInputChange}
+                              className="emr-input-field"
+                            />                           
                           </BPWrapper>
                         </Grid>
                         <Grid item xs={4}>
@@ -2418,6 +2434,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             symptomsSpecs[item?.label]?.notes ||
@@ -2583,6 +2600,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             optionTextValues[item?.label]
@@ -2698,6 +2716,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             examinationSpecs[item?.label]
@@ -2857,6 +2876,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             diagnosisSpecs[item?.label]?.notes ||
@@ -2975,6 +2995,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             labInvestigationSpecs[item?.label]
@@ -3043,8 +3064,9 @@ const PatientEMRDetails = (props) => {
                                       "severity",
                                       e.target.value
                                     )
-                                  }
-                                  inputProps={{maxLength: 5}}
+                                  }                                  
+                                  type="tel"
+                                  inputProps={{ maxLength: 5}}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3139,6 +3161,7 @@ const PatientEMRDetails = (props) => {
                                       e.target.value
                                     )
                                   }
+                                  inputProps={{ maxLength: 5}}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3224,6 +3247,7 @@ const PatientEMRDetails = (props) => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             medicationsSpecs[item?.label]?.notes || ""
@@ -3291,11 +3315,10 @@ const PatientEMRDetails = (props) => {
                         <SectionHeader>Notes</SectionHeader>
                         <div>
                           <TextareaAutosize
-                            style={{ width: "100%" }}
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your notes here"
-                            className="notes-field"
                             onChange={prescriptionCommentChange}
                             value={prescriptionComment}
                           />
@@ -3306,12 +3329,11 @@ const PatientEMRDetails = (props) => {
                       <VitalsContainer>
                         <SectionHeader>Advices</SectionHeader>
                         <div>
-                        <TextareaAutosize
-                            style={{ width: "100%" }}
+                          <TextareaAutosize
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your advices here"
-                            className="notes-field"
                             onChange={adviceChange}
                             value={advices}
                           />
@@ -3325,7 +3347,7 @@ const PatientEMRDetails = (props) => {
             <EMRFooter style={{ position: "sticky", bottom: 0 }}>
               <SecondaryButton
                 onClick={resetEMRForm}
-                style={{ padding: "8px 16px" }}
+                style={{ padding: "5px 16px" }}
               >
                 Clear
               </SecondaryButton>

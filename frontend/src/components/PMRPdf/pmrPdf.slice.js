@@ -26,7 +26,7 @@ export const submitPdf = createAsyncThunk(
       try {
         const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
           params: {
-            document_type: pdfPayload?.document_type,
+            mode: pdfPayload?.mode,
             pmr_id: pdfPayload?.pmr_id,
           },
           headers: pdfUploadHeader(),

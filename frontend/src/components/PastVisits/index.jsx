@@ -223,7 +223,7 @@ const PastVisits = ({ isPatientHistory }) => {
     dispatch(getDocumentBytes(row?.id)).then((res) => {
       if (res.payload != undefined) {
         setDocumentType(row.document_mime_type);
-        setbase64data(res.payload.data);
+        setbase64data(res?.payload.data);
         setOpen(true);
       } else {
         console.log("Error retrieving data");

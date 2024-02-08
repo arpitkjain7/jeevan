@@ -28,7 +28,10 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
-    marginTop: "10px"
+    marginTop: "10px",
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: "20px",
+    },
   },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,

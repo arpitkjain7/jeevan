@@ -112,7 +112,7 @@ export const submitHealthDocument = createAsyncThunk(
     try {
       const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
         params: {
-          document_type: params?.document_type,
+          mode: params?.mode,
           pmr_id: params?.pmr_id,
         },
         headers: {
