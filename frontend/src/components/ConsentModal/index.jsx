@@ -113,8 +113,6 @@ const ConsentModal = ({
         handleClose();
       });
     }
-
-    console.log(formData);
   };
 
   return (

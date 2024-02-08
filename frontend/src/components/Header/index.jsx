@@ -55,11 +55,13 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
   ".header-content": {
     display: "flex",
   },
-  ".header-username": {
-    alignItems: "center",
-    display: "flex",
-    marginRight: "10px",
-  },
+  // ".header-username-desktop": {
+  //   [theme.breakpoints.up('sm')]: {
+  //     alignItems: "center",
+  //     display: "flex",
+  //     marginRight: "10px",
+  //   },
+  // },
   ".header-question-text": {
     color: theme.palette.secondaryGrey,
     fontFamily: "Inter",
@@ -94,7 +96,7 @@ const ProfileIcon = styled(Avatar)(({ theme }) => ({
 
 const ProfileMenu = styled(Menu)(({ theme }) => ({
   position: "absolute",
-  top: 20,
+  top: 10,
   [theme.breakpoints.down('sm')]: {
     top: 10,
     left: 11
@@ -136,9 +138,6 @@ const Header = () => {
         </div>
         {accessToken ? (
           <div className="header-content">
-            <div className="header-username">
-             {username}
-            </div>
             <ProfileIconWrapper>
               <ProfileIcon onClick={handleClick}>
                 <Person />
@@ -149,6 +148,7 @@ const Header = () => {
                 onClose={handleClose}
                 className="profile_menu"
               >
+                <MenuItem> {username} </MenuItem>
                 <MenuItem onClick={handleClose}>View Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </ProfileMenu>
