@@ -75,7 +75,7 @@ const VitalsDetailsContainer = styled("div")(({ theme }) => ({
 }));
 
 // const VitalsList = styled("listItem")(({ theme }) => ({}));
-const VisitDate = styled("p")(({ theme }) => ({
+const VisitDate = styled("div")(({ theme }) => ({
   "&": theme.typography.customKeys,
   margin: "0",
 }));
@@ -151,7 +151,7 @@ const tableStyle = {
 
 const PastVisits = ({ isPatientHistory }) => {
   const [tableData, setTableData] = useState([]);
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const [documentType, setDocumentType] = useState("");
   const [base64data, setbase64data] = useState("");
   const [open, setOpen] = useState(false);
@@ -161,7 +161,7 @@ const PastVisits = ({ isPatientHistory }) => {
   const [documentPopup, setDocumentPopup] = useState(false);
   const [pmrId, setPmrId] = useState("");
   const isMobile = window.innerWidth < 600;
-  const pdfFileName = "custom_filename.pdf";
+  // const pdfFileName = "custom_filename.pdf";
 
   const selectVisit = (item) => {
     dispatch(fetchPMRList(item?.id)).then((res) => {
@@ -252,7 +252,9 @@ const PastVisits = ({ isPatientHistory }) => {
                     : "Diagnosis"}
                 </ListItem>
                 <VisitDate>
-                  {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
+                  <p>
+                    {convertDateFormat(item?.updated_at, "dd-MM-yyyy")}
+                  </p>
                   <Typography
                       style={{
                         color:

@@ -127,7 +127,7 @@ const DesktopDrawer = styled(MuiDrawer, {
 
 function App() {
   const isMobile = window.innerWidth < 600;
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const [sidebarState, setSidebarState] = React.useState(false);
 
   const toggleDrawer = (open) => (event) => {
@@ -149,9 +149,9 @@ function App() {
 
   const isAuthenticated = sessionStorage.getItem("accesstoken");
 
-  useEffect(() => {
-    // console.log("reduxStore", dataState);
-  }, [dataState]);
+  // useEffect(() => {
+  //   console.log("reduxStore", dataState);
+  // }, [dataState]);
 
   return (
     <Router>

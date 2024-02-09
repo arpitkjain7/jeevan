@@ -41,15 +41,14 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const { height, width } = useWindowDimensions();
   const isMobile = window.innerWidth < 600;
   const docType = documentType;
-  const [isPDF, setIsPDF] = useState(false);
+  // const [isPDF, setIsPDF] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     if(docType === "application/pdf" && isMobile){
-      setIsPDF(true);
-    
+      // setIsPDF(true);
       pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; 
       if (docBytes) {
         const decodedByteCode = atob(docBytes);
@@ -60,15 +59,16 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
         const blobData = new Blob([new Uint8Array(byteNumbers)], {
           type: "application/pdf",
         });
-        const pdfUrls = URL.createObjectURL(blobData);
-        setPdfUrl(pdfUrls);
+        // const pdfUrls = URL.createObjectURL(blobData);
+        setPdfUrl(URL.createObjectURL(blobData));
         return () => {
           URL.revokeObjectURL(pdfUrl);
         };
       }
-    } else{
-      setIsPDF(false);
-    }
+    } 
+    // else{
+    //   setIsPDF(false);
+    // }
     }, [docBytes]);
   
     const onDocumentLoadSuccess = (({ numPages }) => {
@@ -100,13 +100,12 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           {!isMobile && (
             <embed style={{ width: "auto", height: height }} src={`data:${docType};base64,${docBytes}`}/>
           )}
-          {isMobile && !isPDF && (
+          {/* {isMobile && !isPDF && (
             <embed style={{ width: width, height: "auto" }} src={`data:${docType};base64,${docBytes}`}/>
-          )}
-          {isMobile && isPDF && (
+          )} */}
+          {isMobile && pdfUrl !== null && (
             <>
-            
-              <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
+              <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} >
                 {Array.apply(null, Array(numPages))
                   .map((x, i)=>i+1)
                   .map(page =>
