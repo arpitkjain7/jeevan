@@ -170,7 +170,6 @@ const PastVisits = ({ isPatientHistory }) => {
       }
       setPmrId(item?.id);
       const docsList = res.payload;
-      console.log(docsList);
       const formattedDocsList = docsList?.map((item) => {
         const DocDate = convertDateFormat(
           item?.updated_at,
@@ -223,7 +222,7 @@ const PastVisits = ({ isPatientHistory }) => {
     dispatch(getDocumentBytes(row?.id)).then((res) => {
       if (res.payload != undefined) {
         setDocumentType(row.document_mime_type);
-        setbase64data(res.payload.data);
+        setbase64data(res?.payload.data);
         setOpen(true);
       } else {
         console.log("Error retrieving data");

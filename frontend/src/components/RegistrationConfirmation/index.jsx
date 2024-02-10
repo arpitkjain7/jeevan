@@ -298,7 +298,6 @@ const RegisterationConfirmation = ({
       };
       dispatch(createAppointment(payload)).then((res) => {
         if (res.payload?.appointment_id) {
-          console.log(res.payload, "RESPONSE");
           const emrPayload = {
             patient_id: patientData?.id,
             doc_id: doctorName,
@@ -308,10 +307,8 @@ const RegisterationConfirmation = ({
           };
         
           dispatch(getEMRId(emrPayload)).then((response) => {
-            console.log(response);
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              console.log(res);
               const AllPatientData = Object.assign(
                 res.payload,
                 { patientId: response.payload?.pmr_details?.patient_id },
@@ -319,7 +316,6 @@ const RegisterationConfirmation = ({
                 { hip_id: response.payload?.pmr_details?.hip_id }, 
                 { id: response.payload?.appointment_details?.id }
               )
-              console.log(AllPatientData);
               sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
             });
             setTimeout(() => navigate("/patient-emr"), 2000);

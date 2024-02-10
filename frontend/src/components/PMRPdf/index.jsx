@@ -291,7 +291,7 @@ const PMRPdf = ({ patientData }) => {
 
   return (
     <Document style={pmrPdfStyles.document}>
-      <Page size="A4" style={pmrPdfStyles.page}>
+      <Page size="A4" style={pmrPdfStyles.page} renderTextLayer={false}>
         <View style={pmrPdfStyles.pdfHeader}>
           <View style={pmrPdfStyles.pdfHeaderLogo}>
             <Text style={pmrPdfStyles.pdflogoText}>Cliniq360</Text>

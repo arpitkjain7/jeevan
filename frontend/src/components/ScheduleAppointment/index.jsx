@@ -168,13 +168,7 @@ const BookingSlots = () => {
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const today = new Date();
-  const current_date = today.toLocaleDateString(undefined, {
-    weekday: "long",
-    year: "numeric",
-    // month: "long",
-    month: "numeric",
-    day: "numeric",
-  });
+  const current_date = convertDateFormat(today, "yyyy-MM-dd");
 
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day?.trim().toLowerCase());
@@ -391,7 +385,6 @@ const BookingSlots = () => {
   const submitAppointment = () => {
     const timeRange = selectedSlot;
     const [startTime, endTime] = timeRange.split(" - ");
-    console.log(startTime, endTime);
     let startTime24hour;
     let endTime24hour;
     if(startTime){
@@ -504,7 +497,7 @@ const BookingSlots = () => {
                         color="primary"
                         onClick={() => {
                           setAppointmentDate(false);
-                          handleDateSelect(formatDate(date))
+                          handleDateSelect(convertDateFormat(date,"yyyy-MM-dd"))
                         }}
                         className={
                           selectedDate === formatDate(date)
@@ -540,7 +533,7 @@ const BookingSlots = () => {
                           shouldDisableDate={isWeekend}
                           onChange={(newValue) => {
                             setAppointmentDate(true)
-                            handleDateSelect(newValue)
+                            handleDateSelect(convertDateFormat(newValue,"yyyy-MM-dd"))
                           }}
                           className={
                             appointmentDate ? "datepickerInputStyle" : ""
@@ -555,7 +548,7 @@ const BookingSlots = () => {
                   </DateContainer>
                 )}
                 {selectedDate &&
-                  (selectedDate != current_date ? (
+                  (selectedDate !== current_date ? (
                     <div className="slots-container">
                       {slots.length > 0 ? slots.map((slot) => (
                         <DateButton

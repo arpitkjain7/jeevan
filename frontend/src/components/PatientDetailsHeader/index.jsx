@@ -9,6 +9,7 @@ import {
   Typography,
   styled,
   Button,
+  TextField,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
@@ -30,6 +31,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { uploadHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
+import SendPMR from "../../pages/DoctorPage/SendPMR";
+import { format } from "date-fns";
 
 const previewStyling = {
   margin: "1rem .5rem",
@@ -52,7 +55,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 320,
   bgcolor: "background.paper",
   border: "1px solid #000",
   boxShadow: 24,
@@ -77,7 +80,7 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
     padding: theme.spacing(5, 6),
     marginBottom: "10px",
     display: "flex",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "block",
     },
   },
@@ -89,14 +92,14 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
     },
   },
   ".details-avatar-container": {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "inline",
     },
   },
   ".details-Patientdetails": {
     padding: theme.spacing(0, 6),
     borderRight: `1px solid ${theme.palette.primaryGrey}`,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "inline",
       borderRight: "0",
     },
@@ -128,6 +131,9 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".documents-subContainer": {
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.only("md")]: {
+      marginTop: "10px",
+    },
     [theme.breakpoints.down("sm")]: {
       display: "block ",
     },
@@ -183,9 +189,11 @@ const PatientDetailsHeader = ({ documents }) => {
   const handleFollowUpClose = () => setOpenFollowUp(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [followUp, setFollowUp] = useState(null);
+  const [followUp, setFollowUp] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+  const [notifyModal, setNotifyModal] = useState(false);
+  const [documentId, setDocumentId] = useState("");
 
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
@@ -212,6 +220,10 @@ const PatientDetailsHeader = ({ documents }) => {
       }
     }
   }, []);
+
+  const handleNotifyModalClose = () => {
+    setNotifyModal(false);
+  };
 
   const handlePmrDialogClose = () => {
     setPmrDialogOpen(false);
@@ -261,6 +273,10 @@ const PatientDetailsHeader = ({ documents }) => {
     });
   };
 
+  const handleDateChange = (event) => {
+    setFollowUp(event.target.value);
+  };
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -279,7 +295,7 @@ const PatientDetailsHeader = ({ documents }) => {
     const pmr_id = sessionStorage?.getItem("pmrID");
     const params = {
       pmr_id: pmr_id,
-      document_type: "Prescription",
+      mode: "handwritten",
     };
 
     const docPayload = {
@@ -287,8 +303,9 @@ const PatientDetailsHeader = ({ documents }) => {
     };
 
     dispatch(submitHealthDocument({ params, docPayload })).then((res) => {
+      setDocumentId(res?.payload?.data?.document_id);
       setShowLoader(false);
-      if (res.meta.requestStatus === "rejected") {
+      if (res?.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);
       } else {
         setOpenFollowUp(true);
@@ -321,10 +338,14 @@ const PatientDetailsHeader = ({ documents }) => {
       appointment_request,
     };
     dispatch(postEMR(allData)).then((res) => {
-      if (res.payload) {
-        navigate("/appointment-list");
+      setOpenFollowUp(false);
+      if (res?.payload) {
+        setNotifyModal(true);
       }
-    });
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   };
 
   return (
@@ -453,7 +474,7 @@ const PatientDetailsHeader = ({ documents }) => {
                             <CloseIcon />
                           </IconButton>
                         </Toolbar>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DemoContainer components={["DatePicker"]}>
                             <DatePicker
                               slotProps={{
@@ -468,9 +489,17 @@ const PatientDetailsHeader = ({ documents }) => {
                               onChange={(newValue) => setFollowUp(newValue)}
                             />
                           </DemoContainer>
-                        </LocalizationProvider>
-                        <br />
-                        <PrimaryButton onClick={postPMR}>
+                        </LocalizationProvider> */}
+                        <TextField
+                          sx={{ width: "100%", marginBottom: "20px"  }}
+                          type="date"
+                          inputProps={{
+                            min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                          }}
+                          value={followUp}
+                          onChange={handleDateChange}
+                        />
+                        <PrimaryButton onClick={postPMR} >
                           Finish Prescription
                         </PrimaryButton>
                       </Box>
@@ -483,6 +512,11 @@ const PatientDetailsHeader = ({ documents }) => {
 
         </>
       )}
+      <SendPMR
+        notifyModal={notifyModal}
+        handleNotifyModalClose={handleNotifyModalClose}
+        documentId={documentId}
+      />
     </DetailsHeaderContainer>
   );
 };

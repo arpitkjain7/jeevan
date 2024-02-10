@@ -52,6 +52,16 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
       paddingRight: "10px",
     }
   },
+  ".header-content": {
+    display: "flex",
+  },
+  // ".header-username-desktop": {
+  //   [theme.breakpoints.up('sm')]: {
+  //     alignItems: "center",
+  //     display: "flex",
+  //     marginRight: "10px",
+  //   },
+  // },
   ".header-question-text": {
     color: theme.palette.secondaryGrey,
     fontFamily: "Inter",
@@ -86,7 +96,7 @@ const ProfileIcon = styled(Avatar)(({ theme }) => ({
 
 const ProfileMenu = styled(Menu)(({ theme }) => ({
   position: "absolute",
-  top: 20,
+  top: 10,
   [theme.breakpoints.down('sm')]: {
     top: 10,
     left: 11
@@ -96,6 +106,7 @@ const ProfileMenu = styled(Menu)(({ theme }) => ({
 const Header = () => {
   const accessToken = sessionStorage.getItem("accesstoken");
   const hospital = sessionStorage?.getItem("selectedHospital");
+  const username = sessionStorage.getItem("userName");
   const currentHospital = JSON.parse(hospital);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -137,6 +148,7 @@ const Header = () => {
                 onClose={handleClose}
                 className="profile_menu"
               >
+                <MenuItem> {username} </MenuItem>
                 <MenuItem onClick={handleClose}>View Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </ProfileMenu>

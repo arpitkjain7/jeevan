@@ -44,6 +44,11 @@ export const getPatientDetails = createAsyncThunk(
   }
 );
 
+export const sendNotification = createAsyncThunk("notifyPMR", async (payload) => {
+  const response = await apiRequest("POST", apis?.pmrSendNotification, payload);
+  return response;
+});
+
 export const syncPMR = createAsyncThunk(
   "patient/verifySyncOtp",
   async (payload) => {
@@ -107,7 +112,7 @@ export const submitHealthDocument = createAsyncThunk(
     try {
       const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
         params: {
-          document_type: params?.document_type,
+          mode: params?.mode,
           pmr_id: params?.pmr_id,
         },
         headers: {

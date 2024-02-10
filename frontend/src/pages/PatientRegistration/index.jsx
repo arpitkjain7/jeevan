@@ -181,13 +181,6 @@ const PatientRegistration = () => {
         setIsAadhaarValid(true);
       }
     }
-  
-    // if (isNaN(numericValue) || inputValue === "") {
-    //   console.log(isNaN(numericValue));
-    //   setErrorMessage('Please enter valid Aadhaar number!');
-    // } else {    
-    //   setAadhaar(inputValue);
-    // }
   };
 
   const handleNumberChange = (event) => {
@@ -224,7 +217,7 @@ const PatientRegistration = () => {
     //validation
     if (aadhaar_regex.test(aadhaar)){
       setIsAadhaarValid(false);
-      console.log("Form submitted:", aadhaar);
+      console.log("Form submitted:");
         const payload = {
           aadhaarNumber: (aadhaar).replace(/\D/g, ""),
         };
@@ -336,7 +329,6 @@ const PatientRegistration = () => {
           setShowSnackbar(true);
           return;
         }
-        console.log(res);
         setStepTwo(true);
         if (stepTwo) {
           setStepThree(true);

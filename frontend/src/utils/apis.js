@@ -21,7 +21,7 @@ export const apis = {
   searchVitals: "https://snomed.cliniq360.com/csnoserv/api/search/search",
   createEMR: "v2/PMR/createPMR",
   submitEMR: "v1/PMR/submitPMR",
-  uploadPmrPdf: "v1/PMR/uploadDocument",
+  uploadPmrPdf: "v1/PMR/uploadPrescription",
   getVitalDetail: "v1/patient/getVitals",
   listConsent: "v1/HIU/listConsent",
   consentDetails: "v1/HIU/getCareContext",
@@ -36,4 +36,5 @@ export const apis = {
   syncPMREndpoint: "v1/PMR/sync",
   patientDetails: "v1/patient",
   uploadHealthDocument: "v1/PMR/uploadHealthDocuments",
+  pmrSendNotification: "v1/PMR/sendDocument"
 };

@@ -28,7 +28,10 @@ const LogInWrapper = styled("div")(({ theme }) => ({
   },
   ".login-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
-    marginTop: "10px"
+    marginTop: "10px",
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: "20px",
+    },
   },
   ".login-title": {
     "&.MuiTypography-root": theme.typography.h1,
@@ -86,7 +89,6 @@ const LoginPage = (props) => {
     };
     dispatch(loginUser(payload)).then((response) => {
       const resData = response?.payload;
-      console.log(resData, "data");
       if (resData?.access_token) {
         sessionStorage.setItem("accesstoken", resData?.access_token);
         sessionStorage.setItem("userRole", resData?.user_role);

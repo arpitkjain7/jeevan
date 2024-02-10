@@ -49,8 +49,11 @@ class HIDController:
             )
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data={"aadhaar": aadhaar_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps({"aadhaar": aadhaar_number}),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 txn_id = resp.get("txnId")
@@ -171,10 +174,14 @@ class HIDController:
             generate_aadhaar_otp_url = (
                 f"{self.abha_url}/v1/registration/aadhaar/verifyOTP"
             )
+            payload = {"otp": otp, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data={"otp": otp, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 gateway_request = {
@@ -262,49 +269,6 @@ class HIDController:
                     "transaction_id": txn_id,
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
-                # time_now = datetime.now()
-                # linking_token_validity = time_now + timedelta(minutes=1800)
-                # linking_token_validity = linking_token_validity.strftime(
-                #     "%m/%d/%Y, %H:%M:%S"
-                # )
-                # refresh_token_validity = time_now + timedelta(minutes=1296000)
-                # refresh_token_validity = refresh_token_validity.strftime(
-                #     "%m/%d/%Y, %H:%M:%S"
-                # )
-                # patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                # phr_addresses = resp["ABHAProfile"]["phrAddress"]
-                # abha_address_list = ",".join(phr_addresses)
-                # patient_request = {
-                #     "id": patient_id,
-                #     "abha_number": resp["ABHAProfile"]["ABHANumber"].replace("-", ""),
-                #     "abha_address": abha_address_list,
-                #     "mobile_number": resp["ABHAProfile"]["mobile"],
-                #     "name": f"{resp['ABHAProfile']['firstName']} {resp['ABHAProfile']['middleName']} {resp['ABHAProfile']['lastName']}",
-                #     "gender": resp["ABHAProfile"]["gender"],
-                #     "DOB": resp["ABHAProfile"]["dob"],
-                #     "email": resp["ABHAProfile"]["email"],
-                #     "address": resp["ABHAProfile"]["address"],
-                #     "pincode": resp["ABHAProfile"]["pinCode"],
-                #     "hip_id": hip_id,
-                #     "auth_methods": "AADHAAR_OTP",
-                #     "linking_token": {
-                #         "value": resp["tokens"]["token"],
-                #         "valid_till": linking_token_validity,
-                #     },
-                #     "refresh_token": {
-                #         "value": resp["tokens"]["refreshToken"],
-                #         "valid_till": refresh_token_validity,
-                #     },
-                # }
-                # patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                #     abha_number=resp["ABHAProfile"]["ABHANumber"].replace("-", "")
-                # )
-                # if patient_record:
-                #     patient_request.update({"id": patient_record["id"]})
-                #     self.CRUDPatientDetails.update(**patient_request)
-                # else:
-                #     self.CRUDPatientDetails.create(**patient_request)
-                # patient_request["txnId"] = resp["txnId"]
                 return resp
             else:
                 gateway_request = {
@@ -451,10 +415,14 @@ class HIDController:
             generate_aadhaar_otp_url = (
                 f"{self.abha_url}/v2/registration/aadhaar/checkAndGenerateMobileOTP"
             )
+            payload = {"mobile": mobile_number, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data={"mobile": mobile_number, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 gateway_request = {
@@ -507,10 +475,14 @@ class HIDController:
             generate_aadhaar_otp_url = (
                 f"{self.abha_url}/v1/registration/aadhaar/verifyMobileOTP"
             )
+            payload = {"otp": otp, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data={"otp": otp, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 gateway_request = {
@@ -566,7 +538,10 @@ class HIDController:
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
                 data=request_json,
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             logging.info(f"{resp=}")
             logging.info(f"{resp_code=}")
@@ -676,10 +651,14 @@ class HIDController:
             generate_otp_abha_url = (
                 f"{self.abha_url}/v1/forgot/healthId/aadhaar/generateOtp"
             )
+            payload = {"aadhaar": aadhaar_number}
             resp, resp_code = APIInterface().post(
                 route=generate_otp_abha_url,
-                data={"aadhaar": aadhaar_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 txn_id = resp.get("txnId")
@@ -727,10 +706,14 @@ class HIDController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             verify_otp_abha_url = f"{self.abha_url}/v1/forgot/healthId/aadhaar"
+            payload = {"otp": otp, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=verify_otp_abha_url,
-                data={"otp": otp, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 gateway_request = {
@@ -782,10 +765,14 @@ class HIDController:
             generate_mobile_otp_url = (
                 f"{self.abha_url}/v1/registration/mobile/generateOtp"
             )
+            payload = {"mobile": mobile_number}
             resp, resp_code = APIInterface().post(
                 route=generate_mobile_otp_url,
-                data={"mobile": mobile_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 txn_id = resp.get("txnId")
@@ -833,10 +820,14 @@ class HIDController:
             generate_mobile_otp_url = (
                 f"{self.abha_url}/v1/registration/mobile/verifyOtp"
             )
+            payload = {"otp": otp, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=generate_mobile_otp_url,
-                data={"otp": otp, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 token = resp.get("token")
@@ -906,7 +897,10 @@ class HIDController:
             resp, resp_code = APIInterface().post(
                 route=generate_mobile_otp_url,
                 data=request_json,
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             logging.info(f"{resp=}")
             logging.info(f"{resp_code=}")
@@ -1009,6 +1003,7 @@ class HIDController:
                     byte_data, resp_code = APIInterface().get_bytes(
                         route=f"{self.abha_url}/v1/account/getPngCard",
                         headers={
+                            "Content-Type": "application/json",
                             "Authorization": f"Bearer {gateway_access_token}",
                             "X-Token": f"Bearer {linking_token}",
                         },
@@ -1021,10 +1016,11 @@ class HIDController:
                         refresh_token_url = (
                             f"{self.abha_url}/v1/auth/generate/access-token"
                         )
+                        payload = {"refreshToken": refresh_token}
                         resp, resp_code = APIInterface().post(
                             route=refresh_token_url,
-                            data={"refreshToken": refresh_token},
-                            headers={"Authorization": f"Bearer {gateway_access_token}"},
+                            data=json.dumps(payload),
+                            headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
                         )
                         linking_token = resp.get("accessToken", None)
                         if linking_token:
@@ -1037,7 +1033,7 @@ class HIDController:
                         logging.info("Getting Abha card")
                         byte_data, resp_code = APIInterface().get_bytes(
                             route=f"{self.abha_url}/v1/account/getPngCard",
-                            headers={
+                            headers={"Content-Type": "application/json",
                                 "Authorization": f"Bearer {gateway_access_token}",
                                 "X-Token": f"Bearer {linking_token}",
                             },
@@ -1118,6 +1114,7 @@ class HIDController:
                     byte_data, resp_code = APIInterface().get_bytes(
                         route=f"{self.abha_url}/v1/account/getPngCard",
                         headers={
+                            "Content-Type": "application/json",
                             "Authorization": f"Bearer {gateway_access_token}",
                             "X-Token": f"Bearer {linking_token}",
                         },
@@ -1130,10 +1127,11 @@ class HIDController:
                         refresh_token_url = (
                             f"{self.abha_url}/v1/auth/generate/access-token"
                         )
+                        payload = {"refreshToken": refresh_token}
                         resp, resp_code = APIInterface().post(
                             route=refresh_token_url,
-                            data={"refreshToken": refresh_token},
-                            headers={"Authorization": f"Bearer {gateway_access_token}"},
+                            data=json.dumps(payload),
+                            headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
                         )
                         linking_token = resp.get("accessToken", None)
                         if linking_token:
@@ -1146,7 +1144,7 @@ class HIDController:
                         logging.info("Getting Abha card")
                         byte_data, resp_code = APIInterface().get_bytes(
                             route=f"{self.abha_url}/v1/account/getPngCard",
-                            headers={
+                            headers={"Content-Type": "application/json",
                                 "Authorization": f"Bearer {gateway_access_token}",
                                 "X-Token": f"Bearer {linking_token}",
                             },
@@ -1204,10 +1202,14 @@ class HIDController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             search_abha_url = f"{self.abha_url}/v1/search/searchByHealthId"
+            payload = {"healthId": abha_number}
             resp, resp_code = APIInterface().post(
                 route=search_abha_url,
-                data={"healthId": abha_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             return resp
         except Exception as error:
@@ -1221,19 +1223,24 @@ class HIDController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             search_abha_url = f"{self.abha_url}/v1/search/searchByMobile"
+            payload = {"mobile": mobile_number}
             resp, resp_code = APIInterface().post(
                 route=search_abha_url,
-                data={"mobile": mobile_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
             )
             logging.info(f"/v1/search/searchByMobile {resp_code=}")
             if resp.get("healthIdNumber", None):
                 return resp
             login_abha_url = f"{self.abha_url}/v2/registration/mobile/login/generateOtp"
+            payload = {"mobile": mobile_number}
             resp, resp_code = APIInterface().post(
                 route=login_abha_url,
-                data={"mobile": mobile_number},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             gateway_request = {
                 "request_id": resp.get("txnId"),
@@ -1257,10 +1264,14 @@ class HIDController:
             otp = request.otp
             encrypted_data = rsa_encryption(data_to_encrypt=otp)
             verify_otp_url = f"{self.abha_url}/v2/registration/mobile/login/verifyOtp"
+            payload = {"otp": encrypted_data, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=verify_otp_url,
-                data={"otp": encrypted_data, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             return resp
         except Exception as error:
@@ -1284,10 +1295,14 @@ class HIDController:
                 health_id = patient_obj.get("abha_number")
             logging.info(f"{health_id=}")
             auth_init_url = f"{self.abha_url}/v1/auth/init"
+            payload = {"authMethod": auth_method, "healthid": health_id}
             resp, resp_code = APIInterface().post(
                 route=auth_init_url,
-                data={"authMethod": auth_method, "healthid": health_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             return resp
         except Exception as error:
@@ -1311,10 +1326,14 @@ class HIDController:
                 verify_otp_url = f"{self.abha_url}/v1/auth/confirmWithMobileOTP"
             else:
                 return {"status": "failed", "details": "invalid auth mode"}
+            payload = {"otp": otp, "txnId": txn_id}
             resp, resp_code = APIInterface().post(
                 route=verify_otp_url,
-                data={"otp": otp, "txnId": txn_id},
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                data=json.dumps(payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             if resp_code <= 250:
                 linking_token = resp.get("token")
@@ -1357,6 +1376,7 @@ class HIDController:
                     patient_data, resp_code = APIInterface().get(
                         route=get_profile_url,
                         headers={
+                            "Content-Type": "application/json",
                             "Authorization": f"Bearer {gateway_access_token}",
                             "X-Token": f"Bearer {linking_token}",
                         },
@@ -1452,6 +1472,7 @@ class HIDController:
                 route=generate_otp_url,
                 data=json.dumps(payload),
                 headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1518,7 +1539,7 @@ class HIDController:
             resp, resp_code = APIInterface().post(
                 route=abha_detail_otp_update_url,
                 data=json.dumps(payload),
-                headers={
+                headers={"Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
@@ -1733,7 +1754,8 @@ class HIDController:
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,
-                    'T-Token': f'Bearer {request_dict.get("token")}'}
+                    "T-Token": f'Bearer {request_dict.get("token")}',
+                },
             )
             if resp_code <= 250:
                 gateway_request = {

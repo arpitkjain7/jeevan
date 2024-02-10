@@ -6,11 +6,9 @@ import {
   styled,
   TextField,
   Grid,
-  filledInputClasses,
   Autocomplete,
   Modal,
   Box,
-  AppBar,
   Toolbar,
   IconButton,
 } from "@mui/material";
@@ -26,24 +24,17 @@ import {
   searchVitalsDetails,
 } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
-import { Button } from "@mui/base";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
-import SyncAbha from "../SyncAbha";
 import { calculateBMI, convertDateFormat } from "../../../utils/utils";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomizedDialogs from "../../../components/Dialog";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
-import dayjs from "dayjs";
 import CustomLoader from "../../../components/CustomLoader";
-import { MobileDatePicker } from "@mui/x-date-pickers";
 import { format } from "date-fns";
+import SendPMR from "../SendPMR";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -112,6 +103,17 @@ const VitalsContainer = styled("div")(({ theme }) => ({
       "& > .MuiInputBase-root ": {
         minHeight: theme.spacing(43),
       },
+    },
+  },
+  "& .textareaAutoSizeStyle": {
+    height: "165px", 
+    minHeight: "165px", 
+    maxHeight: "165px", 
+    width: "100%", 
+    minWidth: "100%",
+    maxWidth: "100%",
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: "430px",
     },
   },
 }));
@@ -211,7 +213,7 @@ const PrimaryButton = styled("button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
   float: "right",
   [theme.breakpoints.down("sm")]: {
-    padding: "5px 8px",
+    padding: "5px 7px",
   },
 }));
 
@@ -242,9 +244,9 @@ const RecordLayout = styled("div")(({ theme }) => ({
     justifyContent: "center",
     alignItems: "center",
   },
-  "&.addMaxWidth": {
+  "&.addMinWidth": {
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "110px",
+      minWidth: "90px",
     },
   },
 }));
@@ -261,12 +263,12 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
       display: "none",
     },
     "&.frequencyInput": {
-      maxWidth: "95px",
+      minWidth: "90px",
     },
   },
-  "&.addMaxWidth": {
+  "&.addMinWidth": {
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "95px",
+      minWidth: "90px",
       ".MuiOutlinedInput-root": {
         padding: "6px",
       },
@@ -274,6 +276,11 @@ const TextBoxLayout = styled("div")(({ theme }) => ({
   },
   ".MuiAutocomplete-input": {
     textOverflow: "clip",
+  },
+  "& .textareaAutoSizeStyle": {
+    minWidth: "100%",
+    maxWidth: "100%",
+    maxHeight: "81px",
   },
 }));
 
@@ -393,7 +400,7 @@ function useWindowDimensions() {
   return windowDimensions;
 }
 
-const PatientEMRDetails = () => {
+const PatientEMRDetails = (props) => {
   const { height, width } = useWindowDimensions();
   const [existingConditionsOpts, setExistingConditionOpts] = useState([]);
   const [symptomsOpts, setSymptomsOpts] = useState([]);
@@ -430,8 +437,6 @@ const PatientEMRDetails = () => {
   const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
-  const [showSync, setShowSync] = useState(false);
-  const [selectedAuthOption, setSelectedAuthOption] = useState("");
   const [number, setNumber] = useState("");
   const [symptomNumber, setSymptomNumber] = useState("");
   const [medicalHistoryNumber, setMedicalHistoryNumber] = useState("");
@@ -448,6 +453,10 @@ const PatientEMRDetails = () => {
   const [examinationFindingOptions, setExaminationFindingOptions] = useState("");
   const [medicationOptions, setMedicationOptions] = useState("");
   const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
+  const [notifyModal, setNotifyModal] = useState(false);
+  const [documentId, setDocumentId] = useState("");
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -461,7 +470,7 @@ const PatientEMRDetails = () => {
     systolicBP: "",
     diastolicaBP: "",
   });
-  const [followUp, setFollowUp] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
+  const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   
   useEffect(() => {
@@ -984,6 +993,9 @@ const PatientEMRDetails = () => {
     }, 1000)
   };
 
+  const clearMedicalHistoryOptions = (event) => {
+    setMedicalHistoryOpts([]);
+  }
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
       // setShowMedicalHistory(true);
@@ -1020,7 +1032,9 @@ const PatientEMRDetails = () => {
       setExistingCondition([...existingConditions, fieldValue]);
     }
   };
-
+  const clearSymptomsOptions = (event) => {
+    setSymptomsOpts([]);
+  }
   const handleSymptoms = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1051,7 +1065,9 @@ const PatientEMRDetails = () => {
   //     setMedicalHistory([...medicalHistory, fieldValue]);
   //   }
   // };
-
+  const clearExaminationFindingOptions = (event) => {
+    setExamFindingsOpts([]);
+  }
   const handleExaminationFindings = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1074,6 +1090,9 @@ const PatientEMRDetails = () => {
       setExamFindingsOpts([]);
     }
   };
+  const clearDiagnosisOptions = (event) => {
+    setDiagnosisOpts([]);
+  }
   const handleDiagnosis = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1095,6 +1114,9 @@ const PatientEMRDetails = () => {
       setDiagnosisOpts([]);
     }
   };
+  const clearMedicationOptions = (event) => {
+    setMedicationsOpts([]);
+  }
   const handleMedications = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1116,6 +1138,9 @@ const PatientEMRDetails = () => {
       setMedicationsOpts([]);
     }
   };
+  const clearLabInvestigationOptions = (event) => {
+    setLabInvestigationsOpts([]);
+  }
   const handleLabInvestigations = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1148,17 +1173,7 @@ const PatientEMRDetails = () => {
   };
 
   const handleTextFieldChange = (option, textField, newValue) => {
-    console.log(option, textField, newValue, "valuecheck");
     setOptionTextValues({
-      ...optionTextValues,
-      [option?.label]: {
-        ...optionTextValues[option?.label],
-        [textField]: newValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
-      },
-    });
-    console.log({
       ...optionTextValues,
       [option?.label]: {
         ...optionTextValues[option?.label],
@@ -1211,15 +1226,6 @@ const PatientEMRDetails = () => {
         snowmed_display: option?.snowmed_display,
       },
     });
-    console.log({
-      ...symptomsSpecs,
-      [option?.label]: {
-        ...symptomsSpecs[option?.label],
-        [textField]: newValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
-      },
-    });
   };
 
   const handleSymptomsSpecsDelete = (optionToRemove) => () => {
@@ -1240,18 +1246,6 @@ const PatientEMRDetails = () => {
         snowmed_display: option?.snowmed_display,
       },
     });
-    console.log(
-      {
-        ...examinationSpecs,
-        [option?.label]: {
-          ...examinationSpecs[option?.label],
-          [textField]: newValue,
-          snowmed_code: option?.snowmed_code,
-          snowmed_display: option?.snowmed_display,
-        },
-      },
-      "EXAM"
-    );
   };
 
   const handleExaminationSpecsDelete = (optionToRemove) => () => {
@@ -1291,11 +1285,10 @@ const PatientEMRDetails = () => {
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
       if (severityValue.length < 3) {
         inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
-      } else 
-      inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
-    } else {
-      inputValue = newValue
-    }
+      } else if (severityValue.length < 6) {
+        inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
+      } else inputValue = ""
+    } else inputValue = newValue;
     setMedicationsSpecs({
       ...medicationsSpecs,
       [option?.label]: {
@@ -1586,9 +1579,7 @@ const PatientEMRDetails = () => {
       if (key === "array") {
         continue;
       }
-      console.log(inputObject, "inputobj");
       const objectDetails = inputObject[key];
-      console.log(objectDetails, "objectdet");
       const transformedItem = {
         medical_history: key,
         relationship: objectDetails.relationship,
@@ -1631,24 +1622,24 @@ const PatientEMRDetails = () => {
 
     return pdfFile;
   };
-
-  const handleModalClose = () => {
-    setShowSync(false);
+  const handleNotifyModalClose = () => {
+    setNotifyModal(false);
   };
 
   const postPMR = async () => {
+    setShowLoader(true);
     const pmr_request = pdfData;
     pmr_request["pmr_id"] = emrId;
     pmr_request["advice"] = advices;
     pmr_request["notes"] = prescriptionComment;
 
     const pdfPayload = {
-      document_type: "Prescription",
+      mode: "digital",
       pmr_id: emrId,
     };
     const current_patient = JSON.parse(patient);
     let appointment_request;
-    if (followUp !== null) {
+    if (followUp) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -1666,40 +1657,35 @@ const PatientEMRDetails = () => {
     };
     const blob = await createPdfBlob();
     dispatch(submitPdf({ blob, pdfPayload }))
-      .then(
+      .then((pdfResponse) => {
         dispatch(postEMR(allData))
           .then((res) => {
+            setShowLoader(false);
             if (res.meta.requestStatus === "rejected") {
               setPmrDialogOpen(true);
             } else {
-              if (
-                !(
-                  currentPatient?.patient_details?.abha_number &&
-                  currentPatient?.patient_details?.abha_number !== ""
-                )
-              ) {
-                navigate("/appointment-list");
-                sessionStorage.removeItem("pmrID");
-              }
+              setDocumentId(pdfResponse?.payload?.data?.document_id);
+              setNotifyModal(true);
             }
           })
           .catch((error) => {
             console.log(error);
           })
+        }
       )
       .catch((error) => {
         console.log(error);
       });
-    const currentPatient = JSON.parse(
-      sessionStorage.getItem("selectedPatient")
-    );
-    if (
-      userRole === "ADMIN" &&
-      currentPatient?.patient_details?.abha_number &&
-      currentPatient?.patient_details?.abha_number !== ""
-    ) {
-      setShowSync(true);
-    }
+    // const currentPatient = JSON.parse(
+    //   sessionStorage.getItem("selectedPatient")
+    // );
+    // if (
+    //   userRole === "ADMIN" &&
+    //   currentPatient?.patient_details?.abha_number &&
+    //   currentPatient?.patient_details?.abha_number !== ""
+    // ) {
+    //   setShowSync(true);
+    // }
   };
 
   const filterVitals = (vitalsArr) => {
@@ -1725,8 +1711,6 @@ const PatientEMRDetails = () => {
     const currentMedicationEMR = currentMedicationObj();
     const labInvestigationEMR = labInvestigationObj(labInvestigationSpecs);
     const medicalHistoryEMR = medicalHistoryObj(optionTextValues);
-
-    console.log(formValues, "formValues");
 
     const payloadArr = [
       {
@@ -1805,7 +1789,7 @@ const PatientEMRDetails = () => {
     const pdfFormattedData = submitEMRPayload;
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
-    if(followUp !== null){
+    if(followUp){
       pdfFormattedData["followup"] = followUp;
     }
     setPdfData(pdfFormattedData);
@@ -1822,12 +1806,8 @@ const PatientEMRDetails = () => {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     let pdf_data = await createPdfBlob(patientDetails);
     const pdfUrls = URL.createObjectURL(pdf_data);
-    console.log(pdfUrls);
     setPdfUrl(pdfUrls);
   };
-
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -1919,7 +1899,7 @@ const PatientEMRDetails = () => {
 
     let appointment_request;
     const current_patient = JSON.parse(patient);
-    if (followUp !== null) {
+    if (followUp) {
       appointment_request = {
         appointment_id: current_patient?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
@@ -1937,15 +1917,15 @@ const PatientEMRDetails = () => {
     };
 
     dispatch(postEMR(allData)).then((res) => {
-      if (
-        !(
-          currentPatient?.patient_details?.abha_number &&
-          currentPatient?.patient_details?.abha_number !== ""
-        )
-      ) {
+      // if (
+      //   !(
+      //     currentPatient?.patient_details?.abha_number &&
+      //     currentPatient?.patient_details?.abha_number !== ""
+      //   )
+      // ) {
         navigate("/appointment-list");
         sessionStorage.removeItem("pmrID");
-      }
+      // }
     });
   };
 
@@ -2014,7 +1994,6 @@ const PatientEMRDetails = () => {
 
   const handleHistoryNumberOptions = (event, value) => {
     const isValidInput = /^([1-9]\d{0,2}(Days|Weeks|Months)?)?$/.test(value);
-
     if (isValidInput) {
       setMedicalHistoryNumber(value);
     }
@@ -2066,12 +2045,10 @@ const PatientEMRDetails = () => {
   };
 
   const generateSymptomsOptionChange = (option, newValue, key) => {
-    console.log("options", option, newValue, key);
     handleSymtomsTextChange(option, key, newValue);
   };
 
   const generateMedicalHistoryOptionChange = (option, newValue) => {
-    console.log("options", option, newValue, "since");
     handleTextFieldChange(option, "since", newValue);
   };
 
@@ -2187,17 +2164,7 @@ const PatientEMRDetails = () => {
                       <BPTextFieldWrapper>
                         <Grid item xs={8}>
                           <BPWrapper>
-                            <DiastolicTextField
-                              fullWidth
-                              type="number"
-                              variant="outlined"
-                              name="diastolicaBP"
-                              value={formValues.diastolicaBP}
-                              onChange={handleInputChange}
-                              className="emr-input-field"
-                            />
-                            <Divider>/</Divider>
-                            <SystolicTextField
+                          <SystolicTextField
                               fullWidth
                               type="number"
                               variant="outlined"
@@ -2206,6 +2173,16 @@ const PatientEMRDetails = () => {
                               onChange={handleInputChange}
                               className="emr-input-field"
                             />
+                            <Divider>/</Divider>
+                            <DiastolicTextField
+                              fullWidth
+                              type="number"
+                              variant="outlined"
+                              name="diastolicaBP"
+                              value={formValues.diastolicaBP}
+                              onChange={handleInputChange}
+                              className="emr-input-field"
+                            />                           
                           </BPWrapper>
                         </Grid>
                         <Grid item xs={4}>
@@ -2318,6 +2295,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleSymptompsChange}
                       setOptions={setSymptomsOpts}
                       handleOptionChange={handleSymptoms}
+                      handleClearOptions={clearSymptomsOptions}
                     />
                     {symptoms?.length > 0 && (
                       <div>
@@ -2331,7 +2309,7 @@ const PatientEMRDetails = () => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   className="sinceAutocomplete"
                                   options={generateSymptomsOptions(
@@ -2351,13 +2329,12 @@ const PatientEMRDetails = () => {
                                     handleSymptomNumberOptions(item, newValue)
                                   }
                                   renderInput={(params) => (
-                                    <div style={{ display: "flex" }}>
                                       <TextField
                                         {...params}
+                                        type="tel"
                                         label="Since"
                                         variant="outlined"
                                       />
-                                    </div>
                                   )}
                                 />
                               </TextBoxLayout>
@@ -2417,6 +2394,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             symptomsSpecs[item?.label]?.notes ||
@@ -2460,6 +2438,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleMeidcalHistoryChange}
                       setOptions={setMedicalHistoryOpts}
                       handleOptionChange={handleMedicalHistoryValue}
+                      handleClearOptions={clearMedicalHistoryOptions}
                       autocompleteRef={medicalHistoryRef}
                     />
                     {medicalHistory?.length > 0 && (
@@ -2469,20 +2448,12 @@ const PatientEMRDetails = () => {
                           .reverse()
                           .map((item) => (
                             <FieldSpecsContainer>
-                              <RecordLayout className="addMaxWidth">
+                              <RecordLayout className="addMinWidth">
                                 <SelectedRecord>
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
-                                {/* <RecordTextField
-                              placeholder="Since"
-                              value={optionTextValues[item?.label]?.since || ""}
-                              onChange={(e) =>
-                                handleTextFieldChange(item, "since", e.target.value)
-                              }
-      variant="outlined"
-                            /> */}
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={generateHistoryOptions(
                                     medicalHistoryNumber,
@@ -2503,6 +2474,7 @@ const PatientEMRDetails = () => {
                                   }
                                   renderInput={(params) => (
                                     <TextField
+                                      type="tel"
                                       {...params}
                                       label="Since"
                                       variant="outlined"
@@ -2510,7 +2482,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={relationshipOptions}
                                   value={
@@ -2588,6 +2560,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             optionTextValues[item?.label]
@@ -2630,6 +2603,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleExamFindingsChange}
                       setOptions={setExamFindingsOpts}
                       handleOptionChange={handleExaminationFindings}
+                      handleClearOptions={clearExaminationFindingOptions}
                     />
                     {examFindings?.length > 0 && (
                       <div>
@@ -2702,6 +2676,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             examinationSpecs[item?.label]
@@ -2746,6 +2721,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleDiagnosisChange}
                       setOptions={setDiagnosisOpts}
                       handleOptionChange={handleDiagnosis}
+                      handleClearOptions={clearDiagnosisOptions}
                     />
                     {diagnosis?.length > 0 && (
                       <div>
@@ -2754,12 +2730,12 @@ const PatientEMRDetails = () => {
                           .reverse()
                           .map((item) => (
                             <FieldSpecsContainer>
-                              <RecordLayout className="addMaxWidth">
+                              <RecordLayout className="addMinWidth">
                                 <SelectedRecord>
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={diagnosisStatusOpts}
                                   value={diagnosisSpecs[item?.label]?.since || ""}
@@ -2779,7 +2755,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={diagnosisTypeOpts}
                                   value={
@@ -2860,6 +2836,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             diagnosisSpecs[item?.label]?.notes ||
@@ -2904,6 +2881,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleLabInvestigationsChange}
                       setOptions={setLabInvestigationsOpts}
                       handleOptionChange={handleLabInvestigations}
+                      handleClearOptions={clearLabInvestigationOptions}
                     />
                     {labInvestigation?.length > 0 && (
                       <div>
@@ -2977,6 +2955,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             labInvestigationSpecs[item?.label]
@@ -3019,6 +2998,7 @@ const PatientEMRDetails = () => {
                       handleInputChange={handleMedicationsChange}
                       setOptions={setMedicationsOpts}
                       handleOptionChange={handleMedications}
+                      handleClearOptions={clearMedicationOptions}
                     />
                     {medications?.length > 0 && (
                       <div>
@@ -3032,7 +3012,7 @@ const PatientEMRDetails = () => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "60px" }}>
+                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "90px" }}>
                                 <RecordTextField
                                   placeholder="Frequency"
                                   value={
@@ -3044,7 +3024,9 @@ const PatientEMRDetails = () => {
                                       "severity",
                                       e.target.value
                                     )
-                                  }
+                                  }                                  
+                                  type="tel"
+                                  inputProps={{ maxLength: 5}}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3053,7 +3035,7 @@ const PatientEMRDetails = () => {
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
                                   value={
-                                    medicationsSpecs[item?.label]?.timing || null
+                                    medicationsSpecs[item?.label]?.timing 
                                   }
                                   onChange={(event, newValue) =>
                                     handleMedicationsTextChange(
@@ -3071,7 +3053,7 @@ const PatientEMRDetails = () => {
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={generateDoseOptions(dose, item)}
                                   value={
@@ -3091,13 +3073,14 @@ const PatientEMRDetails = () => {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
+                                      type="tel"
                                       label="Dose"
                                       variant="outlined"
                                     />
                                   )}
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="addMaxWidth">
+                              <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={generateOptions(number, item)}
                                   value={
@@ -3117,6 +3100,7 @@ const PatientEMRDetails = () => {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
+                                      type="tel"
                                       label="Duration"
                                       variant="outlined"
                                     />
@@ -3126,6 +3110,7 @@ const PatientEMRDetails = () => {
                               <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
                                 <RecordTextField
                                   placeholder="Frequency"
+                                  type="tel"
                                   value={
                                     medicationsSpecs[item?.label]?.severity || ""
                                   }
@@ -3136,11 +3121,12 @@ const PatientEMRDetails = () => {
                                       e.target.value
                                     )
                                   }
+                                  inputProps={{ maxLength: 5}}
                                   label="Frequency"
                                   variant="outlined"
                                 />
                               </TextBoxLayout>
-                              <TextBoxLayout className="mobileTextBoxLayout addMaxWidth">
+                              <TextBoxLayout className="mobileTextBoxLayout addMinWidth">
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
                                   value={
@@ -3221,6 +3207,7 @@ const PatientEMRDetails = () => {
                                       <TextBoxLayout>
                                         <TextareaAutosize
                                           maxRows={3}
+                                          className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
                                             medicationsSpecs[item?.label]?.notes || ""
@@ -3288,11 +3275,10 @@ const PatientEMRDetails = () => {
                         <SectionHeader>Notes</SectionHeader>
                         <div>
                           <TextareaAutosize
-                            style={{ width: "100%" }}
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your notes here"
-                            className="notes-field"
                             onChange={prescriptionCommentChange}
                             value={prescriptionComment}
                           />
@@ -3303,12 +3289,11 @@ const PatientEMRDetails = () => {
                       <VitalsContainer>
                         <SectionHeader>Advices</SectionHeader>
                         <div>
-                        <TextareaAutosize
-                            style={{ width: "100%" }}
+                          <TextareaAutosize
+                            className="textareaAutoSizeStyle"
                             minRows={7}
                             maxRows={7}
                             placeholder="Add your advices here"
-                            className="notes-field"
                             onChange={adviceChange}
                             value={advices}
                           />
@@ -3322,7 +3307,7 @@ const PatientEMRDetails = () => {
             <EMRFooter style={{ position: "sticky", bottom: 0 }}>
               <SecondaryButton
                 onClick={resetEMRForm}
-                style={{ padding: "8px 16px" }}
+                style={{ padding: "5px 16px" }}
               >
                 Clear
               </SecondaryButton>
@@ -3340,12 +3325,11 @@ const PatientEMRDetails = () => {
           <PageSubText>
             Closely Review the Details Before Confirming
           </PageSubText> */}
-          <SyncAbha
-            showSync={showSync}
-            handleModalClose={handleModalClose}
-            setSelectedAuthOption={setSelectedAuthOption}
-            selectedAuthOption={selectedAuthOption}
-          />
+          <SendPMR
+            notifyModal={notifyModal}
+            handleNotifyModalClose={handleNotifyModalClose}
+            documentId={documentId}
+          />          
           {!isMobile && (
             <div style={{ position: "absolute", width: "-webkit-fill-available"}}>
               <PDFViewerWrapper>
@@ -3381,11 +3365,15 @@ const PatientEMRDetails = () => {
                   file={{ url: `${pdfUrl}` }}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
-                  <Page
-                    pageNumber={pageNumber}
-                    renderTextLayer={false}
-                    width={width - 15}
-                  />
+                   {Array.apply(null, Array(numPages))
+                  .map((x, i)=>i+1)
+                  .map(page =>
+                    <Page
+                      pageNumber={page}
+                      renderTextLayer={true}
+                      width={width - 15}
+                    />
+                  )}
                 </Document>
               </PDFViewerWrapper>
             </>
