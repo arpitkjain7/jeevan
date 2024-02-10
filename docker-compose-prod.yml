@@ -39,7 +39,7 @@ services:
 
     container_name: lobster-ui
     ports:
-      - "8082:80"
+      - "8002:80"
     volumes:
       - ./frontend/src:/app/src
     networks:
