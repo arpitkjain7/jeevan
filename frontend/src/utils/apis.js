@@ -36,5 +36,9 @@ export const apis = {
   syncPMREndpoint: "v1/PMR/sync",
   patientDetails: "v1/patient",
   uploadHealthDocument: "v1/PMR/uploadHealthDocuments",
-  pmrSendNotification: "v1/PMR/sendDocument"
+  pmrSendNotification: "v1/PMR/sendDocument",
+  generateOTPAbha: "v3/HID/retrieveAbha/generateOTP",
+  verifyOTPAbha: "v3/HID/retrieveAbha/verifyOTP",
+  abhaRegistrationViaAadhaar: "v3/HID/registration/aadhaar/generateOTP",
+  verifyAadhaarAbha: "v3/HID/registration/aadhaar/verifyOTP",
 };

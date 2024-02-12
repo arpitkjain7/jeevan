@@ -37,9 +37,25 @@ export const verifyPhoneOTP = createAsyncThunk(
 );
 
 export const verifyAadhaarPhoneOTP = createAsyncThunk(
-  "registration/verifyAadhaarPhone",
+  "registration/verifyAbha",
   async (OTP) => {
-    const response = await apiRequest("POST", apis?.verifyAadhaarotp, OTP);
+    const response = await apiRequest("POST", apis?.verifyAbha, OTP);
+    return response;
+  }
+);
+
+export const verifyAbhaNumber = createAsyncThunk(
+  "registration/verifyAbha",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.generateOTPAbha, payload);
+    return response;
+  }
+);
+
+export const verifyAbhaOTP = createAsyncThunk(
+  "registration/verifyAbhaOTP",
+  async (OTP) => {
+    const response = await apiRequest("POST", apis?.verifyOTPAbha, OTP);
     return response;
   }
 );
@@ -48,6 +64,22 @@ export const registerPatient = createAsyncThunk(
   "registration/registerPatient",
   async ({ payload, url }) => {
     const response = await apiRequest("POST", url, payload);
+    return response;
+  }
+);
+
+export const registerAadhaarAbha = createAsyncThunk(
+  "registration/registerAbhaPatient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.abhaRegistrationViaAadhaar, payload);
+    return response;
+  }
+);
+
+export const verifyAadhaarAbhaOTP = createAsyncThunk(
+  "registration/verifyAadhaarAbhaOTP",
+  async (OTP) => {
+    const response = await apiRequest("POST", apis?.verifyAadhaarAbha, OTP);
     return response;
   }
 );

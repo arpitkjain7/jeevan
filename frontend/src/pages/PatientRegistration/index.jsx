@@ -3,14 +3,15 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
-import { CheckBox } from "@mui/icons-material";
-import OtpInput from "../../components/OTPValidation";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  registerAADHAAR,
-  registerPhone,
-  verifyAadhaarOTP,
-  verifyAadhaarPhoneOTP,
+  // registerAADHAAR,
+  registerAadhaarAbha,
+  // registerPhone,
+  // verifyAadhaarOTP,
+  // verifyAadhaarPhoneOTP,
+  verifyAbhaNumber,
+  verifyAbhaOTP,
   verifyPhoneOTP,
 } from "./PatientRegistration.slice";
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
@@ -18,11 +19,11 @@ import VerificationSelection from "../../components/VerificationSelection";
 import AadhaarVerification from "../../components/AadhaarVerification";
 import AadhaarConsent from "../../components/AadhaarConsent";
 import PhoneVerification from "../../components/PhoneVerification";
-import RegisterationConfirmation from "../../components/RegistrationConfirmation";
 import { apis } from "../../utils/apis";
 import AadhaarPatientRegForm from "../../components/AadhaarPatientRegistrationForm";
 import CustomSnackbar from "../../components/CustomSnackbar";
 import CustomLoader from "../../components/CustomLoader";
+import AbhaModeSelection from "../../components/AbhaModeSelection";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -87,6 +88,9 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
 const PatientRegistration = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [checkedOption, setCheckedOption] = useState(null);
+  const [selectedAbhaModeOption, setSelectedAbhaModeOption] = useState(null);
+  const [selectedAbhaRegistrationOption, setSelectedAbhaRegistrationOption] = useState(null);
+  const [abhaRegistration, setAbhaRegistration] = useState(true);
   const [registration, setRegistration] = useState(true);
   const [verifyAadhaar, setVerifyAadhaar] = useState(true);
   const [verifyNumber, setVerifyNumber] = useState(true);
@@ -95,7 +99,10 @@ const PatientRegistration = () => {
   const [number, setNumber] = useState();
   const dataState = useSelector((state) => state);
   const aadhaarData = dataState?.PatientRegistartion?.registerAadhaar;
+  const [aadhaarDataTxn, setAadhaarDataTxn] = useState("");
   const phoneData = dataState?.PatientRegistartion?.registerPhone;
+  const [phoneDataTxn, setPhoneDataTxn] = useState("");
+  const [stepAbha, setStepAbha] = useState(false);
   const [stepOne, setStepOne] = useState(false);
   const [stepTwo, setStepTwo] = useState(false);
   const [stepThree, setStepThree] = useState(false);
@@ -111,16 +118,19 @@ const PatientRegistration = () => {
   const [isAadhaarError, setIsAadhaarError] = useState(false);
   const [isAadhaarValid, setIsAadhaarValid] = useState(false);
   const [aadhaarOTP, setAadhaarOTP] = useState(false);
+  const [mobileNumber, setMobileNumber] = useState("");
   const [PhoneDisabled, setPhoneDisabled] = useState(true);
+  const [patientAbhaData, setPatientAbhaData] = useState({});
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
   const userRole = sessionStorage?.getItem("userRole");
+  const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
 
   const adminModes = [
     {
-      label: "Aadhaar",
+      label: "Abha",
       value: "aadhaar",
     },
     {
@@ -136,6 +146,26 @@ const PatientRegistration = () => {
     },
   ];
 
+  const abhaModes = [
+    {
+      label: "Create Abha",
+      value: "create_abha",
+    },
+    {
+      label: "Link Abha",
+      value: "link_abha",
+    },
+  ];
+  const registrationModes = [
+    {
+      label: "Mobile number",
+      value: "mobile",
+    },
+    {
+      label: "Aadhaar Number",
+      value: "aadhaar",
+    },
+  ];
   const resetFields = () => {
     setStepOne(false);
     setStepTwo(false);
@@ -168,6 +198,20 @@ const PatientRegistration = () => {
     setCheckedOption((prevValue) => !prevValue);
   };
 
+  const handleAbhaModeChange = (event) => {
+    if (selectedAbhaModeOption?.length) {
+      resetFields();
+    }
+    setSelectedAbhaModeOption(event.target.value);
+  };
+
+  const handleAbhaRegistrationChange = (event) => {
+    if (selectedAbhaRegistrationOption?.length) {
+      resetFields();
+    }
+    setSelectedAbhaRegistrationOption(event.target.value);
+  };
+
   const handleAadhaarChange = (event) => {
     const inputValue = event.target.value;
     // Check if the input value is empty string
@@ -185,9 +229,12 @@ const PatientRegistration = () => {
 
   const handleNumberChange = (event) => {
     const inputValue = event.target.value;
-    const numericValue = parseInt(inputValue);
-    if (isNaN(numericValue) || numericValue !== "") 
-      setNumber(numericValue)
+    setNumber(inputValue)
+    // const numericValue = parseInt(inputValue);
+    // if (isNaN(numericValue) || numericValue !== "") {
+    //   console.log(numericValue);
+    //   setNumber(numericValue)
+    // }
     let new_Number_length = inputValue.length;
     if (new_Number_length > 10 || new_Number_length < 10) {
       // setErrorMessage("Please enter valid number")
@@ -196,13 +243,7 @@ const PatientRegistration = () => {
     } else if (new_Number_length === 10) {
       setIsMobileError(false);
       setPhoneDisabled(false);
-      
     }
-    // const numericValue = parseInt(inputValue);
-    // Check if the input value is a valid number or empty string
-    // if (!isNaN(numericValue) || inputValue === "") {
-    //   setNumber(inputValue);
-    // }
   };
 
   const handleClose = () => {
@@ -213,63 +254,85 @@ const PatientRegistration = () => {
     // Handle the form submission
      setShowLoader(true);
     if (type === "aadhaar") {
-      
-    //validation
-    if (aadhaar_regex.test(aadhaar)){
-      setIsAadhaarValid(false);
-      console.log("Form submitted:");
-        const payload = {
-          aadhaarNumber: (aadhaar).replace(/\D/g, ""),
-        };
-        dispatch(registerAADHAAR(payload)).then((res) => {
-          setShowLoader(false);
-          if (res?.error && Object.keys(res?.error)?.length > 0) {
-            setErrorMessage("Please enter valid Aadhaar Number");
-            setShowSnackbar(true);
-            return;
-          }
-          setAadhaarOTPSeconds(60);
-          setAadhaarOTP(true);
-          setIsAadhaarValid(true);
-        });
+      //validation
+      if (aadhaar_regex.test(aadhaar)){
+        setIsAadhaarValid(false);
+        console.log("Form submitted:");
+        if(selectedAbhaModeOption === "link_abha"){
+          const payload = {
+            "mode": "aadhaar",
+            aadhaar: (aadhaar).replace(/\D/g, "")
+          };
+          dispatch(verifyAbhaNumber(payload)).then((res) => {
+            console.log("aadhaar response", res);
+            setShowLoader(false);
+            if (res?.error && Object.keys(res?.error)?.length > 0) {
+              setErrorMessage("Aadhaar Number is not linked to any mobile number");
+              setShowSnackbar(true);
+              return;
+            }
+            setAadhaarDataTxn(res?.payload?.txn_id);
+            setAadhaarOTPSeconds(60);
+            setAadhaarOTP(true);
+            setIsAadhaarValid(true);
+          });
+        } else if(selectedAbhaModeOption === "create_abha"){
+          const aadhaarPayload = {
+            aadhaarNumber: (aadhaar).replace(/\D/g, "")
+          };
+          dispatch(registerAadhaarAbha(aadhaarPayload)).then((res) => {
+            setAadhaarDataTxn(res?.payload?.txn_id);
+            setAadhaarOTPSeconds(60);
+            setAadhaarOTP(true);
+            setIsAadhaarValid(true);
+          })
+        }
+         
       } else {
         console.log("Failed");
         setErrorMessage("Please enter a correct Aadhaar Number");
         setShowSnackbar(true);
       }
     } else if (type === "phone_number") {
-     
       const mobile_pattern = new RegExp(/^[0-9]{10}$/);
       if (mobile_pattern.test(number)){
-        setPhoneDisabled(true);
-        const payload =
-          selectedOption === "aadhaar"
-            ? {
-                txnId: aadhaarData?.txn_id,
-                mobileNumber: number,
-              }
-            : {
-                mobileNumber: number,
-              };
-        const url =
-          selectedOption === "aadhaar"
-            ? apis?.registerAadhaarNumber
-            : apis?.restigerNumber;
-        dispatch(registerPhone({ payload, url })).then((res) => {
-          setShowLoader(false);
-          if (res?.error && Object.keys(res?.error)?.length > 0) {
-            setShowSnackbar(true);
-            return;
+        setPhoneDisabled(false);
+        let payload;
+        let url;
+        if(selectedOption === "aadhaar" && selectedAbhaModeOption === "link_abha"){
+          payload ={
+            "mode": "mobile",
+            mobile: number,
           }
+          url = apis?.generateOTPAbha;
+        } else if(selectedOption === "phone_number"){
+          payload ={
+            mobileNumber: number,
+          }
+          url = apis?.restigerNumber;
+        } else if(selectedOption === "aadhaar" && selectedAbhaModeOption === "create_abha"){
+          setMobileNumber(number);
+        }
+        dispatch(verifyAbhaNumber({ payload, url })).then((res) => {
+          console.log(res);
+          setShowLoader(false);
+          // if (res?.error && Object.keys(res?.error)?.length > 0) {
+          //   setShowSnackbar(true);
+          //   return;
+          // }
           const resData = res?.payload;
          
-          if (resData?.mobileLinked && selectedOption === "aadhaar") {
-            setPhoneNumberUsed(resData?.mobileLinked);
-            setStepThree(true);
-          } else if(!resData?.mobileLinked && selectedOption === "aadhaar"){
+          if (resData?.txn_id && selectedOption === "aadhaar") {
+            // setPhoneNumberUsed(resData?.mobileLinked);
+            // setStepTwo(true);
+            setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
             setPhoneNumberUsed(false);
             setPhoneDisabled(false);
+          } else if(!resData?.txn_id && selectedOption === "aadhaar"){
+            setErrorMessage("The phone number entered does not match with any of the records");
+            setShowSnackbar(true);
+            setStepTwo(true);
           } else if(selectedOption === "phone_number"){
             setSeconds(60);
             setPhoneNumberUsed(false);
@@ -286,20 +349,33 @@ const PatientRegistration = () => {
 
   const verifyOTP = (otp, type) => {
     if (selectedOption === "aadhaar" && type === "aadhaar") {
+      console.log("txn id", aadhaarDataTxn);
       const payload = {
-        txnId: aadhaarData?.txn_id,
+        txnId: aadhaarDataTxn,
+        mode: "aadhaar",
         otp: otp,
       };
-      dispatch(verifyAadhaarOTP(payload)).then((res) => {
+      dispatch(verifyAbhaOTP(payload)).then((res) => {
+        console.log("aadhaar otp verification", res);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setErrorMessage("Please enter correct OTP");
           setShowSnackbar(true);
-          setStepTwo(false);
+          setStepThree(false);
           return;
         }
-        else setStepTwo(true);
+        else {
+          setPatientAbhaData(res?.payload);
+          setStepThree(true);
+        }
       });
      
+        // const payload = {
+        //   otp: otp,
+        //   txnId: aadhaarDataTxn,
+        //   mobileNumber: mobileNumber,
+        //   hipId: currentHospital?.hip_id,
+        // };
+      
       if (stepTwo) {
         setStepThree(true);
       }
@@ -320,19 +396,28 @@ const PatientRegistration = () => {
         // }
       });
     } else if (selectedOption === "aadhaar" && type === "phone_number") {
+      console.log(phoneDataTxn);
       const payload = {
-        txnId: phoneData?.txn_id,
+        txnId: phoneDataTxn,
+        mode: "mobile",
         otp: otp,
       };
-      dispatch(verifyAadhaarPhoneOTP(payload)).then((res) => {
+      dispatch(verifyAbhaOTP(payload)).then((res) => {
+        console.log(res);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
+          setStepTwo(true);
           return;
         }
-        setStepTwo(true);
-        if (stepTwo) {
+        if(res?.payload) {
+          setPatientAbhaData(res?.payload);
           setStepThree(true);
         }
+        else setStepTwo(true);
+        // setStepTwo(true);
+        // if (stepTwo) {
+        //   setStepThree(true);
+        // }
       });
     }
   };
@@ -380,7 +465,8 @@ const PatientRegistration = () => {
       }
   
       if (seconds === 0) {
-        clearInterval(interval);       
+        clearInterval(interval); 
+        setPhoneDisabled(false);      
       }
     }, 1000);
     return () => {
@@ -404,15 +490,25 @@ const PatientRegistration = () => {
   }, [aadhaarOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if(selectedOption == "aadhaar") {
+    if(selectedOption === "aadhaar") {
       setOpen(true);
     } else {
+      setStepAbha(true);
+    }
+  };
+
+  const handleConfirmAbhaSelection = () => {
+    if(selectedAbhaModeOption === "link_abha" && selectedAbhaRegistrationOption === "mobile") {
+      setStepOne(true);
+    } else if(selectedAbhaModeOption === "link_abha" && selectedAbhaRegistrationOption === "aadhaar") {
+      setStepTwo(true);
+    } else if(selectedAbhaModeOption === "create_abha") {
       setStepOne(true);
     }
   };
 
   const handleConsentConfirmation = () => {
-    setStepOne(true);
+    setStepAbha(true);
     setOpen(false);
   }
 
@@ -444,8 +540,7 @@ const PatientRegistration = () => {
           handleConsentConfirmation={handleConsentConfirmation}
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
-        >
-        </AadhaarConsent>
+        />
       <ExpandableCard
         title={`Mode of Registration ${
           selectedOption ? "|" + " " + selectedOption?.replace("_", " ") : ""
@@ -474,34 +569,32 @@ const PatientRegistration = () => {
         />
         )}
       </ExpandableCard>
-     
-      {selectedOption === "aadhaar" && stepOne && !checkedOption && (
+      {(selectedOption === "aadhaar" && stepAbha && !checkedOption &&
+       <ExpandableCard
+        title="Create/Link Abha"
+        expanded={abhaRegistration}
+        setExpanded={setAbhaRegistration}
+        completed={(selectedOption === "aadhaar" && stepTwo)}
+      >
+        <AbhaModeSelection
+          abhaModes={abhaModes}
+          registrationModes={registrationModes}
+          handleAbhaModeChange={handleAbhaModeChange}
+          handleAbhaRegistrationChange={handleAbhaRegistrationChange}
+          selectedAbhaModeOption={selectedAbhaModeOption}
+          selectedAbhaRegistrationOption={selectedAbhaRegistrationOption}
+          handleConfirmAbhaSelection={handleConfirmAbhaSelection}
+        />
+      </ExpandableCard>
+       )}
+      {(selectedOption === "aadhaar" && stepOne && !checkedOption &&
         <ExpandableCard
-          title="AADHAAR Verification"
-          expanded={verifyAadhaar}
-          setExpanded={setVerifyAadhaar}
-          completed={stepTwo}
+          title="Patient's Mobile Number"
+          expanded={verifyNumber}
+          setExpanded={setVerifyNumber}
+          completed={(selectedOption === "aadhaar" && stepThree)}
         >
-          <AadhaarVerification
-            aadhaar={aadhaar}
-            handleAadhaarChange={handleAadhaarChange}
-            isAadhaarError={isAadhaarError}
-            handleSubmit={handleSubmit}
-            isAadhaarValid={isAadhaarValid}
-            aadhaarOTP={aadhaarOTP}
-            setSixDigitOTP={setSixDigitOTP}
-            verifyOTP={verifyOTP}
-            seconds={aadhaarOTPseconds}
-          /> 
-        </ExpandableCard>
-      )}
-      {(selectedOption === "aadhaar" && stepTwo && !checkedOption &&
-         <ExpandableCard
-         title="Mobile Number Verification"
-         expanded={verifyNumber}
-         setExpanded={setVerifyNumber}
-         completed={(selectedOption === "aadhaar" && stepThree)}
-       >
+          <p style={{ marginTop: 0 }}>If the patient has an ABHA, kindly provide the linked mobile number. Otherwise, it is preferable to enter their Aadhaar-linked mobile number for easy registration</p>
          <PhoneVerification
            number={number}
            handleNumberChange={handleNumberChange}
@@ -514,6 +607,27 @@ const PatientRegistration = () => {
            phoneNumberUsed={phoneNumberUsed}
          /> 
        </ExpandableCard>
+      )}
+      {selectedOption === "aadhaar" && stepTwo && !checkedOption && (
+        <ExpandableCard
+          title="AADHAAR number"
+          expanded={verifyAadhaar}
+          setExpanded={setVerifyAadhaar}
+          completed={stepTwo}
+        >
+          <p sx={{ marginTop: 0 }}>No ABHA linked to the given mobile number. To proceed with registration, kindly enter the patient's Aadhaar number</p>
+          <AadhaarVerification
+            aadhaar={aadhaar}
+            handleAadhaarChange={handleAadhaarChange}
+            isAadhaarError={isAadhaarError}
+            handleSubmit={handleSubmit}
+            isAadhaarValid={isAadhaarValid}
+            aadhaarOTP={aadhaarOTP}
+            setSixDigitOTP={setSixDigitOTP}
+            verifyOTP={verifyOTP}
+            seconds={aadhaarOTPseconds}
+          /> 
+        </ExpandableCard>
       )}
       {(selectedOption === "phone_number" && stepOne && checkedOption &&
         <ExpandableCard

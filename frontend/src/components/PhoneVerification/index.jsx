@@ -104,7 +104,6 @@ const PhoneVerification = ({
             verifyOTP={verifyOTP}
             type="phone_number"
           />
-       
         </div>
       )}
     </PhoneVerificationWrapper>

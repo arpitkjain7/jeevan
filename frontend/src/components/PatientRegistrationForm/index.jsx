@@ -55,6 +55,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
   };
 
   const handleNumberChange = (event) => {
+    console.log(event.target.value);
     const value = event.target.value;
     setMobile(value);
 
