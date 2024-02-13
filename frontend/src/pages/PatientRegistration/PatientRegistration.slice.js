@@ -46,8 +46,8 @@ export const verifyAadhaarPhoneOTP = createAsyncThunk(
 
 export const verifyAbhaNumber = createAsyncThunk(
   "registration/verifyAbha",
-  async (payload) => {
-    const response = await apiRequest("POST", apis?.generateOTPAbha, payload);
+  async ({url, payload}) => {
+    const response = await apiRequest("POST", url, payload);
     return response;
   }
 );
@@ -78,8 +78,8 @@ export const registerAadhaarAbha = createAsyncThunk(
 
 export const verifyAadhaarAbhaOTP = createAsyncThunk(
   "registration/verifyAadhaarAbhaOTP",
-  async (OTP) => {
-    const response = await apiRequest("POST", apis?.verifyAadhaarAbha, OTP);
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifyAadhaarAbha, payload);
     return response;
   }
 );

@@ -52,7 +52,8 @@ const PhoneVerification = ({
   setSixDigitOTP,
   verifyOTP,
   phoneNumberUsed,
-  seconds
+  seconds,
+  selectedAbhaModeOption
 }) => {
   return (
     <PhoneVerificationWrapper>
@@ -64,38 +65,44 @@ const PhoneVerification = ({
           error={isMobileError}
           className="phone-text"
         />
-        {seconds > 0 || seconds < 0 ? (
-        <Button
-          disabled={PhoneDisabled}
-          onClick={() => handleSubmit("phone_number")}
-          variant="contained"
-          className="verification-btn"
-        >
-          Verify
-        </Button>         
-        ) : (
+        {selectedAbhaModeOption !== "create_abha" && (
+          seconds > 0 || seconds < 0 ? (
           <Button
-          disabled={PhoneDisabled}
-          style={{
-            color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
-          }}
-          variant="contained"
-          className="verification-btn"
-          onClick={() => handleSubmit("phone_number")}
-        >
-          Resend OTP
-        </Button>
+            disabled={PhoneDisabled}
+            onClick={() => handleSubmit("phone_number")}
+            variant="contained"
+            className="verification-btn"
+          >
+            Verify
+          </Button>         
+          ) : (
+            <Button
+            disabled={PhoneDisabled}
+            style={{
+              color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+            }}
+            variant="contained"
+            className="verification-btn"
+            onClick={() => handleSubmit("phone_number")}
+          >
+            Resend OTP
+          </Button>
+          )
         )}
       </div>
       <div>
         <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
       </div>
-      {seconds < 0 ? (
-        null
-     ) : ( <h5>
-      Resend OTP in: 00:
-      {seconds < 10 ? `0${seconds}` : seconds}
-    </h5>)}
+      {selectedAbhaModeOption !== "create_abha" && (
+        seconds < 0 ? (
+          null
+        ) : ( 
+          <h5>
+            Resend OTP in: 00:
+            {seconds < 10 ? `0${seconds}` : seconds}
+          </h5>
+        )
+      )}
       {!phoneNumberUsed && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>
