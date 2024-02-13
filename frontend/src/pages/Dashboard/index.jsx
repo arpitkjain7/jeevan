@@ -14,7 +14,7 @@ import { Box } from '@mui/system';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useDispatch } from 'react-redux';
 import { fetchAppointmentList } from '../AppointmentPage/AppointmentPage.slice';
-import { convertDateFormat } from '../../utils/utils';
+import { convertDateFormat, parseDateFormat } from '../../utils/utils';
 
 const DashboardWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -99,11 +99,11 @@ function Dashboard() {
           month: "numeric",
           day: "numeric",
         })
-        dates.push({ date: convertDateFormat(date, "yyyy-MM-dd"), day: day, count: 0, day_date: day_date });
+        dates.push({ date: parseDateFormat(date, "yyyy-MM-dd"), day: day, count: 0, day_date: day_date });
         currentDate.setDate(currentDate.getDate() + 1);
       }
       dispatch(fetchAppointmentList(payload)).then((res) => {
-        const mainList = res.payload;
+        const mainList = res?.payload;
         setAppointmentList(mainList);
         let appointment_days = [];
         let finalArray;
