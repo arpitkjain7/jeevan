@@ -5,14 +5,17 @@ import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getAbhaProfile,
   // registerAADHAAR,
   registerAadhaarAbha,
+  suggestAbhaAddress,
   verifyAadhaarAbhaOTP,
   // registerPhone,
   // verifyAadhaarOTP,
   // verifyAadhaarPhoneOTP,
   verifyAbhaNumber,
   verifyAbhaOTP,
+  verifyAbhaUser,
   verifyPhoneOTP,
 } from "./PatientRegistration.slice";
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
@@ -122,6 +125,8 @@ const PatientRegistration = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [PhoneDisabled, setPhoneDisabled] = useState(true);
   const [patientAbhaData, setPatientAbhaData] = useState({});
+  const [abhaSuggestionList, setAbhaSuggestionList] = useState([]);
+  const [abhaSuggestionTxnId, setAbhaSuggestionTxnId] = useState("");
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
@@ -378,10 +383,22 @@ const PatientRegistration = () => {
             setShowSnackbar(true);
             setStepThree(false);
             return;
-          }
-          else if(res?.payload?.accounts){
-            setPatientAbhaData(res?.payload?.accounts[0]);
-            setStepThree(true);
+          } else {
+            const profileParameters = {
+              transactionId: res?.payload?.txnId,
+              hipId: currentHospital?.hip_id,
+            }
+            dispatch(getAbhaProfile(profileParameters)).then(profileResponse => {
+              if(profileResponse?.error && Object.keys(profileResponse?.error)?.length > 0) {
+                setShowSnackbar(true);
+                setStepThree(false);
+                return;
+              }
+              else if(profileResponse?.payload?.ABHAProfile){
+                setPatientAbhaData(profileResponse?.payload?.ABHAProfile);
+                setStepThree(true);
+              }
+            })
           }
         });
       } else if(selectedAbhaModeOption === "create_abha"){
@@ -392,21 +409,27 @@ const PatientRegistration = () => {
           hipId: currentHospital?.hip_id,
         };
         dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
+          console.log(res);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             // setErrorMessage("Please enter correct OTP");
             setShowSnackbar(true);
             setStepThree(false);
             return;
           }
-          if(res?.payload?.accounts) {
-            setPatientAbhaData(res?.payload?.accounts[0]);
-            setStepThree(true);
+          if(res?.payload?.ABHAProfile) {
+            dispatch(suggestAbhaAddress(res?.payload?.txnId)).then((result) => {
+              console.log(result);
+              setPatientAbhaData(res?.payload?.ABHAProfile);
+              setAbhaSuggestionList(result?.payload?.abhaAddressList);
+              setAbhaSuggestionTxnId(result?.payload?.txnId);
+              setStepThree(true);
+            })
           }
         });
       }
-      if (stepTwo) {
-        setStepThree(true);
-      }
+      // if (stepTwo) {
+      //   setStepThree(true);
+      // }
     } else if (selectedOption === "phone_number" && type === "phone_number") {
       const payload = {
         txnId: phoneDataTxn,
@@ -431,20 +454,30 @@ const PatientRegistration = () => {
           otp: otp,
         };
         dispatch(verifyAbhaOTP(payload)).then((res) => {
+          console.log("abhaOTP", res);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             setShowSnackbar(true);
-            // setStepTwo(true);
             return;
           }
-          if(res?.payload) {
-            setPatientAbhaData(res?.payload?.accounts[0]);
-            setStepThree(true);
+          else {
+            const abhaUserPayload = {
+              txnId: res?.payload?.txnId,
+              abhaNumber: res?.payload?.accounts[0]?.ABHANumber,
+              token: res?.payload?.token
+            }
+            dispatch(verifyAbhaUser(abhaUserPayload)).then((result) => {
+              if (result?.error && Object.keys(result?.error)?.length > 0) {
+                setShowSnackbar(true);
+                return;
+              }
+              console.log("abhaUser", result);
+              // if(result?.payload?.ABHAProfile) {
+              //   setPatientAbhaData(result?.payload?.ABHAProfile);
+              //   setStepThree(true);
+              // }
+              // else setStepTwo(true);
+            })
           }
-          else setStepTwo(true);
-          // setStepTwo(true);
-          // if (stepTwo) {
-          //   setStepThree(true);
-          // }
         });
       }
     }
@@ -705,6 +738,8 @@ const PatientRegistration = () => {
                 txnId={aadhaarDataTxn || phoneDataTxn}
                 isForAbha={checkedOption}
                 patientAbhaData={patientAbhaData}
+                abhaSuggestionList={abhaSuggestionList}
+                setAbhaSuggestionTxnId={setAbhaSuggestionTxnId}
               />
             ) : (
               <PatientRegistartionForm

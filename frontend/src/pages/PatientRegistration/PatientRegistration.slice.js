@@ -68,6 +68,14 @@ export const registerPatient = createAsyncThunk(
   }
 );
 
+export const registerAbhaPatient = createAsyncThunk(
+  "registration/registerAbhaPatient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.registerAbhaPatient, payload);
+    return response;
+  }
+);
+
 export const registerAadhaarAbha = createAsyncThunk(
   "registration/registerAbhaPatient",
   async (payload) => {
@@ -80,6 +88,38 @@ export const verifyAadhaarAbhaOTP = createAsyncThunk(
   "registration/verifyAadhaarAbhaOTP",
   async (payload) => {
     const response = await apiRequest("POST", apis?.verifyAadhaarAbha, payload);
+    return response;
+  }
+);
+
+export const suggestAbhaAddress = createAsyncThunk(
+  "registration/suggestAbhaAddress",
+  async (transactionId) => {
+    const response = await apiRequest("GET", apis?.suggestAbhaAddress+ '?' + `transaction_id=${transactionId}`);
+    return response;
+  }
+);
+
+export const createAbhaAddress = createAsyncThunk(
+  "registration/createAbhaAddress",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.createAbhaAddress, payload);
+    return response;
+  }
+);
+
+export const verifyAbhaUser = createAsyncThunk(
+  "registration/verifyAbhaUser",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifyAbhaUser, payload);
+    return response;
+  }
+);
+
+export const getAbhaProfile = createAsyncThunk(
+  "registration/getAbhaProfile",
+  async (parameters) => {
+    const response = await apiRequest("GET", apis?.getAbhaProfile + `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`);
     return response;
   }
 );

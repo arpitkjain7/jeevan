@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { TextField, Button, Grid } from "@mui/material";
+import { TextField, Button, Grid, Autocomplete } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import { createAbhaAddress, registerAbhaPatient, registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
 import { AppointmentPageActions } from "../../pages/AppointmentPage/AppointmentPage.slice";
 import { useNavigate } from "react-router-dom";
@@ -9,17 +9,20 @@ import CustomSnackbar from "../CustomSnackbar";
 import { validateAbhaAddress } from "../../utils/utils";
 import { format } from "date-fns";
 
-const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
+const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData, abhaSuggestionList, setAbhaSuggestionTxnId }) => {
   const [formData, setFormData] = React.useState({
     firstname: "",
     lastname: "",
     middlename: "",
+    abhaNumber: "",
     abhaAddress: "",
     email: "",
-    password: "",
+    mobile: "",
     dob: "",
     gender: "",
-    abhaNumber: ""
+    address: "",
+    pincode: "",
+    password: "",
   });
   const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
@@ -27,6 +30,9 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
   const navigate = useNavigate();
   const [abhaAddressError, setAbhaAddressError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [abhaAddressInputValue, setAbhaAddressInputValue] = useState("");
+  let combinedAbhaSuggestions = (abhaSuggestionList).concat(patientAbhaData?.phrAddress || []);
+  const [abhaAddressValue, setAbhaAddressValue] = useState(combinedAbhaSuggestions[0] || "");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -34,7 +40,7 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
       ...prevData,
       [name]: value,
     }));
-    if(name == "abhaAddress"){
+    if(name === "abhaAddress"){
       if(!validateAbhaAddress(value)) {
         setAbhaAddressError(true);
       } else {
@@ -43,6 +49,15 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
     }
   };
 
+  const abhaAddressInputChange = (event, newInputValue) => {
+    setAbhaAddressInputValue(newInputValue);
+    if(!validateAbhaAddress(newInputValue)) {
+      setAbhaAddressError(true);
+    } else {
+      setAbhaAddressError(false)
+    }
+  }
+
   const formatDob = (date) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
@@ -50,77 +65,101 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     let currentHospital = {};
-    if (!validateAbhaAddress(formData.abhaAddress)) {
-      setAbhaAddressError(true);
-      setShowSnackbar(true);
-      setErrorMessage("Invalid ABHA Address");
-      return;
+    if(Object.keys(patientAbhaData).length > 0){
+      if (!validateAbhaAddress(abhaAddressValue)) {
+        setAbhaAddressError(true);
+        setShowSnackbar(true);
+        setErrorMessage("Invalid ABHA Address");
+        return;
+      }
+    } else {
+      if (!validateAbhaAddress(formData.abhaAddress)) {
+        setAbhaAddressError(true);
+        setShowSnackbar(true);
+        setErrorMessage("Invalid ABHA Address");
+        return;
+      }
     }
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = Object.keys(patientAbhaData).length > 0 ? {
-        firstName: patientAbhaData?.name,
-        middleName: formData?.middlename,
-        lastName: formData?.lastname,
-        email: formData?.email,
-        healthId: patientAbhaData?.preferredAbhaAddress,
+        name: patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
+        email: patientAbhaData?.email,
+        mobile_number: patientAbhaData?.mobile,
+        abha_address: abhaAddressValue,
+        primary_abha_address: abhaAddressValue,
         password: formData?.password,
-        dob: patientAbhaData?.dob,
+        DOB: patientAbhaData?.dob,
         gender: patientAbhaData?.gender,
         abhaNumber: patientAbhaData?.ABHANumber,
+        pincode: patientAbhaData?.pinCode,
+        address: patientAbhaData?.address,
+        state_name: patientAbhaData?.stateName,
+        district_name: patientAbhaData?.districtName,
+        district_code: patientAbhaData?.districtCode,
         hip_id: currentHospital?.hip_id,
         txnId: txnId,
       } : {
-        firstName: formData?.firstname,
-        middleName: formData?.middlename,
-        lastName: formData?.lastname,
+        name: formData?.firstname + " " + formData?.middlename + " " + formData?.lastname,
         email: formData?.email,
-        healthId: formData?.abhaAddress,
+        mobile_number: formData?.mobile,
+        abha_address: formData?.abhaAddress,
+        primary_abha_address: formData?.abhaAddress,
         password: formData?.password,
-        dob: formData?.dob,
+        DOB: formData?.dob,
         gender: formData?.gender,
         abhaNumber: formData?.abhaNumber,
+        pincode: formData?.pincode,
+        address: formData?.address,
         hip_id: currentHospital?.hip_id,
         txnId: txnId,
       }
-      dispatch(
-        registerPatient({ payload, url: apis?.registerAadhaarPaient })
-      ).then((res) => {
-        if (res?.error && Object.keys(res?.error)?.length > 0) {
-          setShowSnackbar(true);
-          return;
-        }
-        const userDetails = Object.keys(patientAbhaData).length > 0 ? {
-          name: patientAbhaData?.name || "",
-          email: formData?.email,
-          gender: formData?.gender,
-          healthId: patientAbhaData?.preferredAbhaAddress || "",
-          dob: patientAbhaData?.dob,
-          gender: patientAbhaData?.gender,
-          abhaNumber: patientAbhaData?.ABHANumber,
-          password: formData?.password,
-          hip_id: currentHospital?.hip_id,
-        } : {
-          name: formData?.firstname + " " + formData?.lastname,
-          email: formData?.email,
-          gender: formData?.gender,
-          healthId: formData.abhaAddress,
-          dob: formData?.dob,
-          gender: formData?.gender,
-          abhaNumber: formData?.abhaNumber,
-          password: formData?.password,
-          hip_id: currentHospital?.hip_id,
-        };
-        setUserCreated(true);
-        dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
-        navigate("/registered-patient");
+      console.log(payload);
+      const abhaAddressPayload = {
+        abhaAddress: abhaAddressValue || formData?.abhaAddress,
+        txnId: setAbhaSuggestionTxnId
+      }
+      console.log("abhaAddressPayload", abhaAddressPayload);
+      dispatch(createAbhaAddress(abhaAddressPayload)).then(result => {
+        console.log("createAbhaAddress", result);
+        dispatch(registerAbhaPatient(payload)).then((res) => {
+          console.log("register patient", res);
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setShowSnackbar(true);
+            return;
+          }
+          // const userDetails = Object.keys(patientAbhaData).length > 0 ? {
+          //   name: patientAbhaData?.name || "",
+          //   email: formData?.email,
+          //   gender: formData?.gender,
+          //   healthId: patientAbhaData?.preferredAbhaAddress || "",
+          //   dob: patientAbhaData?.dob,
+          //   gender: patientAbhaData?.gender,
+          //   abhaNumber: patientAbhaData?.ABHANumber,
+          //   pincode: patientAbhaData?.pincode,
+          //   address: patientAbhaData?.address,
+          //   password: formData?.password,
+          //   hip_id: currentHospital?.hip_id,
+          // } : {
+          //   name: formData?.firstname + " " + formData?.lastname,
+          //   email: formData?.email,
+          //   gender: formData?.gender,	
+          //   healthId: formData?.abhaAddress,
+          //   dob: formData?.dob,
+          //   gender: formData?.gender,
+          //   abhaNumber: formData?.abhaNumber,
+          //   pincode: formData?.pincode,
+          //   address: formData?.address,
+          //   password: formData?.password,
+          //   hip_id: currentHospital?.hip_id,
+          // };
+          setUserCreated(true);
+          dispatch(AppointmentPageActions.setSelectedPatientData(payload));
+          navigate("/registered-patient");
+        });
       });
     }
   };
-
-  // const formatDob = (date) => {
-  //   return format(new Date(date), "yyyy-MM-dd");
-  // };
 
   const onSnackbarClose = () => {
     setShowSnackbar(false);
@@ -139,7 +178,7 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             <TextField
               label="First Name"
               name="firstname"
-              value={patientAbhaData?.name}
+              value={patientAbhaData?.firstName}
               onChange={handleChange}
               disabled
               required
@@ -151,9 +190,10 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             <TextField
               label="Middle Name"
               name="middlename"
-              value={formData.middlename}
+              value={patientAbhaData?.middleName}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
+              disabled
               fullWidth
             />
           </Grid>
@@ -161,10 +201,11 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             <TextField
               label="Last Name"
               name="lastname"
-              value={formData.lastname}
+              value={patientAbhaData?.lastName}
               onChange={handleChange}
               required
               InputLabelProps={{ shrink: true }}
+              disabled
               fullWidth
             />
           </Grid>
@@ -172,11 +213,23 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             <TextField
               label="Email Address"
               name="email"
-              value={formData.email}
+              value={patientAbhaData?.email}
               onChange={handleChange}
               type="email"
               // required
               InputLabelProps={{ shrink: true }}
+              disabled
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <TextField
+              label="Mobile Number"
+              name="mobile"
+              value={patientAbhaData?.mobile}
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+              disabled
               fullWidth
             />
           </Grid>
@@ -214,17 +267,57 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             />
           </Grid>
           <Grid item xs={12} md={5}>
-            <TextField
+            {/* <TextField
               label="ABHA Address"
               name="abhaAddress"
               error={abhaAddressError}
-              value={patientAbhaData?.preferredAbhaAddress}
+              value={formData?.abhaAddress}
               onChange={handleChange}
               disabled
               required
               InputLabelProps={{ shrink: true }}
               fullWidth
               helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
+            /> */}
+            <Autocomplete
+              freeSolo
+              name="abhaAddress"
+              id="abhaAddress"
+              // error={abhaAddressError}
+              value={abhaAddressValue}
+              options={combinedAbhaSuggestions}
+              onChange={(event, newValue) => {
+                setAbhaAddressValue(newValue);
+              }}
+              inputValue={abhaAddressInputValue}
+              onInputChange={abhaAddressInputChange}
+              fullWidth
+              // helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
+              renderInput={(params) => <TextField {...params} label="Abha address"
+              error={abhaAddressError}
+              helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}/>}
+            />
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <TextField
+              label="Address"
+              name="address"
+              value={patientAbhaData?.address}
+              onChange={handleChange}
+              disabled
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <TextField
+              label="Pincode"
+              name="pincode"
+              value={patientAbhaData?.pinCode}
+              onChange={handleChange}
+              disabled
+              InputLabelProps={{ shrink: true }}
+              fullWidth
             />
           </Grid>
           <Grid item xs={12} md={5}>
@@ -243,8 +336,7 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
         <Grid container spacing={2}>
           <Grid item xs={5}></Grid>
           <Grid item xs={12} md={5}>
-            <Button variant="contained" color="primary" type="submit" InputLabelProps={{ shrink: true }}
-            fullWidth>
+            <Button variant="contained" color="primary" type="submit" fullWidth>
               Submit
             </Button>
           </Grid>
@@ -286,7 +378,6 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             name="lastname"
             value={formData.lastname}
             onChange={handleChange}
-            required
             InputLabelProps={{ shrink: true }}
             fullWidth
           />
@@ -299,6 +390,17 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             onChange={handleChange}
             type="email"
             // required
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <TextField
+            label="Mobile Number"
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleChange}
+            type="tel"
             InputLabelProps={{ shrink: true }}
             fullWidth
           />
@@ -348,6 +450,26 @@ const AadhaarPatientRegForm = ({ setUserCreated, txnId, patientAbhaData }) => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}
+          />
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <TextField
+            label="Address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <TextField
+            label="Pincode"
+            name="pincode"
+            value={formData.pincode}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>
