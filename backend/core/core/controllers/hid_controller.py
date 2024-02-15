@@ -537,7 +537,7 @@ class HIDController:
             )
             resp, resp_code = APIInterface().post(
                 route=generate_aadhaar_otp_url,
-                data=request_json,
+                data=json.dumps(request_json),
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -1020,7 +1020,10 @@ class HIDController:
                         resp, resp_code = APIInterface().post(
                             route=refresh_token_url,
                             data=json.dumps(payload),
-                            headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
+                            headers={
+                                "Content-Type": "application/json",
+                                "Authorization": f"Bearer {gateway_access_token}",
+                            },
                         )
                         linking_token = resp.get("accessToken", None)
                         if linking_token:
@@ -1033,7 +1036,8 @@ class HIDController:
                         logging.info("Getting Abha card")
                         byte_data, resp_code = APIInterface().get_bytes(
                             route=f"{self.abha_url}/v1/account/getPngCard",
-                            headers={"Content-Type": "application/json",
+                            headers={
+                                "Content-Type": "application/json",
                                 "Authorization": f"Bearer {gateway_access_token}",
                                 "X-Token": f"Bearer {linking_token}",
                             },
@@ -1131,7 +1135,10 @@ class HIDController:
                         resp, resp_code = APIInterface().post(
                             route=refresh_token_url,
                             data=json.dumps(payload),
-                            headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
+                            headers={
+                                "Content-Type": "application/json",
+                                "Authorization": f"Bearer {gateway_access_token}",
+                            },
                         )
                         linking_token = resp.get("accessToken", None)
                         if linking_token:
@@ -1144,7 +1151,8 @@ class HIDController:
                         logging.info("Getting Abha card")
                         byte_data, resp_code = APIInterface().get_bytes(
                             route=f"{self.abha_url}/v1/account/getPngCard",
-                            headers={"Content-Type": "application/json",
+                            headers={
+                                "Content-Type": "application/json",
                                 "Authorization": f"Bearer {gateway_access_token}",
                                 "X-Token": f"Bearer {linking_token}",
                             },
@@ -1227,7 +1235,10 @@ class HIDController:
             resp, resp_code = APIInterface().post(
                 route=search_abha_url,
                 data=json.dumps(payload),
-                headers={"Content-Type": "application/json","Authorization": f"Bearer {gateway_access_token}"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {gateway_access_token}",
+                },
             )
             logging.info(f"/v1/search/searchByMobile {resp_code=}")
             if resp.get("healthIdNumber", None):
@@ -1539,7 +1550,8 @@ class HIDController:
             resp, resp_code = APIInterface().post(
                 route=abha_detail_otp_update_url,
                 data=json.dumps(payload),
-                headers={"Content-Type": "application/json",
+                headers={
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
                     "REQUEST-ID": f"{str(uuid.uuid1())}",
                     "TIMESTAMP": timestamp,

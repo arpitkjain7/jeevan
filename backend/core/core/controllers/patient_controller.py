@@ -796,9 +796,10 @@ class PatientController:
             # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
             #     mobile_number=request_json.get("mobile_number")
             # )
-            patient_obj = self.CRUDPatientDetails.read_by_mobile_dob(
+            patient_obj = self.CRUDPatientDetails.read_by_mobile_dob_hip(
                 mobile_number=request_json.get("mobile_number"),
                 DOB=request_json.get("DOB"),
+                hip_id=request_json.get("hip_id"),
             )
             if patient_obj:
                 # patient_details = [
