@@ -410,7 +410,6 @@ const PatientRegistration = () => {
               hipId: currentHospital?.hip_id,
             }
             dispatch(getAbhaProfile(profileParameters)).then(profileResponse => {
-              console.log(profileResponse);
               if(profileResponse?.error && Object.keys(profileResponse?.error)?.length > 0) {
                 setShowSnackbar(true);
                 setStepThree(false);
@@ -431,7 +430,6 @@ const PatientRegistration = () => {
           hipId: currentHospital?.hip_id,
         };
         dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
-          console.log(res);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             // setErrorMessage("Please enter correct OTP");
             setShowSnackbar(true);
@@ -440,7 +438,6 @@ const PatientRegistration = () => {
           }
           if(res?.payload?.ABHAProfile) {
             dispatch(suggestAbhaAddress(res?.payload?.txnId)).then((result) => {
-              console.log(result);
               setPatientAbhaData(res?.payload?.ABHAProfile);
               setAbhaSuggestionList(result?.payload?.abhaAddressList);
               setAbhaSuggestionTxnId(result?.payload?.txnId);
@@ -476,7 +473,6 @@ const PatientRegistration = () => {
           otp: otp,
         };
         dispatch(verifyAbhaOTP(payload)).then((res) => {
-          console.log("abhaOTP", res);
           if (res?.error && Object.keys(res?.error)?.length > 0) {
             setShowSnackbar(true);
             return;
@@ -600,15 +596,12 @@ const PatientRegistration = () => {
     setAbhaNumber(event.target.value);
   }
   const onSubmitAbhaNumber = (event) => {
-    console.log(abhaNumber);
-    console.log(abhaUserDetails.txnId, abhaUserDetails.token);
     const abhaUserPayload = {
       txnId: abhaUserDetails.txnId,
       abhaNumber: abhaNumber,
       token: abhaUserDetails.token
     }
     dispatch(verifyAbhaUser(abhaUserPayload)).then((result) => {
-      console.log("abhaUser", result);
       if (result?.error && Object.keys(result?.error)?.length > 0) {
         setShowSnackbar(true);
         return;
@@ -618,7 +611,6 @@ const PatientRegistration = () => {
           hipId: currentHospital?.hip_id,
         }
         dispatch(getAbhaProfile(profileParameters)).then(profileResponse => {
-          console.log(profileResponse);
           if(profileResponse?.error && Object.keys(profileResponse?.error)?.length > 0) {
             setShowSnackbar(true);
             setStepThree(false);
