@@ -1,6 +1,8 @@
 import {
     Button,
     styled,
+    ToggleButtonGroup,
+    ToggleButton
   } from "@mui/material";
   import React from "react";
   
@@ -107,24 +109,24 @@ import {
           })}
         </div>
         {selectedAbhaModeOption === "link_abha" && (
-            <div className="select-mode">
-            {registrationModes?.map((item) => {
-                return (
-                <div className="form-radio-group">
-                    <label>
-                    <input
-                        type="radio"
-                        value={item?.value}
-                        checked={selectedAbhaRegistrationOption === item?.value}
-                        onChange={handleAbhaRegistrationChange}
-                        className="radio-input"
-                    />
-                    {item?.label}
-                    </label>
-                </div>
-                );
+          <div className="select-mode">               
+            <ToggleButtonGroup
+              color="primary"
+              exclusive
+              size="large"
+              value={selectedAbhaRegistrationOption}
+              onChange={handleAbhaRegistrationChange}
+              aria-label="Platform"
+            >
+              {registrationModes?.map((item) => {
+                return(
+                <ToggleButton value={item?.value} style={{ fontWeight: 500, border: "1px solid #a2a2a2" }}>
+                  {item?.label}
+                </ToggleButton>
+                )
             })}
-            </div>
+            </ToggleButtonGroup>
+          </div>
         )}
         <div>
           <Button

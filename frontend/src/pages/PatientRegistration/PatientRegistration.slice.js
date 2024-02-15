@@ -69,7 +69,7 @@ export const registerPatient = createAsyncThunk(
 );
 
 export const registerAbhaPatient = createAsyncThunk(
-  "registration/registerAbhaPatient",
+  "registration/registerPatient",
   async (payload) => {
     const response = await apiRequest("POST", apis?.registerAbhaPatient, payload);
     return response;
@@ -119,7 +119,7 @@ export const verifyAbhaUser = createAsyncThunk(
 export const getAbhaProfile = createAsyncThunk(
   "registration/getAbhaProfile",
   async (parameters) => {
-    const response = await apiRequest("GET", apis?.getAbhaProfile + `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`);
+    const response = await apiRequest("POST", apis?.getAbhaProfile + `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`);
     return response;
   }
 );

@@ -1,6 +1,19 @@
 import {
-  styled
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  IconButton,
+  styled,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormControl
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
 import { useDispatch, useSelector } from "react-redux";
@@ -124,16 +137,20 @@ const PatientRegistration = () => {
   const [aadhaarOTP, setAadhaarOTP] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [PhoneDisabled, setPhoneDisabled] = useState(true);
+  const [abhaAccounts, setAbhaAccounts] = useState([]);
+  const [abhaUserDetails, setAbhaUserDetails] = useState({});
   const [patientAbhaData, setPatientAbhaData] = useState({});
   const [abhaSuggestionList, setAbhaSuggestionList] = useState([]);
   const [abhaSuggestionTxnId, setAbhaSuggestionTxnId] = useState("");
+  const [abhaDialogOpen, setAbhaDialogOpen] = useState(false);
+  const [abhaNumber, setAbhaNumber] = useState("");
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
-
+  
   const adminModes = [
     {
       label: "Abha",
@@ -154,15 +171,19 @@ const PatientRegistration = () => {
 
   const abhaModes = [
     {
-      label: "Create Abha",
-      value: "create_abha",
-    },
-    {
       label: "Link Abha",
       value: "link_abha",
     },
+    {
+      label: "Create Abha",
+      value: "create_abha",
+    },
   ];
   const registrationModes = [
+    {
+      label: "ABHA",
+      value: "abha",
+    },
     {
       label: "Mobile number",
       value: "mobile",
@@ -389,13 +410,14 @@ const PatientRegistration = () => {
               hipId: currentHospital?.hip_id,
             }
             dispatch(getAbhaProfile(profileParameters)).then(profileResponse => {
+              console.log(profileResponse);
               if(profileResponse?.error && Object.keys(profileResponse?.error)?.length > 0) {
                 setShowSnackbar(true);
                 setStepThree(false);
                 return;
               }
-              else if(profileResponse?.payload?.ABHAProfile){
-                setPatientAbhaData(profileResponse?.payload?.ABHAProfile);
+              else if(profileResponse?.payload){
+                setPatientAbhaData(profileResponse?.payload);
                 setStepThree(true);
               }
             })
@@ -460,23 +482,9 @@ const PatientRegistration = () => {
             return;
           }
           else {
-            const abhaUserPayload = {
-              txnId: res?.payload?.txnId,
-              abhaNumber: res?.payload?.accounts[0]?.ABHANumber,
-              token: res?.payload?.token
-            }
-            dispatch(verifyAbhaUser(abhaUserPayload)).then((result) => {
-              if (result?.error && Object.keys(result?.error)?.length > 0) {
-                setShowSnackbar(true);
-                return;
-              }
-              console.log("abhaUser", result);
-              // if(result?.payload?.ABHAProfile) {
-              //   setPatientAbhaData(result?.payload?.ABHAProfile);
-              //   setStepThree(true);
-              // }
-              // else setStepTwo(true);
-            })
+            setAbhaAccounts(res?.payload?.accounts);
+            setAbhaUserDetails({ txnId: res?.payload?.txnId, token: res?.payload?.token })
+            setAbhaDialogOpen(true);
           }
         });
       }
@@ -584,6 +592,48 @@ const PatientRegistration = () => {
     setOpen(false);
   }
 
+  const handleAbhaDialogClose = () => {
+    setAbhaDialogOpen(false);
+  };
+
+  const handleAbhaNumberChange = (event) => {
+    setAbhaNumber(event.target.value);
+  }
+  const onSubmitAbhaNumber = (event) => {
+    console.log(abhaNumber);
+    console.log(abhaUserDetails.txnId, abhaUserDetails.token);
+    const abhaUserPayload = {
+      txnId: abhaUserDetails.txnId,
+      abhaNumber: abhaNumber,
+      token: abhaUserDetails.token
+    }
+    dispatch(verifyAbhaUser(abhaUserPayload)).then((result) => {
+      console.log("abhaUser", result);
+      if (result?.error && Object.keys(result?.error)?.length > 0) {
+        setShowSnackbar(true);
+        return;
+      } else {
+        const profileParameters = {
+          transactionId: abhaUserDetails.txnId,
+          hipId: currentHospital?.hip_id,
+        }
+        dispatch(getAbhaProfile(profileParameters)).then(profileResponse => {
+          console.log(profileResponse);
+          if(profileResponse?.error && Object.keys(profileResponse?.error)?.length > 0) {
+            setShowSnackbar(true);
+            setStepThree(false);
+            return;
+          }
+          else if(profileResponse?.payload){
+            setPatientAbhaData(profileResponse?.payload);
+            setStepThree(true);
+          }
+        })
+      }
+    })
+    handleAbhaDialogClose();
+  };
+
   const onSnackbarClose = () => {
     setShowSnackbar(false);
   };
@@ -613,6 +663,50 @@ const PatientRegistration = () => {
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
         />
+        <Dialog
+          open={abhaDialogOpen}
+          onClose={handleAbhaDialogClose}
+          fullWidth={true}
+          PaperProps={{
+            component: 'form'
+          }}
+        >
+          <DialogTitle>Select Abha Number</DialogTitle>
+            <IconButton
+              aria-label="close"
+              onClick={handleAbhaDialogClose}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+          </IconButton>
+          <DialogContent dividers>
+          {abhaAccounts.length > 0 && abhaAccounts.map((item, index) => {
+            return(
+            <FormControl>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                value={abhaNumber}
+                onChange={handleAbhaNumberChange}
+                style={{ marginTop: "10px" }}
+              >
+                <FormControlLabel key={index} value={item.ABHANumber} control={<Radio size="small"/>} label={item.ABHANumber} />
+              </RadioGroup>
+            </FormControl>
+           )
+          })}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleAbhaDialogClose}>Cancel</Button>
+            <Button onClick={onSubmitAbhaNumber}>Continue</Button>
+          </DialogActions>
+        </Dialog>
       <ExpandableCard
         title={`Mode of Registration ${
           selectedOption ? "|" + " " + selectedOption?.replace("_", " ") : ""
@@ -739,7 +833,8 @@ const PatientRegistration = () => {
                 isForAbha={checkedOption}
                 patientAbhaData={patientAbhaData}
                 abhaSuggestionList={abhaSuggestionList}
-                setAbhaSuggestionTxnId={setAbhaSuggestionTxnId}
+                abhaSuggestionTxnId={abhaSuggestionTxnId}
+                selectedAbhaModeOption={selectedAbhaModeOption}
               />
             ) : (
               <PatientRegistartionForm

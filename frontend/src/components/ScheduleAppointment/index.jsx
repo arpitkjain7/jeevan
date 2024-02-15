@@ -179,7 +179,6 @@ const BookingSlots = () => {
   };
 
   const handleDateSelect = (date) => {
-    console.log(date);
     let first = Object.keys(doctorDetails)?.length ? false : true;
     if (date !== selectedDate) {
       let currentHospital = {};
@@ -223,13 +222,11 @@ const BookingSlots = () => {
       dates.push({date: date, day: day });
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    console.log(dates);
     return dates;
   };
 
   useEffect(() => {
     const thisWeek = getDates(today);
-    console.log(thisWeek);
     setDates(thisWeek);
     if (thisWeek?.length) {
       handleDateSelect(formatDate(thisWeek[0].date));
@@ -347,7 +344,6 @@ const BookingSlots = () => {
       const currentTime = today.toLocaleTimeString(undefined, {
         hour12: false,
       });
-      console.log(currentTime, startTime);
       if (currentTime > startTime && currentTime < endTime) {
         let currentSlotStartTime;
         allTimeSlots.map((slot) => {
@@ -449,13 +445,11 @@ const BookingSlots = () => {
   };
 
   const formatDisplayDate = (date) => {
-    console.log(date);
     // const displayArr = date?.split(" ");
     return convertDateFormat(date, "dd/MM/yyyy");
   };
 
   const formatDate = (date) => {
-    console.log(date);
     // const displayArr = date?.split(" ");
     const formatedDate = parseDateFormat(date, "yyyy-MM-dd");
     return formatedDate;

@@ -137,14 +137,15 @@ const RegisterationConfirmation = ({
   const [isAbhaPresent, setIsAbhaPresent] = useState(false);
   const [isAbhaDisabled, setIsAbhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
+  console.log("dataState", dataState);
   const [abhaCardBytes, setAbhaCardBytes] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const registeredPatient =
-    dataState.PatientRegistartion.registeredPatientDetails;
+    dataState?.PatientRegistartion.registeredPatientDetails;
   const patientData =
-    Object.keys(selectedPatient)?.length > 0 && isAppointment
+    Object.keys(selectedPatient)?.length > 0 // && isAppointment
       ? selectedPatient
       : registeredPatient;
   const [data, setData] = useState([]);
