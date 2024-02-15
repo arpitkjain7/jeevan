@@ -29,8 +29,8 @@ class HIPController:
             logging.info("executing create new hip function")
             request_dict = request.dict()
             logging.info("Creating HIP record")
-            hip_id = self.CRUDHIP.create(**request_dict)
-            return {"hip_id": hip_id}
+            record_id = self.CRUDHIP.create(**request_dict)
+            return {"id": record_id, "hip_id": request_dict.get("hip_id")}
         except Exception as error:
             logging.error(f"Error in HIPController.create_hip function: {error}")
             raise error
