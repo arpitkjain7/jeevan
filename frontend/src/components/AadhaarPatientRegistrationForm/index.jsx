@@ -37,8 +37,8 @@ const AadhaarPatientRegForm = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [abhaAddressInputValue, setAbhaAddressInputValue] = useState("");
   // let combinedAbhaSuggestions = (abhaSuggestionList).concat(patientAbhaData?.phrAddress || []);
-  let abhaSuggestions = patientAbhaData?.phrAddress || patientAbhaData?.preferredAbhaAddress || [];
-  const [abhaAddressValue, setAbhaAddressValue] = useState("");
+  let abhaSuggestions = patientAbhaData?.phrAddress || [];
+  const [abhaAddressValue, setAbhaAddressValue] = useState(abhaSuggestions[0] || "");
   const [isNewAbha, setIsNewAbha] = useState(false);
 
   const handleNewAbhaChange = (event) => {
@@ -77,7 +77,7 @@ const AadhaarPatientRegForm = ({
     event.preventDefault();
     let currentHospital = {};
     if(Object.keys(patientAbhaData).length > 0){
-      if (!validateAbhaAddress(abhaAddressValue)) {
+      if (selectedAbhaModeOption === "create_abha" && !validateAbhaAddress(abhaAddressValue)) {
         setAbhaAddressError(true);
         setShowSnackbar(true);
         setErrorMessage("Invalid ABHA Address");
@@ -97,8 +97,8 @@ const AadhaarPatientRegForm = ({
         name: patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
         email: patientAbhaData?.email,
         mobile_number: patientAbhaData?.mobile,
-        abha_address: abhaAddressValue,
-        primary_abha_address: abhaAddressValue,
+        abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue,
+        primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue,
         DOB: patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
         gender: patientAbhaData?.gender,
         abha_number: patientAbhaData?.ABHANumber,
@@ -122,9 +122,10 @@ const AadhaarPatientRegForm = ({
         hip_id: currentHospital?.hip_id,
       }
       const abhaAddressPayload = {
-        abhaAddress: abhaAddressValue || formData?.abhaAddress,
+        abhaAddress: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || formData?.abhaAddress,
         txnId: abhaSuggestionTxnId
       }
+      console.log("abhaAddressPayload", abhaAddressPayload);
       if(isNewAbha){
         dispatch(createAbhaAddress(abhaAddressPayload)).then(result => {
           console.log("createAbhaAddress", result);
@@ -138,9 +139,8 @@ const AadhaarPatientRegForm = ({
           const userDetails = ({...payload, id: res?.payload?.id})
           setUserCreated(true);
           dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
+          navigate("/registered-patient");
         });
-      
-      navigate("/registered-patient");
     }
   };
 
@@ -220,7 +220,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="DOB"
               name="dob"
-              value={patientAbhaData?.dob}
+              value={patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`}
               onChange={handleChange}
               disabled
               InputLabelProps={{ shrink: true }}
@@ -271,11 +271,11 @@ const AadhaarPatientRegForm = ({
                 fullWidth
                 renderInput={(params) => <TextField {...params} label="Abha address"
                 error={abhaAddressError}
-                helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include up to one dot (.) and/or one underscore (_) which cannot be at the beginning or end of the address" : ""}/>}
+                helperText={abhaAddressError ? "Your ABHA Address must be 8-18 characters long, alphanumeric, and can include special which cannot be at the beginning or end of the address" : ""}/>}
               />
             </Grid>
           }
-          {!isNewAbha && 
+          {!isNewAbha && selectedAbhaModeOption === "create_abha" && 
             <Grid item xs={12} md={5}>
               <Autocomplete
                 name="abhaAddress"
@@ -291,13 +291,26 @@ const AadhaarPatientRegForm = ({
               />
             </Grid>
           }
+          {selectedAbhaModeOption === "link_abha" &&
+            <Grid item xs={12} md={5}>
+              <TextField
+                label="ABHA Address"
+                name="abhaAddress"
+                value={patientAbhaData?.preferredAbhaAddress}
+                onChange={handleChange}
+                required
+                disabled
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+              />
+            </Grid>
+          }
           <Grid item xs={12} md={5}>
             <TextField
               label="Address"
               name="address"
               value={patientAbhaData?.address}
               onChange={handleChange}
-              disabled
               InputLabelProps={{ shrink: true }}
               fullWidth
             />
@@ -306,9 +319,8 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Pincode"
               name="pincode"
-              value={patientAbhaData?.pinCode}
+              value={patientAbhaData?.pinCode || patientAbhaData?.pincode}
               onChange={handleChange}
-              disabled
               InputLabelProps={{ shrink: true }}
               fullWidth
             />

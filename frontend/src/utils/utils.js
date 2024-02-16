@@ -82,7 +82,7 @@ export const validateAbhaAddress = (address) => {
   const regex = /^[A-Za-z0-9]+([_.][A-Za-z0-9]+)*$/;
   return (
     // /^[\w!@#$%^&*-_./?]{8,18}$/.test(address)
-    /^(?![-_!@#$%^&*()+=|[\]{}:;"'<>,.?/])[A-Za-z0-9!@#$%^&*()+=|[\]{}:;"'<>,.?/]{8,18}.*?[A-Za-z0-9]$/.test(address)
+    /^[a-zA-Z0-9](?=.*[a-zA-Z0-9!@#$%^&*._])([a-zA-Z0-9!@#$%^&*._]{6,18}[a-zA-Z0-9])$/.test(address)
     // address.length >= 8 &&
     // address.length <= 18 &&
     // regex.test(address) &&

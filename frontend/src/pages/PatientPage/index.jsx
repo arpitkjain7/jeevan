@@ -6,7 +6,6 @@ import { fetchPatientList } from "./patientpage.slice";
 import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice";
-import MenuIcon from "../../assets/icons/kebabIcon.svg";
 import CustomLoader from "../../components/CustomLoader";
 const tableStyle = {
   backgroundColor: "#f1f1f1",

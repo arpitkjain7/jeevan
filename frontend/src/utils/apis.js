@@ -45,5 +45,6 @@ export const apis = {
   createAbhaAddress: "v3/HID/registration/aadhaar/createAbhaAddress",
   registerAbhaPatient: "v3/patient/register",
   verifyAbhaUser: "v3/HID/retrieveAbha/verifyUser",
-  getAbhaProfile: "v3/HID/retrieveAbha/getProfile"
+  getAbhaProfile: "v3/HID/retrieveAbha/getProfile",
+  resetUserPassword: "v1/user/resetPassword"
 };

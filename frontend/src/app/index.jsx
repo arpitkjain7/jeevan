@@ -1,14 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {
   styled,
-  useTheme,
   Box,
   CssBaseline,
   Toolbar,
   Drawer,
 } from "@mui/material";
-import { useSelector } from "react-redux";
 import Header from "../components/Header";
 import "./global.scss";
 import SignInPage from "../pages/SignIn";

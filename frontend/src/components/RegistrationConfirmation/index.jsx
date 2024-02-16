@@ -140,7 +140,7 @@ const RegisterationConfirmation = ({
   console.log("dataState", dataState);
   const [abhaCardBytes, setAbhaCardBytes] = useState("");
   const [showLoader, setShowLoader] = useState(false);
-  const doctorId = sessionStorage.getItem("appointment_doctor_id");
+  // const doctorId = sessionStorage.getItem("appointment_doctor_id");
   const selectedPatient = dataState?.appointmentList?.patientDetails;
   const registeredPatient =
     dataState?.PatientRegistartion.registeredPatientDetails;
@@ -155,7 +155,7 @@ const RegisterationConfirmation = ({
   const [doctorName, setDoctorName] = useState("");
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
-
+  console.log("patientData", patientData);
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
@@ -261,7 +261,7 @@ const RegisterationConfirmation = ({
       navigate("/create-appointment");
       sessionStorage.setItem(
         "selectedPatient",
-        JSON.stringify(registeredPatient)
+        JSON.stringify(patientData)
       );
     }
   };
@@ -310,8 +310,9 @@ const RegisterationConfirmation = ({
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
+              console.log("PatientDetails", res);
               const AllPatientData = Object.assign(
-                res.payload,
+                res?.payload,
                 { patientId: response.payload?.pmr_details?.patient_id },
                 { doc_id: response.payload?.pmr_details?.doc_id },
                 { hip_id: response.payload?.pmr_details?.hip_id }, 
@@ -409,7 +410,6 @@ const RegisterationConfirmation = ({
       </Box>
       <div className="btn-wrapper">
         <Button className="visit-btn" onClick={navigateStartVisit}>
-          {/* {isAppointment ? "Go to appointment list" : "Create Appointment"} */}
           Start Visit
         </Button>
         <Button className="submit-btn" onClick={navigateToNext}>
