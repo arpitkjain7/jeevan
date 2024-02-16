@@ -36,5 +36,7 @@ export const apis = {
   syncPMREndpoint: "v1/PMR/sync",
   patientDetails: "v1/patient",
   uploadHealthDocument: "v1/PMR/uploadHealthDocuments",
-  pmrSendNotification: "v1/PMR/sendDocument"
+  pmrSendNotification: "v1/PMR/sendDocument",
+  resetUserPassword: "v1/user/resetPassword",
+  genearteOTPPassword: "v1/user/generateOTP",
 };

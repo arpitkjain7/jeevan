@@ -150,6 +150,7 @@ const Header = () => {
               >
                 <MenuItem> {username} </MenuItem>
                 <MenuItem onClick={handleClose}>View Profile</MenuItem>
+                <MenuItem onClick={() => navigate("/forgot-password")}>Change Password</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </ProfileMenu>
             </ProfileIconWrapper>
