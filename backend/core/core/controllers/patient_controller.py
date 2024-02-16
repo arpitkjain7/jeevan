@@ -10,7 +10,7 @@ from commons.auth import decodeJWT
 from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from datetime import datetime, timezone, timedelta
-import os
+import os, json
 import uuid
 from pytz import timezone as pytz_timezone
 
@@ -47,7 +47,7 @@ class PatientController:
             verify_abha_url = f"{self.abha_url}/v2/search/searchHealthIdToLogin"
             resp, resp_code = APIInterface().post(
                 route=verify_abha_url,
-                data={"healthId": health_id, "yearOfBirth": year_of_birth},
+                data=json.dumps({"healthId": health_id, "yearOfBirth": year_of_birth}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             available_status = resp.get("status")
@@ -252,16 +252,18 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             _, resp_code = APIInterface().post(
                 route=fetch_modes_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "query": {
-                        "id": request_dict.get("abha_number"),
-                        "purpose": request_dict.get("purpose"),
-                        "authMode": request_dict.get("auth_mode"),
-                        "requester": {"type": "HIP", "id": request_dict["hip_id"]},
-                    },
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "query": {
+                            "id": request_dict.get("abha_number"),
+                            "purpose": request_dict.get("purpose"),
+                            "authMode": request_dict.get("auth_mode"),
+                            "requester": {"type": "HIP", "id": request_dict["hip_id"]},
+                        },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -300,12 +302,14 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "transactionId": gateway_obj.get("transaction_id"),
-                    "credential": {"authCode": request_dict.get("otp")},
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "transactionId": gateway_obj.get("transaction_id"),
+                        "credential": {"authCode": request_dict.get("otp")},
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",

@@ -187,14 +187,16 @@ class HIUController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             _, resp_code = APIInterface().post(
                 route=find_patient_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "query": {
-                        "patient": {"id": request_dict["abha_address"]},
-                        "requester": {"type": "HIU", "id": request_dict["hiu_id"]},
-                    },
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "query": {
+                            "patient": {"id": request_dict["abha_address"]},
+                            "requester": {"type": "HIU", "id": request_dict["hiu_id"]},
+                        },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -258,11 +260,13 @@ class HIUController:
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
                 _, resp_code = APIInterface().post(
                     route=fetch_consent_url,
-                    data={
-                        "requestId": request_id,
-                        "timestamp": time_now,
-                        "consentId": consentArtifactId,
-                    },
+                    data=json.dumps(
+                        {
+                            "requestId": request_id,
+                            "timestamp": time_now,
+                            "consentId": consentArtifactId,
+                        }
+                    ),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -342,28 +346,32 @@ class HIUController:
                 )
                 _, resp_code = APIInterface().post(
                     route=health_info_url,
-                    data={
-                        "requestId": request_id,
-                        "timestamp": time_now,
-                        "hiRequest": {
-                            "consent": {"id": consent_id},
-                            "dateRange": {
-                                "from": valid_date_from,
-                                "to": valid_date_to,
-                            },
-                            "dataPushUrl": os.environ["data_push_url"],
-                            "keyMaterial": {
-                                "cryptoAlg": "ECDH",
-                                "curve": "Curve25519",
-                                "dhPublicKey": {
-                                    "expiry": expire_at,
-                                    "parameters": "Curve25519/32byte random key",
-                                    "keyValue": requester_key_material.get("publicKey"),
+                    data=json.dumps(
+                        {
+                            "requestId": request_id,
+                            "timestamp": time_now,
+                            "hiRequest": {
+                                "consent": {"id": consent_id},
+                                "dateRange": {
+                                    "from": valid_date_from,
+                                    "to": valid_date_to,
                                 },
-                                "nonce": requester_key_material.get("nonce"),
+                                "dataPushUrl": os.environ["data_push_url"],
+                                "keyMaterial": {
+                                    "cryptoAlg": "ECDH",
+                                    "curve": "Curve25519",
+                                    "dhPublicKey": {
+                                        "expiry": expire_at,
+                                        "parameters": "Curve25519/32byte random key",
+                                        "keyValue": requester_key_material.get(
+                                            "publicKey"
+                                        ),
+                                    },
+                                    "nonce": requester_key_material.get("nonce"),
+                                },
                             },
-                        },
-                    },
+                        }
+                    ),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
