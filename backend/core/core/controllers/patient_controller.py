@@ -880,6 +880,18 @@ class PatientController:
             )
             raise error
 
+    def delete_patient(self, patient_id):
+        try:
+            logging.info("Deleting patient records")
+            # for patient_obj in request.data:
+            deleted_patient = self.CRUDPatientDetails.delete(patient_id=patient_id)
+            return deleted_patient
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.delete_patient function: {error}"
+            )
+            raise error
+
     def get_patient_details(self, patient_id: str):
         try:
             logging.info("executing list_all_patients function")
