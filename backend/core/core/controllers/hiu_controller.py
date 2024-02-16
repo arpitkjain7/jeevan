@@ -105,36 +105,38 @@ class HIUController:
             logging.info("Calling raise consent url")
             _, resp_code = APIInterface().post(
                 route=raise_consent_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "consent": {
-                        "purpose": {
-                            "text": purpose.value,
-                            "code": purpose.name,
-                        },
-                        "patient": {"id": request_dict["abha_address"]},
-                        "hiu": {"id": request_dict["hip_id"]},
-                        "requester": {
-                            "name": doc_obj["doc_name"],
-                            "identifier": {
-                                "type": "REGNO",
-                                "value": doc_obj["doc_licence_no"],
-                                "system": "https://www.mciindia.org",
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "consent": {
+                            "purpose": {
+                                "text": purpose.value,
+                                "code": purpose.name,
+                            },
+                            "patient": {"id": request_dict["abha_address"]},
+                            "hiu": {"id": request_dict["hip_id"]},
+                            "requester": {
+                                "name": doc_obj["doc_name"],
+                                "identifier": {
+                                    "type": "REGNO",
+                                    "value": doc_obj["doc_licence_no"],
+                                    "system": "https://www.mciindia.org",
+                                },
+                            },
+                            "hiTypes": hiTypeList,
+                            "permission": {
+                                "accessMode": "VIEW",
+                                "dateRange": {
+                                    "from": from_date,
+                                    "to": to_date,
+                                },
+                                "dataEraseAt": expire_time,
+                                "frequency": {"unit": "HOUR", "value": 1, "repeats": 0},
                             },
                         },
-                        "hiTypes": hiTypeList,
-                        "permission": {
-                            "accessMode": "VIEW",
-                            "dateRange": {
-                                "from": from_date,
-                                "to": to_date,
-                            },
-                            "dataEraseAt": expire_time,
-                            "frequency": {"unit": "HOUR", "value": 1, "repeats": 0},
-                        },
-                    },
-                },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
