@@ -562,7 +562,7 @@ class HIDController:
                         "X-Token": f"Bearer {linking_token}",
                     },
                 )
-                abha_number = patient_data["healthIdNumber"].replace("-", "")
+                abha_number = patient_data["healthIdNumber"]
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 time_now = datetime.now()
                 token_validity = time_now + timedelta(minutes=1440)
@@ -1390,7 +1390,7 @@ class HIDController:
                             "X-Token": f"Bearer {linking_token}",
                         },
                     )
-                    abha_number = patient_data["healthIdNumber"].replace("-", "")
+                    abha_number = patient_data["healthIdNumber"]
                     patient_record = self.CRUDPatientDetails.read_by_abhaId(
                         abha_number=abha_number, hip_id=hid_id
                     )
