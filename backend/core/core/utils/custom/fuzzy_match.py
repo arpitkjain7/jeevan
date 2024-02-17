@@ -95,7 +95,7 @@ class FuzzyMatch:
     def find_duplicate_record(self, mobile_number, name, dob, gender, hip_id):
         try:
             logging.info("Fuzzy Matching find_duplicate_record initiated")
-            patient_recs = CRUDPatientDetails().read_by_mobile_name(
+            patient_recs = CRUDPatientDetails().read_by_mobileNumber(
                 mobile_number=mobile_number
             )
             if patient_recs:
