@@ -405,8 +405,8 @@ class PatientController:
                     mobile_number = idf["value"]
                 if idf["type"] == "EMAIL":
                     email_id = idf["value"]
-            patient_obj = self.CRUDPatientDetails.read_by_abhaAddress(
-                abha_address=patient_data.get("healthId")
+            patient_obj = self.CRUDPatientDetails.read_by_abhaId(
+                abha_address=patient_data.get("healthIdNumber"), hip_id=hip_id
             )
             if patient_obj is None:
                 abha_number = patient_data.get("healthIdNumber")

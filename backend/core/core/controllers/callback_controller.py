@@ -119,7 +119,7 @@ class CallbackController:
                     elif idf["type"] == "HEALTH_NUMBER":
                         abha_number = idf["value"].replace("-", "")
                 patient_obj = self.CRUDPatientDetails.read_by_abhaId(
-                    abha_number=abha_number
+                    abha_number=abha_number, hip_id=hip_id
                 )
                 logging.info(f"{patient_data=}")
                 address_obj = patient_data.get("address")
@@ -156,7 +156,7 @@ class CallbackController:
                 else:
                     self.CRUDPatientDetails.create(**patient_request)
                 patient_obj_created = self.CRUDPatientDetails.read_by_abhaId(
-                    abha_number=abha_number
+                    abha_number=abha_number, hip_id=hip_id
                 )
                 if patient_obj_created:
                     pid = patient_obj_created["id"]

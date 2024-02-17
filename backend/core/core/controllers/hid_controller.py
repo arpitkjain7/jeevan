@@ -599,7 +599,7 @@ class HIDController:
                     "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                    abha_number=abha_number
+                    abha_number=abha_number, hip_id=request_json["hip_id"]
                 )
                 if patient_record:
                     patient_request.update({"id": patient_record["id"]})
@@ -944,7 +944,7 @@ class HIDController:
                     "abha_status": "ACTIVE",
                 }
                 patient_record = self.CRUDPatientDetails.read_by_abhaAddress(
-                    abha_address=resp["healthId"]
+                    abha_address=resp["healthId"],
                 )
                 if patient_record:
                     patient_request.update({"id": patient_record["id"]})
@@ -1392,7 +1392,7 @@ class HIDController:
                     )
                     abha_number = patient_data["healthIdNumber"].replace("-", "")
                     patient_record = self.CRUDPatientDetails.read_by_abhaId(
-                        abha_number=abha_number
+                        abha_number=abha_number, hip_id=hid_id
                     )
                     patient_request = {
                         "abha_number": abha_number,

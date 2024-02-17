@@ -34,7 +34,7 @@ class CRUDPatientDetails:
             logging.error(f"Error in CRUDPatientDetails create function : {error}")
             raise error
 
-    def read_by_abhaId(self, abha_number: str):
+    def read_by_abhaId(self, abha_number: str, hip_id: str):
         """[CRUD function to read a PatientDetails record]
 
         Args:
@@ -52,6 +52,7 @@ class CRUDPatientDetails:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.abha_number == abha_number)
+                    .filter(PatientDetails.hip_id == hip_id)
                     .first()
                 )
             if obj is not None:
