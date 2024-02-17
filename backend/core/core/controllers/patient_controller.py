@@ -405,9 +405,7 @@ class PatientController:
                     mobile_number = idf["value"]
                 if idf["type"] == "EMAIL":
                     email_id = idf["value"]
-            dob_str = (
-                f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}",
-            )
+            dob_str = f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}"
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=mobile_number,
                 name=patient_data.get("name"),
