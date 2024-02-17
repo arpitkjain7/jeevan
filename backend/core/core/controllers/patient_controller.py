@@ -488,7 +488,9 @@ class PatientController:
                     session_parameter="gateway_token"
                 ).get("accessToken")
                 on_discover_url = f"{self.gateway_url}/v0.5/care-contexts/on-discover"
-                matching_results = FuzzyMatch().find_record(request=request, hip_id=hip_id)
+                matching_results = FuzzyMatch().find_record(
+                    request=request, hip_id=hip_id
+                )
                 logging.info(f"{matching_results=}")
                 logging.info(f"{len(matching_results)=}")
                 if len(matching_results) > 1:
@@ -859,6 +861,9 @@ class PatientController:
             # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
             #     mobile_number=request_json.get("mobile_number")
             # )
+            request_json.update(
+                {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
+            )
             patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
                 mobile_number=request_json.get("mobile_number"),
                 name=request_json.get("name"),
