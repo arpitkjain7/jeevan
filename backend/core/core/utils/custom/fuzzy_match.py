@@ -96,12 +96,13 @@ class FuzzyMatch:
         try:
             logging.info("Fuzzy Matching find_duplicate_record initiated")
             patient_recs = CRUDPatientDetails().read_by_mobileNumber(
-                mobile_number=mobile_number
+                mobile_number=mobile_number, hip_id=hip_id
             )
+            birth_year = dob.split("-")[0]
             for patient_obj in patient_recs:
                 if gender == patient_obj.get("gender"):
                     patient_birth_year = patient_obj.get("DOB").split("-")[0]
-                    if int(dob) - 2 <= patient_birth_year <= int(dob) + 2:
+                    if int(birth_year) - 2 <= patient_birth_year <= int(birth_year) + 2:
                         patient_name = patient_obj.get("name")
                         phonotic_match_ratio = self.get_phonitic_match(
                             source_name=name, target_name=patient_name
