@@ -406,31 +406,34 @@ class PatientController:
                 if idf["type"] == "EMAIL":
                     email_id = idf["value"]
             patient_obj = self.CRUDPatientDetails.read_by_abhaId(
-                abha_address=patient_data.get("healthIdNumber"), hip_id=hip_id
+                abha_number=patient_data.get("healthIdNumber"), hip_id=hip_id
             )
+            abha_number = patient_data.get("healthIdNumber")
+            # if abha_number:
+            #     abha_number = abha_number.replace("-", "")
+            patient_request = {
+                "abha_number": abha_number,
+                "abha_address": patient_data["healthId"],
+                "mobile_number": mobile_number,
+                "name": patient_data["name"],
+                "gender": patient_data["gender"],
+                "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
+                "email": email_id,
+                "address": patient_data["address"]["line"],
+                "district": patient_data["address"]["district"],
+                "pincode": patient_data["address"]["pincode"],
+                "state_name": patient_data["address"]["state"],
+                "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
+                "hip_id": hip_id,
+                "abha_status": "ACTIVE",
+            }
             if patient_obj is None:
-                abha_number = patient_data.get("healthIdNumber")
-                if abha_number:
-                    abha_number = abha_number.replace("-", "")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                patient_request = {
-                    "id": patient_id,
-                    "abha_number": abha_number,
-                    "abha_address": patient_data["healthId"],
-                    "mobile_number": mobile_number,
-                    "name": patient_data["name"],
-                    "gender": patient_data["gender"],
-                    "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
-                    "email": email_id,
-                    "address": patient_data["address"]["line"],
-                    "district": patient_data["address"]["district"],
-                    "pincode": patient_data["address"]["pincode"],
-                    "state_name": patient_data["address"]["state"],
-                    "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
-                    "hip_id": hip_id,
-                    "abha_status": "ACTIVE",
-                }
+                patient_request.update({"id": patient_id})
                 self.CRUDPatientDetails.create(**patient_request)
+            else:
+                patient_request.update({"id": patient_obj["id"]})
+                self.CRUDPatientDetails.update(**patient_request)
             akw_url = f"{self.gateway_url}/v1.0/patients/profile/on-share"
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
