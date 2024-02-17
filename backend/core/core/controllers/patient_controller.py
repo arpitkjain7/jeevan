@@ -889,6 +889,7 @@ class PatientController:
                 gender=request_json.get("gender"),
                 hip_id=request_json.get("hip_id"),
             )
+            request_json.update({"DOB": dob_str})
             # patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
             #     mobile_number=request_json.get("mobile_number"),
             #     name=request_json.get("name"),
