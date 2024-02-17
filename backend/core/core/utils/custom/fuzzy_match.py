@@ -11,7 +11,7 @@ class FuzzyMatch:
         self.patient_list = []
         self.matched_by = None
 
-    def get_phonitic_match(source_name: str, target_name: str):
+    def get_phonitic_match(self, source_name: str, target_name: str):
         try:
             source_name_code = jellyfish.soundex(source_name)
             target_name_code = jellyfish.soundex(target_name)
