@@ -132,19 +132,21 @@ class CRUDPatientDetails:
             [dict]: [PatientDetails record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientDetails read request")
+            logging.info("CRUDPatientDetails read_by_mobileNumber request")
             with session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
                     .filter(PatientDetails.mobile_number == mobile_number)
-                    .filter(PatientDetails.hip_id)
+                    .filter(PatientDetails.hip_id == hip_id)
                     .all()
                 )
             if obj is not None:
                 return [row.__dict__ for row in obj]
             return []
         except Exception as error:
-            logging.error(f"Error in CRUDPatientDetails read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_mobileNumber function : {error}"
+            )
             raise error
 
     def read_multiple_by_mobileNumber(self, mobile_number: str, hip_id: str):
