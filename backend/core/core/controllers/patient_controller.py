@@ -839,11 +839,11 @@ class PatientController:
             # dob_obj = datetime.strptime(dob_str, "%Y-%m-%d")
             # dob_str = dob_obj.strftime("%d/%m/%Y")
             patient_obj = FuzzyMatch().find_duplicate_record(
-                mobile_number=request["mobile_number"],
-                name=request["name"],
+                mobile_number=request_json["mobile_number"],
+                name=request_json["name"],
                 dob=dob_str,
-                gender=request["gender"],
-                hip_id=request["hip_id"],
+                gender=request_json["gender"],
+                hip_id=request_json["hip_id"],
             )
             if patient_obj:
                 patient_obj.update({"status": "Patient already exist"})
