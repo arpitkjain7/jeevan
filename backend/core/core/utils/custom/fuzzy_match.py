@@ -1,5 +1,7 @@
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core import logger
+import jellyfish
+from fuzzywuzzy import fuzz
 
 logging = logger(__name__)
 
@@ -8,6 +10,15 @@ class FuzzyMatch:
     def __init__(self):
         self.patient_list = []
         self.matched_by = None
+
+    def get_phonitic_match(source_name: str, target_name: str):
+        try:
+            source_name_code = jellyfish.soundex(source_name)
+            target_name_code = jellyfish.soundex(target_name)
+            return fuzz.ratio(source_name_code, target_name_code)
+        except Exception as error:
+            logging.error(f"Error in FuzzyMatch.get_phonitic_match function: {error}")
+            raise error
 
     def attribute_match(self, discover_request):
         try:
@@ -79,4 +90,35 @@ class FuzzyMatch:
             return matching_results
         except Exception as error:
             logging.error(f"Error in FuzzyMatch.find_record function: {error}")
+            raise error
+
+    def find_duplicate_record(self, mobile_number, name, dob, gender, hip_id):
+        try:
+            logging.info("Fuzzy Matching find_duplicate_record initiated")
+            patient_recs = CRUDPatientDetails().read_by_mobile_name(
+                mobile_number=mobile_number
+            )
+            if patient_recs:
+                if gender == patient_recs.get("gender"):
+                    patient_birth_year = patient_recs.get("DOB").split("-")[0]
+                    if int(dob) - 2 <= patient_birth_year <= int(dob) + 2:
+                        patient_name = patient_recs.get("name")
+                        phonotic_match_ratio = self.get_phonitic_match(
+                            source_name=name, target_name=patient_name
+                        )
+                        if phonotic_match_ratio >= 80:
+                            return patient_recs
+                        else:
+                            return None
+                    else:
+                        return None
+                else:
+                    return None
+            else:
+                return None
+
+        except Exception as error:
+            logging.error(
+                f"Error in FuzzyMatch.find_duplicate_record function: {error}"
+            )
             raise error

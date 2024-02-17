@@ -42,3 +42,5 @@ pillow==10.2.0
 fastapi==0.109.1
 pydantic==1.10.14
 PyPDF2==3.0.1
+jellyfish==1.0.3
+fuzzywuzzy==0.18.0

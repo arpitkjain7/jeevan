@@ -405,9 +405,19 @@ class PatientController:
                     mobile_number = idf["value"]
                 if idf["type"] == "EMAIL":
                     email_id = idf["value"]
-            patient_obj = self.CRUDPatientDetails.read_by_abhaId(
-                abha_number=patient_data.get("healthIdNumber"), hip_id=hip_id
+            dob_str = (
+                f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}",
             )
+            patient_obj = FuzzyMatch().find_duplicate_record(
+                mobile_number=mobile_number,
+                name=patient_data.get("name"),
+                dob=dob_str,
+                gender=patient_data.get("gender"),
+                hip_id=hip_id,
+            )
+            # patient_obj = self.CRUDPatientDetails.read_by_abhaId(
+            #     abha_number=patient_data.get("healthIdNumber"), hip_id=hip_id
+            # )
             abha_number = patient_data.get("healthIdNumber")
             # if abha_number:
             #     abha_number = abha_number.replace("-", "")
@@ -417,7 +427,7 @@ class PatientController:
                 "mobile_number": mobile_number,
                 "name": patient_data["name"],
                 "gender": patient_data["gender"],
-                "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
+                "DOB": dob_str,
                 "email": email_id,
                 "address": patient_data["address"]["line"],
                 "district": patient_data["address"]["district"],
@@ -426,6 +436,7 @@ class PatientController:
                 "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
                 "hip_id": hip_id,
                 "abha_status": "ACTIVE",
+                "is_verified": False,
             }
             if patient_obj is None:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
@@ -463,6 +474,19 @@ class PatientController:
             return {"status": resp_code, "statusText": resp, "data": resp}
         except Exception as error:
             logging.error(f"Error in PatientController.patient_share function: {error}")
+            raise error
+
+    def verify_patient(self, request):
+        try:
+            logging.info("executing  verify_patient function")
+            self.CRUDPatientDetails.update(
+                **{"patient_id": request.patient_id, "is_verified": True}
+            )
+            return {"patient_id": request.patient_id, "is_verified": True}
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.verify_patient function: {error}"
+            )
             raise error
 
     def discover_patient(self, request, hip_id):
@@ -813,24 +837,17 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
-            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
-            #     mobile_number=request_json.get("mobile_number")
-            # )
-            patient_obj = self.CRUDPatientDetails.read_by_mobile_dob_hip(
-                mobile_number=request_json.get("mobile_number"),
-                DOB=request_json.get("DOB"),
-                hip_id=request_json.get("hip_id"),
+            dob_str = request_json.get("DOB")
+            # dob_obj = datetime.strptime(dob_str, "%Y-%m-%d")
+            # dob_str = dob_obj.strftime("%d/%m/%Y")
+            patient_obj = FuzzyMatch().find_duplicate_record(
+                mobile_number=request["mobile_number"],
+                name=request["name"],
+                dob=dob_str,
+                gender=request["gender"],
+                hip_id=request["hip_id"],
             )
             if patient_obj:
-                # patient_details = [
-                #     {
-                #         "name": patient_obj.get("name"),
-                #         "patient_id": patient_obj.get("id"),
-                #         "abha_number": patient_obj.get("abha_number"),
-                #         "abha_address": patient_obj.get("abha_address"),
-                #     }
-                #     for patient_obj in patient_list
-                # ]
                 patient_obj.update({"status": "Patient already exist"})
                 return patient_obj
             else:
@@ -864,10 +881,20 @@ class PatientController:
             request_json.update(
                 {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
             )
-            patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+            dob_str = request_json.get("DOB")
+            dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
+            dob_str = dob_obj.strftime("%Y-%m-%d")
+            patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json.get("mobile_number"),
                 name=request_json.get("name"),
+                dob=dob_str,
+                gender=request_json.get("gender"),
+                hip_id=request_json.get("hip_id"),
             )
+            # patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+            #     mobile_number=request_json.get("mobile_number"),
+            #     name=request_json.get("name"),
+            # )
             if patient_obj:
                 request_json.update({"id": patient_obj["id"]})
                 self.CRUDPatientDetails.update(**request_json)
