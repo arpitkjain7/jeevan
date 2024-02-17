@@ -847,10 +847,12 @@ class PatientController:
             )
             if patient_obj:
                 patient_obj.update({"status": "Patient already exist"})
+                request_json.update({"id": patient_obj["id"], "is_verified": True})
+                self.CRUDPatientDetails.update(**request_json)
                 return patient_obj
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id})
+                request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
@@ -895,7 +897,7 @@ class PatientController:
             #     name=request_json.get("name"),
             # )
             if patient_obj:
-                request_json.update({"id": patient_obj["id"]})
+                request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
                 request_json.update(
                     {"status": "Patient already exist, Updated database"}
@@ -903,7 +905,7 @@ class PatientController:
                 return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id})
+                request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
