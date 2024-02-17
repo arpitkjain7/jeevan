@@ -426,6 +426,7 @@ class PatientController:
                     "district": patient_data["address"]["district"],
                     "pincode": patient_data["address"]["pincode"],
                     "state_name": patient_data["address"]["state"],
+                    "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
                     "hip_id": hip_id,
                     "abha_status": "ACTIVE",
                 }
