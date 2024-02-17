@@ -488,7 +488,7 @@ class PatientController:
                     session_parameter="gateway_token"
                 ).get("accessToken")
                 on_discover_url = f"{self.gateway_url}/v0.5/care-contexts/on-discover"
-                matching_results = FuzzyMatch().find_record(request)
+                matching_results = FuzzyMatch().find_record(request=request, hip_id=hip_id)
                 logging.info(f"{matching_results=}")
                 logging.info(f"{len(matching_results)=}")
                 if len(matching_results) > 1:

@@ -36,7 +36,7 @@ class FuzzyMatch:
             logging.error(f"Error in FuzzyMatch.attribute_match function: {error}")
             raise error
 
-    def find_record(self, request):
+    def find_record(self, request, hip_id):
         try:
             logging.info("Fuzzy Matching find_record initiated")
             discover_request = request.get("patient")
@@ -50,7 +50,7 @@ class FuzzyMatch:
             for verifiedIdentifier in list_of_verifiedIdentifiers:
                 if verifiedIdentifier.get("type") == "MOBILE":
                     patient_recs = CRUDPatientDetails().read_multiple_by_mobileNumber(
-                        mobile_number=verifiedIdentifier.get("value")
+                        mobile_number=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
@@ -58,7 +58,7 @@ class FuzzyMatch:
                         break
                 elif verifiedIdentifier.get("type") == "NDHM_HEALTH_NUMBER":
                     patient_recs = CRUDPatientDetails().read_multiple_by_abhaId(
-                        abha_number=verifiedIdentifier.get("value")
+                        abha_number=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
@@ -66,7 +66,7 @@ class FuzzyMatch:
                         break
                 elif verifiedIdentifier.get("type") == "HEALTH_ID":
                     patient_recs = CRUDPatientDetails().read_multiple_by_abhaAddress(
-                        abha_address=verifiedIdentifier.get("value")
+                        abha_address=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
