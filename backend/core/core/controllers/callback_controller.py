@@ -117,7 +117,7 @@ class CallbackController:
                     if idf["type"] == "MOBILE":
                         mobile_number = idf["value"]
                     elif idf["type"] == "HEALTH_NUMBER":
-                        abha_number = idf["value"].replace("-", "")
+                        abha_number = idf["value"]
                 patient_obj = self.CRUDPatientDetails.read_by_abhaId(
                     abha_number=abha_number, hip_id=hip_id
                 )
