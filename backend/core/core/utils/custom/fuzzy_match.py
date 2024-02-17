@@ -113,7 +113,7 @@ class FuzzyMatch:
                         phonotic_match_ratio = self.get_phonitic_match(
                             source_name=name, target_name=patient_name
                         )
-                        if phonotic_match_ratio >= 80:
+                        if phonotic_match_ratio >= 65:
                             return patient_obj
                         continue
                     continue
