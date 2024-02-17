@@ -291,7 +291,9 @@ class DataTransferController:
                 "Authorization": f"Bearer {gateway_access_token}",
             }
             _, ack_resp_code = APIInterface().post(
-                route=data_transfer_success_url, data=request, headers=headers
+                route=data_transfer_success_url,
+                data=json.dumps(request),
+                headers=headers,
             )
             print(f"ack sent {ack_resp_code=}")
             gateway_request = {"request_id": request_id}

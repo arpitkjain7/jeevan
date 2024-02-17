@@ -229,9 +229,7 @@ class HIDController:
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
-            generate_aadhaar_otp_url = (
-                f"{self.abha_url_v3}/v3/enrollment/enrol/byAadhaar"
-            )
+            verify_aadhaar_otp_url = f"{self.abha_url_v3}/v3/enrollment/enrol/byAadhaar"
             encrypted_otp = rsa_encryption_oaep(data_to_encrypt=otp)
             current_time = datetime.now()
             timestamp = (
@@ -252,7 +250,7 @@ class HIDController:
                 "consent": {"code": "abha-enrollment", "version": "1.4"},
             }
             resp, resp_code = APIInterface().post(
-                route=generate_aadhaar_otp_url,
+                route=verify_aadhaar_otp_url,
                 data=json.dumps(payload),
                 headers={
                     "Content-Type": "application/json",
@@ -896,7 +894,7 @@ class HIDController:
             )
             resp, resp_code = APIInterface().post(
                 route=generate_mobile_otp_url,
-                data=request_json,
+                data=json.dumps(request_json),
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",

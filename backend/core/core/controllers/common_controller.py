@@ -4,7 +4,7 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from commons.auth import encrypt_password, verify_hash_password, signJWT
 from core import logger
-import os
+import os, json
 
 logging = logger(__name__)
 
@@ -34,7 +34,7 @@ class Common:
             verify_abha_url = f"{self.abha_url}/v2/search/existsByHealthId"
             resp, resp_code = APIInterface().post(
                 route=verify_abha_url,
-                data={"healthId": health_id},
+                data=json.dumps({"healthId": health_id}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             available_status = resp.get("status")
@@ -71,19 +71,21 @@ class Common:
             deep_link_url = f"{self.gateway_url }/v0.5/patients/sms/notify"
             resp, resp_code = APIInterface().post(
                 route=deep_link_url,
-                data={
+                data=json.dumps(
                     {
-                        "requestId": "{{$guid}}",
-                        "timestamp": "2023-05-27T08:41:55Z",
-                        "notification": {
-                            "phoneNo": "+91-9511878113",
-                            "hip": {
-                                "name": "Max Healthcare",
-                                "id": "ABCABC",
+                        {
+                            "requestId": "{{$guid}}",
+                            "timestamp": "2023-05-27T08:41:55Z",
+                            "notification": {
+                                "phoneNo": "+91-9511878113",
+                                "hip": {
+                                    "name": "Max Healthcare",
+                                    "id": "ABCABC",
+                                },
                             },
-                        },
+                        }
                     }
-                },
+                ),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             available_status = resp.get("status")

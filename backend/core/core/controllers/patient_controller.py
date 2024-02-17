@@ -79,7 +79,7 @@ class PatientController:
             logging.info("Getting linking token")
             resp, resp_code = APIInterface().post(
                 route=refresh_token_url,
-                data={"refreshToken": refresh_token},
+                data=json.dumps({"refreshToken": refresh_token}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             linking_token = resp.get("accessToken", None)
@@ -87,7 +87,7 @@ class PatientController:
             logging.info("Updating abha_address on Gateway")
             resp, resp_code = APIInterface().post(
                 route=abha_update_url,
-                data={"phrAddress": abha_address, "preferred": True},
+                data=json.dumps({"phrAddress": abha_address, "preferred": True}),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "X-Token": f"Bearer {linking_token}",
@@ -133,7 +133,7 @@ class PatientController:
             logging.info("Getting linking token")
             resp, resp_code = APIInterface().post(
                 route=refresh_token_url,
-                data={"refreshToken": refresh_token},
+                data=json.dumps({"refreshToken": refresh_token}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             linking_token = resp.get("accessToken", None)
@@ -142,7 +142,7 @@ class PatientController:
             logging.info("Updating abha_address on Gateway")
             # resp, resp_code = APIInterface().post(
             #     route=abha_update_url,
-            #     data={"phrAddress": abha_address, "preferred": True},
+            #     data=json.dumps({"phrAddress": abha_address, "preferred": True},
             #     headers={
             #         "Authorization": f"Bearer {gateway_access_token}",
             #         "X-Token": f"Bearer {linking_token}",
@@ -150,7 +150,7 @@ class PatientController:
             # )
             resp, resp_code = APIInterface().post(
                 route=abha_update_url,
-                data={"healthId": abha_address},
+                data=json.dumps({"healthId": abha_address}),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "X-Token": f"Bearer {linking_token}",
@@ -214,7 +214,7 @@ class PatientController:
             }
             _, resp_code = APIInterface().post(
                 route=fetch_modes_url,
-                data=fetch_mode_request,
+                data=json.dumps(fetch_mode_request),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -350,23 +350,25 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "transactionId": gateway_obj.get("transaction_id"),
-                    "credential": {
-                        "authCode": "",
-                        "demographic": {
-                            "name": request_dict.get("name"),
-                            "gender": request_dict.get("gender"),
-                            "dateOfBirth": request_dict.get("dateOfBirth"),
-                            "identifier": {
-                                "type": "MOBILE",
-                                "value": request_dict.get("mobileNumber"),
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "transactionId": gateway_obj.get("transaction_id"),
+                        "credential": {
+                            "authCode": "",
+                            "demographic": {
+                                "name": request_dict.get("name"),
+                                "gender": request_dict.get("gender"),
+                                "dateOfBirth": request_dict.get("dateOfBirth"),
+                                "identifier": {
+                                    "type": "MOBILE",
+                                    "value": request_dict.get("mobileNumber"),
+                                },
                             },
                         },
-                    },
-                },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -434,17 +436,19 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=akw_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "acknowledgement": {
-                        "status": "SUCCESS",
-                        "healthId": patient_data.get("healthId"),
-                        "tokenNumber": "122",
-                    },
-                    "error": None,
-                    "resp": {"requestId": request.get("requestId")},
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "acknowledgement": {
+                            "status": "SUCCESS",
+                            "healthId": patient_data.get("healthId"),
+                            "tokenNumber": "122",
+                        },
+                        "error": None,
+                        "resp": {"requestId": request.get("requestId")},
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -487,19 +491,21 @@ class PatientController:
                     logging.info("more than one definitive match for the given request")
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": None,
-                            "error": {
-                                "code": 1000,
-                                "message": "more than one definitive match for the given request",
-                            },
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": None,
+                                "error": {
+                                    "code": 1000,
+                                    "message": "more than one definitive match for the given request",
+                                },
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -517,19 +523,21 @@ class PatientController:
                     logging.info("no verified identifer was specified")
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": None,
-                            "error": {
-                                "code": 1000,
-                                "message": "no verified identifer was specified",
-                            },
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": None,
+                                "error": {
+                                    "code": 1000,
+                                    "message": "no verified identifer was specified",
+                                },
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -562,23 +570,25 @@ class PatientController:
                         )
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": {
-                                "referenceNumber": patient_id,
-                                "display": matching_results[patient_id]["name"],
-                                "careContexts": care_context,
-                                "matchedBy": [
-                                    matching_results[patient_id]["matched_by"]
-                                ],
-                            },
-                            "error": None,
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": {
+                                    "referenceNumber": patient_id,
+                                    "display": matching_results[patient_id]["name"],
+                                    "careContexts": care_context,
+                                    "matchedBy": [
+                                        matching_results[patient_id]["matched_by"]
+                                    ],
+                                },
+                                "error": None,
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -651,7 +661,7 @@ class PatientController:
             linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-init"
             resp, resp_code = APIInterface().post(
                 route=linking_on_init_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -735,7 +745,7 @@ class PatientController:
                 linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
                 resp, resp_code = APIInterface().post(
                     route=linking_on_init_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -770,7 +780,7 @@ class PatientController:
                 linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
                 resp, resp_code = APIInterface().post(
                     route=linking_on_init_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",

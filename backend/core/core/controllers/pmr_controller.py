@@ -25,7 +25,7 @@ from core import logger
 import base64
 from datetime import datetime, timezone
 from urllib.parse import quote
-import uuid, os
+import uuid, os, json
 from pytz import timezone as pytz_timezone
 
 logging = logger(__name__)
@@ -780,7 +780,7 @@ class PMRController:
             else:
                 resp, resp_code = APIInterface().post(
                     route=care_context_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -821,7 +821,7 @@ class PMRController:
                 }
                 resp, resp_code = APIInterface().post(
                     route=sms_notify_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
