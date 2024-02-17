@@ -908,24 +908,22 @@ class PatientController:
 
     def get_patient_details(self, patient_id: str):
         try:
-            logging.info("executing list_all_patients function")
+            logging.info("executing get_patient_details function")
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            logging.info(f"{patient_obj=}")
             return patient_obj
         except Exception as error:
-            logging.error(f"Error in get_patient function: {error}")
+            logging.error(f"Error in get_patient_details function: {error}")
             raise error
 
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
             patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            logging.info(f"{patient_obj=}")
             return patient_obj
         except Exception as error:
-            logging.error(f"Error in register_patient_controller function: {error}")
+            logging.error(f"Error in list_all_patients function: {error}")
             raise error
 
     def get_vital(self, patient_id, vital_type):
