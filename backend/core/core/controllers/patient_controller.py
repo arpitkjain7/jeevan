@@ -478,7 +478,7 @@ class PatientController:
         try:
             logging.info("executing  verify_patient function")
             self.CRUDPatientDetails.update(
-                **{"patient_id": request.patient_id, "is_verified": True}
+                **{"id": request.patient_id, "is_verified": True}
             )
             return {"patient_id": request.patient_id, "is_verified": True}
         except Exception as error:
