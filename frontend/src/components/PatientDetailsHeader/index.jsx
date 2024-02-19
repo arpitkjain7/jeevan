@@ -277,6 +277,10 @@ const PatientDetailsHeader = ({ documents }) => {
     setFollowUp(event.target.value);
   };
 
+  const handleFollowUp = () => {
+    setOpenFollowUp(true)
+  }
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -307,8 +311,10 @@ const PatientDetailsHeader = ({ documents }) => {
       setShowLoader(false);
       if (res?.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);
+        return;
       } else {
-        setOpenFollowUp(true);
+        // setOpenFollowUp(true);
+        postPMR();
       }
     });
   };
@@ -446,6 +452,9 @@ const PatientDetailsHeader = ({ documents }) => {
                     >
                       Add Image
                     </PrimaryButton>
+                    <PrimaryButton  style={{ marginRight: "10px" }} onClick={handleFollowUp}>
+                      Follow Up Date
+                    </PrimaryButton>
                     <PrimaryButton onClick={SaveDocument}>
                       Finish Prescription
                     </PrimaryButton>
@@ -499,8 +508,8 @@ const PatientDetailsHeader = ({ documents }) => {
                           value={followUp}
                           onChange={handleDateChange}
                         />
-                        <PrimaryButton onClick={postPMR} >
-                          Finish Prescription
+                        <PrimaryButton onClick={handleFollowUpClose} >
+                          Submit
                         </PrimaryButton>
                       </Box>
                     </Modal>

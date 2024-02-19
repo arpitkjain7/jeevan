@@ -330,7 +330,7 @@ const MyTable = ({
                           </TableCell>
                         );
                       }
-                      if (column.key !== "actions" && column.key !== "p_name") {
+                      if (column.key !== "actions" && column.key !== "p_name" && column.key !== "start_visit") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             {column?.render

@@ -3362,7 +3362,7 @@ const PatientEMRDetails = (props) => {
               </div>
               <PDFViewerWrapper>
                 <Document
-                  file={{ url: `${pdfUrl}` }}
+                  file={pdfUrl}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
                    {Array.apply(null, Array(numPages))
