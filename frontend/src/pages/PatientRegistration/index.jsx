@@ -18,7 +18,11 @@ import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  gatewayInteraction,
   getAbhaProfile,
+  patientAuthInit,
+  patientAuthVerifyOTP,
+  patientFetchModes,
   // registerAADHAAR,
   registerAadhaarAbha,
   suggestAbhaAddress,
@@ -41,6 +45,8 @@ import AadhaarPatientRegForm from "../../components/AadhaarPatientRegistrationFo
 import CustomSnackbar from "../../components/CustomSnackbar";
 import CustomLoader from "../../components/CustomLoader";
 import AbhaModeSelection from "../../components/AbhaModeSelection";
+import AbhaVerification from "../../components/AbhaVerification";
+import { validateAbhaAddress } from "../../utils/utils";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -125,6 +131,7 @@ const PatientRegistration = () => {
   const [stepThree, setStepThree] = useState(false);
   const [stepFour, setStepFour] = useState(false);
   const [aadhaar, setAadhaar] = useState("");
+  const [abha, setAbha] = useState("");
   const dispatch = useDispatch();
   const [userCreated, setUserCreated] = useState(false);
   const [phoneNumberUsed, setPhoneNumberUsed] = useState(true);
@@ -144,6 +151,14 @@ const PatientRegistration = () => {
   const [abhaSuggestionTxnId, setAbhaSuggestionTxnId] = useState("");
   const [abhaDialogOpen, setAbhaDialogOpen] = useState(false);
   const [abhaNumber, setAbhaNumber] = useState("");
+  const [isAbhaError, setIsAbhaError] = useState(false);
+  const [isAbhaValid, setIsAbhaValid] = useState(false);
+  const [verifyAbha, setVerifyAbha] = useState(true);
+  const [abhaOTP, setAbhaOTP] = useState(false);
+  const [isAbhaAuthMode, setIsAbhaAuthMode] = useState(false);
+  const [abhaAuthModeValue, setAbhaAuthModeValue] = useState("");
+  const [abhaAuthTxn, setAbhaAuthTxn] = useState("");
+  const [abhaOTPseconds, setAbhaOTPSeconds] = useState(-1);
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
@@ -154,7 +169,7 @@ const PatientRegistration = () => {
   const adminModes = [
     {
       label: "Abha",
-      value: "aadhaar",
+      value: "abha",
     },
     {
       label: "Phone Number",
@@ -193,6 +208,16 @@ const PatientRegistration = () => {
       value: "aadhaar",
     },
   ];
+  const abhaAuthModeOptions = [
+    {
+      label: "Mobile OTP",
+      value: "MOBILE_OTP",
+    },
+    {
+      label: "Aadhaar OTP",
+      value: "AADHAAR_OTP",
+    },
+  ]
   const resetFields = () => {
     setStepOne(false);
     setStepTwo(false);
@@ -202,18 +227,24 @@ const PatientRegistration = () => {
     setNumber("");
     setUserDeatilsForm(true);
     setAadhaar("");
+    setAbha("");
     setSixDigitOTP("");
+    setAbhaAuthModeValue("");
     setVerifyNumber(true);
     setVerifyAadhaar(true);
+    setVerifyAbha(true);
     setAbhaRegistration(true);
     setRegistration(true);
     setCheckedOption(null);
     setIsAadhaarValid(false);
+    setIsAbhaValid(false);
     setAadhaarOTP(false);
     setAadhaarOTPSeconds(-1);
     setSeconds(-1);
+    setAbhaOTP(false);
+    setAbhaOTPSeconds(-1);
   };
-
+  const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
   const handleOptionChange = (event) => {
     if (selectedOption?.length) {
@@ -246,6 +277,17 @@ const PatientRegistration = () => {
     setSelectedAbhaRegistrationOption(event.target.value);
   };
 
+  const handleAbhaAuthModeChange = (event) => {
+    // if (selectedAbhaRegistrationOption?.length) {
+    //   setStepOne(false);
+    //   setStepTwo(false);
+    //   setStepThree(false);
+    //   setStepFour(false);
+    // }
+    if (event.target.value !== null) {
+      setAbhaAuthModeValue(event.target.value);
+    }
+  };
   const handleAadhaarChange = (event) => {
     const inputValue = event.target.value;
     // Check if the input value is empty string
@@ -280,10 +322,49 @@ const PatientRegistration = () => {
     }
   };
 
+  const handleAbhaChange = (event) => {
+    const inputValue = event.target.value;
+    // Check if the input value is empty string
+    if (inputValue !== null) {
+      setAbha(inputValue);
+      // if (!validateAbhaAddress(event.target.value)) {
+      //   setIsAbhaError(true);
+      //   setIsAbhaValid(false);
+      // } else {
+      //   setIsAbhaError(false);
+      //   setIsAbhaValid(true);
+      // }
+    }
+  };
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleAbhaGenerateOTP = () => {
+    const payload = {
+      abha_number: abha,
+      purpose: "KYC_AND_LINK",
+      auth_mode: abhaAuthModeValue,
+      hip_id: currentHospital?.hip_id,
+    };
+    console.log(payload);
+    dispatch(patientAuthInit(payload)).then((res) => {
+      console.log(res);
+      setShowLoader(false);
+      if (res?.error && Object.keys(res?.error)?.length > 0) {
+        setShowSnackbar(true);
+        return;
+      }
+      if(res?.payload){
+        console.log(res);
+        setIsAbhaValid(true);
+        setAbhaAuthTxn(res?.payload?.txn_id);
+        setAbhaOTPSeconds(60);
+        setAbhaOTP(true);
+      }
+    });
+ 
+  }
   const handleSubmit = (type) => {
     // Handle the form submission
      setShowLoader(true);
@@ -344,7 +425,7 @@ const PatientRegistration = () => {
         setMobileNumber(number);
         let payload;
         let url;
-        if(selectedOption === "aadhaar" && selectedAbhaModeOption === "link_abha"){
+        if(selectedOption === "abha" && selectedAbhaModeOption === "link_abha"){
           payload ={
             "mode": "mobile",
             mobile: number,
@@ -364,14 +445,14 @@ const PatientRegistration = () => {
           // }
           const resData = res?.payload;
          
-          if (resData?.txn_id && selectedOption === "aadhaar") {
+          if (resData?.txn_id && selectedOption === "abha") {
             // setPhoneNumberUsed(resData?.mobileLinked);
             // setStepTwo(true);
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
             setPhoneNumberUsed(false);
             setPhoneDisabled(false);
-          } else if(!resData?.txn_id && selectedOption === "aadhaar"){
+          } else if(!resData?.txn_id && selectedOption === "abha"){
             setErrorMessage("The phone number entered does not match with any of the records");
             setShowSnackbar(true);
             setStepTwo(true);
@@ -387,11 +468,47 @@ const PatientRegistration = () => {
         setErrorMessage("Please enter valid Number");
         setShowSnackbar(true);
       }
+    } else if( type === "abha"){
+      console.log(abha);
+      console.log(abha_pattern.test(abha));
+      if (abha_pattern.test(abha)){
+        setIsAbhaValid(true);
+        console.log("Form submitted:");
+        if(selectedAbhaModeOption === "link_abha"){
+          const payload = {
+            abha_number: abha,
+            purpose: "KYC_AND_LINK",
+            hip_id: currentHospital?.hip_id,
+          };
+          dispatch(patientFetchModes(payload)).then((res) => {
+            console.log(res);
+            setShowLoader(false);
+            if (res?.error && Object.keys(res?.error)?.length > 0) {
+              setShowSnackbar(true);
+              return;
+            }
+            if(res?.payload){
+              console.log(res);
+              setIsAbhaAuthMode(true);
+              setIsAbhaValid(true);
+              // setAadhaarDataTxn(res?.payload?.txn_id);
+             
+            }
+          });
+        } 
+         
+      } else {
+        console.log("Failed");
+        setIsAbhaError(true);
+        setIsAbhaValid(false);
+        setErrorMessage("Please enter a ABHA Number");
+        setShowSnackbar(true);       
+      }
     }
   };
 
   const verifyOTP = (otp, type) => {
-    if (selectedOption === "aadhaar" && type === "aadhaar") {
+    if (selectedOption === "abha" && type === "aadhaar") {
       if(selectedAbhaModeOption === "link_abha"){
         const payload = {
           txnId: aadhaarDataTxn,
@@ -446,9 +563,6 @@ const PatientRegistration = () => {
           }
         });
       }
-      // if (stepTwo) {
-      //   setStepThree(true);
-      // }
     } else if (selectedOption === "phone_number" && type === "phone_number") {
       const payload = {
         txnId: phoneDataTxn,
@@ -465,7 +579,7 @@ const PatientRegistration = () => {
           setStepTwo(true);
         // }
       });
-    } else if (selectedOption === "aadhaar" && type === "phone_number") {
+    } else if (selectedOption === "abha" && type === "phone_number") {
       if(selectedAbhaModeOption === "link_abha"){
         const payload = {
           txnId: phoneDataTxn,
@@ -484,6 +598,36 @@ const PatientRegistration = () => {
           }
         });
       }
+    } else if (selectedOption === "abha" && type === "abha"){ 
+      const payload = {
+        txnId: abhaAuthTxn,
+        otp: otp,
+      };
+      dispatch(patientAuthVerifyOTP(payload)).then((res) => {
+        console.log("abha verify otp response", res);
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setShowSnackbar(true);
+          setStepThree(false);
+          return;
+        } else {
+          const requestId = res?.payload?.request_id;
+          dispatch(gatewayInteraction(requestId)).then(response => {
+            console.log("gateway response", response);
+            if(response?.error && Object.keys(response?.error)?.length > 0) {
+              setShowSnackbar(true);
+              setStepThree(false);
+              return;
+            }
+            else if(response?.payload?.callback_response !== null){
+              setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+              setStepThree(true);
+            } else {
+              setShowSnackbar(true);
+              return;
+            }
+          })
+        }
+      });
     }
   };
 
@@ -493,7 +637,7 @@ const PatientRegistration = () => {
     }
     if (stepOne) {
       setRegistration(false);
-      if (selectedOption === "aadhaar") {
+      if (selectedOption === "abha") {
         setAbhaRegistration(false);
         setVerifyAadhaar(true);       
       }
@@ -507,7 +651,7 @@ const PatientRegistration = () => {
 
     if (stepTwo) {
       setUserDeatilsForm(false);
-      if (selectedOption === "aadhaar") {
+      if (selectedOption === "abha") {
         setRegistration(false);
         setAbhaRegistration(false);
         setVerifyAadhaar(true);
@@ -525,6 +669,7 @@ const PatientRegistration = () => {
       setAbhaRegistration(false);
       setVerifyAadhaar(false);
       setVerifyNumber(false);
+      setVerifyAbha(false);
       setUserDeatilsForm(true);
     }
   }, [stepOne, stepTwo, stepThree, stepFour, selectedOption]);
@@ -560,8 +705,23 @@ const PatientRegistration = () => {
     };
   }, [aadhaarOTPseconds]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (abhaOTPseconds > 0) {
+        setAbhaOTPSeconds(abhaOTPseconds - 1);
+      }
+  
+      if (abhaOTPseconds === 0) {
+        clearInterval(interval);       
+      }
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [abhaOTPseconds]);
+
   const handleConfirmSelection = () => {
-    if(selectedOption === "aadhaar") {
+    if(selectedOption === "abha") {
       setOpen(true);
       // setStepAbha(true);
     } else {
@@ -574,6 +734,10 @@ const PatientRegistration = () => {
       setStepOne(true);
     } else if(selectedAbhaModeOption === "link_abha" && selectedAbhaRegistrationOption === "aadhaar") {
       setStepTwo(true);
+    } else if(selectedAbhaModeOption === "link_abha" && selectedAbhaRegistrationOption === "abha") {
+      setRegistration(false);
+      setAbhaRegistration(false);
+      setStepFour(true);
     } else if(selectedAbhaModeOption === "create_abha") {
       setRegistration(false);
       setAbhaRegistration(false);
@@ -705,7 +869,7 @@ const PatientRegistration = () => {
         }`}
         expanded={registration}
         setExpanded={setRegistration}
-        completed={(selectedOption === "aadhaar" && stepAbha) || (selectedOption === "phone_number" && stepOne)}
+        completed={(selectedOption === "abha" && stepAbha) || (selectedOption === "phone_number" && stepOne)}
       >
         { userRole === "ADMIN" ? (
         <VerificationSelection
@@ -727,12 +891,12 @@ const PatientRegistration = () => {
         />
         )}
       </ExpandableCard>
-      {(selectedOption === "aadhaar" && stepAbha && !checkedOption &&
+      {(selectedOption === "abha" && stepAbha && !checkedOption &&
        <ExpandableCard
         title="Create/Link Abha"
         expanded={abhaRegistration}
         setExpanded={setAbhaRegistration}
-        completed={(selectedOption === "aadhaar" && stepOne) || (selectedOption === "aadhaar" && stepTwo)}
+        completed={(selectedOption === "abha" && stepOne) || (selectedOption === "abha" && stepTwo) || (selectedOption === "abha" && stepFour)}
       >
         <AbhaModeSelection
           abhaModes={abhaModes}
@@ -745,12 +909,12 @@ const PatientRegistration = () => {
         />
       </ExpandableCard>
        )}
-      {(selectedOption === "aadhaar" && stepOne && !checkedOption &&
+      {(selectedOption === "abha" && stepOne && !checkedOption &&
         <ExpandableCard
           title="Patient's Mobile Number"
           expanded={verifyNumber}
           setExpanded={setVerifyNumber}
-          completed={(selectedOption === "aadhaar" && stepThree)}
+          completed={(selectedOption === "abha" && stepThree)}
         >
           <p style={{ marginTop: 0 }}>If the patient has an ABHA, kindly provide the linked mobile number. Otherwise, it is preferable to enter their Aadhaar-linked mobile number for easy registration</p>
          <PhoneVerification
@@ -767,12 +931,12 @@ const PatientRegistration = () => {
          /> 
        </ExpandableCard>
       )}
-      {selectedOption === "aadhaar" && stepTwo && !checkedOption && (
+      {selectedOption === "abha" && stepTwo && !checkedOption && (
         <ExpandableCard
           title="AADHAAR number"
           expanded={verifyAadhaar}
           setExpanded={setVerifyAadhaar}
-          completed={(selectedOption === "aadhaar" && stepThree)}
+          completed={(selectedOption === "abha" && stepThree)}
         >
           <p style={{ marginTop: 0 }}>No ABHA linked to the given mobile number. To proceed with registration, kindly enter the patient's Aadhaar number</p>
           <AadhaarVerification
@@ -785,6 +949,31 @@ const PatientRegistration = () => {
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
             seconds={aadhaarOTPseconds}
+          /> 
+        </ExpandableCard>
+      )}
+      {selectedOption === "abha" && stepFour && !checkedOption && (
+        <ExpandableCard
+          title="ABHA number"
+          expanded={verifyAbha}
+          setExpanded={setVerifyAbha}
+          completed={(selectedOption === "abha" && stepThree)}
+        >
+          <AbhaVerification
+            abha={abha}
+            handleAbhaChange={handleAbhaChange}
+            isAbhaError={isAbhaError}
+            handleSubmit={handleSubmit}
+            isAbhaValid={isAbhaValid}
+            abhaOTP={abhaOTP}
+            setSixDigitOTP={setSixDigitOTP}
+            verifyOTP={verifyOTP}
+            seconds={abhaOTPseconds}
+            isAbhaAuthMode={isAbhaAuthMode}
+            handleAbhaAuthModeChange={handleAbhaAuthModeChange}
+            abhaAuthModeOptions={abhaAuthModeOptions}
+            abhaAuthModeValue={abhaAuthModeValue}
+            handleAbhaGenerateOTP={handleAbhaGenerateOTP}
           /> 
         </ExpandableCard>
       )}
@@ -810,7 +999,7 @@ const PatientRegistration = () => {
       )}
 
       {(selectedOption === "phone_number" && checkedOption && stepTwo) ||
-      (selectedOption === "aadhaar" && stepThree && !checkedOption) ||
+      (selectedOption === "abha" && stepThree && !checkedOption) ||
       (!checkedOption && stepOne && selectedOption === "phone_number") ? (
         <ExpandableCard
           title="Patient Details"
@@ -818,7 +1007,7 @@ const PatientRegistration = () => {
           setExpanded={setUserDeatilsForm}
         >
           <div className="patient-registration-form">
-            {selectedOption === "aadhaar" ? (
+            {selectedOption === "abha" ? (
               <AadhaarPatientRegForm
                 setUserCreated={setUserCreated}
                 txnId={aadhaarDataTxn || phoneDataTxn}

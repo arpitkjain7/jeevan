@@ -46,5 +46,9 @@ export const apis = {
   registerAbhaPatient: "v3/patient/register",
   verifyAbhaUser: "v3/HID/retrieveAbha/verifyUser",
   getAbhaProfile: "v3/HID/retrieveAbha/getProfile",
-  resetUserPassword: "v1/user/resetPassword"
+  resetUserPassword: "v1/user/resetPassword",
+  patientFetchModes: "v1/patient/fetchModes",
+  patientAuthInit: "v1/patient/auth/init",
+  patientAuthVerifyOTP: "v1/patient/auth/verifyOtp",
+  gatewayInteraction: "v1/gatewayInteraction"
 };

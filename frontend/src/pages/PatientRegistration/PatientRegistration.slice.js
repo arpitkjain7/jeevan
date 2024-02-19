@@ -140,6 +140,38 @@ export const displayAbha = createAsyncThunk(
   }
 );
 
+export const patientFetchModes = createAsyncThunk(
+  "registration/patientFetchModes",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientFetchModes, payload);
+    return response;
+  }
+);
+
+export const patientAuthInit = createAsyncThunk(
+  "registration/patientAuthInit",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientAuthInit, payload);
+    return response;
+  }
+);
+
+export const patientAuthVerifyOTP = createAsyncThunk(
+  "registration/patientAuthVerifyOTP",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientAuthVerifyOTP, payload);
+    return response;
+  }
+);
+
+export const gatewayInteraction = createAsyncThunk(
+  "registration/gatewayInteraction",
+  async (requestId) => {
+    const response = await apiRequest("GET", apis?.gatewayInteraction + `/${requestId}`);
+    return response;
+  }
+);
+
 const PatientRegistartionSlice = createSlice({
   name: "registration",
   initialState: {

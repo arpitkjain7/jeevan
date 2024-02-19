@@ -140,7 +140,7 @@ function Dashboard() {
           return { ...item, ...matchedObject };
         });
         setChartData(chart_data);
-        setIsChart(true);
+        // setIsChart(true);
       })
     }
   }, [])
