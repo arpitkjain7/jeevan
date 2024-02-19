@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, JSON, Boolean
 from core import Base
 
 
@@ -31,6 +31,7 @@ class PatientDetails(Base):
     linking_token = Column(JSON)
     refresh_token = Column(JSON)
     access_token = Column(JSON)
+    is_verified = Column(Boolean)
     abha_status = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

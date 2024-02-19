@@ -10,7 +10,7 @@ from commons.auth import decodeJWT
 from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from datetime import datetime, timezone, timedelta
-import os
+import os, json
 import uuid
 from pytz import timezone as pytz_timezone
 
@@ -47,7 +47,7 @@ class PatientController:
             verify_abha_url = f"{self.abha_url}/v2/search/searchHealthIdToLogin"
             resp, resp_code = APIInterface().post(
                 route=verify_abha_url,
-                data={"healthId": health_id, "yearOfBirth": year_of_birth},
+                data=json.dumps({"healthId": health_id, "yearOfBirth": year_of_birth}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             available_status = resp.get("status")
@@ -79,7 +79,7 @@ class PatientController:
             logging.info("Getting linking token")
             resp, resp_code = APIInterface().post(
                 route=refresh_token_url,
-                data={"refreshToken": refresh_token},
+                data=json.dumps({"refreshToken": refresh_token}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             linking_token = resp.get("accessToken", None)
@@ -87,7 +87,7 @@ class PatientController:
             logging.info("Updating abha_address on Gateway")
             resp, resp_code = APIInterface().post(
                 route=abha_update_url,
-                data={"phrAddress": abha_address, "preferred": True},
+                data=json.dumps({"phrAddress": abha_address, "preferred": True}),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "X-Token": f"Bearer {linking_token}",
@@ -133,7 +133,7 @@ class PatientController:
             logging.info("Getting linking token")
             resp, resp_code = APIInterface().post(
                 route=refresh_token_url,
-                data={"refreshToken": refresh_token},
+                data=json.dumps({"refreshToken": refresh_token}),
                 headers={"Authorization": f"Bearer {gateway_access_token}"},
             )
             linking_token = resp.get("accessToken", None)
@@ -142,7 +142,7 @@ class PatientController:
             logging.info("Updating abha_address on Gateway")
             # resp, resp_code = APIInterface().post(
             #     route=abha_update_url,
-            #     data={"phrAddress": abha_address, "preferred": True},
+            #     data=json.dumps({"phrAddress": abha_address, "preferred": True},
             #     headers={
             #         "Authorization": f"Bearer {gateway_access_token}",
             #         "X-Token": f"Bearer {linking_token}",
@@ -150,7 +150,7 @@ class PatientController:
             # )
             resp, resp_code = APIInterface().post(
                 route=abha_update_url,
-                data={"healthId": abha_address},
+                data=json.dumps({"healthId": abha_address}),
                 headers={
                     "Authorization": f"Bearer {gateway_access_token}",
                     "X-Token": f"Bearer {linking_token}",
@@ -214,10 +214,11 @@ class PatientController:
             }
             _, resp_code = APIInterface().post(
                 route=fetch_modes_url,
-                data=fetch_mode_request,
+                data=json.dumps(fetch_mode_request),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -252,19 +253,22 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             _, resp_code = APIInterface().post(
                 route=fetch_modes_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "query": {
-                        "id": request_dict.get("abha_number"),
-                        "purpose": request_dict.get("purpose"),
-                        "authMode": request_dict.get("auth_mode"),
-                        "requester": {"type": "HIP", "id": request_dict["hip_id"]},
-                    },
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "query": {
+                            "id": request_dict.get("abha_number"),
+                            "purpose": request_dict.get("purpose"),
+                            "authMode": request_dict.get("auth_mode"),
+                            "requester": {"type": "HIP", "id": request_dict["hip_id"]},
+                        },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -300,15 +304,18 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "transactionId": gateway_obj.get("transaction_id"),
-                    "credential": {"authCode": request_dict.get("otp")},
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "transactionId": gateway_obj.get("transaction_id"),
+                        "credential": {"authCode": request_dict.get("otp")},
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -346,23 +353,25 @@ class PatientController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "transactionId": gateway_obj.get("transaction_id"),
-                    "credential": {
-                        "authCode": "",
-                        "demographic": {
-                            "name": request_dict.get("name"),
-                            "gender": request_dict.get("gender"),
-                            "dateOfBirth": request_dict.get("dateOfBirth"),
-                            "identifier": {
-                                "type": "MOBILE",
-                                "value": request_dict.get("mobileNumber"),
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "transactionId": gateway_obj.get("transaction_id"),
+                        "credential": {
+                            "authCode": "",
+                            "demographic": {
+                                "name": request_dict.get("name"),
+                                "gender": request_dict.get("gender"),
+                                "dateOfBirth": request_dict.get("dateOfBirth"),
+                                "identifier": {
+                                    "type": "MOBILE",
+                                    "value": request_dict.get("mobileNumber"),
+                                },
                             },
                         },
-                    },
-                },
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -399,48 +408,63 @@ class PatientController:
                     mobile_number = idf["value"]
                 if idf["type"] == "EMAIL":
                     email_id = idf["value"]
-            patient_obj = self.CRUDPatientDetails.read_by_abhaAddress(
-                abha_address=patient_data.get("healthId")
+            dob_str = f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}"
+            patient_obj = FuzzyMatch().find_duplicate_record(
+                mobile_number=mobile_number,
+                name=patient_data.get("name"),
+                dob=dob_str,
+                gender=patient_data.get("gender"),
+                hip_id=hip_id,
             )
+            # patient_obj = self.CRUDPatientDetails.read_by_abhaId(
+            #     abha_number=patient_data.get("healthIdNumber"), hip_id=hip_id
+            # )
+            abha_number = patient_data.get("healthIdNumber")
+            # if abha_number:
+            #     abha_number = abha_number.replace("-", "")
+            patient_request = {
+                "abha_number": abha_number,
+                "abha_address": patient_data["healthId"],
+                "mobile_number": mobile_number,
+                "name": patient_data["name"],
+                "gender": patient_data["gender"],
+                "DOB": dob_str,
+                "email": email_id,
+                "address": patient_data["address"]["line"],
+                "district": patient_data["address"]["district"],
+                "pincode": patient_data["address"]["pincode"],
+                "state_name": patient_data["address"]["state"],
+                "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
+                "hip_id": hip_id,
+                "abha_status": "ACTIVE",
+                "is_verified": False,
+            }
             if patient_obj is None:
-                abha_number = patient_data.get("healthIdNumber")
-                if abha_number:
-                    abha_number = abha_number.replace("-", "")
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                patient_request = {
-                    "id": patient_id,
-                    "abha_number": abha_number,
-                    "abha_address": patient_data["healthId"],
-                    "mobile_number": mobile_number,
-                    "name": patient_data["name"],
-                    "gender": patient_data["gender"],
-                    "DOB": f"{patient_data['dayOfBirth']}/{patient_data['monthOfBirth']}/{patient_data['yearOfBirth']}",
-                    "email": email_id,
-                    "address": patient_data["address"]["line"],
-                    "district": patient_data["address"]["district"],
-                    "pincode": patient_data["address"]["pincode"],
-                    "state_name": patient_data["address"]["state"],
-                    "hip_id": hip_id,
-                    "abha_status": "ACTIVE",
-                }
+                patient_request.update({"id": patient_id})
                 self.CRUDPatientDetails.create(**patient_request)
+            else:
+                patient_request.update({"id": patient_obj["id"]})
+                self.CRUDPatientDetails.update(**patient_request)
             akw_url = f"{self.gateway_url}/v1.0/patients/profile/on-share"
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             resp, resp_code = APIInterface().post(
                 route=akw_url,
-                data={
-                    "requestId": request_id,
-                    "timestamp": time_now,
-                    "acknowledgement": {
-                        "status": "SUCCESS",
-                        "healthId": patient_data.get("healthId"),
-                        "tokenNumber": "122",
-                    },
-                    "error": None,
-                    "resp": {"requestId": request.get("requestId")},
-                },
+                data=json.dumps(
+                    {
+                        "requestId": request_id,
+                        "timestamp": time_now,
+                        "acknowledgement": {
+                            "status": "SUCCESS",
+                            "healthId": patient_data.get("healthId"),
+                            "tokenNumber": "122",
+                        },
+                        "error": None,
+                        "resp": {"requestId": request.get("requestId")},
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -451,6 +475,19 @@ class PatientController:
             return {"status": resp_code, "statusText": resp, "data": resp}
         except Exception as error:
             logging.error(f"Error in PatientController.patient_share function: {error}")
+            raise error
+
+    def verify_patient(self, request):
+        try:
+            logging.info("executing  verify_patient function")
+            self.CRUDPatientDetails.update(
+                **{"id": request.patient_id, "is_verified": True}
+            )
+            return {"patient_id": request.patient_id, "is_verified": True}
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.verify_patient function: {error}"
+            )
             raise error
 
     def discover_patient(self, request, hip_id):
@@ -476,26 +513,30 @@ class PatientController:
                     session_parameter="gateway_token"
                 ).get("accessToken")
                 on_discover_url = f"{self.gateway_url}/v0.5/care-contexts/on-discover"
-                matching_results = FuzzyMatch().find_record(request)
+                matching_results = FuzzyMatch().find_record(
+                    request=request, hip_id=hip_id
+                )
                 logging.info(f"{matching_results=}")
                 logging.info(f"{len(matching_results)=}")
                 if len(matching_results) > 1:
                     logging.info("more than one definitive match for the given request")
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": None,
-                            "error": {
-                                "code": 1000,
-                                "message": "more than one definitive match for the given request",
-                            },
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": None,
+                                "error": {
+                                    "code": 1000,
+                                    "message": "more than one definitive match for the given request",
+                                },
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -513,19 +554,21 @@ class PatientController:
                     logging.info("no verified identifer was specified")
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": None,
-                            "error": {
-                                "code": 1000,
-                                "message": "no verified identifer was specified",
-                            },
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": None,
+                                "error": {
+                                    "code": 1000,
+                                    "message": "no verified identifer was specified",
+                                },
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -558,23 +601,25 @@ class PatientController:
                         )
                     resp, resp_code = APIInterface().post(
                         route=on_discover_url,
-                        data={
-                            "requestId": str(uuid.uuid1()),
-                            "timestamp": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%f"
-                            ),
-                            "transactionId": txn_id,
-                            "patient": {
-                                "referenceNumber": patient_id,
-                                "display": matching_results[patient_id]["name"],
-                                "careContexts": care_context,
-                                "matchedBy": [
-                                    matching_results[patient_id]["matched_by"]
-                                ],
-                            },
-                            "error": None,
-                            "resp": {"requestId": req_id},
-                        },
+                        data=json.dumps(
+                            {
+                                "requestId": str(uuid.uuid1()),
+                                "timestamp": datetime.now(timezone.utc).strftime(
+                                    "%Y-%m-%dT%H:%M:%S.%f"
+                                ),
+                                "transactionId": txn_id,
+                                "patient": {
+                                    "referenceNumber": patient_id,
+                                    "display": matching_results[patient_id]["name"],
+                                    "careContexts": care_context,
+                                    "matchedBy": [
+                                        matching_results[patient_id]["matched_by"]
+                                    ],
+                                },
+                                "error": None,
+                                "resp": {"requestId": req_id},
+                            }
+                        ),
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
@@ -647,7 +692,7 @@ class PatientController:
             linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-init"
             resp, resp_code = APIInterface().post(
                 route=linking_on_init_url,
-                data=payload,
+                data=json.dumps(payload),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -731,7 +776,7 @@ class PatientController:
                 linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
                 resp, resp_code = APIInterface().post(
                     route=linking_on_init_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -766,7 +811,7 @@ class PatientController:
                 linking_on_init_url = f"{self.gateway_url}/v0.5/links/link/on-confirm"
                 resp, resp_code = APIInterface().post(
                     route=linking_on_init_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -793,28 +838,24 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
-            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
-            #     mobile_number=request_json.get("mobile_number")
-            # )
-            patient_obj = self.CRUDPatientDetails.read_by_mobile_dob(
-                mobile_number=request_json.get("mobile_number"),
-                DOB=request_json.get("DOB"),
+            dob_str = request_json.get("DOB")
+            # dob_obj = datetime.strptime(dob_str, "%Y-%m-%d")
+            # dob_str = dob_obj.strftime("%d/%m/%Y")
+            patient_obj = FuzzyMatch().find_duplicate_record(
+                mobile_number=request_json["mobile_number"],
+                name=request_json["name"],
+                dob=dob_str,
+                gender=request_json["gender"],
+                hip_id=request_json["hip_id"],
             )
             if patient_obj:
-                # patient_details = [
-                #     {
-                #         "name": patient_obj.get("name"),
-                #         "patient_id": patient_obj.get("id"),
-                #         "abha_number": patient_obj.get("abha_number"),
-                #         "abha_address": patient_obj.get("abha_address"),
-                #     }
-                #     for patient_obj in patient_list
-                # ]
                 patient_obj.update({"status": "Patient already exist"})
+                request_json.update({"id": patient_obj["id"], "is_verified": True})
+                self.CRUDPatientDetails.update(**request_json)
                 return patient_obj
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id})
+                request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
@@ -840,12 +881,26 @@ class PatientController:
             # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
             #     mobile_number=request_json.get("mobile_number")
             # )
-            patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+            request_json.update(
+                {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
+            )
+            dob_str = request_json.get("DOB")
+            dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
+            dob_str = dob_obj.strftime("%Y-%m-%d")
+            patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json.get("mobile_number"),
                 name=request_json.get("name"),
+                dob=dob_str,
+                gender=request_json.get("gender"),
+                hip_id=request_json.get("hip_id"),
             )
+            request_json.update({"DOB": dob_str})
+            # patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
+            #     mobile_number=request_json.get("mobile_number"),
+            #     name=request_json.get("name"),
+            # )
             if patient_obj:
-                request_json.update({"id": patient_obj["id"]})
+                request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
                 request_json.update(
                     {"status": "Patient already exist, Updated database"}
@@ -853,7 +908,7 @@ class PatientController:
                 return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id})
+                request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
@@ -875,26 +930,36 @@ class PatientController:
             )
             raise error
 
+    def delete_patient(self, patient_id):
+        try:
+            logging.info("Deleting patient records")
+            # for patient_obj in request.data:
+            deleted_patient = self.CRUDPatientDetails.delete(patient_id=patient_id)
+            return deleted_patient
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.delete_patient function: {error}"
+            )
+            raise error
+
     def get_patient_details(self, patient_id: str):
         try:
-            logging.info("executing list_all_patients function")
+            logging.info("executing get_patient_details function")
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            logging.info(f"{patient_obj=}")
             return patient_obj
         except Exception as error:
-            logging.error(f"Error in get_patient function: {error}")
+            logging.error(f"Error in get_patient_details function: {error}")
             raise error
 
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
             patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            logging.info(f"{patient_obj=}")
             return patient_obj
         except Exception as error:
-            logging.error(f"Error in register_patient_controller function: {error}")
+            logging.error(f"Error in list_all_patients function: {error}")
             raise error
 
     def get_vital(self, patient_id, vital_type):

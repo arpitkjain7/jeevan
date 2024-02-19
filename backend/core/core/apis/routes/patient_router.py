@@ -8,6 +8,7 @@ from core.apis.schemas.requests.patient_request import (
     RegisterWithoutABHA,
     UpdatePatient,
     RegisterPatientV3,
+    VerifyPatient,
 )
 from core.apis.schemas.requests.vital_request import Read, VitalType
 from core.controllers.patient_controller import PatientController
@@ -483,6 +484,50 @@ def get_patient_details(patient_id: str, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/patient/listAll endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.delete("/v1/patient/delete")
+def deletePatient(patient_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1/patient/delete endpoint")
+        logging.debug(f"patient_id: {patient_id}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().delete_patient(patient_id=patient_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/delete endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/delete endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v1.0/patients/verify")
+async def verify_patient(request: VerifyPatient, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v1.0/patients/verify endpoint")
+        logging.debug(f"Request: {request}")
+        return PatientController().verify_patient(request=request)
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1.0/patients/verify endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1.0/patients/verify endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

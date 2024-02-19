@@ -1,5 +1,7 @@
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core import logger
+import jellyfish
+from fuzzywuzzy import fuzz
 
 logging = logger(__name__)
 
@@ -8,6 +10,15 @@ class FuzzyMatch:
     def __init__(self):
         self.patient_list = []
         self.matched_by = None
+
+    def get_phonitic_match(self, source_name: str, target_name: str):
+        try:
+            source_name_code = jellyfish.soundex(source_name)
+            target_name_code = jellyfish.soundex(target_name)
+            return fuzz.ratio(source_name_code, target_name_code)
+        except Exception as error:
+            logging.error(f"Error in FuzzyMatch.get_phonitic_match function: {error}")
+            raise error
 
     def attribute_match(self, discover_request):
         try:
@@ -36,7 +47,7 @@ class FuzzyMatch:
             logging.error(f"Error in FuzzyMatch.attribute_match function: {error}")
             raise error
 
-    def find_record(self, request):
+    def find_record(self, request, hip_id):
         try:
             logging.info("Fuzzy Matching find_record initiated")
             discover_request = request.get("patient")
@@ -50,7 +61,7 @@ class FuzzyMatch:
             for verifiedIdentifier in list_of_verifiedIdentifiers:
                 if verifiedIdentifier.get("type") == "MOBILE":
                     patient_recs = CRUDPatientDetails().read_multiple_by_mobileNumber(
-                        mobile_number=verifiedIdentifier.get("value")
+                        mobile_number=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
@@ -58,7 +69,7 @@ class FuzzyMatch:
                         break
                 elif verifiedIdentifier.get("type") == "NDHM_HEALTH_NUMBER":
                     patient_recs = CRUDPatientDetails().read_multiple_by_abhaId(
-                        abha_number=verifiedIdentifier.get("value")
+                        abha_number=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
@@ -66,7 +77,7 @@ class FuzzyMatch:
                         break
                 elif verifiedIdentifier.get("type") == "HEALTH_ID":
                     patient_recs = CRUDPatientDetails().read_multiple_by_abhaAddress(
-                        abha_address=verifiedIdentifier.get("value")
+                        abha_address=verifiedIdentifier.get("value"), hip_id=hip_id
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
@@ -79,4 +90,37 @@ class FuzzyMatch:
             return matching_results
         except Exception as error:
             logging.error(f"Error in FuzzyMatch.find_record function: {error}")
+            raise error
+
+    def find_duplicate_record(self, mobile_number, name, dob, gender, hip_id):
+        try:
+            logging.info("Fuzzy Matching find_duplicate_record initiated")
+            logging.info(f"{mobile_number=},{dob=},{name=},{gender=},{hip_id=}")
+            patient_recs = CRUDPatientDetails().read_by_mobileNumber(
+                mobile_number=mobile_number, hip_id=hip_id
+            )
+            birth_year = dob.split("-")[0]
+            for patient_obj in patient_recs:
+                logging.info(f"{patient_obj=}")
+                if gender == patient_obj.get("gender"):
+                    patient_birth_year = patient_obj.get("DOB").split("-")[0]
+                    if (
+                        int(birth_year) - 2
+                        <= int(patient_birth_year)
+                        <= int(birth_year) + 2
+                    ):
+                        patient_name = patient_obj.get("name")
+                        phonotic_match_ratio = self.get_phonitic_match(
+                            source_name=name, target_name=patient_name
+                        )
+                        if phonotic_match_ratio >= 65:
+                            return patient_obj
+                        continue
+                    continue
+                continue
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in FuzzyMatch.find_duplicate_record function: {error}"
+            )
             raise error

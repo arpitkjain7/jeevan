@@ -25,7 +25,7 @@ from core import logger
 import base64
 from datetime import datetime, timezone
 from urllib.parse import quote
-import uuid, os
+import uuid, os, json
 from pytz import timezone as pytz_timezone
 
 logging = logger(__name__)
@@ -716,6 +716,7 @@ class PMRController:
                 session_parameter="gateway_token"
             ).get("accessToken")
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            logging.info(f"{pmr_obj=}")
             date_of_consultation = pmr_obj["date_of_consultation"].strftime(
                 "%Y-%m-%dT%H:%M:%S.%f"
             )
@@ -723,6 +724,7 @@ class PMRController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
+            logging.info(f"{patient_obj=}")
             access_token = patient_obj.get("access_token").get("value")
             access_token_validity = patient_obj.get("access_token").get("valid_till")
             access_token_validity = datetime.strptime(
@@ -778,7 +780,7 @@ class PMRController:
             else:
                 resp, resp_code = APIInterface().post(
                     route=care_context_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -819,7 +821,7 @@ class PMRController:
                 }
                 resp, resp_code = APIInterface().post(
                     route=sms_notify_url,
-                    data=payload,
+                    data=json.dumps(payload),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -984,10 +986,10 @@ class PMRController:
                 if pmr_request.vital:
                     pmr_data["vital"] = self.create_vital_pmr(pmr_request.vital, pmr_id)
                 if pmr_request.examination_findings:
-                    pmr_data["examination_findings"][
-                        "data"
-                    ] = self.create_examination_findings(
-                        pmr_request.examination_findings, pmr_id
+                    pmr_data["examination_findings"]["data"] = (
+                        self.create_examination_findings(
+                            pmr_request.examination_findings, pmr_id
+                        )
                     )
                 if pmr_request.diagnosis:
                     resp["diagnosis_ids"] = self.create_diagnosis(
@@ -1078,10 +1080,10 @@ class PMRController:
                     logging.info(f"{pmr_data=}")
                     pmr_data.setdefault("examination_findings", {})
                     logging.info(f"{pmr_data=}")
-                    pmr_data["examination_findings"][
-                        "data"
-                    ] = self.create_examination_findings_v1(
-                        pmr_request.examination_findings, pmr_id
+                    pmr_data["examination_findings"]["data"] = (
+                        self.create_examination_findings_v1(
+                            pmr_request.examination_findings, pmr_id
+                        )
                     )
                     logging.info(f"{pmr_data=}")
                 if pmr_request.diagnosis:
@@ -1106,10 +1108,10 @@ class PMRController:
                 #     )
                 if pmr_request.lab_investigation:
                     pmr_data.setdefault("lab_investigation", {})
-                    pmr_data["lab_investigation"][
-                        "data"
-                    ] = self.create_labInvestigation_v1(
-                        pmr_request.lab_investigation, pmr_id
+                    pmr_data["lab_investigation"]["data"] = (
+                        self.create_labInvestigation_v1(
+                            pmr_request.lab_investigation, pmr_id
+                        )
                     )
                 if pmr_request.medical_history:
                     pmr_data.setdefault("medical_history", {})
@@ -1299,7 +1301,7 @@ class PMRController:
                     pdf1_bytes_str = pdf1_data["data"]
                     pdf1_bytes = base64.b64decode(pdf1_bytes_str)
                     logging.info(f"{type(pdf1_bytes)}")
-                    pdf =  merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
+                    pdf = merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
                     s3_location = upload_to_s3(
                         bucket_name=self.cliniq_bucket,
                         byte_data=pdf,
@@ -1309,7 +1311,7 @@ class PMRController:
                     logging.info(f"{s3_location=}")
                     return {"document_id": document_id}
                 else:
-                    pdf =  create_pdf_from_images(files=files)
+                    pdf = create_pdf_from_images(files=files)
                     document_id = f"C360-DOC-{str(uuid.uuid1().int)[:18]}"
                     document_key = (
                         f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"

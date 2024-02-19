@@ -8,7 +8,7 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from core import logger
 from datetime import datetime, timezone, timedelta
-import os
+import os, json
 import uuid
 from pytz import timezone as pytz_timezone
 from dateutil import parser
@@ -105,15 +105,17 @@ class DataTransferController:
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
             _, resp_code = APIInterface().post(
                 route=consent_on_notify_url,
-                data={
-                    "requestId": notify_request_id,
-                    "timestamp": time_now,
-                    "acknowledgement": {
-                        "status": "OK",
-                        "consentId": consent_id,
-                    },
-                    "resp": {"requestId": request_id},
-                },
+                data=json.dumps(
+                    {
+                        "requestId": notify_request_id,
+                        "timestamp": time_now,
+                        "acknowledgement": {
+                            "status": "OK",
+                            "consentId": consent_id,
+                        },
+                        "resp": {"requestId": request_id},
+                    }
+                ),
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
@@ -177,15 +179,17 @@ class DataTransferController:
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
                 _, resp_code = APIInterface().post(
                     route=consent_on_notify_url,
-                    data={
-                        "requestId": notify_request_id,
-                        "timestamp": time_now,
-                        "hiRequest": {
-                            "transactionId": transaction_id,
-                            "sessionStatus": "ACKNOWLEDGED",
-                        },
-                        "resp": {"requestId": request_id},
-                    },
+                    data=json.dumps(
+                        {
+                            "requestId": notify_request_id,
+                            "timestamp": time_now,
+                            "hiRequest": {
+                                "transactionId": transaction_id,
+                                "sessionStatus": "ACKNOWLEDGED",
+                            },
+                            "resp": {"requestId": request_id},
+                        }
+                    ),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -218,19 +222,21 @@ class DataTransferController:
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
                 _, resp_code = APIInterface().post(
                     route=consent_on_notify_url,
-                    data={
-                        "requestId": notify_request_id,
-                        "timestamp": time_now,
-                        "hiRequest": {
-                            "transactionId": transaction_id,
-                            "sessionStatus": "ACKNOWLEDGED",
-                        },
-                        "error": {
-                            "code": 1000,
-                            "message": "Patient consent record not found",
-                        },
-                        "resp": {"requestId": request_id},
-                    },
+                    data=json.dumps(
+                        {
+                            "requestId": notify_request_id,
+                            "timestamp": time_now,
+                            "hiRequest": {
+                                "transactionId": transaction_id,
+                                "sessionStatus": "ACKNOWLEDGED",
+                            },
+                            "error": {
+                                "code": 1000,
+                                "message": "Patient consent record not found",
+                            },
+                            "resp": {"requestId": request_id},
+                        }
+                    ),
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
@@ -263,27 +269,31 @@ class DataTransferController:
             ).get("accessToken")
             gateway_url = os.environ["gateway_url"]
             data_transfer_success_url = f"{gateway_url}/v0.5/health-information/notify"
-            request = {
-                "requestId": ack_request_id,
-                "timestamp": time_now,
-                "notification": {
-                    "consentId": consent_id,
-                    "transactionId": transaction_id,
-                    "doneAt": time_now,
-                    "notifier": {"type": "HIP", "id": hip_id},
-                    "statusNotification": {
-                        "sessionStatus": "TRANSFERRED",
-                        "hipId": hip_id,
-                        "statusResponses": care_context_ack,
+            request = json.dumps(
+                {
+                    "requestId": ack_request_id,
+                    "timestamp": time_now,
+                    "notification": {
+                        "consentId": consent_id,
+                        "transactionId": transaction_id,
+                        "doneAt": time_now,
+                        "notifier": {"type": "HIP", "id": hip_id},
+                        "statusNotification": {
+                            "sessionStatus": "TRANSFERRED",
+                            "hipId": hip_id,
+                            "statusResponses": care_context_ack,
+                        },
                     },
-                },
-            }
+                }
+            )
             headers = {
                 "X-CM-ID": os.environ["X-CM-ID"],
                 "Authorization": f"Bearer {gateway_access_token}",
             }
             _, ack_resp_code = APIInterface().post(
-                route=data_transfer_success_url, data=request, headers=headers
+                route=data_transfer_success_url,
+                data=json.dumps(request),
+                headers=headers,
             )
             print(f"ack sent {ack_resp_code=}")
             gateway_request = {"request_id": request_id}

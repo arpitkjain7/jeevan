@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, styled, Checkbox } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { TextField, Button, Typography, styled } from "@mui/material";
+import { useDispatch } from "react-redux";
 import { loginUser } from "../../app/auth.slice";
 import { useNavigate } from "react-router-dom";
 import CustomLoader from "../CustomLoader";
@@ -66,7 +66,11 @@ const LoginPage = (props) => {
   const [isLoginError, setIsLoginError] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const data = useSelector((state) => state?.auth?.user);
+  // const data = useSelector((state) => state?.auth?.user);
+
+  const redirectRoutes = (route) => {
+    navigate(route);
+  };
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -168,6 +172,9 @@ const LoginPage = (props) => {
             className="login-btn"
           >
             Sign In
+          </Button>
+          <Button style={{ marginTop: "10px" }} onClick={() => redirectRoutes("/forgot-password")}>
+            Forgot Password?
           </Button>
         </div>
       </div>

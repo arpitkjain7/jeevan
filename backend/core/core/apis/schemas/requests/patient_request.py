@@ -65,3 +65,7 @@ class RegisterPatientV3(BaseModel):
     pincode: str = None
     hip_id: str = None
     auth_methods: str = None
+
+
+class VerifyPatient(BaseModel):
+    patient_id: str
