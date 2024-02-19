@@ -170,7 +170,6 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            console.log("data", row)
             let currentHospital = {};
             if (hospital) {
               currentHospital = JSON.parse(hospital);
@@ -266,7 +265,6 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            console.log("data", row)
             let currentHospital = {};
             if (hospital) {
               currentHospital = JSON.parse(hospital);
@@ -317,7 +315,6 @@ const PatientPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      console.log(currentHospital);
       setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,

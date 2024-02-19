@@ -113,7 +113,6 @@ const ForgotPasswordPage = () => {
     };
 
     const handleChangePasswordSubmit = (event) => {
-        console.log(formData);
         event.preventDefault();
         const payload = {
             mobile_number: formData.mobileNumber,
@@ -121,7 +120,6 @@ const ForgotPasswordPage = () => {
             new_password: formData.newPassword,
         }
         dispatch(resetPassword(payload)).then((res) => {
-            console.log(res);
             if (res?.error) {
                 setSnackbarStatus("error");
                 setSnackbarMessage("Something went wrong");
@@ -140,7 +138,6 @@ const ForgotPasswordPage = () => {
     }
 
     const handleGenerateOtp = (event) => {
-        console.log(formData);
         event.preventDefault();
         const payload = {
             mobile_number: formData.mobileNumber
@@ -155,7 +152,6 @@ const ForgotPasswordPage = () => {
                 setSnackbarStatus("success");
                 setSnackbarMessage("OTP sent successfully");
                 setShowSnackbar(true);
-                console.log(res);
                 setStepOne(false);
                 setStepTwo(true);
             }
@@ -163,7 +159,6 @@ const ForgotPasswordPage = () => {
     }
 
     const handleForgotPasswordSubmit = (event) => {
-        console.log(formData);
         event.preventDefault();
         const payload = {
             mobile_number: formData.mobileNumber,
@@ -171,7 +166,6 @@ const ForgotPasswordPage = () => {
             otp: formData.otp
         }
         dispatch(resetPassword(payload)).then((res) => {
-            console.log(res);
             if (res?.error) {
                 setSnackbarStatus("error");
                 setSnackbarMessage("Something went wrong");
