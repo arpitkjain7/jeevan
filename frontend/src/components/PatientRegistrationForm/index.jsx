@@ -25,6 +25,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     middlename: "",
     gender: "",
     dob: "",
+    age: "",
     abhaAddress: "",
     email: "",
     password: "",
@@ -217,8 +218,20 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
               max: formatDob(new Date()), // Set max date to the current date
             }}
             InputLabelProps={{ shrink: true }}
-            required
-            fullWidth
+            style={{ width: "50%" }}
+            // required
+            // fullWidth
+          />
+          <TextField
+            label="Age"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            type="number"
+            InputLabelProps={{ shrink: true }}
+            style={{ width: "50%" }}
+            // required
+            // fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>

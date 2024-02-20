@@ -144,7 +144,7 @@ const PatientPage = () => {
     { key: "createdDate", header: "Follow Up" },
     {
       key: "actions",
-      header: "",
+      header: "Create Appointment",
       actions: [
         {
           link: "Create Appointment",
@@ -194,6 +194,7 @@ const PatientPage = () => {
                       row,
                       { patientId: row.id },
                       { doc_id: doctorListResponse?.payload[0]?.id },
+                      { docName: doctorListResponse?.payload[0]?.doc_name },
                       { hip_id: currentHospital?.hip_id }, 
                       { id: res.payload?.appointment_id }
                     )
