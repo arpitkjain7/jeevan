@@ -14,6 +14,13 @@ export const fetchPatientList = createAsyncThunk(
   }
 );
 
+export const verifyAbhaPatient = createAsyncThunk(
+  "list/verifyAbhaPatient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifyAbhaPatient, payload);
+    return response;
+  }
+);
 
 // Create the slice
 const PatientPageSlice = createSlice({

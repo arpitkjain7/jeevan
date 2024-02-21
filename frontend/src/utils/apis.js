@@ -39,4 +39,5 @@ export const apis = {
   pmrSendNotification: "v1/PMR/sendDocument",
   resetUserPassword: "v1/user/resetPassword",
   genearteOTPPassword: "v1/user/generateOTP",
+  verifyAbhaPatient: "v1.0/patients/verify"
 };

@@ -368,6 +368,20 @@ const MyTable = ({
                                       {item[column?.key]}
                                     </Typography>
                                   );
+                                } else if (column.header === "Create Appointment") {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {item.is_verified ? "Create Appointment" : "Verify"}
+                                      {/* {action?.key
+                                        ? item[action?.key]
+                                        : action?.link} */}
+                                    </Typography>
+                                  );
                                 } else {
                                   return (
                                     <Typography
