@@ -5,6 +5,7 @@ import CustomTabs from "../../components/Tabs";
 import PastVisits from "../../components/PastVisits";
 import VitalsDetails from "../../components/VitalsDetails";
 import ConsentList from "../../components/ConsentList";
+import GrowthChart from "../../components/GrowthChart";
 
 const PatientDetailsWrapper = styled("div")(({ theme }) => ({
     padding: "45px 10px 10px",
@@ -57,6 +58,10 @@ const PatientDetails = () => {
     {
       label: "Consent List",
       content: <ConsentList />,
+    },
+    {
+      label: "Growth Chart",
+      content: <GrowthChart />,
     },
   ];
   return (
