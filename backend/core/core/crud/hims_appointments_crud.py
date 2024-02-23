@@ -171,6 +171,7 @@ class CRUDAppointments:
                 ):
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
+                    logging.debug(f"{patient_obj.__dict__=}")
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
