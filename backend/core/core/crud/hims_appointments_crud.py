@@ -176,7 +176,7 @@ class CRUDAppointments:
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "patient_details": patient_obj_dict,
+                            "patient_details": patient_obj,
                             "doc_details": doctor_obj,
                             "slot_details": slot_obj,
                         },
