@@ -915,22 +915,12 @@ class PatientController:
                 request_json.update(
                     {"status": "Patient already exist, Updated database"}
                 )
-                patient_age = request_json.pop("age")
-                years, months = patient_age.split("-")
-                request_json["age_years"] = years[:-1]
-                request_json["age_months"] = months[:-1]
-                logging.info(f"{years[:-1] =}---{months[:-1]=}")
                 return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
-                patient_age = request_json.pop("age")
-                years, months = patient_age.split("-")
-                request_json["age_years"] = years[:-1]
-                request_json["age_months"] = months[:-1]
-                logging.info(f"{years[:-1] =}---{months[:-1]=}")
                 return request_json
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
@@ -981,15 +971,8 @@ class PatientController:
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
-            patient_obj_list = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            for patient_obj in patient_obj_list:
-                patient_age = patient_obj.pop("age")
-                logging.info(f"{patient_age=}")
-                years, months = patient_age.split("-")
-                patient_obj["age_years"] = years[:-1]
-                patient_obj["age_months"] = months[:-1]
-                logging.info(f"{years[:-1] =}---{months[:-1]=}")
-            return patient_obj_list
+            patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            return patient_obj
         except Exception as error:
             logging.error(f"Error in list_all_patients function: {error}")
             raise error
