@@ -172,10 +172,33 @@ class CRUDAppointments:
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
                     patient_obj_dict = patient_obj.__dict__
+                    patient_age = patient_obj_dict.get("age", None)
+                    if patient_age:
+                        logging.info(f"{patient_age=}")
+                        years, months = patient_age.split("-")
+                        patient_obj_dict["age_years"] = years[:-1]
+                        patient_obj_dict["age_months"] = months[:-1]
+                    else:
+                        patient_dob = patient_obj_dict.get("DOB")
+                        # Generate a function to calculate age of patient from DOB
+                        dob = datetime.datetime.strptime(dob, "%Y-%m-%d").date()
+                        today = datetime.date.today()
+                        age_in_years = (
+                            today.year
+                            - dob.year
+                            - ((today.month, today.day) < (dob.month, dob.day))
+                        )
+                        age_in_months = age_in_years * 12 + today.month - dob.month
+                        if age_in_months < 0:
+                            age_in_years -= 1
+                            age_in_months += 12
+                        patient_obj_dict["age_years"] = age_in_years
+                        patient_obj_dict["age_months"] = age_in_months
+                    logging.debug(f"{patient_obj.__dict__=}")
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "patient_details": patient_obj.__dict__,
+                            "patient_details": patient_obj_dict,
                             "doc_details": doctor_obj.__dict__,
                             "slot_details": slot_obj.__dict__,
                         },
