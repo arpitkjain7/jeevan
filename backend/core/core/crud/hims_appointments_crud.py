@@ -171,10 +171,18 @@ class CRUDAppointments:
                 ):
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
+                    patient_obj_dict = patient_obj.__dict__
+                    patient_age = patient_obj_dict.pop("age")
+                    if patient_age is not None:
+                        logging.info(f"{patient_age=}")
+                        years, months = patient_age.split("-")
+                        patient_obj_dict["age_years"] = years[:-1]
+                        patient_obj_dict["age_months"] = months[:-1]
+                        logging.info(f"{years[:-1] =}---{months[:-1]=}")
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "patient_details": patient_obj,
+                            "patient_details": patient_obj_dict,
                             "doc_details": doctor_obj,
                             "slot_details": slot_obj,
                         },
