@@ -181,8 +181,8 @@ class CRUDAppointments:
                     else:
                         patient_dob = patient_obj_dict.get("DOB")
                         # Generate a function to calculate age of patient from DOB
-                        dob = datetime.datetime.strptime(dob, "%Y-%m-%d").date()
-                        today = datetime.date.today()
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
+                        today = datetime.today()
                         age_in_years = (
                             today.year
                             - dob.year
@@ -192,6 +192,7 @@ class CRUDAppointments:
                         if age_in_months < 0:
                             age_in_years -= 1
                             age_in_months += 12
+                        age_in_months = age_in_months % 12
                         patient_obj_dict["age_years"] = age_in_years
                         patient_obj_dict["age_months"] = age_in_months
                     logging.debug(f"{patient_obj.__dict__=}")
