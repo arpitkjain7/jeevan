@@ -958,6 +958,12 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
+            patient_age = patient_obj.pop("age")
+            if patient_age is not None:
+                years, months = patient_age.split("-")
+                patient_obj["age_years"] = years[:-1]
+                patient_obj["age_months"] = months[:-1]
+                logging.info(f"{years[:-1] =}---{months[:-1]=}")
             return patient_obj
         except Exception as error:
             logging.error(f"Error in get_patient_details function: {error}")
@@ -966,8 +972,16 @@ class PatientController:
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
-            patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            return patient_obj
+            patient_obj_list = self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            for patient_obj in patient_obj_list:
+                patient_age = patient_obj.pop("age")
+                logging.info(f"{patient_age=}")
+                if patient_age is not None:
+                    years, months = patient_age.split("-")
+                    patient_obj["age_years"] = years[:-1]
+                    patient_obj["age_months"] = months[:-1]
+                    logging.info(f"{years[:-1] =}---{months[:-1]=}")
+            return patient_obj_list
         except Exception as error:
             logging.error(f"Error in list_all_patients function: {error}")
             raise error
