@@ -79,6 +79,15 @@ class AppointmentsController:
             appointment_obj = self.CRUDAppointments.read_all(hip_id=hip_id)
             logging.info(f"{appointment_obj=}")
             return appointment_obj
+            # logging.debug(f"{patient_obj_dict}")
+            # patient_age = patient_obj_dict.pop("age")
+            # if patient_age is not None:
+            #     logging.info(f"{patient_age=}")
+            #     years, months = patient_age.split("-")
+            #     patient_obj_dict["age_years"] = years[:-1]
+            #     patient_obj_dict["age_months"] = months[:-1]
+            #     logging.info(f"{years[:-1] =}---{months[:-1]=}")
+            # logging.debug(f"{patient_obj.__dict__=}")
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_all_appointment function: {error}"
