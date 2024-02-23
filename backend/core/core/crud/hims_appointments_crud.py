@@ -172,6 +172,7 @@ class CRUDAppointments:
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
                     patient_obj_dict = patient_obj.__dict__
+                    logging.debug(f"{patient_obj_dict}")
                     patient_age = patient_obj_dict.pop("age")
                     if patient_age is not None:
                         logging.info(f"{patient_age=}")
