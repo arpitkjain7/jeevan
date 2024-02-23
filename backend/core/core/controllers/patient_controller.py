@@ -895,16 +895,6 @@ class PatientController:
                 hip_id=request_json.get("hip_id"),
             )
             request_json.update({"DOB": dob_str})
-            logging.debug(f"{request_json=}")
-            age_month = 0
-            if request_json["age_months"] is not None:
-                age_month = request_json.pop("age_months")
-            logging.debug(f"{age_month=}")
-            age_years = request_json.pop("age_years")
-            logging.debug(f"{age_years=}")
-            age = f"{age_years}Y-{age_month}M"
-            logging.debug(f"{age=}")
-            request_json.update({"age": age})
             # patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
             #     mobile_number=request_json.get("mobile_number"),
             #     name=request_json.get("name"),
@@ -958,12 +948,6 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            patient_age = patient_obj.pop("age")
-            if patient_age is not None:
-                years, months = patient_age.split("-")
-                patient_obj["age_years"] = years[:-1]
-                patient_obj["age_months"] = months[:-1]
-                logging.info(f"{years[:-1] =}---{months[:-1]=}")
             return patient_obj
         except Exception as error:
             logging.error(f"Error in get_patient_details function: {error}")
@@ -972,16 +956,8 @@ class PatientController:
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
-            patient_obj_list = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            for patient_obj in patient_obj_list:
-                patient_age = patient_obj.pop("age")
-                logging.info(f"{patient_age=}")
-                if patient_age is not None:
-                    years, months = patient_age.split("-")
-                    patient_obj["age_years"] = years[:-1]
-                    patient_obj["age_months"] = months[:-1]
-                    logging.info(f"{years[:-1] =}---{months[:-1]=}")
-            return patient_obj_list
+            patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            return patient_obj
         except Exception as error:
             logging.error(f"Error in list_all_patients function: {error}")
             raise error

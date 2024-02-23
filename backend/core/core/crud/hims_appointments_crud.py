@@ -180,10 +180,11 @@ class CRUDAppointments:
                         patient_obj_dict["age_years"] = years[:-1]
                         patient_obj_dict["age_months"] = months[:-1]
                         logging.info(f"{years[:-1] =}---{months[:-1]=}")
+                    logging.debug(f"{patient_obj.__dict__=}")
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "patient_details": patient_obj_dict,
+                            "patient_details": patient_obj,
                             "doc_details": doctor_obj,
                             "slot_details": slot_obj,
                         },
