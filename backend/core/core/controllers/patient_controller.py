@@ -957,6 +957,27 @@ class PatientController:
         try:
             logging.info("executing list_all_patients function")
             patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
+            patient_age = patient_obj.get("age", None)
+            if patient_age:
+                years, months = patient_age.split("-")
+                patient_obj["age_years"] = years[:-1]
+                patient_obj["age_months"] = months[:-1]
+            else:
+                patient_dob = patient_obj.get("DOB")
+                dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
+                today = datetime.today()
+                age_in_years = (
+                    today.year
+                    - dob.year
+                    - ((today.month, today.day) < (dob.month, dob.day))
+                )
+                age_in_months = age_in_years * 12 + today.month - dob.month
+                if age_in_months < 0:
+                    age_in_years -= 1
+                    age_in_months += 12
+                age_in_months = age_in_months % 12
+                patient_obj["age_years"] = age_in_years
+                patient_obj["age_months"] = age_in_months
             return patient_obj
         except Exception as error:
             logging.error(f"Error in list_all_patients function: {error}")
