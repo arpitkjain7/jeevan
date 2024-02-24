@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 import os, json
 import uuid
 from pytz import timezone as pytz_timezone
-from utils.custom.patient_helper import calculate_age
+from core.utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 

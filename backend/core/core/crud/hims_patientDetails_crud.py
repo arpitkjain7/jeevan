@@ -2,7 +2,7 @@ from core import session, logger
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
-from utils.custom.patient_helper import calculate_age
+from core.utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
