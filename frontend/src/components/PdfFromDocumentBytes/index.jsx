@@ -106,7 +106,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
           {isMobile && isPDF && (
             <>
             
-              <Document file={{ url: `${pdfUrl}` }} onLoadSuccess={onDocumentLoadSuccess} >
+              <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} >
                 {Array.apply(null, Array(numPages))
                   .map((x, i)=>i+1)
                   .map(page =>

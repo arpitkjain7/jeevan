@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchPatientList } from "./patientpage.slice";
+import { fetchPatientList} from "./patientpage.slice";
+import { createAppointment } from "../../components/ScheduleAppointment/scheduleAppointment.slice";
 import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice";
+import { fetchDoctorList } from "../../components/AppointmentForm/AppointmentForm.slice";
 import MenuIcon from "../../assets/icons/kebabIcon.svg";
 import CustomLoader from "../../components/CustomLoader";
 const tableStyle = {
@@ -96,6 +98,30 @@ const PatientPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 600;
+
+  const currentDateAndTime = () => {
+    const currentDatetime = new Date();
+    const year = currentDatetime.getFullYear();
+    const month = String(currentDatetime.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed
+    const day = String(currentDatetime.getDate()).padStart(2, "0");
+    const hours = String(currentDatetime.getHours()).padStart(2, "0");
+    const minutes = String(currentDatetime.getMinutes()).padStart(2, "0");
+    const formattedDatetime = `${year}-${month}-${day} ${hours}:${minutes}`;
+    return formattedDatetime;
+  };
+
+  const currentDateEndTime = () => {
+    const currentDatetime = new Date();
+    const year = currentDatetime.getFullYear();
+    const month = String(currentDatetime.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed
+    const day = String(currentDatetime.getDate()).padStart(2, "0");
+    currentDatetime.setMinutes(currentDatetime.getMinutes() + 15);
+    const hours = String(currentDatetime.getHours()).padStart(2, "0");
+    const minutes = String(currentDatetime.getMinutes()).padStart(2, "0");
+    const formattedDatetime = `${year}-${month}-${day} ${hours}:${minutes}`;
+    return formattedDatetime;
+  };
+  
   const columns = [
     {
       key: "p_name",
@@ -118,7 +144,7 @@ const PatientPage = () => {
     { key: "createdDate", header: "Follow Up" },
     {
       key: "actions",
-      header: "",
+      header: "Create Appointment",
       actions: [
         {
           link: "Create Appointment",
@@ -132,6 +158,52 @@ const PatientPage = () => {
             sessionStorage.removeItem("billingTypeValue");
             dispatch(AppointmentPageActions.setSelectedPatientData(item));
             navigate("/create-appointment");
+          },
+        },
+      ],
+    },
+    {
+      key: "start_visit",
+      header: "Start Appointment",
+      actions: [
+        {
+          link: "Start Visit",
+          type: "link",
+          onClick: (row) => {
+            let currentHospital = {};
+            if (hospital) {
+              currentHospital = JSON.parse(hospital);
+              const doctorListpayload = {
+                hip_id: currentHospital?.hip_id,
+              };
+      
+              dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
+                const payload = {
+                  doc_id: doctorListResponse?.payload[0]?.id,
+                  patient_id: row?.id,
+                  appointment_type: "first visit",
+                  encounter_type: "emergency",
+                  hip_id: currentHospital?.hip_id,
+                  appointment_start: currentDateAndTime(),
+                  appointment_end: currentDateEndTime()
+                };
+                
+                dispatch(createAppointment(payload)).then((res) => {
+                  if (res.payload?.appointment_id) {
+                    const AllPatientData = Object.assign(
+                      row,
+                      { patientId: row.id },
+                      { doc_id: doctorListResponse?.payload[0]?.id },
+                      { doc_name: doctorListResponse?.payload[0]?.doc_name },
+                      { hip_id: currentHospital?.hip_id }, 
+                      { id: res.payload?.appointment_id }
+                    )
+                    sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+                    setTimeout(() => navigate("/patient-emr"), 500);
+                  }
+                });
+              })
+            }
           },
         },
       ],
@@ -186,6 +258,51 @@ const PatientPage = () => {
         },
       ],
     },
+    {
+      key: "start_visit",
+      header: "Start Appointment",
+      actions: [
+        {
+          link: "Start Visit",
+          type: "link",
+          onClick: (row) => {
+            let currentHospital = {};
+            if (hospital) {
+              currentHospital = JSON.parse(hospital);
+              const doctorListpayload = {
+                hip_id: currentHospital?.hip_id,
+              };
+      
+              dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
+                const payload = {
+                  doc_id: doctorListResponse?.payload[0]?.id,
+                  patient_id: row?.id,
+                  appointment_type: "first visit",
+                  encounter_type: "emergency",
+                  hip_id: currentHospital?.hip_id,
+                  appointment_start: currentDateAndTime(),
+                  appointment_end: currentDateEndTime()
+                };
+                
+                dispatch(createAppointment(payload)).then((res) => {
+                  if (res.payload?.appointment_id) {
+                    const AllPatientData = Object.assign(
+                      row,
+                      { patientId: row.id },
+                      { doc_id: doctorListResponse?.payload[0]?.id },
+                      { hip_id: currentHospital?.hip_id }, 
+                      { id: res.payload?.appointment_id }
+                    )
+                    sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+                    setTimeout(() => navigate("/patient-emr"), 500);
+                  }
+                });
+              })
+            }
+          },
+        },
+      ],
+    },
     { key: "id", header: "Patient ID" },
     { key: "abha_number", header: "ABHA Number" },
     { key: "mobile_number", header: "Contact Number" },
@@ -199,14 +316,13 @@ const PatientPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      console.log(currentHospital);
       setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
         setShowLoader(false);
-        const patientList = res.payload;
+        const patientList = res?.payload;
         const formattedPatientList = patientList?.map((item) => {
           const patientGender = item?.gender.toLowerCase()?.includes("m")
             ? "M"

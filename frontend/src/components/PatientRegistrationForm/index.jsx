@@ -9,7 +9,7 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { format } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
@@ -24,7 +24,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     lastname: "",
     middlename: "",
     gender: "",
-    dob: "",
+    dob: "01-01-1900",
+    age_years: "0",
     abhaAddress: "",
     email: "",
     password: "",
@@ -44,7 +45,13 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
       ...prevData,
       [name]: value,
     }));
-
+    if(name === "dob"){  // && value !== "01-01-1900"
+      const age = differenceInYears(new Date(), new Date(value));
+      setFormData((prevData) => ({
+        ...prevData,
+        age_years: age,
+      }));
+    }
     if (name === "abhaAddress") {
       if (!validateAbhaAddress(value)) {
         setAbhaAddressError(true);
@@ -62,7 +69,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     if (new_Number_length > 10 || new_Number_length < 10) {
       // setErrorMessage("Please enter valid number")
       setIsMobileError(true);
-    } else if (new_Number_length == 10) {
+    } else if (new_Number_length === 10) {
       setIsMobileError(false);
     }
   };
@@ -88,7 +95,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           lastName: formData?.lastname,
           email: formData?.email,
           gender: formData?.gender,
-          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
+          dob: convertDateFormat(formData?.dob, "dd-MM-yyyy"),
+          age: formData.age_years,
           healthId: formData.abhaAddress,
           password: formData?.password,
           hip_id: currentHospital?.hip_id,
@@ -104,7 +112,8 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             " " +
             formData?.lastname,
           gender: formData?.gender,
-          DOB: formData?.dob,
+          DOB: convertDateFormat(formData?.dob, "dd-MM-yyyy"),
+          age: formData.age_years,
           email: formData?.email,
           mobile_number: mobile,
           hip_id: currentHospital?.hip_id,
@@ -121,6 +130,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           email: formData?.email,
           gender: formData?.gender,
           dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
+          age_in_years: formData.age_years,
           healthId: formData.abhaAddress,
           password: formData?.password,
           hip_id: currentHospital?.hip_id,
@@ -217,8 +227,19 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
               max: formatDob(new Date()), // Set max date to the current date
             }}
             InputLabelProps={{ shrink: true }}
-            required
-            fullWidth
+            style={{ width: "50%" }}
+            // required
+            // fullWidth
+          />
+          <TextField
+            label="Age(in years)"
+            name="age"
+            value={formData.age_years}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            style={{ width: "50%" }}
+            // required
+            // fullWidth
           />
         </Grid>
         <Grid item xs={12} md={5}>

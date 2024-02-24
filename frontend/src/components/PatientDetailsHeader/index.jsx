@@ -277,6 +277,10 @@ const PatientDetailsHeader = ({ documents }) => {
     setFollowUp(event.target.value);
   };
 
+  const handleFollowUp = () => {
+    setOpenFollowUp(true)
+  }
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -307,8 +311,10 @@ const PatientDetailsHeader = ({ documents }) => {
       setShowLoader(false);
       if (res?.meta.requestStatus === "rejected") {
         setPmrDialogOpen(true);
+        return;
       } else {
-        setOpenFollowUp(true);
+        // setOpenFollowUp(true);
+        postPMR();
       }
     });
   };
@@ -363,7 +369,7 @@ const PatientDetailsHeader = ({ documents }) => {
               {patientData?.patientId || patientData?.id}
             </Typography>
             <Typography className="details-patient-id">
-              {patientData?.age || patientData?.DOB}
+              { (patientData?.patient_details?.age_in_years || patientData?.age_in_years) + 'Y-' + (patientData?.patient_details?.age_in_months || patientData?.age_in_months) + 'M' || patientData?.DOB}
             </Typography>
             <Typography className="details-patient-id">
               {patientData?.patient_details?.gender || patientData?.gender}
@@ -446,6 +452,9 @@ const PatientDetailsHeader = ({ documents }) => {
                     >
                       Add Image
                     </PrimaryButton>
+                    <PrimaryButton  style={{ marginRight: "10px" }} onClick={handleFollowUp}>
+                      Follow Up Date
+                    </PrimaryButton>
                     <PrimaryButton onClick={SaveDocument}>
                       Finish Prescription
                     </PrimaryButton>
@@ -499,8 +508,8 @@ const PatientDetailsHeader = ({ documents }) => {
                           value={followUp}
                           onChange={handleDateChange}
                         />
-                        <PrimaryButton onClick={postPMR} >
-                          Finish Prescription
+                        <PrimaryButton onClick={handleFollowUpClose} >
+                          Submit
                         </PrimaryButton>
                       </Box>
                     </Modal>
