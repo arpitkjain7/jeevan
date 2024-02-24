@@ -32,6 +32,7 @@ class PatientDetails(Base):
     refresh_token = Column(JSON)
     access_token = Column(JSON)
     is_verified = Column(Boolean)
+    year_of_birth = Column(String)
     abha_status = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
