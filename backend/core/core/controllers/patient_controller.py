@@ -895,6 +895,7 @@ class PatientController:
                 hip_id=request_json.get("hip_id"),
             )
             request_json.update({"DOB": dob_str, "year_of_birth": yob_str})
+            del request_json["age"]
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
