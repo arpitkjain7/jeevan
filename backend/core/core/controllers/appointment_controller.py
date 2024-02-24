@@ -76,7 +76,9 @@ class AppointmentsController:
         try:
             logging.info("executing  get_all_appointment function")
             logging.info(f"{hip_id=}")
-            return self.CRUDAppointments.read_all(hip_id=hip_id)
+            appointment_obj = self.CRUDAppointments.read_all(hip_id=hip_id)
+            logging.info(f"{appointment_obj=}")
+            return appointment_obj
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_all_appointment function: {error}"

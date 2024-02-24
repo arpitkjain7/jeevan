@@ -5,6 +5,7 @@ from core.orm_models.hims_docDetails import DocDetails
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
+from core.utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
@@ -171,17 +172,26 @@ class CRUDAppointments:
                 ):
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
+                    patient_obj_dict = patient_obj.__dict__
+                    patient_dob = patient_obj_dict.get("DOB")
+                    if patient_dob:
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
+                        patient_obj_dict["age_in_years"] = age_in_years
+                        patient_obj_dict["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj_dict.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj_dict["age_in_years"] = age_in_years
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "patient_details": patient_obj,
-                            "doc_details": doctor_obj,
-                            "slot_details": slot_obj,
+                            "patient_details": patient_obj_dict,
+                            "doc_details": doctor_obj.__dict__,
+                            "slot_details": slot_obj.__dict__,
                         },
                     )
-                    # appointment_obj.__dict__.update(
-                    #     {"doc_details": doctor_obj},
-                    # )
                     joined_result.append(appointment_obj)
             if joined_result is not None:
                 return joined_result

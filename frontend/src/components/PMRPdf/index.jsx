@@ -45,8 +45,9 @@ const pmrPdfStyles = StyleSheet.create({
   pdflogoText: {
     color: "#ffffff",
     fontFamily: "Red Hat Display",
-    fontSize: "16px",
+    fontSize: "10px",
     fontWeight: "400",
+    alignItems: "center"
   },
   pdfhospitalNameText: {
     fontFamily: "Source Sans Pro",
@@ -274,7 +275,7 @@ const PMRPdf = ({ patientData }) => {
         },
         {
           label: "Age",
-          value: patientData?.patientAge,
+          value: patientData?.patientAgeInYears + 'Y-' + patientData?.patientAgeInMonths + 'M',
         },
         {
           label: "Contact Number",
@@ -294,10 +295,10 @@ const PMRPdf = ({ patientData }) => {
       <Page size="A4" style={pmrPdfStyles.page} renderTextLayer={false}>
         <View style={pmrPdfStyles.pdfHeader}>
           <View style={pmrPdfStyles.pdfHeaderLogo}>
-            <Text style={pmrPdfStyles.pdflogoText}>Cliniq360</Text>
             <Text style={pmrPdfStyles.pdfhospitalNameText}>
               {patientData?.hospitalName}
             </Text>
+            <Text style={pmrPdfStyles.pdflogoText}>{`powered by \n CliniQ360`}</Text>
           </View>
           <View style={pmrPdfStyles.drName}>
             <Text style={pmrPdfStyles.pdfDrNameText}>

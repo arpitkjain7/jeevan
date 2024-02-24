@@ -2,6 +2,7 @@ from core import session, logger
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
+from core.utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
@@ -366,11 +367,25 @@ class CRUDPatientDetails:
                     .order_by(PatientDetails.created_at.desc())
                     .all()
                 )
+            result = []
             if obj is not None:
-                return [
-                    row.__dict__ for row in obj
-                ]  # testing return [row.__dict__ for row in obj]
-            return []
+                for row in obj:
+                    patient_obj = row.__dict__
+                    patient_dob = patient_obj.get("DOB", None)
+                    if patient_dob:
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
+                        patient_obj["age_in_years"] = age_in_years
+                        patient_obj["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj["age_in_years"] = age_in_years
+
+                    result.append(patient_obj)
+                return result  # testing return [row.__dict__ for row in obj]
+            return result
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
             raise error

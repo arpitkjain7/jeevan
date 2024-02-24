@@ -283,6 +283,18 @@ const RegisterationConfirmation = ({
     return formattedDatetime;
   };
 
+  const currentDateEndTime = () => {
+    const currentDatetime = new Date();
+    const year = currentDatetime.getFullYear();
+    const month = String(currentDatetime.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed
+    const day = String(currentDatetime.getDate()).padStart(2, "0");
+    currentDatetime.setMinutes(currentDatetime.getMinutes() + 15);
+    const hours = String(currentDatetime.getHours()).padStart(2, "0");
+    const minutes = String(currentDatetime.getMinutes()).padStart(2, "0");
+    const formattedDatetime = `${year}-${month}-${day} ${hours}:${minutes}`;
+    return formattedDatetime;
+  };
+
   const handleDrSubmit = () => {
     sessionStorage.setItem("doctorId", doctorName);
     let currentHospital = {};
@@ -295,7 +307,7 @@ const RegisterationConfirmation = ({
         encounter_type: "emergency",
         hip_id: currentHospital?.hip_id,
         appointment_start: currentDateAndTime(),
-        appointment_end: currentDateAndTime(),
+        appointment_end: currentDateEndTime(),
       };
       dispatch(createAppointment(payload)).then((res) => {
         if (res.payload?.appointment_id) {
@@ -316,7 +328,9 @@ const RegisterationConfirmation = ({
                 { patientId: response.payload?.pmr_details?.patient_id },
                 { doc_id: response.payload?.pmr_details?.doc_id },
                 { hip_id: response.payload?.pmr_details?.hip_id }, 
-                { id: response.payload?.appointment_details?.id }
+                { id: response.payload?.appointment_details?.id },
+                { age_in_years: res.payload?.age_in_years },
+                { age_in_months: res.payload?.age_in_months }
               )
               sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
             });

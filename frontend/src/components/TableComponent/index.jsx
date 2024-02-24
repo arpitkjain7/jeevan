@@ -188,7 +188,7 @@ const MyTable = ({
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm) ||
-            item["docName"]
+            item["doc_name"]
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm)) &&
@@ -330,7 +330,7 @@ const MyTable = ({
                           </TableCell>
                         );
                       }
-                      if (column.key !== "actions" && column.key !== "p_name") {
+                      if (column.key !== "actions" && column.key !== "p_name" && column.key !== "start_visit") {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             {column?.render
@@ -366,6 +366,20 @@ const MyTable = ({
                                       className="linkTypography"
                                     >
                                       {item[column?.key]}
+                                    </Typography>
+                                  );
+                                } else if (column.header === "Create Appointment") {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {item.is_verified ? "Create Appointment" : "Verify"}
+                                      {/* {action?.key
+                                        ? item[action?.key]
+                                        : action?.link} */}
                                     </Typography>
                                   );
                                 } else {

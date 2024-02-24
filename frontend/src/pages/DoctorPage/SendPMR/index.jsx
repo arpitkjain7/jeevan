@@ -124,6 +124,7 @@ const SendPMR= ({
           </RadioGroup>
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => navigate("/appointment-list")}>Skip</Button>
           <Button onClick={handleNotifyModalClose}>Cancel</Button>
           <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>

@@ -328,25 +328,25 @@ const BookingSlots = () => {
   useEffect(() => {
     let filledSlots = [];
     if (doctorDetails?.slots) {
-      doctorDetails.slots?.map((slot) => {
+      doctorDetails?.slots?.map((slot) => {
         const startTime = slot.start_time;
         const endTime = slot.end_time;
         const range = `${startTime}-${endTime}`;
         filledSlots?.push(range);
       });
-    }
-    const slotsBooked = convertToTimeSlots(filledSlots);
-    if (doctorDetails) {
+    
+      const slotsBooked = convertToTimeSlots(filledSlots);
       const startTime = doctorDetails?.consultation_start_time;
       const endTime = doctorDetails?.consultation_end_time;
       const duration = convertToNumber(doctorDetails?.avg_consultation_time);
-
+      
+      const timeSlots = generateTimeSlots(startTime, endTime, duration);
       const currentTime = today.toLocaleTimeString(undefined, {
         hour12: false,
       });
       if (currentTime > startTime && currentTime < endTime) {
         let currentSlotStartTime;
-        allTimeSlots.map((slot) => {
+        timeSlots.map((slot) => {
           const [slotStartTime, slotEndTime] = slot.split("-");
           const current_time = today.toLocaleTimeString(undefined, {
             hour12: false,
@@ -367,8 +367,13 @@ const BookingSlots = () => {
           return convertTimeSlot(item)
         })
         setTodaySlots(todayFinalSlots);
+      } else if (startTime > currentTime && currentTime < endTime){
+        const todayRemovedBookedSlots = removeBookedSlots(timeSlots, slotsBooked);
+        const todayFinalSlots = todayRemovedBookedSlots.map(item => {
+          return convertTimeSlot(item)
+        })
+        setTodaySlots(todayFinalSlots);
       }
-      const timeSlots = generateTimeSlots(startTime, endTime, duration);
       const removedBookedSlots = removeBookedSlots(timeSlots, slotsBooked);
       const finalSlots = removedBookedSlots.map(item => {
         return convertTimeSlot(item)
@@ -409,7 +414,6 @@ const BookingSlots = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-
       const payload = {
         doc_id: appointmentDetails?.doctorId,
         patient_id: selectedPatient?.id,
@@ -434,6 +438,7 @@ const BookingSlots = () => {
             selectedPatient,
             { patientId: selectedPatient?.id },
             { doc_id: appointmentDetails?.doctorId }, 
+            { doc_name: doctorDetails?.doc_name }, 
             { appointment_id: res.payload?.appointment_id },
             { id: res.payload?.appointment_id }
           )
@@ -543,23 +548,9 @@ const BookingSlots = () => {
                   /> */}
                   </DateContainer>
                 )}
-                {selectedDate &&
-                  (selectedDate !== current_date ? (
-                    <div className="slots-container">
-                      {slots.length > 0 ? slots.map((slot) => (
-                        <DateButton
-                          key={slot}
-                          color="primary"
-                          onClick={() => handleSlotSelect(slot)}
-                          className={
-                            selectedSlot === slot ? "selected-btn" : ""
-                          }
-                        >
-                          {slot}
-                        </DateButton>
-                      )) : <h4>No slots available</h4>}
-                    </div>
-                  ) : (
+                {/* {selectedDate && */}
+                {selectedDate === current_date ? 
+                  (
                     <div className="slots-container">
                       {todaySlots.length > 0 ? todaySlots?.map((todayslot) => (
                         <DateButton
@@ -574,7 +565,25 @@ const BookingSlots = () => {
                         </DateButton>
                       )) : <h4>No slots available</h4>}
                     </div>
-                  ))}
+                  )
+                  :
+                  (
+                    <div className="slots-container">
+                      {slots.length > 0 ? slots.map((slot) => (
+                        <DateButton
+                          key={slot}
+                          color="primary"
+                          onClick={() => handleSlotSelect(slot)}
+                          className={
+                            selectedSlot === slot ? "selected-btn" : ""
+                          }
+                        >
+                          {slot}
+                        </DateButton>
+                      )) : <h4>No slots available</h4>}
+                    </div>
+                  )
+                }
               </Grid>
             </CardContent>
           </StyledCard>
