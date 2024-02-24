@@ -884,9 +884,12 @@ class PatientController:
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
                 dob_str = dob_obj.strftime("%Y-%m-%d")
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
             elif age_str:
                 today = datetime.today()
                 yob_str = today.year - int(age_str)
+                age_in_years = age_str
+                age_in_months = "0"
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json.get("mobile_number"),
                 name=request_json.get("name"),
@@ -898,17 +901,27 @@ class PatientController:
             del request_json["age"]
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
-                patient_obj = self.CRUDPatientDetails.update(**request_json)
-                patient_obj.update(
-                    {"status": "Patient already exist, Updated database"}
+                self.CRUDPatientDetails.update(**request_json)
+                request_json.update(
+                    {
+                        "status": "Patient already exist, Updated database",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
                 )
-                return patient_obj
+                return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
-                patient_obj = self.CRUDPatientDetails.create(**request_json)
-                patient_obj.update({"status": "New Patient created successfully"})
-                return patient_obj
+                self.CRUDPatientDetails.create(**request_json)
+                request_json.update(
+                    {
+                        "status": "New Patient created successfully",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
+                )
+                return request_json
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error
