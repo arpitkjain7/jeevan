@@ -1783,7 +1783,8 @@ const PatientEMRDetails = (props) => {
         patientNumber:
           currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
-        patientAge: currentPatient?.age || "-",
+        patientAgeInYears: currentPatient?.patient_details?.age_in_years || currentPatient?.age_in_years,
+        patientAgeInMonths: currentPatient?.patient_details?.age_in_months || currentPatient?.age_in_months
       };
     }
     const pdfFormattedData = submitEMRPayload;

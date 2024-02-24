@@ -9,7 +9,7 @@ export const apis = {
   registerAadhaarNumber: "v1/HID/registration/aadhaar/generateMobileOTP",
   verifyOTPNumber: "v1/registration/mobile/verifyOtp",
   verifyAadhaarotp: "v1/HID/registration/aadhaar/verifyMobileOTP",
-  registerUser: "v1/patient/register",
+  registerUser: "v3/patient/register",
   registerAadhaarPaient: "v1/HID/registration/aadhaar/abhaRegistration",
   registerPhonePatient: "v1/registration/mobile/createHealthId",
   downloadAbhaCard: "v1/profile/getAbhaCard",
