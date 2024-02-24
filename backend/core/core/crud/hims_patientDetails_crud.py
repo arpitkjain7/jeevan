@@ -373,7 +373,7 @@ class CRUDPatientDetails:
                     patient_obj = row.__dict__
                     patient_dob = patient_obj.get("DOB", None)
                     if patient_dob:
-                        dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
                         age_in_years, age_in_months = calculate_age(dob=dob)
                         patient_obj["age_in_years"] = age_in_years
                         patient_obj["age_in_months"] = age_in_months

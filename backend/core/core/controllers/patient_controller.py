@@ -945,7 +945,7 @@ class PatientController:
                 patient_id=patient_id
             )
             if patient_obj.get("DOB", None):
-                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d").date()
+                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
                 age_in_years, age_in_months = calculate_age(dob=dob_obj)
                 patient_obj["age_in_years"] = age_in_years
                 patient_obj["age_in_months"] = age_in_months
