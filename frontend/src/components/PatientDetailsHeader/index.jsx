@@ -369,7 +369,7 @@ const PatientDetailsHeader = ({ documents }) => {
               {patientData?.patientId || patientData?.id}
             </Typography>
             <Typography className="details-patient-id">
-              {patientData?.age || patientData?.DOB}
+              { (patientData?.patient_details?.age_in_years || patientData?.age_in_years) + 'Y-' + (patientData?.patient_details?.age_in_months || patientData?.age_in_months) + 'M' || patientData?.DOB}
             </Typography>
             <Typography className="details-patient-id">
               {patientData?.patient_details?.gender || patientData?.gender}

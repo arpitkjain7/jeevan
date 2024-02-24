@@ -108,7 +108,7 @@ const AppointmentPage = () => {
     { key: "patientId", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
-    { key: "docName", header: "Doctor" },
+    { key: "doc_name", header: "Doctor" },
     { key: "slotDate", header: "Date" },
     { key: "slotTime", header: "Slot" },
     { key: "status", header: "Status" },
@@ -158,7 +158,7 @@ const AppointmentPage = () => {
     { key: "patientId", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
-    { key: "docName", header: "Doctor" },
+    { key: "doc_name", header: "Doctor" },
     { key: "slotDate", header: "Date" },
     { key: "slotTime", header: "Slot" },
     { key: "status", header: "Status" }
@@ -188,7 +188,6 @@ const AppointmentPage = () => {
             : "F";
           const mobileNumber = item?.patient_details?.mobile_number;
           const encounterType = item?.appointment_type;
-          const docName = item?.doc_details?.doc_name;
           const slotDate = convertDateFormat(item?.slot_details?.date, "dd/MM/yyyy");
           const slotTime = convertTimeSlot(item?.slot_time);
           const status = item?.consultation_status;
@@ -207,7 +206,7 @@ const AppointmentPage = () => {
             patientId: patientId,
             mobileNumber: mobileNumber,
             encounterType: encounterType,
-            docName: docName,
+            doc_name: item?.doc_details?.doc_name,
             slotDate: slotDate,
             slotTime: slotTime,
             status: status,

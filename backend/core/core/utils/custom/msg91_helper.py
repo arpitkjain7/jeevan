@@ -35,7 +35,7 @@ class otpHelper:
                 mobile_number = f"91{mobile_number}"
             verify_otp_params = {
                 "mobile": int(mobile_number),
-                "otp": int(otp),
+                "otp": otp,
             }
             auth_header = {"authkey": self.msg91_auth_key}
             verify_otp_url = f"{self.msg91_base_url}/v5/otp/verify"

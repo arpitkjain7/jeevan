@@ -199,7 +199,7 @@ const PatientPage = () => {
                       row,
                       { patientId: row.id },
                       { doc_id: doctorListResponse?.payload[0]?.id },
-                      { docName: doctorListResponse?.payload[0]?.doc_name },
+                      { doc_name: doctorListResponse?.payload[0]?.doc_name },
                       { hip_id: currentHospital?.hip_id }, 
                       { id: res.payload?.appointment_id }
                     )

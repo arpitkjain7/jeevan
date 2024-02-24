@@ -188,7 +188,7 @@ const MyTable = ({
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm) ||
-            item["docName"]
+            item["doc_name"]
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm)) &&

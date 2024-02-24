@@ -275,7 +275,7 @@ const PMRPdf = ({ patientData }) => {
         },
         {
           label: "Age",
-          value: patientData?.patientAge,
+          value: patientData?.patientAgeInYears + 'Y-' + patientData?.patientAgeInMonths + 'M',
         },
         {
           label: "Contact Number",

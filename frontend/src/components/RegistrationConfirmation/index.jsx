@@ -326,7 +326,9 @@ const RegisterationConfirmation = ({
                 { patientId: response.payload?.pmr_details?.patient_id },
                 { doc_id: response.payload?.pmr_details?.doc_id },
                 { hip_id: response.payload?.pmr_details?.hip_id }, 
-                { id: response.payload?.appointment_details?.id }
+                { id: response.payload?.appointment_details?.id },
+                { age_in_years: res.payload?.age_in_years },
+                { age_in_months: res.payload?.age_in_months }
               )
               sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
             });
