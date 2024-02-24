@@ -945,10 +945,16 @@ class PatientController:
             )
             if patient_obj.get("DOB", None):
                 dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
-                patient_age = datetime.today().year - dob_obj.year
-                patient_obj["age"] = patient_age
+                today = datetime.today()
+                age_in_years = today.year - dob_obj.year
+                age_in_months = age_in_years * 12 + today.month - dob_obj.month
+                if age_in_months < 0:
+                    age_in_years -= 1
+                    age_in_months += 12
+                patient_obj["age_in_years"] = age_in_years
+                patient_obj["age_in_months"] = age_in_months
             else:
-                patient_obj["age"] = datetime.today().year - int(
+                patient_obj["age_in_years"] = datetime.today().year - int(
                     patient_obj["year_of_birth"]
                 )
             return patient_obj

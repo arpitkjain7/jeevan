@@ -370,13 +370,8 @@ class CRUDPatientDetails:
             if obj is not None:
                 for row in obj:
                     patient_obj = row.__dict__
-                    patient_yob = patient_obj.get("year_of_birth", None)
-                    if patient_yob:
-                        today = datetime.today()
-                        age_in_years = today.year - int(patient_yob)
-                        patient_obj["age"] = age_in_years
-                    else:
-                        patient_dob = patient_obj.get("DOB")
+                    patient_dob = patient_obj.get("DOB", None)
+                    if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
                         today = datetime.today()
                         age_in_years = (
@@ -388,7 +383,14 @@ class CRUDPatientDetails:
                         if age_in_months < 0:
                             age_in_years -= 1
                             age_in_months += 12
-                        patient_obj["age"] = age_in_years
+                        patient_obj["age_in_years"] = age_in_years
+                        patient_obj["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj["age_in_years"] = age_in_years
+
                     result.append(patient_obj)
                 return result  # testing return [row.__dict__ for row in obj]
             return result

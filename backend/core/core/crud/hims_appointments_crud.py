@@ -172,13 +172,8 @@ class CRUDAppointments:
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
                     patient_obj_dict = patient_obj.__dict__
-                    patient_yob = patient_obj_dict.get("year_of_birth", None)
-                    if patient_yob:
-                        today = datetime.today()
-                        age_in_years = today.year - int(patient_yob)
-                        patient_obj_dict["age"] = age_in_years
-                    else:
-                        patient_dob = patient_obj_dict.get("DOB")
+                    patient_dob = patient_obj_dict.get("DOB")
+                    if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
                         today = datetime.today()
                         age_in_years = (
@@ -190,7 +185,13 @@ class CRUDAppointments:
                         if age_in_months < 0:
                             age_in_years -= 1
                             age_in_months += 12
-                        patient_obj_dict["age"] = age_in_years
+                        patient_obj_dict["age_in_years"] = age_in_years
+                        patient_obj_dict["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj_dict.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj_dict["age_in_years"] = age_in_years
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
