@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchPatientList} from "./patientpage.slice";
+import { fetchPatientList, verifyAbhaPatient} from "./patientpage.slice";
 import { createAppointment } from "../../components/ScheduleAppointment/scheduleAppointment.slice";
 import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
@@ -150,14 +150,19 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
-            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-            sessionStorage.removeItem("doctorName");
-            sessionStorage.removeItem("encounterTypeValue");
-            sessionStorage.removeItem("appointmentTypeValue");
-            sessionStorage.removeItem("visitTypeValue");
-            sessionStorage.removeItem("billingTypeValue");
-            dispatch(AppointmentPageActions.setSelectedPatientData(item));
-            navigate("/create-appointment");
+            if(item.is_verified){
+              sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("encounterTypeValue");
+              sessionStorage.removeItem("appointmentTypeValue");
+              sessionStorage.removeItem("visitTypeValue");
+              sessionStorage.removeItem("billingTypeValue");
+              dispatch(AppointmentPageActions.setSelectedPatientData(item));
+              navigate("/create-appointment");
+            } else {
+              dispatch(verifyAbhaPatient({ patient_id: item?.id}));
+              window.location.reload();
+            }
           },
         },
       ],
@@ -237,7 +242,6 @@ const PatientPage = () => {
         },
       ],
     },
-    
     {
       key: "actions",
       header: "Create Appointment",
@@ -246,14 +250,19 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
-            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-            sessionStorage.removeItem("doctorName");
-            sessionStorage.removeItem("encounterTypeValue");
-            sessionStorage.removeItem("appointmentTypeValue");
-            sessionStorage.removeItem("visitTypeValue");
-            sessionStorage.removeItem("billingTypeValue");
-            dispatch(AppointmentPageActions.setSelectedPatientData(item));
-            navigate("/create-appointment");
+            if(item.is_verified){
+              sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("encounterTypeValue");
+              sessionStorage.removeItem("appointmentTypeValue");
+              sessionStorage.removeItem("visitTypeValue");
+              sessionStorage.removeItem("billingTypeValue");
+              dispatch(AppointmentPageActions.setSelectedPatientData(item));
+              navigate("/create-appointment");
+            } else {
+              dispatch(verifyAbhaPatient({ patient_id: item?.id}));
+              window.location.reload();
+            }
           },
         },
       ],
