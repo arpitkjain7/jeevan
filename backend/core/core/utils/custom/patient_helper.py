@@ -1,4 +1,3 @@
-from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from datetime import datetime
 
 
