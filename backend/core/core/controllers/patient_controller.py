@@ -13,6 +13,7 @@ from datetime import datetime, timezone, timedelta
 import os, json
 import uuid
 from pytz import timezone as pytz_timezone
+from utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
@@ -944,13 +945,8 @@ class PatientController:
                 patient_id=patient_id
             )
             if patient_obj.get("DOB", None):
-                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
-                today = datetime.today()
-                age_in_years = today.year - dob_obj.year
-                age_in_months = age_in_years * 12 + today.month - dob_obj.month
-                if age_in_months < 0:
-                    age_in_years -= 1
-                    age_in_months += 12
+                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d").date()
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
                 patient_obj["age_in_years"] = age_in_years
                 patient_obj["age_in_months"] = age_in_months
             else:

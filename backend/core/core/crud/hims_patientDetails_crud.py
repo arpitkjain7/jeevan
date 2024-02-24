@@ -2,6 +2,7 @@ from core import session, logger
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
+from utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
@@ -373,16 +374,7 @@ class CRUDPatientDetails:
                     patient_dob = patient_obj.get("DOB", None)
                     if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
-                        today = datetime.today()
-                        age_in_years = (
-                            today.year
-                            - dob.year
-                            - ((today.month, today.day) < (dob.month, dob.day))
-                        )
-                        age_in_months = age_in_years * 12 + today.month - dob.month
-                        if age_in_months < 0:
-                            age_in_years -= 1
-                            age_in_months += 12
+                        age_in_years, age_in_months = calculate_age(dob=dob)
                         patient_obj["age_in_years"] = age_in_years
                         patient_obj["age_in_months"] = age_in_months
                     else:

@@ -5,6 +5,7 @@ from core.orm_models.hims_docDetails import DocDetails
 from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
+from utils.custom.patient_helper import calculate_age
 
 logging = logger(__name__)
 
@@ -174,17 +175,8 @@ class CRUDAppointments:
                     patient_obj_dict = patient_obj.__dict__
                     patient_dob = patient_obj_dict.get("DOB")
                     if patient_dob:
-                        dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
-                        today = datetime.today()
-                        age_in_years = (
-                            today.year
-                            - dob.year
-                            - ((today.month, today.day) < (dob.month, dob.day))
-                        )
-                        age_in_months = age_in_years * 12 + today.month - dob.month
-                        if age_in_months < 0:
-                            age_in_years -= 1
-                            age_in_months += 12
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
                         patient_obj_dict["age_in_years"] = age_in_years
                         patient_obj_dict["age_in_months"] = age_in_months
                     else:
