@@ -898,17 +898,17 @@ class PatientController:
             del request_json["age"]
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
-                self.CRUDPatientDetails.update(**request_json)
-                request_json.update(
+                patient_obj = self.CRUDPatientDetails.update(**request_json)
+                patient_obj.update(
                     {"status": "Patient already exist, Updated database"}
                 )
-                return request_json
+                return patient_obj
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
-                self.CRUDPatientDetails.create(**request_json)
-                request_json.update({"status": "New Patient created successfully"})
-                return request_json
+                patient_obj = self.CRUDPatientDetails.create(**request_json)
+                patient_obj.update({"status": "New Patient created successfully"})
+                return patient_obj
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
             raise error

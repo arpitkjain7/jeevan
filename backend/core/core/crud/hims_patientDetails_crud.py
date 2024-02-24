@@ -31,6 +31,7 @@ class CRUDPatientDetails:
                 transaction_session.add(patient_details)
                 transaction_session.commit()
                 transaction_session.refresh(patient_details)
+            return patient_details.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails create function : {error}")
             raise error
@@ -412,6 +413,7 @@ class CRUDPatientDetails:
                     .update(kwargs, synchronize_session=False)
                 )
                 transaction_session.commit()
+            return obj.__dict__
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails update function : {error}")
             raise error
