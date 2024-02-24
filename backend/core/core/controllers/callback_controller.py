@@ -138,6 +138,7 @@ class CallbackController:
                     "name": patient_data.get("name"),
                     "gender": patient_data.get("gender"),
                     "DOB": f"{patient_data.get('dayOfBirth')}/{patient_data.get('monthOfBirth')}/{patient_data.get('yearOfBirth')}",
+                    "year_of_birth": patient_data.get("yearOfBirth"),
                     "address": address_obj.get("line"),
                     "district": address_obj.get("district"),
                     "pincode": address_obj.get("state"),

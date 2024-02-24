@@ -172,15 +172,13 @@ class CRUDAppointments:
                     start_time = slot_obj.start_time.strftime("%H:%M")
                     end_time = slot_obj.end_time.strftime("%H:%M")
                     patient_obj_dict = patient_obj.__dict__
-                    patient_age = patient_obj_dict.get("age", None)
-                    if patient_age:
-                        logging.info(f"{patient_age=}")
-                        years, months = patient_age.split("-")
-                        patient_obj_dict["age_years"] = years[:-1]
-                        patient_obj_dict["age_months"] = months[:-1]
+                    patient_yob = patient_obj_dict.get("year_of_birth", None)
+                    if patient_yob:
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj_dict["age"] = age_in_years
                     else:
                         patient_dob = patient_obj_dict.get("DOB")
-                        # Generate a function to calculate age of patient from DOB
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d").date()
                         today = datetime.today()
                         age_in_years = (
@@ -192,10 +190,7 @@ class CRUDAppointments:
                         if age_in_months < 0:
                             age_in_years -= 1
                             age_in_months += 12
-                        age_in_months = age_in_months % 12
-                        patient_obj_dict["age_years"] = age_in_years
-                        patient_obj_dict["age_months"] = age_in_months
-                    logging.debug(f"{patient_obj.__dict__=}")
+                        patient_obj_dict["age"] = age_in_years
                     appointment_obj.__dict__.update(
                         {
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
@@ -204,9 +199,6 @@ class CRUDAppointments:
                             "slot_details": slot_obj.__dict__,
                         },
                     )
-                    # appointment_obj.__dict__.update(
-                    #     {"doc_details": doctor_obj},
-                    # )
                     joined_result.append(appointment_obj)
             if joined_result is not None:
                 return joined_result
