@@ -37,9 +37,25 @@ export const verifyPhoneOTP = createAsyncThunk(
 );
 
 export const verifyAadhaarPhoneOTP = createAsyncThunk(
-  "registration/verifyAadhaarPhone",
+  "registration/verifyAbha",
   async (OTP) => {
-    const response = await apiRequest("POST", apis?.verifyAadhaarotp, OTP);
+    const response = await apiRequest("POST", apis?.verifyAbha, OTP);
+    return response;
+  }
+);
+
+export const verifyAbhaNumber = createAsyncThunk(
+  "registration/verifyAbha",
+  async ({url, payload}) => {
+    const response = await apiRequest("POST", url, payload);
+    return response;
+  }
+);
+
+export const verifyAbhaOTP = createAsyncThunk(
+  "registration/verifyAbhaOTP",
+  async (OTP) => {
+    const response = await apiRequest("POST", apis?.verifyOTPAbha, OTP);
     return response;
   }
 );
@@ -48,6 +64,62 @@ export const registerPatient = createAsyncThunk(
   "registration/registerPatient",
   async ({ payload, url }) => {
     const response = await apiRequest("POST", url, payload);
+    return response;
+  }
+);
+
+export const registerAbhaPatient = createAsyncThunk(
+  "registration/registerPatient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.registerAbhaPatient, payload);
+    return response;
+  }
+);
+
+export const registerAadhaarAbha = createAsyncThunk(
+  "registration/registerAbhaPatient",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.abhaRegistrationViaAadhaar, payload);
+    return response;
+  }
+);
+
+export const verifyAadhaarAbhaOTP = createAsyncThunk(
+  "registration/verifyAadhaarAbhaOTP",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifyAadhaarAbha, payload);
+    return response;
+  }
+);
+
+export const suggestAbhaAddress = createAsyncThunk(
+  "registration/suggestAbhaAddress",
+  async (transactionId) => {
+    const response = await apiRequest("GET", apis?.suggestAbhaAddress+ '?' + `transaction_id=${transactionId}`);
+    return response;
+  }
+);
+
+export const createAbhaAddress = createAsyncThunk(
+  "registration/createAbhaAddress",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.createAbhaAddress, payload);
+    return response;
+  }
+);
+
+export const verifyAbhaUser = createAsyncThunk(
+  "registration/verifyAbhaUser",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.verifyAbhaUser, payload);
+    return response;
+  }
+);
+
+export const getAbhaProfile = createAsyncThunk(
+  "registration/getAbhaProfile",
+  async (parameters) => {
+    const response = await apiRequest("POST", apis?.getAbhaProfile + `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`);
     return response;
   }
 );
@@ -64,6 +136,38 @@ export const displayAbha = createAsyncThunk(
   "registration/displayAbha",
   async (patient_Id) => {
     const response = await apiRequest("POST", apis?.displayAbhaCard, patient_Id);
+    return response;
+  }
+);
+
+export const patientFetchModes = createAsyncThunk(
+  "registration/patientFetchModes",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientFetchModes, payload);
+    return response;
+  }
+);
+
+export const patientAuthInit = createAsyncThunk(
+  "registration/patientAuthInit",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientAuthInit, payload);
+    return response;
+  }
+);
+
+export const patientAuthVerifyOTP = createAsyncThunk(
+  "registration/patientAuthVerifyOTP",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientAuthVerifyOTP, payload);
+    return response;
+  }
+);
+
+export const gatewayInteraction = createAsyncThunk(
+  "registration/gatewayInteraction",
+  async (requestId) => {
+    const response = await apiRequest("GET", apis?.gatewayInteraction + `/${requestId}`);
     return response;
   }
 );
