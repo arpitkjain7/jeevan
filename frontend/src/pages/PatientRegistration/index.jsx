@@ -162,9 +162,9 @@ const PatientRegistration = () => {
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [functionCalled, setFunctionCalled] = useState(false); 
-  const [gatewayRequestId, setGatewayRequestId]= useState("");
+  // const [retryCount, setRetryCount] = useState(0);
+  // const [functionCalled, setFunctionCalled] = useState(false); 
+  // const [gatewayRequestId, setGatewayRequestId]= useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
@@ -256,54 +256,38 @@ const PatientRegistration = () => {
     setSelectedOption(event.target.value);
   };
   
-//   useEffect(() => {
-//     try { 
-//       if (functionCalled) { 
-//           if (retryCount < 4) { 
-//             // const timeoutId =
-//             setTimeout(()=> {
-//               console.log(retryCount);
-//               console.log("inside");
-//               setRetryCount(retryCount + 1); 
-//             }, 10000);
-//         }
-//       }
-      
-//     } catch (error) { console.error(error); } 
-//   // }; 
-// }, [retryCount, functionCalled]);   
-  useEffect(() => { 
-    if (functionCalled) { 
-      const fetchGatewayData = async () => { 
-          try { 
-            console.log("gatewayRequestId", gatewayRequestId);
-            dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-              console.log("gateway response", response);
-              if(response?.error && Object.keys(response?.error)?.length > 0) {
-                setShowSnackbar(true);
-                setStepThree(false);
-                return;
-              }
-              else if(response?.payload?.request_status === "SUCCESS"){
-                setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-                setStepThree(true);
-              } else {
+//   useEffect(() => { 
+//     if (functionCalled) { 
+//       const fetchGatewayData = async () => { 
+//           try { 
+//             console.log("gatewayRequestId", gatewayRequestId);
+//             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
+//               console.log("gateway response", response);
+//               if(response?.error && Object.keys(response?.error)?.length > 0) {
+//                 setShowSnackbar(true);
+//                 setStepThree(false);
+//                 return;
+//               }
+//               else if(response?.payload?.request_status === "SUCCESS"){
+//                 setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+//                 setStepThree(true);
+//               } else {
               
-                if (retryCount < 4) { 
-                  setTimeout(() => {
-                    fetchGatewayData()
-                    setRetryCount(retryCount + 1); 
-                  }, 10000);
-                } else {
-                  setShowSnackbar(true);
-                  return;
-                }
-              }
-            })
-          } catch (error) { console.error(error); } 
-      }; 
-    }
-}, [retryCount, functionCalled]); 
+//                 if (retryCount < 4) { 
+//                   setTimeout(() => {
+//                     fetchGatewayData()
+//                     setRetryCount(retryCount + 1); 
+//                   }, 10000);
+//                 } else {
+//                   setShowSnackbar(true);
+//                   return;
+//                 }
+//               }
+//             })
+//           } catch (error) { console.error(error); } 
+//       }; 
+//     }
+// }, [retryCount, functionCalled]); 
 
   const handleOptionCheck = (event) => {
     setCheckedOption((prevValue) => !prevValue);
@@ -662,25 +646,24 @@ const PatientRegistration = () => {
           setStepThree(false);
           return;
         } else {
-          setGatewayRequestId(res?.payload?.request_id);
-          setFunctionCalled(true); 
-          setRetryCount((prevCount) => prevCount + 1); 
-          // fetchGatewayData(requestId);
-          // dispatch(gatewayInteraction(requestId)).then(response => {
-          //   console.log("gateway response", response);
-          //   if(response?.error && Object.keys(response?.error)?.length > 0) {
-          //     setShowSnackbar(true);
-          //     setStepThree(false);
-          //     return;
-          //   }
-          //   else if(response?.payload?.request_status === "SUCCESS"){
-          //     setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-          //     setStepThree(true);
-          //   } else {
-          //     setShowSnackbar(true);
-          //     return;
-          //   }
-          // })
+          // setGatewayRequestId(res?.payload?.request_id);
+          // setFunctionCalled(true); 
+          // setRetryCount((prevCount) => prevCount + 1);
+          dispatch(gatewayInteraction(requestId)).then(response => {
+            console.log("gateway response", response);
+            if(response?.error && Object.keys(response?.error)?.length > 0) {
+              setShowSnackbar(true);
+              setStepThree(false);
+              return;
+            }
+            else if(response?.payload?.request_status === "SUCCESS"){
+              setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+              setStepThree(true);
+            } else {
+              setShowSnackbar(true);
+              return;
+            }
+          })
         }
       });
     }
