@@ -649,7 +649,7 @@ const PatientRegistration = () => {
           // setGatewayRequestId(res?.payload?.request_id);
           // setFunctionCalled(true); 
           // setRetryCount((prevCount) => prevCount + 1);
-          dispatch(gatewayInteraction(requestId)).then(response => {
+          dispatch(gatewayInteraction(res?.payload?.request_id)).then(response => {
             console.log("gateway response", response);
             if(response?.error && Object.keys(response?.error)?.length > 0) {
               setShowSnackbar(true);
