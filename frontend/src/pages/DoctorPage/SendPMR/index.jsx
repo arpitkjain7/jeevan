@@ -49,11 +49,12 @@ const SendPMR= ({
     }
     dispatch(sendNotification(payload)).then((res) => {
       handleNotifyModalClose();
+      console.log("currentPatient", currentPatient)
       if(res){
         if (
           !(
-            currentPatient?.patient_details?.abha_number &&
-            currentPatient?.patient_details?.abha_number !== ""
+            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
           )
         ) {
           sessionStorage.removeItem("pmrID");

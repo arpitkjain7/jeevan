@@ -162,13 +162,16 @@ const PatientRegistration = () => {
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
+  // const [retryCount, setRetryCount] = useState(0);
+  // const [functionCalled, setFunctionCalled] = useState(false); 
+  // const [gatewayRequestId, setGatewayRequestId]= useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
   
   const adminModes = [
     {
-      label: "Abha",
+      label: "ABHA",
       value: "abha",
     },
     {
@@ -186,11 +189,11 @@ const PatientRegistration = () => {
 
   const abhaModes = [
     {
-      label: "Link Abha",
+      label: "Link ABHA",
       value: "link_abha",
     },
     {
-      label: "Create Abha",
+      label: "Create ABHA",
       value: "create_abha",
     },
   ];
@@ -252,6 +255,39 @@ const PatientRegistration = () => {
     }
     setSelectedOption(event.target.value);
   };
+  
+//   useEffect(() => { 
+//     if (functionCalled) { 
+//       const fetchGatewayData = async () => { 
+//           try { 
+//             console.log("gatewayRequestId", gatewayRequestId);
+//             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
+//               console.log("gateway response", response);
+//               if(response?.error && Object.keys(response?.error)?.length > 0) {
+//                 setShowSnackbar(true);
+//                 setStepThree(false);
+//                 return;
+//               }
+//               else if(response?.payload?.request_status === "SUCCESS"){
+//                 setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+//                 setStepThree(true);
+//               } else {
+              
+//                 if (retryCount < 4) { 
+//                   setTimeout(() => {
+//                     fetchGatewayData()
+//                     setRetryCount(retryCount + 1); 
+//                   }, 10000);
+//                 } else {
+//                   setShowSnackbar(true);
+//                   return;
+//                 }
+//               }
+//             })
+//           } catch (error) { console.error(error); } 
+//       }; 
+//     }
+// }, [retryCount, functionCalled]); 
 
   const handleOptionCheck = (event) => {
     setCheckedOption((prevValue) => !prevValue);
@@ -610,15 +646,17 @@ const PatientRegistration = () => {
           setStepThree(false);
           return;
         } else {
-          const requestId = res?.payload?.request_id;
-          dispatch(gatewayInteraction(requestId)).then(response => {
+          // setGatewayRequestId(res?.payload?.request_id);
+          // setFunctionCalled(true); 
+          // setRetryCount((prevCount) => prevCount + 1);
+          dispatch(gatewayInteraction(res?.payload?.request_id)).then(response => {
             console.log("gateway response", response);
             if(response?.error && Object.keys(response?.error)?.length > 0) {
               setShowSnackbar(true);
               setStepThree(false);
               return;
             }
-            else if(response?.payload?.callback_response !== null){
+            else if(response?.payload?.request_status === "SUCCESS"){
               setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
               setStepThree(true);
             } else {
@@ -893,7 +931,7 @@ const PatientRegistration = () => {
       </ExpandableCard>
       {(selectedOption === "abha" && stepAbha && !checkedOption &&
        <ExpandableCard
-        title="Create/Link Abha"
+        title="Create/Link ABHA"
         expanded={abhaRegistration}
         setExpanded={setAbhaRegistration}
         completed={(selectedOption === "abha" && stepOne) || (selectedOption === "abha" && stepTwo) || (selectedOption === "abha" && stepFour)}
