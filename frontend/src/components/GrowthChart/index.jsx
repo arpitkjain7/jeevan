@@ -9,23 +9,20 @@ import CustomSnackbar from '../CustomSnackbar';
 const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
 const pData = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
 const xLabels = [
-  '0',
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-//   '7',
-//   '8',
-//   '9',
-//   '10'
+  '26/02/2024',
+  'Page B',
+  'Page C',
+  'Page D',
+  'Page E',
+  'Page F',
+  'Page G',
 ];
 
 const GrowthChart = () => {
     const dispatch = useDispatch();
     const [height, setHeight] = useState([]);
     const [weight, setWeight] = useState([]);
+    const [date, setDate] = useState([]);
     const [age, setAge] = useState("");
     const [gender, setGender] = useState("");
     const [showSnackbar, setShowSnackbar] = useState(false);
@@ -46,16 +43,25 @@ const GrowthChart = () => {
             vital_type: "HT",
           };
         dispatch(fetchVitalDetails(heightPayload)).then((res) => {
-            if (res?.error && Object.keys(res?.error)?.length > 0) {
-                setShowSnackbar(true);
-                return;
-              } else {
-                // setHeight.push(res?.payload?.value);
+          console.log(res);
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+              setShowSnackbar(true);
+              return;
+            } else {
+              // setHeight.push(res?.payload?.value);
+              res.payload.map((item) => {
+                console.log(item);
+                const createdDate = (item.created_date).split(" ");
+                setDate((date) => [
+                  ...date,
+                  createdDate[0].toString()
+                ])
                 setHeight((height) => [
-                    ...height,
-                    res?.payload?.value,
+                  ...height,
+                  parseInt(item.value),
                 ]);
-              }
+              })
+            }
         });
         const weightPayload = {
             patient_id: currentPatient?.patientId || currentPatient?.id,
@@ -66,13 +72,15 @@ const GrowthChart = () => {
                 setShowSnackbar(true);
                 return;
               } else {
-                setWeight((weight) => [
-                    ...weight,
-                    res?.payload?.value,
-                ]);
+                res.payload.map((item) => {
+                  setWeight((weight) => [
+                      ...weight,
+                      parseInt(item?.value)
+                  ]);
+                })
               }
         });
-        console.log(height, weight, gender)
+        console.log(height, weight, date, gender)
     }, [])
   return (
     <>
@@ -86,10 +94,10 @@ const GrowthChart = () => {
         width={500}
         height={300}
         series={[
-            { data: uData, label: 'cms', yAxisKey: 'leftAxisId' },
-            { data: pData, label: 'kgs', yAxisKey: 'rightAxisId' },
+            { data: weight, label: 'kgs', yAxisKey: 'leftAxisId' },
+            { data: height, label: 'cms', yAxisKey: 'rightAxisId' },
         ]}
-        xAxis={[{ scaleType: 'point', data: xLabels }]}
+        xAxis={[{ scaleType: 'point', data: date }]}
         yAxis={[{ id: 'leftAxisId' }, { id: 'rightAxisId' }]}
         rightAxis="rightAxisId"
         />
