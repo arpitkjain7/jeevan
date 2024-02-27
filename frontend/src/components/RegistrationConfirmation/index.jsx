@@ -155,26 +155,25 @@ const RegisterationConfirmation = ({
   const [doctorName, setDoctorName] = useState("");
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
-  console.log("patientData", patientData);
   useEffect(() => {
     let pageData = [
       { key: "Patient Name", value: patientData?.name || "-" },
       {
         key: "Patient Id",
-        value: patientData?.id || currentPatient?.id || "-",
+        value: patientData?.id || "-",
       },
       {
         key: "Gender",
-        value: patientData?.gender || currentPatient?.gender || "-",
+        value: patientData?.gender || "-",
       },
       {
         key: "Date Of Birth",
-        value: patientData?.DOB || currentPatient?.DOB || "-",
+        value: patientData?.DOB || "-",
       },
       { key: "Email Address", value: patientData?.email || "-" },
       {
         key: "ABHA Address",
-        value: patientData?.abha_address || currentPatient?.abha_address || "-",
+        value: patientData?.abha_address || "-",
       },
     ];
     if (isAppointment) {

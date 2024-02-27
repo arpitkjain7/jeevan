@@ -171,7 +171,7 @@ const PatientRegistration = () => {
   
   const adminModes = [
     {
-      label: "Abha",
+      label: "ABHA",
       value: "abha",
     },
     {
@@ -189,11 +189,11 @@ const PatientRegistration = () => {
 
   const abhaModes = [
     {
-      label: "Link Abha",
+      label: "Link ABHA",
       value: "link_abha",
     },
     {
-      label: "Create Abha",
+      label: "Create ABHA",
       value: "create_abha",
     },
   ];
@@ -940,7 +940,7 @@ const PatientRegistration = () => {
       </ExpandableCard>
       {(selectedOption === "abha" && stepAbha && !checkedOption &&
        <ExpandableCard
-        title="Create/Link Abha"
+        title="Create/Link ABHA"
         expanded={abhaRegistration}
         setExpanded={setAbhaRegistration}
         completed={(selectedOption === "abha" && stepOne) || (selectedOption === "abha" && stepTwo) || (selectedOption === "abha" && stepFour)}

@@ -175,39 +175,44 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            let currentHospital = {};
-            if (hospital) {
-              currentHospital = JSON.parse(hospital);
-              const doctorListpayload = {
-                hip_id: currentHospital?.hip_id,
-              };
-      
-              dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
-                const payload = {
-                  doc_id: doctorListResponse?.payload[0]?.id,
-                  patient_id: row?.id,
-                  appointment_type: "first visit",
-                  encounter_type: "emergency",
+            if(row.is_verified){
+              let currentHospital = {};
+              if (hospital) {
+                currentHospital = JSON.parse(hospital);
+                const doctorListpayload = {
                   hip_id: currentHospital?.hip_id,
-                  appointment_start: currentDateAndTime(),
-                  appointment_end: currentDateEndTime()
                 };
-                
-                dispatch(createAppointment(payload)).then((res) => {
-                  if (res.payload?.appointment_id) {
-                    const AllPatientData = Object.assign(
-                      row,
-                      { patientId: row.id },
-                      { doc_id: doctorListResponse?.payload[0]?.id },
-                      { doc_name: doctorListResponse?.payload[0]?.doc_name },
-                      { hip_id: currentHospital?.hip_id }, 
-                      { id: res.payload?.appointment_id }
-                    )
-                    sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-                    setTimeout(() => navigate("/patient-emr"), 500);
-                  }
-                });
-              })
+        
+                dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
+                  const payload = {
+                    doc_id: doctorListResponse?.payload[0]?.id,
+                    patient_id: row?.id,
+                    appointment_type: "first visit",
+                    encounter_type: "emergency",
+                    hip_id: currentHospital?.hip_id,
+                    appointment_start: currentDateAndTime(),
+                    appointment_end: currentDateEndTime()
+                  };
+                  
+                  dispatch(createAppointment(payload)).then((res) => {
+                    if (res.payload?.appointment_id) {
+                      const AllPatientData = Object.assign(
+                        row,
+                        { patientId: row.id },
+                        { doc_id: doctorListResponse?.payload[0]?.id },
+                        { doc_name: doctorListResponse?.payload[0]?.doc_name },
+                        { hip_id: currentHospital?.hip_id }, 
+                        { id: res.payload?.appointment_id }
+                      )
+                      sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+                      setTimeout(() => navigate("/patient-emr"), 500);
+                    }
+                  });
+                })
+              }
+            } else {
+              dispatch(verifyAbhaPatient({ patient_id: row?.id}));
+              window.location.reload();
             }
           },
         },
@@ -275,38 +280,43 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            let currentHospital = {};
-            if (hospital) {
-              currentHospital = JSON.parse(hospital);
-              const doctorListpayload = {
-                hip_id: currentHospital?.hip_id,
-              };
-      
-              dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
-                const payload = {
-                  doc_id: doctorListResponse?.payload[0]?.id,
-                  patient_id: row?.id,
-                  appointment_type: "first visit",
-                  encounter_type: "emergency",
+            if(row.is_verified){
+              let currentHospital = {};
+              if (hospital) {
+                currentHospital = JSON.parse(hospital);
+                const doctorListpayload = {
                   hip_id: currentHospital?.hip_id,
-                  appointment_start: currentDateAndTime(),
-                  appointment_end: currentDateEndTime()
                 };
-                
-                dispatch(createAppointment(payload)).then((res) => {
-                  if (res.payload?.appointment_id) {
-                    const AllPatientData = Object.assign(
-                      row,
-                      { patientId: row.id },
-                      { doc_id: doctorListResponse?.payload[0]?.id },
-                      { hip_id: currentHospital?.hip_id }, 
-                      { id: res.payload?.appointment_id }
-                    )
-                    sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-                    setTimeout(() => navigate("/patient-emr"), 500);
-                  }
-                });
-              })
+        
+                dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
+                  const payload = {
+                    doc_id: doctorListResponse?.payload[0]?.id,
+                    patient_id: row?.id,
+                    appointment_type: "first visit",
+                    encounter_type: "emergency",
+                    hip_id: currentHospital?.hip_id,
+                    appointment_start: currentDateAndTime(),
+                    appointment_end: currentDateEndTime()
+                  };
+                  
+                  dispatch(createAppointment(payload)).then((res) => {
+                    if (res.payload?.appointment_id) {
+                      const AllPatientData = Object.assign(
+                        row,
+                        { patientId: row.id },
+                        { doc_id: doctorListResponse?.payload[0]?.id },
+                        { hip_id: currentHospital?.hip_id }, 
+                        { id: res.payload?.appointment_id }
+                      )
+                      sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+                      setTimeout(() => navigate("/patient-emr"), 500);
+                    }
+                  });
+                })
+              }
+            } else {
+              dispatch(verifyAbhaPatient({ patient_id: row?.id}));
+              window.location.reload();
             }
           },
         },

@@ -126,21 +126,10 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           setShowSnackbar(true);
           return;
         }
-        const userDetails = {
-          name: formData?.firstname + " " + formData?.lastname,
-          email: formData?.email,
-          gender: formData?.gender,
-          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
-          age_in_years: formData.age_years,
-          healthId: formData.abhaAddress,
-          password: formData?.password,
-          hip_id: currentHospital?.hip_id,
-        };
-
         setUserCreated(true);
-        dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
+        dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
       });
-      navigate("/registered-patient");
+      setTimeout(()=> { navigate("/registered-patient"); }, 2000);
     }
   };
 
