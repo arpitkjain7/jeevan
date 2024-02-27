@@ -236,13 +236,7 @@ const RegisterationConfirmation = ({
         const payload = {
           hip_id: currentHospital?.hip_id,
         };
-       console.log("doctor_details", doctor_details);
-        // if(doctor_details){
-        //   handleDrSubmit();
-        // } else {
           dispatch(fetchDoctorList(payload)).then((res) => {
-            console.log(res.payload.length);
-            console.log(res.payload);
             const doctorData = res.payload;
             if(doctorData.length > 1){
               let drList = [];
@@ -259,8 +253,6 @@ const RegisterationConfirmation = ({
               setDrListPopup(true);
             } 
             else if(doctorData.length === 1){
-              console.log(doctorData[0]?.id, "doc id");
-              console.log(doctorData[0]?.doc_name, "doc name");
               setDoctorID(doctorData[0]?.id);
               setDoctorName(doctorData[0]?.doc_name);
               handleDrSubmit(doctorData[0]?.id, doctorData[0]?.doc_name);
@@ -321,7 +313,6 @@ const RegisterationConfirmation = ({
   };
 
   const handleDrSubmit = (doctor_id, doctor_name) => {
-    console.log(doctor_id, doctor_name);
     if(doctor_id){
       sessionStorage.setItem("doctorId", doctor_id);
     } else sessionStorage.setItem("doctorId", doctorID);
@@ -348,10 +339,8 @@ const RegisterationConfirmation = ({
           };
         
           dispatch(getEMRId(emrPayload)).then((response) => {
-            console.log("pmr details", response);
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              console.log("PatientDetails", res);
               const AllPatientData = Object.assign(
                 res?.payload,
                 { patientId: response.payload?.pmr_details?.patient_id },
