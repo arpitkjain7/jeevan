@@ -109,7 +109,7 @@ function VerificationSelection({
           );
         })}
       </div>
-      <div className={displayHeaderContainer}>
+      {/* <div className={displayHeaderContainer}>
           <div className="select-header-container">
             <div className="select-header">
               <FormControlLabel
@@ -131,7 +131,7 @@ function VerificationSelection({
               </Typography>
             </div>
           </div>
-      </div>
+      </div> */}
       <div>
         <Button
           className="confirm-verification-btn"

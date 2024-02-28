@@ -137,7 +137,6 @@ const RegisterationConfirmation = ({
   const [isAbhaPresent, setIsAbhaPresent] = useState(false);
   const [isAbhaDisabled, setIsAbhaDisabled] = useState(false);
   const dataState = useSelector((state) => state);
-  console.log("dataState", dataState);
   const [abhaCardBytes, setAbhaCardBytes] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   // const doctorId = sessionStorage.getItem("appointment_doctor_id");
@@ -152,45 +151,50 @@ const RegisterationConfirmation = ({
   const navigate = useNavigate();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const [drListPopup, setDrListPopup] = useState(false);
+  const [doctorID, setDoctorID] = useState("");
   const [doctorName, setDoctorName] = useState("");
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
   useEffect(() => {
-    let pageData = [
-      { key: "Patient Name", value: patientData?.name || "-" },
-      {
-        key: "Patient Id",
-        value: patientData?.id || "-",
-      },
-      {
-        key: "Gender",
-        value: patientData?.gender || "-",
-      },
-      {
-        key: "Date Of Birth",
-        value: patientData?.DOB || "-",
-      },
-      { key: "Email Address", value: patientData?.email || "-" },
-      {
-        key: "ABHA Address",
-        value: patientData?.abha_address || "-",
-      },
-    ];
-    if (isAppointment) {
-      const appointmentData = [
-        { key: "Appointment Type", value: appointmentDetails?.appointmentType },
-        { key: "Encounter Type", value: appointmentDetails?.encounterType },
-        { key: " Visit Type", value: appointmentDetails?.visitType },
+    setShowLoader(true);
+    if(patientData?.id){
+      let pageData = [
+        { key: "Patient Name", value: patientData?.name || "-" },
         {
-          key: "Billing Type",
-          value: appointmentDetails?.billingType,
+          key: "Patient Id",
+          value: patientData?.id || "-",
+        },
+        {
+          key: "Gender",
+          value: patientData?.gender || "-",
+        },
+        {
+          key: "Date Of Birth",
+          value: patientData?.DOB || "-",
+        },
+        { key: "Email Address", value: patientData?.email || "-" },
+        {
+          key: "ABHA Address",
+          value: patientData?.abha_address || "-",
         },
       ];
+      if (isAppointment) {
+        const appointmentData = [
+          { key: "Appointment Type", value: appointmentDetails?.appointmentType },
+          { key: "Encounter Type", value: appointmentDetails?.encounterType },
+          { key: " Visit Type", value: appointmentDetails?.visitType },
+          {
+            key: "Billing Type",
+            value: appointmentDetails?.billingType,
+          },
+        ];
 
-      pageData = [...pageData, ...appointmentData];
+        pageData = [...pageData, ...appointmentData];
+      }
+
+      setData(pageData);
+      setShowLoader(false);
     }
-
-    setData(pageData);
   }, [patientData]);
 
   useEffect(() => {
@@ -221,7 +225,8 @@ const RegisterationConfirmation = ({
       }
     });
   };
-
+  const doctor_details = sessionStorage.getItem("DoctorDetails");
+  // const docName = sessionStorage.getItem("DoctorName");
   const navigateStartVisit = () => {
     setShowLoader(true);
     let currentHospital = {};
@@ -231,22 +236,34 @@ const RegisterationConfirmation = ({
         const payload = {
           hip_id: currentHospital?.hip_id,
         };
+          dispatch(fetchDoctorList(payload)).then((res) => {
+            const doctorData = res.payload;
+            if(doctorData.length > 1){
+              let drList = [];
+              doctorData?.map((item) => {
+                const data = {
+                  label: item?.doc_name,
+                  name: item?.doc_name,
+                  value: item?.id,
+                };
 
-        dispatch(fetchDoctorList(payload)).then((res) => {
-          const doctorData = res.payload;
-          let drList = [];
-          doctorData?.map((item) => {
-            const data = {
-              label: item?.doc_name,
-              value: item?.id,
-            };
-
-            drList?.push(data);
+                drList?.push(data);
+              });
+              setDoctorList(drList);
+              setDrListPopup(true);
+            } 
+            else if(doctorData.length === 1){
+              setDoctorID(doctorData[0]?.id);
+              setDoctorName(doctorData[0]?.doc_name);
+              handleDrSubmit(doctorData[0]?.id, doctorData[0]?.doc_name);
+            } 
+            else {
+              console.log("Empty doctor list");
+              return;
+            }
           });
-          setDoctorList(drList);
-        });
+        // }
       }
-      setDrListPopup(true);
       setShowLoader(false);
     } else {
       navigate("/patient-emr");
@@ -267,8 +284,9 @@ const RegisterationConfirmation = ({
   const handleCloseDrPopup = () => {
     setDrListPopup(false);
   };
-  const handleDoctorNameChange = (event) => {
-    setDoctorName(event.target.value);
+  const handleDoctorNameChange = (event, name) => {
+    setDoctorID(event.target.value);
+    setDoctorName(name.props.children);
   };
 
   const currentDateAndTime = () => {
@@ -294,13 +312,15 @@ const RegisterationConfirmation = ({
     return formattedDatetime;
   };
 
-  const handleDrSubmit = () => {
-    sessionStorage.setItem("doctorId", doctorName);
+  const handleDrSubmit = (doctor_id, doctor_name) => {
+    if(doctor_id){
+      sessionStorage.setItem("doctorId", doctor_id);
+    } else sessionStorage.setItem("doctorId", doctorID);
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = {
-        doc_id: doctorName,
+        doc_id: doctor_id || doctorID,
         patient_id: patientData?.id,
         appointment_type: "first visit",
         encounter_type: "emergency",
@@ -312,7 +332,7 @@ const RegisterationConfirmation = ({
         if (res.payload?.appointment_id) {
           const emrPayload = {
             patient_id: patientData?.id,
-            doc_id: doctorName,
+            doc_id: doctor_id || doctorID,
             appointment_id: res.payload?.appointment_id,
             hip_id: currentHospital?.hip_id,
             consultation_status: "InProgress",
@@ -321,11 +341,11 @@ const RegisterationConfirmation = ({
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              console.log("PatientDetails", res);
               const AllPatientData = Object.assign(
                 res?.payload,
                 { patientId: response.payload?.pmr_details?.patient_id },
                 { doc_id: response.payload?.pmr_details?.doc_id },
+                { doc_name: doctor_name || doctorName },
                 { hip_id: response.payload?.pmr_details?.hip_id }, 
                 { id: response.payload?.appointment_details?.id },
                 { age_in_years: res.payload?.age_in_years },
@@ -361,7 +381,7 @@ const RegisterationConfirmation = ({
             <Typography className="field-title">Doctor Name</Typography>
             <FormControl sx={{ width: "60%", marginTop: "8px" }}>
               <Select
-                value={doctorName}
+                value={doctorID}
                 onChange={handleDoctorNameChange}
                 placeholder="Doctor Name"
               >
@@ -375,7 +395,7 @@ const RegisterationConfirmation = ({
           </div>
           <div className="submit-dr-btn">
             <Button
-              disabled={!doctorName}
+              disabled={!doctorID}
               onClick={() => handleDrSubmit()}
               variant="contained"
               className="verification-btn"
