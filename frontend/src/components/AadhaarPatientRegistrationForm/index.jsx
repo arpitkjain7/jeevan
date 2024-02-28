@@ -94,18 +94,18 @@ const AadhaarPatientRegForm = ({
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = Object.keys(patientAbhaData).length > 0 ? {
-        name: patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
+        name: patientAbhaData?.name || patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
         email: patientAbhaData?.email,
-        mobile_number: patientAbhaData?.mobile,
-        abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue,
-        primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue,
+        mobile_number: patientAbhaData?.mobile || patientAbhaData?.identifiers[0].value,
+        abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
+        primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
         DOB: patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
         gender: patientAbhaData?.gender,
-        abha_number: patientAbhaData?.ABHANumber,
-        pincode: patientAbhaData?.pincode || patientAbhaData?.pinCode,
-        address: patientAbhaData?.address,
-        state_name: patientAbhaData?.stateName,
-        district_name: patientAbhaData?.districtName,
+        abha_number: patientAbhaData?.ABHANumber || patientAbhaData?.identifiers[1].value,
+        pincode: patientAbhaData?.pincode || patientAbhaData?.pinCode || patientAbhaData?.address?.pincode || "",
+        address: patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state || patientAbhaData?.address,
+        state_name: patientAbhaData?.stateName || patientAbhaData?.address?.state,
+        district_name: patientAbhaData?.districtName || patientAbhaData?.address?.district,
         district_code: patientAbhaData?.districtCode,
         hip_id: currentHospital?.hip_id,
       } : {
@@ -161,7 +161,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="First Name"
               name="firstname"
-              value={patientAbhaData?.firstName}
+              value={patientAbhaData?.firstName || patientAbhaData?.name.split(" ")[0]}
               onChange={handleChange}
               disabled
               required
@@ -173,7 +173,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Middle Name"
               name="middlename"
-              value={patientAbhaData?.middleName}
+              value={patientAbhaData?.middleName || patientAbhaData?.name.split(" ")[1]}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               disabled
@@ -184,7 +184,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Last Name"
               name="lastname"
-              value={patientAbhaData?.lastName}
+              value={patientAbhaData?.lastName || patientAbhaData?.name.split(" ")[2]}
               onChange={handleChange}
               required
               InputLabelProps={{ shrink: true }}
@@ -209,7 +209,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Mobile Number"
               name="mobile"
-              value={patientAbhaData?.mobile}
+              value={patientAbhaData?.mobile || patientAbhaData?.identifiers[0].value}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               disabled
@@ -242,7 +242,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="ABHA number"
               name="abhaNumber"
-              value={patientAbhaData?.ABHANumber}
+              value={patientAbhaData?.ABHANumber || patientAbhaData?.identifiers[1].value}
               onChange={handleChange}
               disabled
               InputLabelProps={{ shrink: true }}
@@ -296,7 +296,7 @@ const AadhaarPatientRegForm = ({
               <TextField
                 label="ABHA Address"
                 name="abhaAddress"
-                value={patientAbhaData?.preferredAbhaAddress}
+                value={patientAbhaData?.preferredAbhaAddress || patientAbhaData?.id}
                 onChange={handleChange}
                 required
                 disabled
@@ -309,17 +309,17 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Address"
               name="address"
-              value={patientAbhaData?.address}
+              value={patientAbhaData?.address?.line ? (patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state :  patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state) : patientAbhaData?.address}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               fullWidth
-            />
+            /> 
           </Grid>
           <Grid item xs={12} md={5}>
             <TextField
               label="Pincode"
               name="pincode"
-              value={patientAbhaData?.pinCode || patientAbhaData?.pincode}
+              value={patientAbhaData?.pinCode || patientAbhaData?.pincode || patientAbhaData?.address?.pincode || ""}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               fullWidth
