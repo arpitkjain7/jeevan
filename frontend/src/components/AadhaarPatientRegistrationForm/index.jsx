@@ -58,6 +58,17 @@ const AadhaarPatientRegForm = ({
         setAbhaAddressError(false)
       }
     }
+    if(name === "address"){
+      setFormData((prevData) => ({
+        ...prevData,
+        address: value,
+      }));
+    } else if(name === "pincode"){
+      setFormData((prevData) => ({
+        ...prevData,
+        pincode: value,
+      }));
+    }
   };
 
   const abhaAddressInputChange = (event, newInputValue) => {
