@@ -1240,6 +1240,7 @@ class PMRController:
             logging.info("executing upload_prescription function")
             document_type = f"Prescription_{mode}"
             logging.debug(f"{mode=}")
+            logging.debug(f"{files=}")
             document_type_code = "Prescription"
             pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             pmr_doc_obj = self.CRUDPatientMedicalDocuments.read_by_type(
