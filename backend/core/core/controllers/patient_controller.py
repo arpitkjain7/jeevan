@@ -14,6 +14,7 @@ import os, json
 import uuid
 from pytz import timezone as pytz_timezone
 from core.utils.custom.patient_helper import calculate_age
+from fastapi import HTTPException, status
 
 logging = logger(__name__)
 
@@ -878,25 +879,38 @@ class PatientController:
             request_json.update(
                 {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
             )
-            dob_str = request_json.get("DOB")
-            age_str = request_json.get("age")
-            if dob_str or dob_str is not "":
+            dob_str = request_json.get("DOB", None)
+            age_str = request_json.get("age", None)
+            if dob_str:
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
                 dob_str = dob_obj.strftime("%Y-%m-%d")
                 age_in_years, age_in_months = calculate_age(dob=dob_obj)
-            elif age_str or age_str > 0:
+                patient_obj = FuzzyMatch().find_duplicate_record(
+                    mobile_number=request_json.get("mobile_number"),
+                    name=request_json.get("name"),
+                    yob=yob_str,
+                    gender=request_json.get("gender"),
+                    hip_id=request_json.get("hip_id"),
+                )
+            elif age_str:
                 today = datetime.today()
                 yob_str = today.year - int(age_str)
                 age_in_years = age_str
                 age_in_months = "0"
-            patient_obj = FuzzyMatch().find_duplicate_record(
-                mobile_number=request_json.get("mobile_number"),
-                name=request_json.get("name"),
-                yob=yob_str,
-                gender=request_json.get("gender"),
-                hip_id=request_json.get("hip_id"),
-            )
+                patient_obj = FuzzyMatch().find_duplicate_record(
+                    mobile_number=request_json.get("mobile_number"),
+                    name=request_json.get("name"),
+                    yob=yob_str,
+                    gender=request_json.get("gender"),
+                    hip_id=request_json.get("hip_id"),
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Missing required fields",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
             request_json.update({"DOB": dob_str, "year_of_birth": yob_str})
             del request_json["age"]
             if patient_obj:
