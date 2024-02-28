@@ -158,13 +158,13 @@ const PatientRegistration = () => {
   const [isAbhaAuthMode, setIsAbhaAuthMode] = useState(false);
   const [abhaAuthModeValue, setAbhaAuthModeValue] = useState("");
   const [abhaAuthTxn, setAbhaAuthTxn] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
+  const [functionCalled, setFunctionCalled] = useState(false); 
+  const [gatewayRequestId, setGatewayRequestId]= useState("");
   const [abhaOTPseconds, setAbhaOTPSeconds] = useState(-1);
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
-  // const [retryCount, setRetryCount] = useState(0);
-  // const [functionCalled, setFunctionCalled] = useState(false); 
-  // const [gatewayRequestId, setGatewayRequestId]= useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
@@ -247,6 +247,47 @@ const PatientRegistration = () => {
     setAbhaOTP(false);
     setAbhaOTPSeconds(-1);
   };
+
+  useEffect(() => { 
+    console.log(retryCount, "retryCount", functionCalled);
+    if (functionCalled && retryCount < 4) { 
+      const fetchGatewayData = async () => { 
+          try { 
+            console.log("gatewayRequestId", gatewayRequestId);
+            dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
+              console.log("gateway response", response);
+              if(response?.error && Object.keys(response?.error)?.length > 0) {
+                setShowSnackbar(true);
+                setStepThree(false);
+                return;
+              }
+              else if(response?.payload?.request_status === "SUCESS"){
+                setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+                setStepThree(true);
+                setFunctionCalled(false);
+              } else {
+                // if (retryCount < 4) { 
+                  setTimeout(() => {
+                    fetchGatewayData()
+                    setRetryCount(retryCount + 1); 
+                  }, 5000);
+                // } else {
+                //   setShowSnackbar(true);
+                //   setFunctionCalled(false);
+                //   return;
+                // }
+              }
+            })
+          } catch (error) { console.error(error); } 
+      };
+      fetchGatewayData();
+    } else if (functionCalled && retryCount > 4) {
+      setShowSnackbar(true);
+      setFunctionCalled(false);
+      // return;
+    }
+}, [retryCount, functionCalled]); 
+
   const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
   const handleOptionChange = (event) => {
@@ -255,39 +296,6 @@ const PatientRegistration = () => {
     }
     setSelectedOption(event.target.value);
   };
-  
-//   useEffect(() => { 
-//     if (functionCalled) { 
-//       const fetchGatewayData = async () => { 
-//           try { 
-//             console.log("gatewayRequestId", gatewayRequestId);
-//             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-//               console.log("gateway response", response);
-//               if(response?.error && Object.keys(response?.error)?.length > 0) {
-//                 setShowSnackbar(true);
-//                 setStepThree(false);
-//                 return;
-//               }
-//               else if(response?.payload?.request_status === "SUCCESS"){
-//                 setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-//                 setStepThree(true);
-//               } else {
-              
-//                 if (retryCount < 4) { 
-//                   setTimeout(() => {
-//                     fetchGatewayData()
-//                     setRetryCount(retryCount + 1); 
-//                   }, 10000);
-//                 } else {
-//                   setShowSnackbar(true);
-//                   return;
-//                 }
-//               }
-//             })
-//           } catch (error) { console.error(error); } 
-//       }; 
-//     }
-// }, [retryCount, functionCalled]); 
 
   const handleOptionCheck = (event) => {
     setCheckedOption((prevValue) => !prevValue);
@@ -646,24 +654,25 @@ const PatientRegistration = () => {
           setStepThree(false);
           return;
         } else {
-          // setGatewayRequestId(res?.payload?.request_id);
-          // setFunctionCalled(true); 
-          // setRetryCount((prevCount) => prevCount + 1);
-          dispatch(gatewayInteraction(res?.payload?.request_id)).then(response => {
-            console.log("gateway response", response);
-            if(response?.error && Object.keys(response?.error)?.length > 0) {
-              setShowSnackbar(true);
-              setStepThree(false);
-              return;
-            }
-            else if(response?.payload?.request_status === "SUCCESS"){
-              setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-              setStepThree(true);
-            } else {
-              setShowSnackbar(true);
-              return;
-            }
-          })
+          setGatewayRequestId(res?.payload?.request_id);
+          setFunctionCalled(true); 
+          setRetryCount((prevCount) => prevCount + 1); 
+          // const requestId = res?.payload?.request_id;
+          // dispatch(gatewayInteraction(requestId)).then(response => {
+          //   console.log("gateway response", response);
+          //   if(response?.error && Object.keys(response?.error)?.length > 0) {
+          //     setShowSnackbar(true);
+          //     setStepThree(false);
+          //     return;
+          //   }
+          //   else if(response?.payload?.callback_response !== null){
+          //     setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+          //     setStepThree(true);
+          //   } else {
+          //     setShowSnackbar(true);
+          //     return;
+          //   }
+          // })
         }
       });
     }
