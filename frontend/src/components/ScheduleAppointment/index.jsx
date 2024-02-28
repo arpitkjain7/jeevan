@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
-  convertDateFormat,
+  parseDateFormat,
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
-  parseDateFormat
+  convertDateFormat
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -163,7 +163,7 @@ const BookingSlots = () => {
   const appointmentDetails = dataState?.appointmentSlots?.appointmentDetails;
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const today = new Date();
-  const current_date = convertDateFormat(today, "yyyy-MM-dd");
+  const current_date = parseDateFormat(today, "yyyy-MM-dd");
 
   const checkDoctorAvailability = (days, checkDay) => {
     const daysArray = days?.split(",")?.map((day) => day?.trim().toLowerCase());
@@ -182,7 +182,7 @@ const BookingSlots = () => {
         const id = doctorId;
         const payload = {
           hip_id: currentHospital?.hip_id,
-          appointment_date: convertDateFormat(date, "yyyy-MM-dd"),
+          appointment_date: parseDateFormat(date, "yyyy-MM-dd"),
         };
         dispatch(fetchDoctorSlots({ id, payload })).then((res) => {
           const doctorAvailable = checkDoctorAvailability(
@@ -210,18 +210,13 @@ const BookingSlots = () => {
     const currentDate = new Date(startDate);
 
     for (let i = 0; i < 7; i++) {
-      const date = currentDate.toLocaleDateString(undefined, {
+      const date = convertDateFormat(currentDate, "yyyy-MM-dd");
+      const day = currentDate.toLocaleDateString(undefined, {
         weekday: "long",
-        year: "numeric",
-        // month: "long",
-        month: "numeric",
-        day: "numeric",
-      });
-
-      dates.push(date);
+      })
+      dates.push({date: date, day: day });
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
     return dates;
   };
 
@@ -229,13 +224,13 @@ const BookingSlots = () => {
     const thisWeek = getDates(today);
     setDates(thisWeek);
     if (thisWeek?.length) {
-      handleDateSelect(formatDate(thisWeek[0]));
+      handleDateSelect(formatDate(thisWeek[0].date));
     }
   }, []);
 
   const isWeekend = (date) => {
-    const day = convertDateFormat(date, "dd/MM/yyyy");
-    const dayFormat = convertDateFormat(date, "MM/dd/yyyy");
+    const day = parseDateFormat(date, "yyyy-MM-dd");
+    const dayFormat = parseDateFormat(date, "yyyy-MM-dd");
     const week = [];
     const currentDate = new Date();
     for (let i = 0; i < 7; i++) {
@@ -414,7 +409,6 @@ const BookingSlots = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-
       const payload = {
         doc_id: appointmentDetails?.doctorId,
         patient_id: selectedPatient?.id,
@@ -422,10 +416,10 @@ const BookingSlots = () => {
         encounter_type: appointmentDetails?.encounterType,
         hip_id: currentHospital?.hip_id,
         appointment_start: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime24hour
+          parseDateFormat(selectedDate, "yyyy-MM-dd") + " " + startTime24hour
         ),
         appointment_end: formatDateTime(
-          convertDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
+          parseDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
@@ -439,6 +433,7 @@ const BookingSlots = () => {
             selectedPatient,
             { patientId: selectedPatient?.id },
             { doc_id: appointmentDetails?.doctorId }, 
+            { doc_name: doctorDetails?.doc_name }, 
             { appointment_id: res.payload?.appointment_id },
             { id: res.payload?.appointment_id }
           )
@@ -450,13 +445,13 @@ const BookingSlots = () => {
   };
 
   const formatDisplayDate = (date) => {
-    const displayArr = date?.split(" ");
-    return displayArr[0] + " " + displayArr[1];
+    // const displayArr = date?.split(" ");
+    return convertDateFormat(date, "dd/MM/yyyy");
   };
 
   const formatDate = (date) => {
-    const displayArr = date?.split(" ");
-    const formatedDate = parseDateFormat(displayArr[1], "yyyy-MM-dd");
+    // const displayArr = date?.split(" ");
+    const formatedDate = parseDateFormat(date, "yyyy-MM-dd");
     return formatedDate;
   };
 
@@ -497,10 +492,10 @@ const BookingSlots = () => {
                         color="primary"
                         onClick={() => {
                           setAppointmentDate(false);
-                          handleDateSelect(convertDateFormat(date,"yyyy-MM-dd"))
+                          handleDateSelect(parseDateFormat(date.date,"yyyy-MM-dd"))
                         }}
                         className={
-                          selectedDate === formatDate(date)
+                          selectedDate === formatDate(date.date)
                             ? "selected-date-btn"
                             : "date-btn"
                         }
@@ -508,12 +503,13 @@ const BookingSlots = () => {
                         <DateWrapper>
                           <Typography
                             className={
-                              selectedDate === formatDate(date)
+                              selectedDate === formatDate(date.date)
                                 ? `selected-date-typography`
                                 : `btn-date-typography`
                             }
                           >
-                            {formatDisplayDate(date)}
+                            <span style={{  }}>{date.day}, </span>
+                            <span> {formatDisplayDate(date.date)}</span>
                           </Typography>
                         </DateWrapper>
                       </Button>
@@ -533,7 +529,7 @@ const BookingSlots = () => {
                           shouldDisableDate={isWeekend}
                           onChange={(newValue) => {
                             setAppointmentDate(true)
-                            handleDateSelect(convertDateFormat(newValue,"yyyy-MM-dd"))
+                            handleDateSelect(parseDateFormat(newValue,"yyyy-MM-dd"))
                           }}
                           className={
                             appointmentDate ? "datepickerInputStyle" : ""

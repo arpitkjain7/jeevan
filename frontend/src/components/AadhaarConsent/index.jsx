@@ -7,7 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Box, Checkbox, FormControlLabel, FormGroup, styled } from '@mui/material';
 
-const CustomFormGroup = styled("FormGroup")(({ theme }) => ({
+const CustomFormGroup = styled(FormGroup)(({ theme }) => ({
   "& .MuiFormControlLabel-root": {
     alignItems: "flex-start",
     margin: "8px 0",
@@ -84,19 +84,28 @@ const AadhaarConsent = ({ open, scroll, handleClose, handleConsentConfirmation})
            I hereby declare that: 
            <CustomFormGroup>
               <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked />} 
-              label='I am voluntarily sharing my Aadhaar Number / Virtual ID issued by the Unique Identification Authority of India (“UIDAI”), and my demographic information for the purpose of creating an Ayushman Bharat Health Account number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”). I authorize NHA to use my Aadhaar number / Virtual ID for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies, Benefits and Services) Act, 2016 for the aforesaid purpose. I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication.' 
-              id="check1" value={checkboxes.check1} onChange={handleChange}/>
-              <FormControlLabel className="checkbox_style" required control={<Checkbox defaultChecked/>} label='I intend to create Ayushman Bharat Health Account Number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”) using document other than Aadhaar. (Click here to proceed further)' 
-              id="check2" value={checkboxes.check2} onChange={handleChange}/>
-              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} label='I consent to usage of my ABHA address and ABHA number for linking of my legacy (past) government health records and those which will be generated during this encounter.' 
-              id="check3" value={checkboxes.check3} onChange={handleChange}/>
-              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} label='I authorize the sharing of all my health records with healthcare provider(s) for the purpose of providing healthcare services to me during this encounter.' 
-              id="check4" value={checkboxes.check4} onChange={handleChange}/>
-              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} label='I consent to the anonymization and subsequent use of my government health records for public health purposes.' 
-              id="check5" value={checkboxes.check5} onChange={handleChange}/>
+                label='I am voluntarily sharing my Aadhaar Number / Virtual ID issued by the Unique Identification Authority of India (“UIDAI”), and my demographic information for the purpose of creating an Ayushman Bharat Health Account number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”). I authorize NHA to use my Aadhaar number / Virtual ID for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies, Benefits and Services) Act, 2016 for the aforesaid purpose. I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication.' 
+                id="check1" value={checkboxes.check1} onChange={handleChange}
+              />
+              <FormControlLabel className="checkbox_style" required control={<Checkbox defaultChecked/>} 
+                label='I intend to create Ayushman Bharat Health Account Number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”) using document other than Aadhaar. (Click here to proceed further)' 
+                id="check2" value={checkboxes.check2} onChange={handleChange}
+              />
+              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} 
+                label='I consent to usage of my ABHA address and ABHA number for linking of my legacy (past) government health records and those which will be generated during this encounter.' 
+                id="check3" value={checkboxes.check3} onChange={handleChange}
+              />
+              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} 
+                label='I authorize the sharing of all my health records with healthcare provider(s) for the purpose of providing healthcare services to me during this encounter.' 
+                id="check4" value={checkboxes.check4} onChange={handleChange}
+              />
+              <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} 
+                label='I consent to the anonymization and subsequent use of my government health records for public health purposes.' 
+                id="check5" value={checkboxes.check5} onChange={handleChange}
+              />
               {children}
             </CustomFormGroup>
-              </DialogContentText>
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} className='cancel_btn'>Disagree</Button>

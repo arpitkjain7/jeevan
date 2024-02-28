@@ -13,6 +13,8 @@ from datetime import datetime, timezone, timedelta
 import os, json
 import uuid
 from pytz import timezone as pytz_timezone
+from core.utils.custom.patient_helper import calculate_age
+from fastapi import HTTPException, status
 
 logging = logger(__name__)
 
@@ -416,12 +418,7 @@ class PatientController:
                 gender=patient_data.get("gender"),
                 hip_id=hip_id,
             )
-            # patient_obj = self.CRUDPatientDetails.read_by_abhaId(
-            #     abha_number=patient_data.get("healthIdNumber"), hip_id=hip_id
-            # )
             abha_number = patient_data.get("healthIdNumber")
-            # if abha_number:
-            #     abha_number = abha_number.replace("-", "")
             patient_request = {
                 "abha_number": abha_number,
                 "abha_address": patient_data["healthId"],
@@ -429,6 +426,7 @@ class PatientController:
                 "name": patient_data["name"],
                 "gender": patient_data["gender"],
                 "DOB": dob_str,
+                "year_of_birth": patient_data["yearOfBirth"],
                 "email": email_id,
                 "address": patient_data["address"]["line"],
                 "district": patient_data["address"]["district"],
@@ -652,7 +650,7 @@ class PatientController:
             txn_id = request.get("transactionId")
             patient_obj = request.get("patient")
             patient_id = patient_obj.get("referenceNumber")
-            patient_details = CRUDPatientDetails().read_by_patientId(
+            patient_details = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
             patient_mobile_number = patient_details.get("mobile_number")
@@ -878,39 +876,65 @@ class PatientController:
         try:
             logging.info("executing register new patient v3 function")
             request_json = request.dict()
-            # patient_list = self.CRUDPatientDetails.read_by_mobileNumber(
-            #     mobile_number=request_json.get("mobile_number")
-            # )
             request_json.update(
                 {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
             )
-            dob_str = request_json.get("DOB")
-            dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
-            dob_str = dob_obj.strftime("%Y-%m-%d")
-            patient_obj = FuzzyMatch().find_duplicate_record(
-                mobile_number=request_json.get("mobile_number"),
-                name=request_json.get("name"),
-                dob=dob_str,
-                gender=request_json.get("gender"),
-                hip_id=request_json.get("hip_id"),
-            )
-            request_json.update({"DOB": dob_str})
-            # patient_obj = self.CRUDPatientDetails.read_by_mobile_name(
-            #     mobile_number=request_json.get("mobile_number"),
-            #     name=request_json.get("name"),
-            # )
+            dob_str = request_json.get("DOB", None)
+            age_str = request_json.get("age", None)
+            if dob_str:
+                yob_str = dob_str.split("-")[-1]
+                dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
+                dob_str = dob_obj.strftime("%Y-%m-%d")
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                patient_obj = FuzzyMatch().find_duplicate_record(
+                    mobile_number=request_json.get("mobile_number"),
+                    name=request_json.get("name"),
+                    yob=yob_str,
+                    gender=request_json.get("gender"),
+                    hip_id=request_json.get("hip_id"),
+                )
+            elif age_str:
+                today = datetime.today()
+                yob_str = today.year - int(age_str)
+                age_in_years = age_str
+                age_in_months = "0"
+                patient_obj = FuzzyMatch().find_duplicate_record(
+                    mobile_number=request_json.get("mobile_number"),
+                    name=request_json.get("name"),
+                    yob=yob_str,
+                    gender=request_json.get("gender"),
+                    hip_id=request_json.get("hip_id"),
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Missing required fields",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            request_json.update({"DOB": dob_str, "year_of_birth": yob_str})
+            del request_json["age"]
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
                 request_json.update(
-                    {"status": "Patient already exist, Updated database"}
+                    {
+                        "status": "Patient already exist, Updated database",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
                 )
                 return request_json
             else:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
-                request_json.update({"status": "New Patient created successfully"})
+                request_json.update(
+                    {
+                        "status": "New Patient created successfully",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
+                )
                 return request_json
         except Exception as error:
             logging.error(f"Error in register_patient_controller function: {error}")
@@ -948,6 +972,15 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
+            if patient_obj.get("DOB", None):
+                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                patient_obj["age_in_years"] = age_in_years
+                patient_obj["age_in_months"] = age_in_months
+            else:
+                patient_obj["age_in_years"] = datetime.today().year - int(
+                    patient_obj["year_of_birth"]
+                )
             return patient_obj
         except Exception as error:
             logging.error(f"Error in get_patient_details function: {error}")

@@ -188,7 +188,7 @@ const MyTable = ({
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm) ||
-            item["docName"]
+            item["doc_name"]
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm)) &&
@@ -380,6 +380,17 @@ const MyTable = ({
                                       {/* {action?.key
                                         ? item[action?.key]
                                         : action?.link} */}
+                                    </Typography>
+                                  );
+                                } else if (column.header === "Start Appointment") {
+                                  return (
+                                    <Typography
+                                      key={index}
+                                      size="small"
+                                      onClick={() => action.onClick(item)}
+                                      className="linkTypography"
+                                    >
+                                      {item.is_verified ? "Start Visit" : "Verify"}
                                     </Typography>
                                   );
                                 } else {

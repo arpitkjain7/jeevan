@@ -79,10 +79,10 @@ const SyncAbha = ({
 
   useEffect(() => {
     if (
-      currentPatient?.patient_details?.abha_number !== "" &&
-      currentPatient?.patient_details?.auth_methods
+      (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== "" &&
+      (currentPatient?.patient_details?.auth_methods || currentPatient?.auth_methods)
     ) {
-      const methods = currentPatient?.patient_details?.auth_methods;
+      const methods = currentPatient?.patient_details?.auth_methods || currentPatient?.auth_methods;
       setOptions(methods?.authMethods);
     }
   }, []);
@@ -90,10 +90,10 @@ const SyncAbha = ({
   const handleAuthChange = (event) => {
     setSelectedAuthOption(event.target.value);
     const payload = {
-      abha_number: currentPatient?.patient_details?.abha_number,
+      abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
       purpose: "KYC_AND_LINK",
       auth_mode: event.target.value,
-      hip_id: currentPatient?.patient_details?.hip_id,
+      hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
     };
     dispatch(getPatientAuth(payload)).then((res) => {
       setTxnId(res.payload?.txn_id);
@@ -118,7 +118,7 @@ const SyncAbha = ({
 
   const onSync = () => {
     const payload = {
-      hip_id: currentPatient?.patient_details?.hip_id,
+      hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
       pmr_id: sessionStorage.getItem("pmrID"),
     };
     dispatch(syncPMR(payload)).then((res) => {

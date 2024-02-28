@@ -8,7 +8,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
-import styled from "@emotion/styled";
 import { useState } from "react";
 import SyncAbha from "../SyncAbha";
 import { useNavigate } from "react-router-dom";
@@ -50,11 +49,12 @@ const SendPMR= ({
     }
     dispatch(sendNotification(payload)).then((res) => {
       handleNotifyModalClose();
+      console.log("currentPatient", currentPatient)
       if(res){
         if (
           !(
-            currentPatient?.patient_details?.abha_number &&
-            currentPatient?.patient_details?.abha_number !== ""
+            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
           )
         ) {
           sessionStorage.removeItem("pmrID");

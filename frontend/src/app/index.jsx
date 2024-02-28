@@ -1,14 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {
   styled,
-  useTheme,
   Box,
   CssBaseline,
   Toolbar,
   Drawer,
 } from "@mui/material";
-import { useSelector } from "react-redux";
 import Header from "../components/Header";
 import "./global.scss";
 import SignInPage from "../pages/SignIn";
@@ -128,7 +126,7 @@ const DesktopDrawer = styled(MuiDrawer, {
 
 function App() {
   const isMobile = window.innerWidth < 600;
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const [sidebarState, setSidebarState] = React.useState(false);
 
   const toggleDrawer = (open) => (event) => {
@@ -150,9 +148,9 @@ function App() {
 
   const isAuthenticated = sessionStorage.getItem("accesstoken");
 
-  useEffect(() => {
-    // console.log("reduxStore", dataState);
-  }, [dataState]);
+  // useEffect(() => {
+  //   console.log("reduxStore", dataState);
+  // }, [dataState]);
 
   return (
     <Router>

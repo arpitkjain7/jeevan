@@ -95,7 +95,7 @@ function Dashboard() {
         currentDate.setDate(currentDate.getDate() + 1);
       }
       dispatch(fetchAppointmentList(payload)).then((res) => {
-        const mainList = res.payload;
+        const mainList = res?.payload;
         setAppointmentList(mainList);
         let appointment_days = [];
         let finalArray;
@@ -206,7 +206,7 @@ function Dashboard() {
         </Grid>
       </Grid>
 
-      <br />
+      {/* <br />
       {isChart && isMobile && (
         <Paper className="chartStyling" elevation={3}>
           <BarChart
@@ -235,7 +235,7 @@ function Dashboard() {
             xAxis={[{ scaleType: 'band', dataKey: 'day' }]}
           />
         </Paper>
-      )}
+      )} */}
     </DashboardWrapper>
   )
 }

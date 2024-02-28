@@ -60,6 +60,7 @@ class RegisterPatientV3(BaseModel):
     name: str = None
     gender: str = None
     DOB: str = None
+    age: str = None
     email: str = None
     address: str = None
     pincode: str = None

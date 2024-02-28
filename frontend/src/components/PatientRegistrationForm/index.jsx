@@ -9,7 +9,7 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { format } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { apis } from "../../utils/apis";
@@ -25,7 +25,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     middlename: "",
     gender: "",
     dob: "",
-    age: "",
+    age_years: "0",
     abhaAddress: "",
     email: "",
     password: "",
@@ -45,7 +45,18 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
       ...prevData,
       [name]: value,
     }));
-
+    if(name === "dob"){  // && value !== "01-01-1900"
+      const age = differenceInYears(new Date(), new Date(value));
+      setFormData((prevData) => ({
+        ...prevData,
+        age_years: age,
+      }));
+    } else if(name === "age_years"){  // && value !== "01-01-1900"
+      setFormData((prevData) => ({
+        ...prevData,
+        age_years: value,
+      }));
+    }
     if (name === "abhaAddress") {
       if (!validateAbhaAddress(value)) {
         setAbhaAddressError(true);
@@ -63,7 +74,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     if (new_Number_length > 10 || new_Number_length < 10) {
       // setErrorMessage("Please enter valid number")
       setIsMobileError(true);
-    } else if (new_Number_length == 10) {
+    } else if (new_Number_length === 10) {
       setIsMobileError(false);
     }
   };
@@ -76,28 +87,28 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
       currentHospital = JSON.parse(hospital);
       let url = "";
       let payload = {};
-      if (isForAbha) {
-        if (!validateAbhaAddress(formData.abhaAddress)) {
-          setAbhaAddressError(true);
-          setShowSnackbar(true);
-          setErrorMessage("Invalid ABHA Address");
-          return;
-        }
-        payload = {
-          firstName: formData?.firstname,
-          middleName: formData?.middlename,
-          lastName: formData?.lastname,
-          email: formData?.email,
-          gender: formData?.gender,
-          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
-          age: formData.age,
-          healthId: formData.abhaAddress,
-          password: formData?.password,
-          hip_id: currentHospital?.hip_id,
-          txnId: txnId,
-        };
-        url = apis?.registerPhonePatient;
-      } else {
+      // if (isForAbha) {
+      //   if (!validateAbhaAddress(formData.abhaAddress)) {
+      //     setAbhaAddressError(true);
+      //     setShowSnackbar(true);
+      //     setErrorMessage("Invalid ABHA Address");
+      //     return;
+      //   }
+      //   payload = {
+      //     firstName: formData?.firstname,
+      //     middleName: formData?.middlename,
+      //     lastName: formData?.lastname,
+      //     email: formData?.email,
+      //     gender: formData?.gender,
+      //     dob: formData.dob ? convertDateFormat(formData?.dob, "dd-MM-yyyy") : "",
+      //     age: formData.age_years,
+      //     healthId: formData.abhaAddress,
+      //     password: formData?.password,
+      //     hip_id: currentHospital?.hip_id,
+      //     txnId: txnId,
+      //   };
+      //   url = apis?.registerPhonePatient;
+      // } else {
         payload = {
           name:
             formData?.firstname +
@@ -106,34 +117,23 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             " " +
             formData?.lastname,
           gender: formData?.gender,
-          DOB: formData?.dob,
-          age: formData.age,
+          DOB: formData.dob ? convertDateFormat(formData?.dob, "dd-MM-yyyy") : "",
+          age: formData.age_years,
           email: formData?.email,
           mobile_number: mobile,
           hip_id: currentHospital?.hip_id,
         };
         url = apis?.registerUser;
-      }
+      // }
       dispatch(registerPatient({ payload, url: url })).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
           return;
         }
-        const userDetails = {
-          name: formData?.firstname + " " + formData?.lastname,
-          email: formData?.email,
-          gender: formData?.gender,
-          dob: convertDateFormat(formData?.dob, "dd/MM/yyyy"),
-          age: formData.age,
-          healthId: formData.abhaAddress,
-          password: formData?.password,
-          hip_id: currentHospital?.hip_id,
-        };
-
         setUserCreated(true);
-        dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
+        dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
       });
-      navigate("/registered-patient");
+      setTimeout(()=> { navigate("/registered-patient"); }, 2000);
     }
   };
 
@@ -226,11 +226,10 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             // fullWidth
           />
           <TextField
-            label="Age"
-            name="age"
-            value={formData.age}
+            label="Age(in years)"
+            name="age_years"
+            value={formData.age_years}
             onChange={handleChange}
-            type="number"
             InputLabelProps={{ shrink: true }}
             style={{ width: "50%" }}
             // required

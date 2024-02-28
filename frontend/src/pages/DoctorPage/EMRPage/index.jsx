@@ -1769,7 +1769,7 @@ const PatientEMRDetails = (props) => {
         hospitalName: currentHospital?.name || "-",
         patientName:
           currentPatient?.patient_details?.name || currentPatient?.name || "-",
-        doctorName: currentPatient?.docName || "-",
+        doctorName: currentPatient?.doc_name || "-",
         patientEmail:
           currentPatient?.patient_details?.email ||
           currentPatient?.email ||
@@ -1781,7 +1781,8 @@ const PatientEMRDetails = (props) => {
         patientNumber:
           currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
-        patientAge: "-",
+        patientAgeInYears: currentPatient?.patient_details?.age_in_years || currentPatient?.age_in_years,
+        patientAgeInMonths: currentPatient?.patient_details?.age_in_months || currentPatient?.age_in_months
       };
     }
     const pdfFormattedData = submitEMRPayload;
