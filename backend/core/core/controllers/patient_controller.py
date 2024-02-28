@@ -880,12 +880,12 @@ class PatientController:
             )
             dob_str = request_json.get("DOB")
             age_str = request_json.get("age")
-            if dob_str:
+            if dob_str or dob_str is not "":
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
                 dob_str = dob_obj.strftime("%Y-%m-%d")
                 age_in_years, age_in_months = calculate_age(dob=dob_obj)
-            elif age_str:
+            elif age_str or age_str > 0:
                 today = datetime.today()
                 yob_str = today.year - int(age_str)
                 age_in_years = age_str
