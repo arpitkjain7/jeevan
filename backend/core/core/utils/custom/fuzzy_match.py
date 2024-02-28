@@ -101,12 +101,12 @@ class FuzzyMatch:
             patient_recs = CRUDPatientDetails().read_by_mobileNumber(
                 mobile_number=mobile_number, hip_id=hip_id
             )
-            if yob is None:
+            if dob:
                 yob = dob.split("-")[0]
             for patient_obj in patient_recs:
                 logging.info(f"{patient_obj=}")
                 if gender == patient_obj.get("gender"):
-                    patient_birth_year = patient_obj.get("DOB").split("-")[0]
+                    patient_birth_year = patient_obj.get("year_of_birth")
                     if int(yob) - 2 <= int(patient_birth_year) <= int(yob) + 2:
                         patient_name = patient_obj.get("name")
                         phonotic_match_ratio = self.get_phonitic_match(
