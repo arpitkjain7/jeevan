@@ -1,10 +1,8 @@
 import {
   Button,
-  ButtonGroup,
   Card,
   CardContent,
   Grid,
-  TextField,
   Typography,
   styled,
 } from "@mui/material";
@@ -14,7 +12,6 @@ import {
   convertTimeSlot,
   convertToNumber,
   getDayFromString,
-  customformatDate,
   parseDateFormat
 } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +20,7 @@ import {
   createAppointment,
   fetchDoctorSlots,
 } from "./scheduleAppointment.slice";
-import Calendar from "../Calendar";
 import RegisterationConfirmation from "../RegistrationConfirmation";
-import { format } from "date-fns";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";

@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '../../components/Sidebar'
 import {
   Grid,
   Typography,
   styled,
   Card,
-  CardActions,
   CardContent,
-  Button,
   Paper,
 } from "@mui/material";
-import { Box } from '@mui/system';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useDispatch } from 'react-redux';
 import { fetchAppointmentList } from '../AppointmentPage/AppointmentPage.slice';
-import { convertDateFormat, parseDateFormat } from '../../utils/utils';
+import { parseDateFormat } from '../../utils/utils';
 
 const DashboardWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -55,10 +51,6 @@ const chartSetting = {
   yAxis: [{
     tickNumber: 0
   }],
-  // xAxis: [
-  //   {
-  //   }
-  // ],
 };
 
 function Dashboard() {

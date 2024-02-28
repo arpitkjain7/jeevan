@@ -3,7 +3,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
-import React, {useState} from 'react';
 
 export const registerAADHAAR = createAsyncThunk(
   "registration/aadhaarregisterAADHAAR",

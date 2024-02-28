@@ -1,10 +1,8 @@
 import {
   styled
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
-import { CheckBox } from "@mui/icons-material";
-import OtpInput from "../../components/OTPValidation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   registerAADHAAR,
@@ -18,7 +16,6 @@ import VerificationSelection from "../../components/VerificationSelection";
 import AadhaarVerification from "../../components/AadhaarVerification";
 import AadhaarConsent from "../../components/AadhaarConsent";
 import PhoneVerification from "../../components/PhoneVerification";
-import RegisterationConfirmation from "../../components/RegistrationConfirmation";
 import { apis } from "../../utils/apis";
 import AadhaarPatientRegForm from "../../components/AadhaarPatientRegistrationForm";
 import CustomSnackbar from "../../components/CustomSnackbar";
@@ -404,7 +401,7 @@ const PatientRegistration = () => {
   }, [aadhaarOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if(selectedOption == "aadhaar") {
+    if(selectedOption === "aadhaar") {
       setOpen(true);
     } else {
       setStepOne(true);

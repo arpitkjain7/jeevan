@@ -1,17 +1,14 @@
 import {
   FormControl,
   FormControlLabel,
-  Modal,
   RadioGroup,
   styled,
-  Box,
-  Button,
   Radio,
   Typography,
   Dialog,
   DialogTitle,
   IconButton,
-  DialogContent, // Added Typography
+  DialogContent,
   DialogActions
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,36 +22,36 @@ import {
 import OtpInput from "../../../components/OTPValidation";
 import { useNavigate } from "react-router-dom";
 
-const StyledModalBox = styled(Box)(({ theme }) => ({
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "60%",
-  background: "#ffffff",
-  padding: theme.spacing(8),
-  borderRadius: theme.spacing(1),
-  boxShadow: 24,
-  p: 4,
-}));
+// const StyledModalBox = styled(Box)(({ theme }) => ({
+//   position: "absolute",
+//   top: "50%",
+//   left: "50%",
+//   transform: "translate(-50%, -50%)",
+//   width: "60%",
+//   background: "#ffffff",
+//   padding: theme.spacing(8),
+//   borderRadius: theme.spacing(1),
+//   boxShadow: 24,
+//   p: 4,
+// }));
 
 const PrimaryButton = styled("Button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
 }));
 
-const PageTitle = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.h1,
-  marginBottom: theme.spacing(8),
-}));
+// const PageTitle = styled(Typography)(({ theme }) => ({
+//   "&": theme.typography.h1,
+//   marginBottom: theme.spacing(8),
+// }));
 const PageSubText = styled(Typography)(({ theme }) => ({
   "&": theme.typography.h2,
   marginBottom: theme.spacing(2),
 }));
-const ModalFooter = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-}));
+// const ModalFooter = styled("div")(({ theme }) => ({
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "flex-end",
+// }));
 const SecondaryButton = styled("Button")(({ theme }) => ({
   "&": theme.typography.secondaryButton,
 }));
