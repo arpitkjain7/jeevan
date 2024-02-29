@@ -239,7 +239,10 @@ const PatientDetailsHeader = ({ documents }) => {
 
     if (event.target.files) {
       const fileArray = files.map((file) => URL.createObjectURL(file));
-
+      const image = new Image(); image.src = event.target.files;
+      const orientation = image.width > image.height ? 'landscape' : 'portrait'; 
+      console.log(`Image orientation: ${orientation}`);
+  
       setSelectedImages((prevImages) => prevImages.concat(fileArray));
       Array.from(event.target.files).map((file) => {
         URL.revokeObjectURL(file);
@@ -413,6 +416,7 @@ const PatientDetailsHeader = ({ documents }) => {
                   capture="environment"
                   ref={handleFileInput}
                   onChange={handleImageChange}
+                  aria-orientation="vertical"
                   multiple
                 />
               </label>
