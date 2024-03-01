@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { fetchVitalDetails } from '../VitalsDetails/vitalsDetails.slice';
 import { useState } from 'react';
 import CustomSnackbar from '../CustomSnackbar';
+import { Grid } from '@mui/material';
 
 const uData = [120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170];
 const pData = [30, 32, 35, 40, 45, 50, 55, 60, 65, 70, 75];
@@ -26,6 +27,7 @@ const GrowthChart = () => {
     const [date, setDate] = useState([]);
     const [age, setAge] = useState("");
     const [gender, setGender] = useState("");
+    const [isChart, setIsChart] = useState(false);
     const [showSnackbar, setShowSnackbar] = useState(false);
     const currentPatient = JSON.parse(sessionStorage?.getItem("selectedPatient"));
 
@@ -50,7 +52,6 @@ const GrowthChart = () => {
             } else {
               // setHeight.push(res?.payload?.value);
               res.payload.reverse().map((item) => {
-                console.log(item);
                 const createdDate = (item.created_date).split(" ");
                 setDate((date) => [
                   ...date,
@@ -80,7 +81,8 @@ const GrowthChart = () => {
                 })
               }
         });
-        console.log(height, weight, date, gender)
+        console.log(height, weight, date, gender);
+        setIsChart(true);
     }, [])
   return (
     <>
@@ -90,28 +92,64 @@ const GrowthChart = () => {
         status={"error"}
         onClose={onSnackbarClose}
       />
-        <LineChart
-        width={800}
-        height={500}
-        series={[
-            { data: weight, label: 'kgs', yAxisKey: 'leftAxisId'},
-            { data: height, label: 'cms', yAxisKey: 'rightAxisId', color: "#e15759" },
-        ]}
-        xAxis={[{ scaleType: 'point', data: date, label: "Age in Years" }]}
-        yAxis={[{ id: 'leftAxisId', label: "weight in KG" }, { id: 'rightAxisId', label: "Height in CM" }]}
-        rightAxis="rightAxisId"
-        >
-         <LinePlot />
-        <MarkPlot />
-          {/* <ChartsReferenceLine
-            x={uData}
-            label="Max PV PAGE"
-            lineStyle={{ stroke: 'red' }}
-          /> */}
-          <ChartsReferenceLine y={[{pData}, {uData}]} label="Max" lineStyle={{ stroke: 'red' }} />
-          <ChartsXAxis />
-        <ChartsYAxis />
-      </LineChart>
+      {isChart && weight.length > 0 && date.length > 0 &&
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <LineChart
+              width={450}
+              height={400}
+              series={[
+                  { data: weight, label: 'KG', yAxisKey: 'leftAxisId'}
+              ]}
+              xAxis={[{ scaleType: 'point', data: date, label: "Age in Years" }]}
+              yAxis={[{ id: 'leftAxisId', label: "weight in KG" }]}
+              // rightAxis="rightAxisId"
+            >
+              {/* <LinePlot />
+              <MarkPlot />
+              <ChartsReferenceLine y={[{pData}, {uData}]} label="Max" lineStyle={{ stroke: 'red' }} />
+              <ChartsXAxis />
+              <ChartsYAxis /> */}
+            </LineChart>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <LineChart
+              width={450}
+              height={400}
+              series={[
+                { data: height, label: 'CM', yAxisKey: 'leftAxisId'}
+              ]}
+              xAxis={[{ scaleType: 'point', data: date, label: "Age in Years" }]}
+              yAxis={[{ id: 'leftAxisId', label: "Height in CM" }]}
+              // rightAxis="rightAxisId"
+            >
+              {/* <LinePlot />
+              <MarkPlot />
+              <ChartsReferenceLine y={[{pData}, {uData}]} label="Max" lineStyle={{ stroke: 'red' }} />
+              <ChartsXAxis />
+              <ChartsYAxis /> */}
+            </LineChart>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <LineChart
+              width={450}
+              height={400}
+              series={[
+                  { data: height, label: 'CM', yAxisKey: 'leftAxisId'}
+              ]}
+              xAxis={[{ scaleType: 'point', data: weight, label: "Weight in KG" }]}
+              yAxis={[{ id: 'leftAxisId', label: "Height in CM" }]}
+              // rightAxis="rightAxisId"
+            >
+              {/* <LinePlot />
+              <MarkPlot />
+              <ChartsReferenceLine y={[{pData}, {uData}]} label="Max" lineStyle={{ stroke: 'red' }} />
+              <ChartsXAxis />
+              <ChartsYAxis /> */}
+            </LineChart>
+          </Grid>
+        </Grid>
+      }
     </>
   );
 }
