@@ -106,8 +106,31 @@ export const submitHealthDocument = createAsyncThunk(
     const access_token = sessionStorage.getItem("accesstoken");
     const formData = new FormData();
     const files = docPayload.files;
-    files.map((file) => {
-      formData.append("files", file);
+    files.map((image) => {
+      // const canvas = document.createElement('canvas'); 
+      //   const ctx = canvas.getContext('2d'); 
+      //   const MAX_WIDTH = 800; const MAX_HEIGHT = 800; 
+      //   // Rotate image if width is greater than height 
+      //   if (image.width > image.height) { 
+      //     canvas.width = MAX_HEIGHT; 
+      //     canvas.height = MAX_WIDTH; 
+      //     ctx.translate(MAX_HEIGHT / 2, MAX_WIDTH / 2); 
+      //     ctx.rotate(Math.PI / 2); 
+      //     ctx.drawImage(image, -image.width / 2, -image.height / 2);
+      //   } else { 
+      //     canvas.width = MAX_WIDTH; 
+      //     canvas.height = MAX_HEIGHT; 
+      //     ctx.drawImage(image, 0, 0, MAX_WIDTH, MAX_HEIGHT); 
+      //   } 
+        // canvas.toBlob((blob) => { 
+        //   const rotatedFile = new File([blob], file.name, { 
+        //     type: file.type, lastModified: new Date().getTime(), 
+        //   }); 
+        //   // const newFormData = new FormData(); 
+        //   // newFormData.append('image', rotatedFile); 
+        
+        // });
+        formData.append("files", image);
     })
     try {
       const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {

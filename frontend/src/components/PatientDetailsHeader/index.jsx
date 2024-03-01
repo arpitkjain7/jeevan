@@ -33,6 +33,15 @@ import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
 import { format } from "date-fns";
+import imageCompression from 'browser-image-compression';
+
+const rotateImage = {
+  // -webkit-transform: "rotate(90deg)",
+  // -moz-transform: "rotate(90deg)",
+  // -o-transform: "rotate(90deg)",
+  // -ms-transform: rotate(90deg);
+  transform: "rotate(90deg)",
+};
 
 const previewStyling = {
   margin: "1rem .5rem",
@@ -234,18 +243,38 @@ const PatientDetailsHeader = ({ documents }) => {
   };
 
   const handleImageChange = async (event) => {
-    const files = Array.from(event.target.files);
-    setImageFiles((prevFiles) => [...prevFiles, ...files]);
+    const imageFile = event.target.files[0];
 
-    if (event.target.files) {
-      const fileArray = files.map((file) => URL.createObjectURL(file));
-
-      setSelectedImages((prevImages) => prevImages.concat(fileArray));
-      Array.from(event.target.files).map((file) => {
-        URL.revokeObjectURL(file);
-      });
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
     }
-    setOpenDocument(true);
+    const files = Array.from(event.target.files);
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const image = new Image(); image.src = compressedFile;
+
+      const orientation = image.width > image.height ? 'landscape' : 'portrait'; 
+      console.log(`Image orientation: ${orientation}`);
+      // if(orientation === "landscape"){
+      //   console.log('rotate(90deg)');
+      //   compressedFile.style.transform = "rotate(90deg)";
+      // }
+      setImageFiles((prevFiles) => [...prevFiles, compressedFile]);
+
+      if (event.target.files) {
+        const fileArray = files.map((file) => URL.createObjectURL(file));
+      
+        setSelectedImages((prevImages) => prevImages.concat(fileArray));
+        Array.from(event.target.files).map((file) => {
+          URL.revokeObjectURL(file);
+        });
+      }
+      setOpenDocument(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDeleteImage = (photo, index) => {
@@ -413,6 +442,7 @@ const PatientDetailsHeader = ({ documents }) => {
                   capture="environment"
                   ref={handleFileInput}
                   onChange={handleImageChange}
+                  aria-orientation="vertical"
                   multiple
                 />
               </label>
