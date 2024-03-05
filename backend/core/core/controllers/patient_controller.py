@@ -432,7 +432,9 @@ class PatientController:
                 "district": patient_data["address"]["district"],
                 "pincode": patient_data["address"]["pincode"],
                 "state_name": patient_data["address"]["state"],
-                "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
+                "auth_methods": {
+                    "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
+                },
                 "hip_id": hip_id,
                 "abha_status": "ACTIVE",
                 "is_verified": False,
@@ -877,7 +879,11 @@ class PatientController:
             logging.info("executing register new patient v3 function")
             request_json = request.dict()
             request_json.update(
-                {"auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]}}
+                {
+                    "auth_methods": {
+                        "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
+                    }
+                }
             )
             dob_str = request_json.get("DOB", None)
             age_str = request_json.get("age", None)

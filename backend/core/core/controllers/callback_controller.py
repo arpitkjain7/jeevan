@@ -143,13 +143,18 @@ class CallbackController:
                     "district": address_obj.get("district"),
                     "pincode": address_obj.get("state"),
                     "state_name": address_obj.get("pincode"),
-                    "auth_methods": {"authMethods": ["AADHAAR_OTP", "MOBILE_OTP"]},
+                    "auth_methods": {
+                        "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
+                    },
                     "hip_id": hip_id,
                     "access_token": {
                         "value": access_token,
                         "valid_till": token_validity,
                     },
                     "abha_status": "ACTIVE",
+                }
+                patient_request = {
+                    key: value for key, value in patient_request.items() if value
                 }
                 if patient_obj:
                     patient_request.update({"id": patient_obj["id"]})
