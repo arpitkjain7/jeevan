@@ -359,7 +359,7 @@ class PatientController:
                     {
                         "requestId": request_id,
                         "timestamp": time_now,
-                        "transactionId": gateway_obj.get("transaction_id"),
+                        "transactionId": request_dict.get("txnId"),
                         "credential": {
                             "authCode": "",
                             "demographic": {
