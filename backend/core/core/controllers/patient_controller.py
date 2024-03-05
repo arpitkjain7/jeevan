@@ -353,6 +353,9 @@ class PatientController:
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(
+                patient_id=request.pid
+            )
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
                 data=json.dumps(
@@ -363,12 +366,12 @@ class PatientController:
                         "credential": {
                             "authCode": "",
                             "demographic": {
-                                "name": request_dict.get("name"),
-                                "gender": request_dict.get("gender"),
-                                "dateOfBirth": request_dict.get("dateOfBirth"),
+                                "name": patient_obj.get("name"),
+                                "gender": patient_obj.get("gender"),
+                                "dateOfBirth": patient_obj.get("DOB"),
                                 "identifier": {
                                     "type": "MOBILE",
-                                    "value": request_dict.get("mobileNumber"),
+                                    "value": patient_obj.get("mobile_number"),
                                 },
                             },
                         },

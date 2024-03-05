@@ -28,10 +28,7 @@ class VerifyOtp(BaseModel):
 
 class VerifyDemographic(BaseModel):
     txnId: str
-    name: str
-    gender: str
-    dateOfBirth: str
-    mobileNumber: str
+    pid: str
 
 
 class RegisterWithoutABHA(BaseModel):
