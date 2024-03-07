@@ -891,6 +891,7 @@ const PatientRegistration = () => {
           {abhaAccounts.length > 0 && abhaAccounts.map((item, index) => {
             return(
             <FormControl>
+              <span style={{ fontWeight: "600" }}>{item.name}</span>
               <RadioGroup
                 row
                 aria-labelledby="demo-row-radio-buttons-group-label"
