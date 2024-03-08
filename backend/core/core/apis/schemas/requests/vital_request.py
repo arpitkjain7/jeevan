@@ -14,6 +14,7 @@ class VitalType(str, Enum):
     body_mass_index = "BMI"
     systolic_blood_pressure = "SBP"
     diastolic_blood_pressure = "DBP"
+    all = "ALL"
 
 
 class Read(BaseModel):
