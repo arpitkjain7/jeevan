@@ -25,7 +25,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     middlename: "",
     gender: "",
     dob: "",
-    age_years: "0",
+    age_years: "",
     abhaAddress: "",
     email: "",
     password: "",
@@ -46,11 +46,18 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
       [name]: value,
     }));
     if(name === "dob"){  // && value !== "01-01-1900"
-      const age = differenceInYears(new Date(), new Date(value));
-      setFormData((prevData) => ({
-        ...prevData,
-        age_years: age,
-      }));
+      if(value){
+        const age = differenceInYears(new Date(), new Date(value));
+        setFormData((prevData) => ({
+          ...prevData,
+          age_years: age,
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          age_years: "",
+        }));
+      }
     } else if(name === "age_years"){  // && value !== "01-01-1900"
       setFormData((prevData) => ({
         ...prevData,
@@ -118,7 +125,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
             formData?.lastname,
           gender: formData?.gender,
           DOB: formData.dob ? convertDateFormat(formData?.dob, "dd-MM-yyyy") : "",
-          age: formData.age_years,
+          age: formData.age_years === "" ? 0 : formData.age_years,
           email: formData?.email,
           mobile_number: mobile,
           hip_id: currentHospital?.hip_id,
