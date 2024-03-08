@@ -43,6 +43,56 @@ const GrowthChart = () => {
         setShowSnackbar(false);
     };
 
+    useEffect(() => {
+      setAge((age) => [
+          ...age,
+          currentPatient?.age
+      ]);
+      setGender(currentPatient?.gender);
+      const heightPayload = {
+          patient_id: currentPatient?.patientId || currentPatient?.id,
+          vital_type: "HT",
+        };
+      dispatch(fetchVitalDetails(heightPayload)).then((res) => {
+        console.log(res);
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setShowSnackbar(true);
+            return;
+          } else {
+            // setHeight.push(res?.payload?.value);
+            res.payload.reverse().map((item) => {
+              const createdDate = (item.created_date).split(" ");
+              setDate((date) => [
+                ...date,
+                createdDate[0].toString()
+              ])
+              setHeight((height) => [
+                ...height,
+                parseInt(item.value),
+              ]);
+            })
+          }
+      });
+      const weightPayload = {
+          patient_id: currentPatient?.patientId || currentPatient?.id,
+          vital_type: "WT",
+        };
+      dispatch(fetchVitalDetails(weightPayload)).then((res) => {
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+              setShowSnackbar(true);
+              return;
+            } else {
+              res.payload.reverse().map((item) => {
+                setWeight((weight) => [
+                    ...weight,
+                    parseInt(item?.value)
+                ]);
+              })
+            }
+      });
+      console.log(height, weight, date, gender);
+      setIsChart(true);
+    }, []);
   
   return (
     <>
@@ -139,6 +189,7 @@ const GrowthChart = () => {
                     label: "Age in Years",
                     scaleType: 'point',
                   },
+                  { data: [5, 6, 7, 8, 9] }
                 ]}
                 yAxis={yAxis}
                 series={[
@@ -150,7 +201,7 @@ const GrowthChart = () => {
                     area: false,
                     showMark: false,
                     scaleType: "point",
-                    color: "red"
+                    color: "#fc2c2c"
                   },
                   {
                     id: '10 Percentile',
@@ -159,7 +210,7 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "black"
+                    color: "#3c3c3c"
                   },
                   {
                     id: '25 Percentile',
@@ -168,7 +219,7 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "black"
+                    color: "#3c3c3c"
                   },
                   {
                     id: '50 Percentile',
@@ -177,7 +228,7 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "black"
+                    color: "#3c3c3c"
                   },
                   {
                     id: '75 Percentile',
@@ -186,7 +237,7 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "black"
+                    color: "#3c3c3c"
                   },
                   {
                     id: '90 Percentile',
@@ -195,7 +246,7 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "black"
+                    color: "#3c3c3c"
                   }, 
                   {
                     id: '97 Percentile',
@@ -204,10 +255,15 @@ const GrowthChart = () => {
                     // stack: 'total',
                     area: false,
                     showMark: false,
-                    color: "red"
+                    color: "#fc2c2c"
+                  },
+                  {
+                    data: [15, 18, 20, 25, 28],
+                    showMark: true,
+                    label: "Patient Weight",
+                    color: "black",
                   },
                 ]}
-                
                 // sx={{ width: "80% !important", fontSize: "18px" }}
                 width={900}
                 height={500}
@@ -215,18 +271,17 @@ const GrowthChart = () => {
               >
                 <LinePlot />
                 <MarkPlot />
-                <ChartsReferenceLine
+                {/* <ChartsReferenceLine
                   x={10}
                   label="Current Age"
                   lineStyle={{ stroke: 'black' }}
                 />
-                <ChartsReferenceLine y={25} label="Current Weight" lineStyle={{ stroke: 'black' }} />
+                <ChartsReferenceLine y={25} label="Current Weight" lineStyle={{ stroke: 'black' }} /> */}
                 <ChartsXAxis />
                 <ChartsYAxis />
               </LineChart>
           </Grid>
         </Grid>
-      
     </>
   );
 }
