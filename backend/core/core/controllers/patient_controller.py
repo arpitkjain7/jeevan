@@ -1008,6 +1008,8 @@ class PatientController:
         try:
             logging.info("Get vital records")
             responses = self.CRUDVital.read_by_patientId(patient_id)
+            if vital_type == "all":
+                return responses
             values = []
             for response in responses:
                 vital_obj = {}
