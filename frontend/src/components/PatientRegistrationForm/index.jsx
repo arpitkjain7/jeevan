@@ -116,6 +116,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
       //   };
       //   url = apis?.registerPhonePatient;
       // } else {
+      if(formData.dob !== "" || formData.age_years != ""){
         payload = {
           name:
             formData?.firstname +
@@ -131,16 +132,22 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           hip_id: currentHospital?.hip_id,
         };
         url = apis?.registerUser;
-      // }
-      dispatch(registerPatient({ payload, url: url })).then((res) => {
-        if (res?.error && Object.keys(res?.error)?.length > 0) {
-          setShowSnackbar(true);
-          return;
-        }
-        setUserCreated(true);
-        dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
-      });
-      setTimeout(()=> { navigate("/registered-patient"); }, 2000);
+
+        dispatch(registerPatient({ payload, url: url })).then((res) => {
+          if (res?.error && Object.keys(res?.error)?.length > 0) {
+            setShowSnackbar(true);
+            return;
+          }
+          setUserCreated(true);
+          dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
+        });
+        setTimeout(()=> { navigate("/registered-patient"); }, 2000);
+      } else {
+        console.log("DOB or Age required");
+        setShowSnackbar(true);
+        setErrorMessage("DOB or Age required");
+        return;
+      }
     }
   };
 
