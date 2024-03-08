@@ -187,11 +187,11 @@ const MyTable = ({
             item["mobileNumber"]
               ?.toString()
               ?.toLowerCase()
-              ?.includes(lowerCaseSearchTerm) ||
-            item["doc_name"]
-              ?.toString()
-              ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm)) &&
+            // item["doc_name"]
+            //   ?.toString()
+            //   ?.toLowerCase()
+            //   ?.includes(lowerCaseSearchTerm)) 
           item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) &&
           item["slotDate"]?.toString()?.toLowerCase()?.includes(formattedDate)
       );
