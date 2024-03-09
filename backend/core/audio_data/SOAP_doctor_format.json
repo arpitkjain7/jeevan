@@ -1,0 +1,64 @@
+{
+  "Subjective": {
+    "_comment": "Subjective information provided by the patient.",
+    "Chief_Complaint": "string",
+    "History_of_Present_Illness": ["string"],
+    "Past_Medical_History": ["string"],
+    "Medication_History": ["string"],
+    "Allergy_Information": ["string"],
+    "Family_History": ["string"],
+    "Social_History": ["string"],
+    "Review_of_Systems": ["string"]
+  },
+  "Objective": {
+    "_comment": "Objective findings from physical examination and diagnostic tests.",
+    "Vital_Signs": {
+      "Blood_Pressure": "string",
+      "Heart_Rate": "integer",
+      "Respiratory_Rate": "integer",
+      "Temperature": "float",
+      "Oxygen_Saturation": "integer"
+    },
+    "Physical_Examination_Findings": "string",
+    "Laboratory_and_Diagnostic_Test_Results": "string"
+  },
+  "Assessment": {
+    "_comment": "Doctor's assessment based on subjective and objective information.",
+    "Preliminary_Diagnosis": "string",
+    "Differential_Diagnosis": "string",
+    "Risk_Factors": "string"
+  },
+  "Plan": {
+    "Diagnostic_Plan": "string",
+    "Treatment_Plan": "string",
+    "Patient_Education": "string",
+    "Follow_Up": "string"
+  },
+  "Tests_to_be_Taken": {
+    "_comment": "List of additional diagnostic tests to be conducted for further assessment.",
+    "Laboratory_Tests": ["string"],
+    "Imaging_Tests": ["string"],
+    "Special_Exams": ["string"]
+  },
+  "Other_Next_Steps": {
+    "_comment": "Other necessary actions before finalizing the patient's treatment plan.",
+    "Consultations": ["string"],
+    "Referrals": ["string"],
+    "Precautions": ["string"],
+    "Lifestyle_Modifications": ["string"]
+  },
+  "Prescription": {
+    "_comment": " comment on the list Medication details including names, dosages, frequencies, routes, durations, and special instructions.",
+    "Medications": [
+      {
+        "MedName": "string for scientific name or brand name if mentioned else empty",
+        "Instructions": "string for how to take the medication if mentioned else empty",
+        "Dosages": "string for dosage if mentioned else empty",
+        "DurationRefill": "string for duration and refill if mentioned else empty"
+      }
+    ]
+  },
+  "Additional_Notes": {
+    "Content": "string"
+  }
+}

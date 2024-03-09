@@ -1,6 +1,6 @@
 from io import BytesIO
 import io
-from core.utils.aws.s3_helper import upload_to_s3
+from core.utils.aws.s3_helper import upload_bytes
 from PyPDF2 import PdfMerger, PdfReader
 import os
 import uuid

@@ -16,7 +16,7 @@ from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
 from core.crud.hims_hip_crud import CRUDHIP
 from core.utils.fhir.op_consult import opConsultUnstructured
-from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url, read_object
+from core.utils.aws.s3_helper import upload_bytes, create_presigned_url, read_object
 from core.utils.custom.session_helper import get_session_token
 from core.utils.custom.gupshup_helper import whatsappHelper
 from core.utils.custom.prescription_helper import create_pdf_from_images, merge_pdf
@@ -1158,7 +1158,7 @@ class PMRController:
                 document_data = await document.read()
                 document_ext = document_name.split(".")[-1]
                 document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
-                s3_location = upload_to_s3(
+                s3_location = upload_bytes(
                     bucket_name=self.cliniq_bucket,
                     byte_data=document_data,
                     file_name=document_key,
@@ -1256,7 +1256,7 @@ class PMRController:
                     document_key = (
                         f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
                     )
-                    s3_location = upload_to_s3(
+                    s3_location = upload_bytes(
                         bucket_name=self.cliniq_bucket,
                         byte_data=document_data,
                         file_name=document_key,
@@ -1272,7 +1272,7 @@ class PMRController:
                     document_key = (
                         f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
                     )
-                    s3_location = upload_to_s3(
+                    s3_location = upload_bytes(
                         bucket_name=self.cliniq_bucket,
                         byte_data=document_data,
                         file_name=document_key,
@@ -1303,7 +1303,7 @@ class PMRController:
                     pdf1_bytes = base64.b64decode(pdf1_bytes_str)
                     logging.info(f"{type(pdf1_bytes)}")
                     pdf = merge_pdf(pdf1_bytes=pdf1_bytes, files=files)
-                    s3_location = upload_to_s3(
+                    s3_location = upload_bytes(
                         bucket_name=self.cliniq_bucket,
                         byte_data=pdf,
                         file_name=document_key,
@@ -1317,7 +1317,7 @@ class PMRController:
                     document_key = (
                         f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_id}.pdf"
                     )
-                    s3_location = upload_to_s3(
+                    s3_location = upload_bytes(
                         bucket_name=self.cliniq_bucket,
                         byte_data=pdf,
                         file_name=document_key,
@@ -1355,7 +1355,7 @@ class PMRController:
             logging.info(f"{pmr_id=}")
             document_ext = document_name.split(".")[-1]
             document_key = f"PATIENT_DATA/{patient_id}/{pmr_id}/{document_name}"
-            s3_location = upload_to_s3(
+            s3_location = upload_bytes(
                 bucket_name=self.cliniq_bucket,
                 byte_data=document_data,
                 file_name=document_key,

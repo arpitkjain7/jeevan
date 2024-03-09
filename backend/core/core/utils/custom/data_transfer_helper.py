@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from core.utils.custom.session_helper import get_session_token
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.utils.fhir.op_consult import opConsultUnstructured
-from core.utils.aws.s3_helper import upload_to_s3
+from core.utils.aws.s3_helper import upload_bytes
 import os
 import uuid
 from pytz import timezone as pytz_timezone
@@ -59,7 +59,7 @@ def send_data(
             "fhir_bundles": fhir_bundle_list,
         }
         send_data_json = json.dumps(send_data_obj)
-        uploaded_file_location = upload_to_s3(
+        uploaded_file_location = upload_bytes(
             bucket_name=s3_location,
             file_name=f"{hip_id}/{transaction_id}/encrypt/{request_id}.json",
             byte_data=send_data_json,

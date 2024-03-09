@@ -6,7 +6,7 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from datetime import datetime, timezone, timedelta
 from core.utils.aws.s3_helper import (
-    upload_to_s3,
+    upload_bytes,
     get_object,
     create_presigned_url,
     read_object,
@@ -1043,7 +1043,7 @@ class HIDController:
                             },
                         )
                         logging.info("Uploading Abha card to S3")
-                        upload_to_s3(
+                        upload_bytes(
                             bucket_name=self.s3_location,
                             byte_data=byte_data,
                             content_type="image/png",
@@ -1065,7 +1065,7 @@ class HIDController:
                         logging.info("Returning S3 presigned url")
                         return {"abha_url": s3_presigned_url}
                     logging.info("Uploading Abha card to S3")
-                    upload_to_s3(
+                    upload_bytes(
                         bucket_name=self.s3_location,
                         byte_data=byte_data,
                         content_type="image/png",
@@ -1158,7 +1158,7 @@ class HIDController:
                             },
                         )
                         logging.info("Uploading Abha card to S3")
-                        upload_to_s3(
+                        upload_bytes(
                             bucket_name=self.s3_location,
                             byte_data=byte_data,
                             file_name=f"PATIENT_DATA/{patient_id}/abha.png",
@@ -1178,7 +1178,7 @@ class HIDController:
                         logging.info("Returning S3 presigned url")
                         return {"abha_bytes": abha_bytes}
                     logging.info("Uploading Abha card to S3")
-                    upload_to_s3(
+                    upload_bytes(
                         bucket_name=self.s3_location,
                         byte_data=byte_data,
                         file_name=f"PATIENT_DATA/{patient_id}/abha.png",
@@ -1879,7 +1879,7 @@ class HIDController:
                 },
             )
             if resp_code <= 250:
-                upload_to_s3(
+                upload_bytes(
                     bucket_name=self.s3_location,
                     byte_data=byte_data,
                     content_type="image/png",
@@ -1931,7 +1931,7 @@ class HIDController:
                 },
             )
             if resp_code <= 250:
-                upload_to_s3(
+                upload_bytes(
                     bucket_name=self.s3_location,
                     byte_data=byte_data,
                     content_type="image/png",

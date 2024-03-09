@@ -8,7 +8,7 @@ from core.utils.custom.session_helper import get_session_token
 import os
 import uuid, json
 from datetime import datetime, timezone
-from core.utils.aws.s3_helper import upload_to_s3
+from core.utils.aws.s3_helper import upload_bytes
 from pytz import timezone as pytz_timezone
 from dateutil import parser
 import ast
@@ -465,7 +465,7 @@ class HIUController:
             consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
             hip_id = consent_obj.get("hip_id")
             send_data_json = json.dumps(decrypt_payload)
-            uploaded_file_location = upload_to_s3(
+            uploaded_file_location = upload_bytes(
                 bucket_name=self.s3_location,
                 file_name=f"{hip_id}/{transaction_id}/encrypt/{gateway_obj['request_id']}.json",
                 byte_data=send_data_json,
