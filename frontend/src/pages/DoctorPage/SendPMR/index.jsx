@@ -49,21 +49,23 @@ const SendPMR= ({
     }
     dispatch(sendNotification(payload)).then((res) => {
       handleNotifyModalClose();
-      console.log("currentPatient", currentPatient)
-      if(res){
-        if (
-          !(
-            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
-            (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
-          )
-        ) {
-          sessionStorage.removeItem("pmrID");
-          navigate("/appointment-list");
-        } else {
-          setShowAbha(true);
-          setShowSync(true);
-        }
-      }
+      sessionStorage.removeItem("pmrID");
+      navigate("/appointment-list");
+      // console.log("currentPatient", currentPatient)
+      // if(res){
+      //   if (
+      //     !(
+      //       (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+      //       (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
+      //     )
+      //   ) {
+      //     sessionStorage.removeItem("pmrID");
+      //     navigate("/appointment-list");
+      //   } else {
+      //     setShowAbha(true);
+      //     setShowSync(true);
+      //   }
+      // }
     }).catch((error) => {
       console.log(error);
     })
@@ -130,12 +132,12 @@ const SendPMR= ({
           <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>
       </Dialog>
-      {showAbha && (
+      {/* {showAbha && (
         <SyncAbha
           showSync={showSync}
           handleModalClose={handleModalClose}
         />
-      )}
+      )} */}
     </React.Fragment>
   );
 }

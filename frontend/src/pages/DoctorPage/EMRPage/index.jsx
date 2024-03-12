@@ -22,6 +22,7 @@ import {
   getPatientAuth,
   postEMR,
   searchVitalsDetails,
+  syncPMR,
 } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
@@ -35,6 +36,7 @@ import "react-pdf";
 import CustomLoader from "../../../components/CustomLoader";
 import { format } from "date-fns";
 import SendPMR from "../SendPMR";
+import CustomSnackbar from "../../../components/CustomSnackbar";
 
 const isMobile = window.innerWidth < 1000;
 
@@ -457,6 +459,8 @@ const PatientEMRDetails = (props) => {
   const [documentId, setDocumentId] = useState("");
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
@@ -1665,7 +1669,41 @@ const PatientEMRDetails = (props) => {
               setPmrDialogOpen(true);
             } else {
               setDocumentId(pdfResponse?.payload?.data?.document_id);
-              setNotifyModal(true);
+              if(currentPatient?.patient_details?.abha_number || currentPatient?.abha_number){
+                const payload = {
+                  abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+                  purpose: "KYC_AND_LINK",
+                  auth_mode: "DEMOGRAPHICS", //event.target.value,
+                  hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+                };
+                dispatch(getPatientAuth(payload)).then((patientAuthResponse) => {
+                  // setTxnId(res.payload?.txn_id);
+                  const demographicsPayload = {
+                    txnId: patientAuthResponse.payload?.txn_id,
+                    pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
+                  };
+                  dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
+                    if(deographicResponse?.payload?.request_id){
+                      const syncPMRPayload = {
+                        hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+                        pmr_id: sessionStorage.getItem("pmrID"),
+                      };
+                      dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
+                        // sessionStorage.removeItem("pmrId");
+                        // navigate("/appointment-list");
+                        if(syncPMRResponse?.payload?.status === "success"){
+                          setNotifyModal(true);
+                        } else {
+                          setErrorMessage("Sync ABHA failed");
+                          setShowSnackbar(true);
+                        }
+                      });
+                    }
+                  });
+                });
+              } else {
+                setNotifyModal(true);
+              }
             }
           })
           .catch((error) => {
@@ -2102,8 +2140,18 @@ const PatientEMRDetails = (props) => {
     setFollowUp(event.target.value);
   };
 
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
   return (
     <PatientEMRWrapper>
+      <CustomSnackbar
+        message={errorMessage || "Something went wrong"}
+        open={showSnackbar}
+        status={"error"}
+        onClose={onSnackbarClose}
+      />
       <CustomLoader
         open={showLoader}
       />
