@@ -23,6 +23,7 @@ import {
   postEMR,
   searchVitalsDetails,
   syncPMR,
+  verifyDemographics,
 } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { PDFViewer, pdf } from "@react-pdf/renderer";

@@ -53,4 +53,5 @@ export const apis = {
   patientAuthVerifyOTP: "v1/patient/auth/verifyOtp",
   gatewayInteraction: "v1/gatewayInteraction",
   verifyAbhaPatient: "v1.0/patients/verify",
+  verifyDemographics: "v1/patient/auth/verifyDemographic",
 };
