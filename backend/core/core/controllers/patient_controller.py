@@ -440,9 +440,19 @@ class PatientController:
                 "request_type": "VERIFY_DEMOGRAPHIC",
             }
             if resp_code <= 250:
-                gateway_request.update({"request_status": "PROCESSING"})
+                gateway_request.update(
+                    {
+                        "request_status": "PROCESSING",
+                        "transaction_id": request_dict.get("txnId"),
+                    }
+                )
             else:
-                gateway_request.update({"request_status": "FAILED"})
+                gateway_request.update(
+                    {
+                        "request_status": "FAILED",
+                        "transaction_id": request_dict.get("txnId"),
+                    }
+                )
             self.CRUDGatewayInteraction.create(**gateway_request)
             return gateway_request
         except Exception as error:

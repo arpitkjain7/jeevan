@@ -104,7 +104,7 @@ class CallbackController:
                     "request_id": request_id,
                     "transaction_id": request.get("auth").get("transactionId"),
                     "callback_response": callback_response,
-                    "request_status": "SUCESS",
+                    "request_status": "PROCESSING",
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
             return {"status": "trigger success"}
@@ -162,6 +162,18 @@ class CallbackController:
                         },
                     }
                     self.CRUDPatientDetails.update(**patient_request)
+                    transaction_id = self.CRUDGatewayInteraction.read(
+                        request_id=request_id
+                    ).get("transaction_id")
+                    auth_init_request_id = self.CRUDGatewayInteraction.read_by_transId(
+                        transaction_id=transaction_id, request_type="AUTH_INIT"
+                    ).get("request_id")
+                    self.CRUDGatewayInteraction.update(
+                        **{
+                            "request_id": auth_init_request_id,
+                            "request_status": "SUCESS",
+                        }
+                    )
                 else:
                     logging.info("Creating patient record")
                     access_token = request.get("auth").get("accessToken")
@@ -218,12 +230,13 @@ class CallbackController:
                     if patient_obj_created:
                         pid = patient_obj_created["id"]
                         request.update({"patient_id": pid})
-                gateway_request = {
-                    "request_id": request_id,
-                    "callback_response": request,
-                    "request_status": "SUCESS",
-                }
-                self.CRUDGatewayInteraction.update(**gateway_request)
+                self.CRUDGatewayInteraction.update(
+                    **{
+                        "request_id": request_id,
+                        "callback_response": request,
+                        "request_status": "SUCESS",
+                    }
+                )
                 return patient_request
             return {"status": "trigger success"}
         except Exception as error:
