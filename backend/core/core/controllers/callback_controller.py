@@ -130,11 +130,6 @@ class CallbackController:
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
             else:
-                # gateway_request = {
-                #     "request_id": request_id,
-                #     "callback_response": request,
-                #     "request_status": "SUCESS",
-                # }
                 gateway_obj = self.CRUDGatewayInteraction.read(request_id=request_id)
                 time_now = datetime.now()
                 token_validity = time_now + timedelta(minutes=1440)
@@ -184,8 +179,12 @@ class CallbackController:
                             mobile_number = idf["value"]
                         elif idf["type"] == "HEALTH_NUMBER":
                             abha_number = idf["value"]
-                    patient_obj = self.CRUDPatientDetails.read_by_abhaId(
-                        abha_number=abha_number, hip_id=hip_id
+                    patient_obj = FuzzyMatch().find_duplicate_record(
+                        mobile_number=mobile_number,
+                        name=patient_data.get("name"),
+                        gender=patient_data.get("gender"),
+                        yob=patient_data.get("yearOfBirth"),
+                        hip_id=hip_id,
                     )
                     logging.info(f"{patient_data=}")
                     address_obj = patient_data.get("address")
