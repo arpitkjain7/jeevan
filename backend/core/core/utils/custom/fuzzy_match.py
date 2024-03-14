@@ -60,8 +60,15 @@ class FuzzyMatch:
             logging.info(f"{list_of_unverifiedIdentifiers=}")
             for verifiedIdentifier in list_of_verifiedIdentifiers:
                 if verifiedIdentifier.get("type") == "MOBILE":
+                    mobile_number_split = verifiedIdentifier.get("value").split("-")
+                    mobile_number = (
+                        mobile_number_split[1]
+                        if len(mobile_number_split) > 1
+                        else mobile_number_split[0]
+                    )
                     patient_recs = CRUDPatientDetails().read_multiple_by_mobileNumber(
-                        mobile_number=verifiedIdentifier.get("value"), hip_id=hip_id
+                        mobile_number=mobile_number,
+                        hip_id=hip_id,
                     )
                     if len(patient_recs) > 0:
                         self.patient_list = patient_recs
