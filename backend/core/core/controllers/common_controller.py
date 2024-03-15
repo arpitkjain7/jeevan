@@ -4,7 +4,10 @@ from core.utils.custom.external_call import APIInterface
 from core.utils.custom.session_helper import get_session_token
 from commons.auth import encrypt_password, verify_hash_password, signJWT
 from core import logger
+from datetime import datetime, timezone, timedelta
+import uuid
 import os, json
+
 
 logging = logger(__name__)
 
@@ -53,7 +56,7 @@ class Common:
             logging.error(f"Error in HIDController.abha_availability function: {error}")
             raise error
 
-    def deep_link_notify(self, mobile_no: str):
+    def deep_link_notify(self, mobile_no: str, hip_id: str, hip_name: str):
         """Verify if the abha address already exists
         Args:
             health_id (str): abha address to be checked
@@ -68,35 +71,37 @@ class Common:
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
+            deep_link_request_id = str(uuid.uuid1())
+            time_now = datetime.now(timezone.utc)
+            time_now = time_now + timedelta(seconds=300)
+            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
             deep_link_url = f"{self.gateway_url }/v0.5/patients/sms/notify"
             resp, resp_code = APIInterface().post(
                 route=deep_link_url,
                 data=json.dumps(
                     {
-                        {
-                            "requestId": "{{$guid}}",
-                            "timestamp": "2023-05-27T08:41:55Z",
-                            "notification": {
-                                "phoneNo": "+91-9511878113",
-                                "hip": {
-                                    "name": "Max Healthcare",
-                                    "id": "ABCABC",
-                                },
+                        "requestId": deep_link_request_id,
+                        "timestamp": time_now,
+                        "notification": {
+                            "phoneNo": f"+91-{mobile_no}",
+                            "hip": {
+                                "name": hip_name,
+                                "id": hip_id,
                             },
-                        }
+                        },
                     }
                 ),
-                headers={"Authorization": f"Bearer {gateway_access_token}"},
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                    "X-CM-ID": os.environ["X-CM-ID"],
+                },
             )
-            available_status = resp.get("status")
-            logging.info(f"{available_status=}")
             if resp_code <= 250:
-                if resp.get("status") == True:
-                    return {"available": False}
                 return {"available": True}
             else:
                 raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    status_code=resp_code,
                     detail=resp,
                     headers={"WWW-Authenticate": "Bearer"},
                 )
