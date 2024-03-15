@@ -75,7 +75,7 @@ class CRUDGatewayInteraction:
             [dict]: [user record matching the criteria]
         """
         try:
-            logging.info("CRUDGatewayInteraction read request")
+            logging.info("CRUDGatewayInteraction read_by_txnId request")
             with session() as transaction_session:
                 obj: GatewayInteraction = (
                     transaction_session.query(GatewayInteraction)

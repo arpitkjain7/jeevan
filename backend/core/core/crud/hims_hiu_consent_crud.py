@@ -78,7 +78,7 @@ class CRUDHIUConsents:
             with session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
-                    .filter(HIUConsent.patient == abha_address)
+                    .filter(HIUConsent.abha_address == abha_address)
                     .order_by(HIUConsent.created_at.desc())
                     .all()
                 )
@@ -87,6 +87,66 @@ class CRUDHIUConsents:
             return []
         except Exception as error:
             logging.error(f"Error in CRUDHIUConsents read function : {error}")
+            raise error
+
+    def read_by_patientId(self, patient_id: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDHIUConsents read_by_patientId request")
+            with session() as transaction_session:
+                obj: HIUConsent = (
+                    transaction_session.query(HIUConsent)
+                    .filter(HIUConsent.patient_id == patient_id)
+                    .order_by(HIUConsent.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDHIUConsents read_by_patientId function : {error}"
+            )
+            raise error
+
+    def read_by_consentArtifactId(self, consent_artifact_id: str):
+        """[CRUD function to read a User record]
+
+        Args:
+            user_name (str): [User name to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [user record matching the criteria]
+        """
+        try:
+            logging.info("CRUDHIUConsents read_by_consentArtifactId request")
+            with session() as transaction_session:
+                obj: HIUConsent = (
+                    transaction_session.query(HIUConsent)
+                    .filter(HIUConsent.consent_artifact_id == consent_artifact_id)
+                    .order_by(HIUConsent.created_at.desc())
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDHIUConsents read_by_consentArtifactId function : {error}"
+            )
             raise error
 
     def read_approved_by_abhaAddress(self, abha_address: str):
@@ -106,7 +166,7 @@ class CRUDHIUConsents:
             with session() as transaction_session:
                 obj: HIUConsent = (
                     transaction_session.query(HIUConsent)
-                    .filter(HIUConsent.patient == abha_address)
+                    .filter(HIUConsent.abha_address == abha_address)
                     .filter(HIUConsent.status == "GRANTED")
                     .order_by(HIUConsent.created_at.desc())
                     .all()

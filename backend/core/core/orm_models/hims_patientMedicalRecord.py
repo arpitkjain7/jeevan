@@ -15,6 +15,6 @@ class PatientMedicalRecord(Base):
     notes = Column(String)
     # follow_up = Column(DateTime)
     affiliated = Column(Boolean)
-    abdm_linked = Column(Boolean)
+    abdm_linked = Column(Boolean, default=False)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)

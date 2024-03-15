@@ -653,8 +653,10 @@ class PatientController:
                     patient_id = list(matching_results.keys())[0]
                     logging.info(f"{patient_id=}")
                     logging.info("Getting PMR records for patient")
-                    pmr_record = self.CRUDPatientMedicalRecord.read_by_patientId(
-                        patient_id=patient_id
+                    pmr_record = (
+                        self.CRUDPatientMedicalRecord.read_unlinked_by_patientId(
+                            patient_id=patient_id
+                        )
                     )
                     logging.info(f"{pmr_record=}")
                     for pmr in pmr_record:
