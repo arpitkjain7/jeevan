@@ -514,8 +514,8 @@ const PatientRegistration = () => {
       }
     } else if( type === "abha"){
       console.log(abha);
-      console.log(abha_pattern.test(abha));
-      if (abha_pattern.test(abha)){
+      // console.log(abha_pattern.test(abha));
+      if (abha){
         setIsAbhaValid(true);
         console.log("Form submitted:");
         if(selectedAbhaModeOption === "link_abha"){
@@ -1002,7 +1002,7 @@ const PatientRegistration = () => {
       )}
       {selectedOption === "abha" && stepFour && !checkedOption && (
         <ExpandableCard
-          title="ABHA number"
+          title="ABHA Number/Address"
           expanded={verifyAbha}
           setExpanded={setVerifyAbha}
           completed={(selectedOption === "abha" && stepThree)}

@@ -12,7 +12,8 @@ import {
   DialogTitle,
   IconButton,
   DialogContent, // Added Typography
-  DialogActions
+  DialogActions,
+  TextField
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useEffect, useState } from "react";
@@ -153,7 +154,55 @@ const SyncAbha = ({
         <CloseIcon />
       </IconButton>
       <DialogContent dividers>
-        <FormControl component="fieldset">
+      <TextField
+            label="Name"
+            name="name"
+            value={currentPatient?.patient_details?.name || currentPatient?.name}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+        <TextField
+            label="ABHA number"
+            name="abhaNumber"
+            value={currentPatient?.patient_details?.abha_number || currentPatient?.abha_number}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+          <TextField
+            label="ABHA Address"
+            name="abhaNumber"
+            value={currentPatient?.patient_details?.abha_address || currentPatient?.abha_address}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+           <TextField
+            label="Mobile"
+            name="mobile"
+            value={currentPatient?.patient_details?.mobile_number || currentPatient?.mobile_number}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+           <TextField
+            label="DOB"
+            name="dob"
+            value={currentPatient?.patient_details?.DOB || currentPatient?.DOB}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+           <TextField
+            label="Gender"
+            name="gender"
+            value={currentPatient?.patient_details?.gender || currentPatient?.gender}
+            disabled
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+        {/* <FormControl component="fieldset">
           <PageSubText>Select an authentication method</PageSubText>
           <RadioGroup
             row
@@ -178,7 +227,7 @@ const SyncAbha = ({
         </FormControl>
         <OTPWrapper>
           {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
-        </OTPWrapper>
+        </OTPWrapper> */}
       </DialogContent>
       <DialogActions>
         <SecondaryButton onClick={clearData}>Clear</SecondaryButton>

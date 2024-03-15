@@ -47,17 +47,6 @@ const AadhaarPatientRegForm = ({
   };
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    if(name === "abhaAddress"){
-      if(!validateAbhaAddress(value)) {
-        setAbhaAddressError(true);
-      } else {
-        setAbhaAddressError(false)
-      }
-    }
     if(name === "address"){
       setFormData((prevData) => ({
         ...prevData,
@@ -69,6 +58,18 @@ const AadhaarPatientRegForm = ({
         pincode: value,
       }));
     }
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    if(name === "abhaAddress"){
+      if(!validateAbhaAddress(value)) {
+        setAbhaAddressError(true);
+      } else {
+        setAbhaAddressError(false)
+      }
+    }
+   
   };
 
   const abhaAddressInputChange = (event, newInputValue) => {
@@ -114,7 +115,8 @@ const AadhaarPatientRegForm = ({
         gender: patientAbhaData?.gender,
         abha_number: patientAbhaData?.ABHANumber || patientAbhaData?.identifiers[1].value,
         pincode: patientAbhaData?.pincode || patientAbhaData?.pinCode || patientAbhaData?.address?.pincode || "",
-        address: patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state || patientAbhaData?.address,
+        //address: patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state || patientAbhaData?.address,
+        address: patientAbhaData?.address?.line ? (patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : "") : patientAbhaData?.address,
         state_name: patientAbhaData?.stateName || patientAbhaData?.address?.state,
         district_name: patientAbhaData?.districtName || patientAbhaData?.address?.district,
         district_code: patientAbhaData?.districtCode,
@@ -320,7 +322,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Address"
               name="address"
-              value={patientAbhaData?.address?.line ? (patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state :  patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state) : patientAbhaData?.address}
+              value={patientAbhaData?.address?.line ? (patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : "") : patientAbhaData?.address}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               fullWidth

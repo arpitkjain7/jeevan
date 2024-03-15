@@ -71,6 +71,7 @@ const ConsentModal = ({
   purposeOptions,
   infoTypeOptions,
 }) => {
+  const currentPatient = sessionStorage?.getItem("selectedPatient");
   const [formData, setFormData] = useState({
     patientIdentifier: "",
     purposeOfRequest: "",
@@ -91,7 +92,9 @@ const ConsentModal = ({
     e.preventDefault();
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
+      const patient = JSON.parse(currentPatient);
       const payload = {
+        patient_id: patient?.patient_id,
         abha_address: formData?.patientIdentifier,
         purpose: formData?.purposeOfRequest,
         hi_type: [formData?.healthInfoType],

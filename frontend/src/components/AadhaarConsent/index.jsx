@@ -87,10 +87,10 @@ const AadhaarConsent = ({ open, scroll, handleClose, handleConsentConfirmation})
                 label='I am voluntarily sharing my Aadhaar Number / Virtual ID issued by the Unique Identification Authority of India (“UIDAI”), and my demographic information for the purpose of creating an Ayushman Bharat Health Account number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”). I authorize NHA to use my Aadhaar number / Virtual ID for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies, Benefits and Services) Act, 2016 for the aforesaid purpose. I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication.' 
                 id="check1" value={checkboxes.check1} onChange={handleChange}
               />
-              <FormControlLabel className="checkbox_style" required control={<Checkbox defaultChecked/>} 
+              {/* <FormControlLabel className="checkbox_style" required control={<Checkbox defaultChecked/>} 
                 label='I intend to create Ayushman Bharat Health Account Number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”) using document other than Aadhaar. (Click here to proceed further)' 
                 id="check2" value={checkboxes.check2} onChange={handleChange}
-              />
+              /> */}
               <FormControlLabel className="checkbox_style" control={<Checkbox defaultChecked/>} 
                 label='I consent to usage of my ABHA address and ABHA number for linking of my legacy (past) government health records and those which will be generated during this encounter.' 
                 id="check3" value={checkboxes.check3} onChange={handleChange}

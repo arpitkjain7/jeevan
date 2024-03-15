@@ -25,6 +25,7 @@ import {
   syncPMR,
   verifyDemographics,
 } from "./EMRPage.slice";
+import { gatewayInteraction } from "../../PatientRegistration/PatientRegistration.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
@@ -477,7 +478,48 @@ const PatientEMRDetails = (props) => {
   });
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [functionCalled, setFunctionCalled] = useState(false); 
+  const [gatewayRequestId, setGatewayRequestId]= useState("");
   
+  useEffect(() => { 
+    console.log(retryCount, "retryCount", functionCalled);
+    if (functionCalled && retryCount < 4) { 
+      const fetchGatewayData = async () => { 
+          try { 
+            console.log("gatewayRequestId", gatewayRequestId);
+            dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
+              console.log("gateway response", response);
+              if(response?.error && Object.keys(response?.error)?.length > 0) {
+                setShowSnackbar(true);
+                return;
+              }
+              else if(response?.payload?.request_status === "SUCESS"){
+                setFunctionCalled(false);
+                setNotifyModal(true);
+              } else {
+                // if (retryCount < 4) { 
+                  setTimeout(() => {
+                    fetchGatewayData()
+                    setRetryCount(retryCount + 1); 
+                  }, 5000);
+                // } else {
+                //   setShowSnackbar(true);
+                //   setFunctionCalled(false);
+                //   return;
+                // }
+              }
+            })
+          } catch (error) { console.error(error); } 
+      };
+      fetchGatewayData();
+    } else if (functionCalled && retryCount > 4) {
+      setShowSnackbar(true);
+      setFunctionCalled(false);
+      // return;
+    }
+}, [retryCount, functionCalled]); 
+
   useEffect(() => {
     if (cleared) {
       const timeout = setTimeout(() => {
@@ -1672,35 +1714,39 @@ const PatientEMRDetails = (props) => {
               setDocumentId(pdfResponse?.payload?.data?.document_id);
               if(currentPatient?.patient_details?.abha_number || currentPatient?.abha_number){
                 const payload = {
-                  abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+                  // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+                  patient_id: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
                   purpose: "KYC_AND_LINK",
                   auth_mode: "DEMOGRAPHICS", //event.target.value,
-                  hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+                  // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
                 };
-                dispatch(getPatientAuth(payload)).then((patientAuthResponse) => {
+                dispatch(verifyDemographics(payload)).then((patientAuthResponse) => {
+                  setGatewayRequestId(patientAuthResponse?.payload?.request_id);
+                  setFunctionCalled(true); 
+                  setRetryCount((prevCount) => prevCount + 1);
                   // setTxnId(res.payload?.txn_id);
-                  const demographicsPayload = {
-                    txnId: patientAuthResponse.payload?.txn_id,
-                    pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
-                  };
-                  dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
-                    if(deographicResponse?.payload?.request_id){
-                      const syncPMRPayload = {
-                        hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
-                        pmr_id: sessionStorage.getItem("pmrID"),
-                      };
-                      dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
-                        // sessionStorage.removeItem("pmrId");
-                        // navigate("/appointment-list");
-                        if(syncPMRResponse?.payload?.status === "success"){
-                          setNotifyModal(true);
-                        } else {
-                          setErrorMessage("Sync ABHA failed");
-                          setShowSnackbar(true);
-                        }
-                      });
-                    }
-                  });
+                  // const demographicsPayload = {
+                  //   txnId: patientAuthResponse.payload?.txn_id,
+                  //   pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
+                  // };
+                  // dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
+                  //   if(deographicResponse?.payload?.request_id){
+                  //     const syncPMRPayload = {
+                  //       hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+                  //       pmr_id: sessionStorage.getItem("pmrID"),
+                  //     };
+                  //     dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
+                  //       // sessionStorage.removeItem("pmrId");
+                  //       // navigate("/appointment-list");
+                  //       if(syncPMRResponse?.payload?.status === "success"){
+                  //         setNotifyModal(true);
+                  //       } else {
+                  //         setErrorMessage("Sync ABHA failed");
+                  //         setShowSnackbar(true);
+                  //       }
+                  //     });
+                  //   }
+                  // });
                 });
               } else {
                 setNotifyModal(true);
