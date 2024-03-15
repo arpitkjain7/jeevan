@@ -132,6 +132,7 @@ class HIDController:
                     "request_id": txn_id,
                     "request_type": "AADHAAR_OTP_GENERATION",
                     "request_status": "INIT",
+                    "transaction_id": txn_id,
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
                 gateway_request.update({"txn_id": txn_id})
@@ -265,6 +266,8 @@ class HIDController:
                     "request_type": "OTP_VERIFICATION",
                     "request_status": "COMPLETED",
                     "transaction_id": txn_id,
+                    "gateway_metadata": resp.get("tokens"),
+                    "token": resp.get("tokens").get("token"),
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
                 return resp
@@ -1911,7 +1914,9 @@ class HIDController:
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
-            gateway_obj = self.CRUDGatewayInteraction.read(request_id=txn_id)
+            gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
+                transaction_id=txn_id, request_type="OTP_VERIFICATION"
+            )
             profile_token = gateway_obj.get("gateway_metadata").get("token")
             get_abha_card_url = f"{self.abha_url_v3}/v3/profile/account/abha-card"
             current_time = datetime.now()
@@ -1936,6 +1941,13 @@ class HIDController:
                     byte_data=byte_data,
                     content_type="image/png",
                     file_name=f"PATIENT_DATA/{patient_id}/abha_card.png",
+                )
+                logging.info("Updating ABHA s3 location in database")
+                self.CRUDPatientDetails.update(
+                    **{
+                        "id": patient_id,
+                        "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha_card.png",
+                    }
                 )
                 logging.info("Generating Presigned URL for Abha S3")
                 s3_presigned_url = create_presigned_url(

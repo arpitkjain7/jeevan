@@ -149,7 +149,6 @@ class HIUController:
                     "purpose": purpose.value,
                     "abha_address": request_dict["abha_address"],
                     "hiu_id": request_dict["hip_id"],
-                    "hi_type": hiTypeList,
                     "access_mode": "VIEW",
                     "date_range": {
                         "from": from_date,
