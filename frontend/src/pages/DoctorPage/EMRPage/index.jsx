@@ -1712,45 +1712,46 @@ const PatientEMRDetails = (props) => {
               setPmrDialogOpen(true);
             } else {
               setDocumentId(pdfResponse?.payload?.data?.document_id);
-              if(currentPatient?.patient_details?.abha_number || currentPatient?.abha_number){
-                const payload = {
-                  // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
-                  patient_id: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
-                  purpose: "KYC_AND_LINK",
-                  auth_mode: "DEMOGRAPHICS", //event.target.value,
-                  // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
-                };
-                dispatch(verifyDemographics(payload)).then((patientAuthResponse) => {
-                  setGatewayRequestId(patientAuthResponse?.payload?.request_id);
-                  setFunctionCalled(true); 
-                  setRetryCount((prevCount) => prevCount + 1);
-                  // setTxnId(res.payload?.txn_id);
-                  // const demographicsPayload = {
-                  //   txnId: patientAuthResponse.payload?.txn_id,
-                  //   pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
-                  // };
-                  // dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
-                  //   if(deographicResponse?.payload?.request_id){
-                  //     const syncPMRPayload = {
-                  //       hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
-                  //       pmr_id: sessionStorage.getItem("pmrID"),
-                  //     };
-                  //     dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
-                  //       // sessionStorage.removeItem("pmrId");
-                  //       // navigate("/appointment-list");
-                  //       if(syncPMRResponse?.payload?.status === "success"){
-                  //         setNotifyModal(true);
-                  //       } else {
-                  //         setErrorMessage("Sync ABHA failed");
-                  //         setShowSnackbar(true);
-                  //       }
-                  //     });
-                  //   }
-                  // });
-                });
-              } else {
-                setNotifyModal(true);
-              }
+              setNotifyModal(true);
+              // if(currentPatient?.patient_details?.abha_number || currentPatient?.abha_number){
+              //   const payload = {
+              //     // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+              //     patient_id: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
+              //     purpose: "KYC_AND_LINK",
+              //     auth_mode: "DEMOGRAPHICS", //event.target.value,
+              //     // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+              //   };
+              //   dispatch(verifyDemographics(payload)).then((patientAuthResponse) => {
+              //     setGatewayRequestId(patientAuthResponse?.payload?.request_id);
+              //     setFunctionCalled(true); 
+              //     setRetryCount((prevCount) => prevCount + 1);
+              //     // setTxnId(res.payload?.txn_id);
+              //     // const demographicsPayload = {
+              //     //   txnId: patientAuthResponse.payload?.txn_id,
+              //     //   pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
+              //     // };
+              //     // dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
+              //     //   if(deographicResponse?.payload?.request_id){
+              //     //     const syncPMRPayload = {
+              //     //       hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+              //     //       pmr_id: sessionStorage.getItem("pmrID"),
+              //     //     };
+              //     //     dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
+              //     //       // sessionStorage.removeItem("pmrId");
+              //     //       // navigate("/appointment-list");
+              //     //       if(syncPMRResponse?.payload?.status === "success"){
+              //     //         setNotifyModal(true);
+              //     //       } else {
+              //     //         setErrorMessage("Sync ABHA failed");
+              //     //         setShowSnackbar(true);
+              //     //       }
+              //     //     });
+              //     //   }
+              //     // });
+              //   });
+              // } else {
+              //   setNotifyModal(true);
+              // }
             }
           })
           .catch((error) => {

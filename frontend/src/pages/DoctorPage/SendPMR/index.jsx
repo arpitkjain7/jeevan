@@ -12,7 +12,7 @@ import { useState } from "react";
 import SyncAbha from "../SyncAbha";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { sendNotification } from "../EMRPage/EMRPage.slice";
+import { deepLink, sendNotification } from "../EMRPage/EMRPage.slice";
 
 const SendPMR= ({
   notifyModal,
@@ -27,7 +27,7 @@ const SendPMR= ({
   const [channel, setChannel] = useState('whatsapp');
   const [mobile, setMobile] = useState(currentPatient?.mobile_number || currentPatient?.mobileNumber);
   const [showAbha, setShowAbha] = useState(false);
-
+  const currentHospital = JSON.parse(sessionStorage.getItem("selectedHospital"));
   const handleMobileChange = (event) => {
     setMobile(event.target.value);
   };
@@ -49,7 +49,6 @@ const SendPMR= ({
     }
     dispatch(sendNotification(payload)).then((res) => {
       handleNotifyModalClose();
-      // console.log("currentPatient", currentPatient)
       if(res){
         if (
           !(
@@ -57,8 +56,20 @@ const SendPMR= ({
             (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
           )
         ) {
-          sessionStorage.removeItem("pmrID");
-          navigate("/appointment-list");
+          if(currentHospital?.hip_id === "123123"){
+            const deepLinkPayload = {
+              mobile_no: mobile,
+              hip_id: "123123",
+              hip_name: currentHospital?.name
+            }
+            dispatch(deepLink(deepLinkPayload)).then((response) => {
+              sessionStorage.removeItem("pmrID");
+              navigate("/appointment-list");
+            });
+          } else {
+            sessionStorage.removeItem("pmrID");
+            navigate("/appointment-list");
+          }
         } else {
           setShowAbha(true);
           setShowSync(true);
@@ -70,7 +81,7 @@ const SendPMR= ({
   }
 
   return (
-    <React.Fragment>
+    <>
       <Dialog
         open={notifyModal}
         onClose={handleNotifyModalClose}
@@ -136,7 +147,7 @@ const SendPMR= ({
           handleModalClose={handleModalClose}
         />
       )}
-    </React.Fragment>
+    </>
   );
 }
 

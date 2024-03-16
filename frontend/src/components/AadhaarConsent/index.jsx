@@ -20,6 +20,7 @@ const CustomFormGroup = styled(FormGroup)(({ theme }) => ({
 const AadhaarConsent = ({ open, scroll, handleClose, handleConsentConfirmation}) => {
   const descriptionElementRef = React.useRef(null);
   const [allChecked, setAllChecked] = useState(false);
+  const username = sessionStorage.getItem("userName");
   const [checkboxes, setCheckboxes] = useState({
     check1: true,
     check2: true,
@@ -53,7 +54,7 @@ const AadhaarConsent = ({ open, scroll, handleClose, handleConsentConfirmation})
   const children = (
     <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
       <FormControlLabel
-        label='I, (name of healthcare worker- depending on the username used for logging in into the system), confirm that I have duly informed and explained the beneficiary of the contents of consent for aforementioned purposes.'
+        label={`I, ${username}, confirm that I have duly informed and explained the beneficiary of the contents of consent for aforementioned purposes.`}
         control={<Checkbox defaultChecked/>} id="check6" value={checkboxes.check6} onChange={handleChange}
       />
       <FormControlLabel

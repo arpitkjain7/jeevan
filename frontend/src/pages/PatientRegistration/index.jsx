@@ -165,6 +165,8 @@ const PatientRegistration = () => {
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
   const [open, setOpen] = useState(false);
+  const [openConsent, setOpenConsent] = useState(true);
+  const [consentCount, setConsentCount] = useState(0);
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
@@ -173,10 +175,12 @@ const PatientRegistration = () => {
     {
       label: "ABHA",
       value: "abha",
+      key: "abha",
     },
     {
       label: "Phone Number",
       value: "phone_number",
+      key: "phone_number",
     },
   ];
 
@@ -184,6 +188,7 @@ const PatientRegistration = () => {
     {
       label: "Phone Number",
       value: "phone_number",
+      key: "phone_number",
     },
   ];
 
@@ -191,10 +196,12 @@ const PatientRegistration = () => {
     {
       label: "Link ABHA",
       value: "link_abha",
+      key: "link_abha",
     },
     {
       label: "Create ABHA",
       value: "create_abha",
+      key: "create_abha",
     },
   ];
   const registrationModes = [
@@ -246,16 +253,15 @@ const PatientRegistration = () => {
     setSeconds(-1);
     setAbhaOTP(false);
     setAbhaOTPSeconds(-1);
+    setOpenConsent(true);
+    setConsentCount(0);
   };
 
-  useEffect(() => { 
-    console.log(retryCount, "retryCount", functionCalled);
+  useEffect(() => {
     if (functionCalled && retryCount < 4) { 
       const fetchGatewayData = async () => { 
           try { 
-            console.log("gatewayRequestId", gatewayRequestId);
             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-              console.log("gateway response", response);
               if(response?.error && Object.keys(response?.error)?.length > 0) {
                 setShowSnackbar(true);
                 setStepThree(false);
@@ -266,16 +272,10 @@ const PatientRegistration = () => {
                 setStepThree(true);
                 setFunctionCalled(false);
               } else {
-                // if (retryCount < 4) { 
                   setTimeout(() => {
                     fetchGatewayData()
                     setRetryCount(retryCount + 1); 
                   }, 5000);
-                // } else {
-                //   setShowSnackbar(true);
-                //   setFunctionCalled(false);
-                //   return;
-                // }
               }
             })
           } catch (error) { console.error(error); } 
@@ -284,12 +284,11 @@ const PatientRegistration = () => {
     } else if (functionCalled && retryCount > 4) {
       setShowSnackbar(true);
       setFunctionCalled(false);
-      // return;
     }
 }, [retryCount, functionCalled]); 
 
   const abha_pattern = new RegExp(/^[0-9]{14}$/);
-  const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}|[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}|[2-9]{1}[0-9]{3}-[0-9]{4}-[0-9]{4}$');
+  const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
   const handleOptionChange = (event) => {
     if (selectedOption?.length) {
       resetFields();
@@ -297,9 +296,9 @@ const PatientRegistration = () => {
     setSelectedOption(event.target.value);
   };
 
-  const handleOptionCheck = (event) => {
-    setCheckedOption((prevValue) => !prevValue);
-  };
+  // const handleOptionCheck = (event) => {
+  //   setCheckedOption((prevValue) => !prevValue);
+  // };
 
   const handleAbhaModeChange = (event) => {
     if (selectedAbhaModeOption?.length) {
@@ -307,6 +306,24 @@ const PatientRegistration = () => {
       setStepTwo(false);
       setStepThree(false);
       setStepFour(false);
+      setAadhaar("");
+      setAbha("");
+      setSixDigitOTP("");
+      
+      setVerifyNumber(true);
+      setVerifyAadhaar(true);
+      setVerifyAbha(true);
+
+      setIsAadhaarValid(false);
+      setIsAbhaValid(false);
+      setAadhaarOTP(false);
+      setAadhaarOTPSeconds(-1);
+      setSeconds(-1);
+      setAbhaOTP(false);
+      setAbhaOTPSeconds(-1);
+      setOpenConsent(true);
+      setConsentCount(0);
+      // resetFields();
     }
     setSelectedAbhaModeOption(event.target.value);
   };
@@ -380,6 +397,12 @@ const PatientRegistration = () => {
       // }
     }
   };
+
+  const handleOpen = () => {
+    setOpen(true);
+    setConsentCount(1);
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -393,14 +416,12 @@ const PatientRegistration = () => {
     };
     console.log(payload);
     dispatch(patientAuthInit(payload)).then((res) => {
-      console.log(res);
       setShowLoader(false);
       if (res?.error && Object.keys(res?.error)?.length > 0) {
         setShowSnackbar(true);
         return;
       }
       if(res?.payload){
-        console.log(res);
         setIsAbhaValid(true);
         setAbhaAuthTxn(res?.payload?.txn_id);
         setAbhaOTPSeconds(60);
@@ -423,20 +444,22 @@ const PatientRegistration = () => {
             aadhaar: (aadhaar).replace(/\D/g, "")
           };
           const url = apis?.generateOTPAbha;
-          dispatch(verifyAbhaNumber({url, payload})).then((res) => {
-            setShowLoader(false);
-            if (res?.error && Object.keys(res?.error)?.length > 0) {
-              setErrorMessage("Aadhaar Number is not linked to any mobile number");
-              setShowSnackbar(true);
-              return;
-            }
-            if(res?.payload){
-              setAadhaarDataTxn(res?.payload?.txn_id);
-              setAadhaarOTPSeconds(60);
-              setAadhaarOTP(true);
-              setIsAadhaarValid(true);
-            }
-          });
+          if(stepAbha){
+            dispatch(verifyAbhaNumber({url, payload})).then((res) => {
+              setShowLoader(false);
+              if (res?.error && Object.keys(res?.error)?.length > 0) {
+                setErrorMessage("Aadhaar Number is not linked to any mobile number");
+                setShowSnackbar(true);
+                return;
+              }
+              if(res?.payload){
+                setAadhaarDataTxn(res?.payload?.txn_id);
+                setAadhaarOTPSeconds(60);
+                setAadhaarOTP(true);
+                setIsAadhaarValid(true);
+              }
+            });
+          }
         } else if(selectedAbhaModeOption === "create_abha"){
           const aadhaarPayload = {
             aadhaarNumber: (aadhaar).replace(/\D/g, "")
@@ -513,7 +536,6 @@ const PatientRegistration = () => {
         setShowSnackbar(true);
       }
     } else if( type === "abha"){
-      console.log(abha);
       // console.log(abha_pattern.test(abha));
       if (abha){
         setIsAbhaValid(true);
@@ -525,14 +547,12 @@ const PatientRegistration = () => {
             hip_id: currentHospital?.hip_id,
           };
           dispatch(patientFetchModes(payload)).then((res) => {
-            console.log(res);
             setShowLoader(false);
             if (res?.error && Object.keys(res?.error)?.length > 0) {
               setShowSnackbar(true);
               return;
             }
             if(res?.payload){
-              console.log(res);
               setIsAbhaAuthMode(true);
               setIsAbhaValid(true);
               // setAadhaarDataTxn(res?.payload?.txn_id);
@@ -552,6 +572,7 @@ const PatientRegistration = () => {
   };
 
   const verifyOTP = (otp, type) => {
+    console.log(otp, type);
     if (selectedOption === "abha" && type === "aadhaar") {
       if(selectedAbhaModeOption === "link_abha"){
         const payload = {
@@ -648,7 +669,6 @@ const PatientRegistration = () => {
         otp: otp,
       };
       dispatch(patientAuthVerifyOTP(payload)).then((res) => {
-        console.log("abha verify otp response", res);
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
           setStepThree(false);
@@ -788,7 +808,7 @@ const PatientRegistration = () => {
     } else if(selectedAbhaModeOption === "create_abha") {
       setRegistration(false);
       setAbhaRegistration(false);
-      setStepOne(true);
+      // setStepOne(true);
       setStepTwo(true);
     }
   };
@@ -797,6 +817,8 @@ const PatientRegistration = () => {
     setStepAbha(true);
     setRegistration(false);
     setOpen(false);
+    if(consentCount > 0)
+      setOpenConsent(false);
   }
 
   const handleAbhaDialogClose = () => {
@@ -863,8 +885,6 @@ const PatientRegistration = () => {
           handleClose={handleClose}
           scroll={scroll}
           handleConsentConfirmation={handleConsentConfirmation}
-          aria-labelledby="scroll-dialog-title"
-          aria-describedby="scroll-dialog-description"
         />
         <Dialog
           open={abhaDialogOpen}
@@ -924,18 +944,19 @@ const PatientRegistration = () => {
           modes={adminModes}
           handleOptionChange={handleOptionChange}
           selectedOption={selectedOption}
-          checkedOption={checkedOption}
-          handleOptionCheck={handleOptionCheck}
+          // checkedOption={checkedOption}
+          // handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
-        />) : (
+        />
+        ) : (
           <VerificationSelection
           modes={modes}
           handleOptionChange={handleOptionChange}
           selectedOption={selectedOption}
-          checkedOption={checkedOption}
-          handleOptionCheck={handleOptionCheck}
+          // checkedOption={checkedOption}
+          // handleOptionCheck={handleOptionCheck}
           handleConfirmSelection={handleConfirmSelection}
-          displayHeaderContainer="displayHeaderContainer"
+          // displayHeaderContainer="displayHeaderContainer"
         />
         )}
       </ExpandableCard>
@@ -997,6 +1018,12 @@ const PatientRegistration = () => {
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
             seconds={aadhaarOTPseconds}
+            openConsent={openConsent}
+            handleOpen={handleOpen}
+            create_abha={selectedAbhaModeOption === "create_abha"}
+            handleNumberChange={handleNumberChange}
+            isMobileError={isMobileError}
+            number={number}
           /> 
         </ExpandableCard>
       )}

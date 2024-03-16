@@ -74,6 +74,11 @@ export const verifyDemographics = createAsyncThunk("verifyPatientDemographics", 
   return response;
 });
 
+export const deepLink = createAsyncThunk("sendLink", async (payload) => {
+  const response = await apiRequest("POST", apis?.deepLink, payload);
+  return response;
+});
+
 export const uploadPmrPdf = createAsyncThunk(
   "uploadPMR/PMR",
   async (pdfBlob, pmr_id, document_type) => {
