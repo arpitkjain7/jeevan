@@ -25,7 +25,7 @@ const CustomizedDialogs = ({
   handleClose,
 }) => {
   return (
-    <React.Fragment>
+    <>
       <BootstrapDialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
@@ -57,7 +57,7 @@ const CustomizedDialogs = ({
           </Button>
         </DialogActions>
       </BootstrapDialog>
-    </React.Fragment>
+    </>
   );
 }
 
