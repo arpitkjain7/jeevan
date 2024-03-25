@@ -136,6 +136,7 @@ class HIUController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -289,6 +290,7 @@ class HIUController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json"
                     },
                 )
                 logging.info(f"Response Code for {consentArtifactId=} is {resp_code=}")

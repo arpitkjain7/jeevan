@@ -784,6 +784,7 @@ class PMRController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
 

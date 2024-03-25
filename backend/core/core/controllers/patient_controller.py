@@ -744,7 +744,7 @@ class PatientController:
                     "authenticationType": "DIRECT",
                     "meta": {
                         "communicationMedium": "MOBILE",
-                        "communicationHint": "string",
+                        "communicationHint": patient_mobile_number,
                         "communicationExpiry": otp_expiry_time,
                     },
                 },
@@ -763,6 +763,7 @@ class PatientController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")

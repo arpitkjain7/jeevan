@@ -175,7 +175,7 @@ class CallbackController:
                     patient_data = request.get("auth").get("patient")
                     abha_number, mobile_number = None, None
                     for idf in request.get("auth").get("patient").get("identifiers"):
-                        if idf["type"] == "MOBILE":
+                        if idf["type"] == "MOBILE" or idf["type"] == "MR":
                             mobile_number = idf["value"]
                         elif idf["type"] == "HEALTH_NUMBER":
                             abha_number = idf["value"]
@@ -199,7 +199,7 @@ class CallbackController:
                         "mobile_number": mobile_number,
                         "name": patient_data.get("name"),
                         "gender": patient_data.get("gender"),
-                        "DOB": f"{patient_data.get('yearOfBirth')}-{patient_data.get('monthOfBirth')}-{patient_data.get('dayOfBirth')}",
+                        # "DOB": f"{patient_data.get('yearOfBirth')}-{patient_data.get('monthOfBirth')}-{patient_data.get('dayOfBirth')}",
                         "year_of_birth": patient_data.get("yearOfBirth"),
                         "address": address_obj.get("line"),
                         "district": address_obj.get("district"),

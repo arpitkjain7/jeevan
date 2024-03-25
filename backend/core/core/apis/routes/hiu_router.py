@@ -182,7 +182,7 @@ def raiseConsentRequest(consent_init_request: dict):
         )
 
 
-@hiu_router.post("/v0.5/consents/hiu/notify")
+@hiu_router.post("/api/v3/hiu/consent/request/notify")
 def consentNotifyHIU(consent_notify: dict):
     try:
         logging.info("Calling /v0.5/consents/hiu/notify endpoint")
