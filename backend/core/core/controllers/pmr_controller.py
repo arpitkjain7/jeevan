@@ -806,7 +806,7 @@ class PMRController:
                 #         pmr_id=pmr_id, **{"abdm_linked": True}
                 #     )
                 logging.info("Sending SMS notification")
-                sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify"
+                sms_notify_url = f"{self.gateway_url}/v0.5/patients/sms/notify2"
                 mobile_number = patient_obj.get("mobile_number")
                 deep_link_request_id = str(uuid.uuid1())
                 payload = {
@@ -816,7 +816,7 @@ class PMRController:
                     ),
                     "notification": {
                         "phoneNo": mobile_number,
-                        "careContextInfo": f"Consultation Record for {date_of_consultation}",
+                        # "careContextInfo": f"Consultation Record for {date_of_consultation}",
                         "hip": {"id": hip_id},
                     },
                 }

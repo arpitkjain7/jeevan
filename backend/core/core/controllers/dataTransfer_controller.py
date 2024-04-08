@@ -27,15 +27,15 @@ class DataTransferController:
 
     def hip_notify(self, request):
         try:
-            logging.info("executing  hip_notify function")
-            logging.info("Creating gateway record")
+            request_id = request.get("requestId")
+            logging.info(f"Request ID : {request_id} : executing  hip_notify function")
+            logging.info(f"Request ID : {request_id} : Creating gateway record")
             notification_obj = request.get("notification")
             consent_status = notification_obj.get("status")
             consent_id = notification_obj.get("consentId")
             consent_details = notification_obj.get("consentDetail")
-            request_id = request.get("requestId")
             if consent_status == "GRANTED":
-                logging.info("Consent granted")
+                logging.info(f"Request ID : {request_id} : Consent granted")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_GRANT",
@@ -44,7 +44,9 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {
                     "id": consent_id,
                     "status": consent_status,
@@ -69,7 +71,7 @@ class DataTransferController:
                 }
                 self.CRUDConsents.create(**consent_crud_request)
             elif consent_status == "EXPIRED" or consent_status == "REVOKED":
-                logging.info("Consent expired or revoked")
+                logging.info(f"Request ID : {request_id} : Consent expired or revoked")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_EXPIRE",
@@ -78,11 +80,13 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {"id": consent_id, "status": consent_status}
                 self.CRUDConsents.update(**consent_crud_request)
             elif consent_status == "DENIED":
-                logging.info("Consent denied")
+                logging.info(f"Request ID : {request_id} : Consent denied")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_DENIED",
@@ -91,10 +95,12 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {"id": consent_id, "status": consent_status}
                 self.CRUDConsents.update(**consent_crud_request)
-            logging.info("Getting session access Token")
+            logging.info(f"Request ID : {request_id} : Getting session access Token")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
@@ -122,7 +128,7 @@ class DataTransferController:
                     "Content-Type": "application/json",
                 },
             )
-            logging.debug(f"{resp_code=}")
+            logging.debug(f"Request ID : {request_id} : {resp_code=}")
             gateway_request = {"request_id": request_id}
             if resp_code <= 250:
                 gateway_request.update({"request_status": "SUCCESS"})
@@ -132,7 +138,7 @@ class DataTransferController:
             return gateway_request
         except Exception as error:
             logging.error(
-                f"Error in DataTransferController.hip_notify function: {error}"
+                f"Request ID : {request_id} : Error in DataTransferController.hip_notify function: {error}"
             )
             raise error
 

@@ -140,7 +140,7 @@ class CallbackController:
                     patient_data = request.get("auth").get("patient")
                     mobile_number = None
                     for idf in request.get("auth").get("patient").get("identifiers"):
-                        if idf["type"] == "MOBILE":
+                        if idf["type"] == "MOBILE" or idf["type"] == "MOBILE_NUMBER":
                             mobile_number = idf["value"]
                     patient_obj = FuzzyMatch().find_duplicate_record(
                         mobile_number=mobile_number,
