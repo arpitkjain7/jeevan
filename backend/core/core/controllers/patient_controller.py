@@ -474,8 +474,8 @@ class PatientController:
             for idf in patient_data.get("identifiers"):
                 if idf["type"] == "MOBILE":
                     mobile_number = idf["value"]
-                if idf["type"] == "EMAIL":
-                    email_id = idf["value"]
+                # if idf["type"] == "EMAIL":
+                #     email_id = idf["value"]
             dob_str = f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}"
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=mobile_number,
@@ -484,19 +484,18 @@ class PatientController:
                 gender=patient_data.get("gender"),
                 hip_id=hip_id,
             )
-            abha_number = patient_data.get("healthIdNumber")
             patient_request = {
-                "abha_number": abha_number,
-                "abha_address": patient_data["healthId"],
+                "abha_number": patient_data.get("healthIdNumber"),
+                "abha_address": patient_data.get("healthId"),
                 "mobile_number": mobile_number,
-                "name": patient_data["name"],
-                "gender": patient_data["gender"],
+                "name": patient_data.get("name"),
+                "gender": patient_data.get("gender"),
                 "DOB": dob_str,
-                "year_of_birth": patient_data["yearOfBirth"],
-                "email": email_id,
+                "year_of_birth": patient_data.get("yearOfBirth"),
+                # "email": email_id,
                 "address": patient_data["address"]["line"],
                 "district": patient_data["address"]["district"],
-                "pincode": patient_data["address"]["pincode"],
+                "pincode": patient_data["address"]["pinCode"],
                 "state_name": patient_data["address"]["state"],
                 "auth_methods": {
                     "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
@@ -534,6 +533,7 @@ class PatientController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
