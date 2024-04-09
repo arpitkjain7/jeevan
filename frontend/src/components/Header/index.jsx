@@ -4,6 +4,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate } from "react-router-dom";
 import { Person } from "@mui/icons-material";
 
+// import DoctorProfilePage from "../../pages/DoctorProfilePage";
+
 const HeaderWrapper = styled("div")(({ theme }) => ({
   "&": {
     width: "100%",
@@ -149,7 +151,7 @@ const Header = () => {
                 className="profile_menu"
               >
                 <MenuItem> {username} </MenuItem>
-                <MenuItem onClick={handleClose}>View Profile</MenuItem>
+                <MenuItem onClick={() => navigate("/view-profile")}>View Profile</MenuItem>
                 <MenuItem onClick={() => navigate("/forgot-password")}>Change Password</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </ProfileMenu>
