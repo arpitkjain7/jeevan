@@ -48,7 +48,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
     [theme.breakpoints.down("sm")]: {
       display: "flex",
       justifyContent: "space-around",
-      gap: theme.spacing(2),
+      gap: theme.spacing(1),
     },
   },
   ".submit-btn": {
@@ -57,7 +57,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       float: "right",
       justifyContent: "center",
       alignItems: "center",
-      marginRight: theme.spacing(4),
+      marginRight:"10px",
       padding: "8px 32px",
       height: "40px",
       marginTop: theme.spacing(8),
@@ -66,8 +66,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       [theme.breakpoints.down("sm")]: {
         fontSize: "13px",
         padding: "0 3px",
-        marginTop: "0",
-        marginRight: theme.spacing(2),
+        margin: "0 2px",
       },
     },
   },
@@ -79,14 +78,14 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       alignItems: "center",
       padding: "8px 32px",
       height: "40px",
+      marginRight:"10px",
       marginTop: theme.spacing(8),
       textTransform: "capitalize",
       "&": theme.typography.tertiaryButton,
       [theme.breakpoints.down("sm")]: {
         fontSize: "13px",
         padding: "0 3px",
-        marginTop: "0",
-        marginRight: theme.spacing(2),
+        margin: "0 2px",
       },
     },
   },
@@ -130,7 +129,7 @@ const style = {
 };
 const RegisterationConfirmation = ({
   appointmentDetails,
-  isAppointment = false,
+  isAppointment, // = false
   onSubmit,
 }) => {
   const dispatch = useDispatch();
@@ -230,7 +229,9 @@ const RegisterationConfirmation = ({
   const navigateStartVisit = () => {
     setShowLoader(true);
     let currentHospital = {};
-    if (!isAppointment) {
+    if (isAppointment === true) {
+      navigate("/patient-emr");
+    } else {
       if (hospital) {
         currentHospital = JSON.parse(hospital);
         const payload = {
@@ -265,8 +266,6 @@ const RegisterationConfirmation = ({
         // }
       }
       setShowLoader(false);
-    } else {
-      navigate("/patient-emr");
     }
   };
 
@@ -281,6 +280,15 @@ const RegisterationConfirmation = ({
       );
     }
   };
+
+  const navigateToList = () => {
+    if (isAppointment) {
+      navigate("/appointment-list");
+    } else {
+      navigate("/patient-list");
+    }
+  };
+
   const handleCloseDrPopup = () => {
     setDrListPopup(false);
   };
@@ -442,12 +450,16 @@ const RegisterationConfirmation = ({
         </Grid>
       </Box>
       <div className="btn-wrapper">
+        <Button className="visit-btn" onClick={navigateToList}>
+          Save
+        </Button>
         <Button className="visit-btn" onClick={navigateStartVisit}>
           Start Visit
         </Button>
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
+      
         {isAbhaPresent && !isAppointment && (
           <Button
             disabled={isAbhaDisabled}

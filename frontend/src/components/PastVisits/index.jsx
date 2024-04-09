@@ -205,7 +205,20 @@ const PastVisits = ({ isPatientHistory }) => {
   }, []);
   const columns = [
     { key: "id", header: "Document Id" },
-    { key: "document_name", header: "Document Name" },
+    {
+      key: "actions",
+      header: "Document Name",
+      actions: [
+        {
+          // link: {document_name},
+          key: "document_name",
+          type: "link",
+          onClick: (row) => {
+            openDoc(row)
+          },
+        },
+      ],
+    },
     { key: "document_date", header: "Uploaded Date" },
     { key: "document_type_code", header: "Document Code" },
   ];
@@ -283,7 +296,7 @@ const PastVisits = ({ isPatientHistory }) => {
                 tableStyle={tableStyle}
                 tableClassName="table-class"
                 showSearch={false}
-                onRowClick={(row) => openDoc(row)}
+                // onRowClick={(row) => openDoc(row)}
               />
             </VitalDetailsTable>
           </Vitals>
@@ -322,7 +335,7 @@ const PastVisits = ({ isPatientHistory }) => {
                   tableStyle={tableStyle}
                   tableClassName="table-class"
                   showSearch={false}
-                  onRowClick={(row) => openDoc(row)}
+                  // onRowClick={(row) => openDoc(row)}
                 />
               </VitalDetailsTable>
             </Vitals>

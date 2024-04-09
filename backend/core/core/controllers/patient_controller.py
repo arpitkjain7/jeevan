@@ -289,6 +289,62 @@ class PatientController:
             logging.error(f"Error in PatientController.auth_init function: {error}")
             raise error
 
+    def auth_init_v2(self, request):
+        try:
+            logging.info("executing  auth_init_v2 function")
+            request_dict = request.dict()
+            logging.info("Getting patient object")
+            patient_obj = self.CRUDPatientDetails.read_by_patientId(request.patient_id)
+            if patient_obj.get("abha_number"):
+                logging.info("Getting session access Token")
+                gateway_access_token = get_session_token(
+                    session_parameter="gateway_token"
+                ).get("accessToken")
+                fetch_modes_url = f"{self.gateway_url}/v0.5/users/auth/init"
+                request_id = str(uuid.uuid1())
+                time_now = datetime.now(timezone.utc)
+                time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                _, resp_code = APIInterface().post(
+                    route=fetch_modes_url,
+                    data=json.dumps(
+                        {
+                            "requestId": request_id,
+                            "timestamp": time_now,
+                            "query": {
+                                "id": patient_obj.get("abha_number"),
+                                "purpose": request_dict.get("purpose"),
+                                "authMode": request_dict.get("auth_mode"),
+                                "requester": {
+                                    "type": "HIP",
+                                    "id": patient_obj.get("hip_id"),
+                                },
+                            },
+                        }
+                    ),
+                    headers={
+                        "X-CM-ID": os.environ["X-CM-ID"],
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                logging.debug(f"{resp_code=}")
+                gateway_request = {
+                    "request_id": request_id,
+                    "request_type": "AUTH_INIT",
+                    "callback_response": {"patient_id": request_dict.get("patient_id")},
+                }
+                if resp_code <= 250:
+                    gateway_request.update({"request_status": "PROCESSING"})
+                else:
+                    gateway_request.update({"request_status": "FAILED"})
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                gateway_request.update({"txn_id": request_id})
+                return gateway_request
+            return {"status": "Not Found"}
+        except Exception as error:
+            logging.error(f"Error in PatientController.auth_init_v2 function: {error}")
+            raise error
+
     def verify_otp(self, request):
         try:
             logging.info("executing  verify_otp function")
@@ -346,15 +402,11 @@ class PatientController:
             ).get("accessToken")
             auth_confirm_url = f"{self.gateway_url}/v0.5/users/auth/confirm"
             logging.info(f"{request_dict.get('txnId')=}")
-            gateway_obj = self.CRUDGatewayInteraction.read(
-                request_id=request_dict.get("txnId")
-            )
-            logging.debug(f"{gateway_obj=}")
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
-                patient_id=request.pid
+                patient_id=request.patient_id
             )
             resp, resp_code = APIInterface().post(
                 route=auth_confirm_url,
@@ -362,7 +414,7 @@ class PatientController:
                     {
                         "requestId": request_id,
                         "timestamp": time_now,
-                        "transactionId": gateway_obj.get("transaction_id"),
+                        "transactionId": request_dict.get("txnId"),
                         "credential": {
                             "authCode": "",
                             "demographic": {
@@ -388,9 +440,19 @@ class PatientController:
                 "request_type": "VERIFY_DEMOGRAPHIC",
             }
             if resp_code <= 250:
-                gateway_request.update({"request_status": "PROCESSING"})
+                gateway_request.update(
+                    {
+                        "request_status": "PROCESSING",
+                        "transaction_id": request_dict.get("txnId"),
+                    }
+                )
             else:
-                gateway_request.update({"request_status": "FAILED"})
+                gateway_request.update(
+                    {
+                        "request_status": "FAILED",
+                        "transaction_id": request_dict.get("txnId"),
+                    }
+                )
             self.CRUDGatewayInteraction.create(**gateway_request)
             return gateway_request
         except Exception as error:
@@ -1008,6 +1070,8 @@ class PatientController:
         try:
             logging.info("Get vital records")
             responses = self.CRUDVital.read_by_patientId(patient_id)
+            if vital_type == "all":
+                return responses
             values = []
             for response in responses:
                 vital_obj = {}

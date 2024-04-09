@@ -21,6 +21,12 @@ class AuthInit(BaseModel):
     hip_id: str
 
 
+class AuthInitV2(BaseModel):
+    patient_id: str
+    purpose: str = "KYC_AND_LINK"
+    auth_mode: str
+
+
 class VerifyOtp(BaseModel):
     txnId: str
     otp: str
@@ -28,7 +34,7 @@ class VerifyOtp(BaseModel):
 
 class VerifyDemographic(BaseModel):
     txnId: str
-    pid: str
+    patient_id: str
 
 
 class RegisterWithoutABHA(BaseModel):

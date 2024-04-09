@@ -1,6 +1,8 @@
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
+from core.apis.schemas.requests.patient_request import VerifyDemographic
+from core.controllers.patient_controller import PatientController
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from core import logger
 from datetime import datetime, timezone, timedelta
@@ -73,14 +75,38 @@ class CallbackController:
                     "error_code": error_message.get("code", 000),
                     "error_message": error_message.get("message", None),
                 }
+                self.CRUDGatewayInteraction.update(**gateway_request)
             else:
+                logging.info("Checking auth mode")
+                if request.get("auth").get("mode") == "DEMOGRAPHICS":
+                    logging.info("Auth Mode : DEMOGRAPHICS")
+                    gateway_obj = self.CRUDGatewayInteraction.read(
+                        request_id=request_id
+                    )
+                    patient_id = gateway_obj.get("callback_response").get("patient_id")
+                    logging.info("Creating Demographic verification request")
+                    verify_demo_request = VerifyDemographic(
+                        txnId=request.get("auth").get("transactionId"),
+                        patient_id=patient_id,
+                    )
+                    logging.info("Verifying using demographics")
+                    verify_demo_response = PatientController().verify_demographic(
+                        request=verify_demo_request
+                    )
+                    logging.info(
+                        f"Demographics verification response: {verify_demo_response}"
+                    )
+                    callback_response = gateway_obj.get("callback_response")
+                    callback_response.update(request)
+                else:
+                    callback_response = request
                 gateway_request = {
                     "request_id": request_id,
                     "transaction_id": request.get("auth").get("transactionId"),
-                    "callback_response": request,
-                    "request_status": "SUCESS",
+                    "callback_response": callback_response,
+                    "request_status": "PROCESSING",
                 }
-            self.CRUDGatewayInteraction.update(**gateway_request)
+                self.CRUDGatewayInteraction.update(**gateway_request)
             return {"status": "trigger success"}
         except Exception as error:
             logging.error(f"Error in CallbackController.on_auth_init function: {error}")
@@ -136,6 +162,18 @@ class CallbackController:
                         },
                     }
                     self.CRUDPatientDetails.update(**patient_request)
+                    transaction_id = self.CRUDGatewayInteraction.read(
+                        request_id=request_id
+                    ).get("transaction_id")
+                    auth_init_request_id = self.CRUDGatewayInteraction.read_by_transId(
+                        transaction_id=transaction_id, request_type="AUTH_INIT"
+                    ).get("request_id")
+                    self.CRUDGatewayInteraction.update(
+                        **{
+                            "request_id": auth_init_request_id,
+                            "request_status": "SUCESS",
+                        }
+                    )
                 else:
                     logging.info("Creating patient record")
                     access_token = request.get("auth").get("accessToken")
@@ -192,12 +230,13 @@ class CallbackController:
                     if patient_obj_created:
                         pid = patient_obj_created["id"]
                         request.update({"patient_id": pid})
-                gateway_request = {
-                    "request_id": request_id,
-                    "callback_response": request,
-                    "request_status": "SUCESS",
-                }
-                self.CRUDGatewayInteraction.update(**gateway_request)
+                self.CRUDGatewayInteraction.update(
+                    **{
+                        "request_id": request_id,
+                        "callback_response": request,
+                        "request_status": "SUCESS",
+                    }
+                )
                 return patient_request
             return {"status": "trigger success"}
         except Exception as error:
