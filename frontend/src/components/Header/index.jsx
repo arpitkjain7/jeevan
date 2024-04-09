@@ -24,8 +24,8 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     padding: "10px 32px",
     zIndex: "9999",
-    [theme.breakpoints.down('sm')]: {
-     padding: "10px 0"
+    [theme.breakpoints.down("sm")]: {
+      padding: "10px 0",
     },
   },
   ".header-logo-container": {
@@ -35,9 +35,9 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
 
     ".hospital-name": {
       "&": theme.typography.sectionBody2,
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         fontSize: "16px",
-      }
+      },
     },
   },
   ".logo": {
@@ -49,10 +49,10 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "24px",
     paddingRight: "16px",
     borderRight: "1px solid #9e9e9e",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       fontSize: "21px",
       paddingRight: "10px",
-    }
+    },
   },
   ".header-content": {
     display: "flex",
@@ -71,15 +71,15 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "16px",
     marginRight: theme.spacing(8),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       marginRight: theme.spacing(0),
     },
   },
   ".header-no-login": {
-    [theme.breakpoints.down('sm')]: {
-      textAlign: "end"
+    [theme.breakpoints.down("sm")]: {
+      textAlign: "end",
     },
-  }
+  },
 }));
 
 const ProfileIconWrapper = styled("div")({
@@ -90,19 +90,19 @@ const ProfileIconWrapper = styled("div")({
 
 const ProfileIcon = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#000",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: "35px",
     height: "35px",
-  }
+  },
 }));
 
 const ProfileMenu = styled(Menu)(({ theme }) => ({
   position: "absolute",
   top: 10,
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     top: 10,
-    left: 11
-  }
+    left: 11,
+  },
 }));
 
 const Header = () => {
@@ -151,8 +151,15 @@ const Header = () => {
                 className="profile_menu"
               >
                 <MenuItem> {username} </MenuItem>
-                <MenuItem onClick={() => navigate("/view-profile")}>View Profile</MenuItem>
-                <MenuItem onClick={() => navigate("/forgot-password")}>Change Password</MenuItem>
+                {username === "8275330450" && (
+                  <MenuItem onClick={() => navigate("/view-profile/dr-prasad")}>
+                    View Profile
+                  </MenuItem>
+                )}
+
+                <MenuItem onClick={() => navigate("/forgot-password")}>
+                  Change Password
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </ProfileMenu>
             </ProfileIconWrapper>

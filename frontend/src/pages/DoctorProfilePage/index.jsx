@@ -258,7 +258,7 @@ const DoctorProfile = () => {
   const [doctorDetails, setDoctorDetails] = useState({
     avatar: profile,
     name: "Dr. Prasad Gurjar",
-    registrationNo: "1234567890",
+    registrationNo: "2012020164",
     specialty: "DM Nephrology",
     consultation: "Consultant Neurologist",
     experience: "3 Years",
@@ -272,13 +272,9 @@ const DoctorProfile = () => {
       {
         text: "A-wing 2 Floor Neeti Gaurav Complex Ramdaspeth Nagpur 440010",
         location:
-          "https://www.google.com/maps/place/Sona+Enterprises/@21.1092326,79.0896538,17z/data=!4m6!3m5!1s0x3bd4bf448c413b03:0x4baff526df31af98!8m2!3d21.1076514!4d79.0928949!16s%2Fg%2F11c0xrk4sn?entry=ttu",
+          "https://www.google.com/maps/dir//21.134892,79.076768/@21.1348922,78.9943632,12z?entry=ttu",
       },
-      {
-        text: "A-wing 2 Floor Neeti Gaurav Complex Ramdaspeth Nagpur 440010",
-        location:
-          "https://www.google.com/maps/place/Naik+Hospital/@21.1092326,79.0896538,17z/data=!4m6!3m5!1s0x3bd4bf44d1f609db:0xf68e170871777857!8m2!3d21.1097746!4d79.0949205!16s%2Fg%2F1tgplh7_?entry=ttu",
-      },
+     
     ],
     appointmentAvailability: "Monday-Saturday",
     appointmentTime: "10:00am-4:00pm",
@@ -307,26 +303,34 @@ const DoctorProfile = () => {
     ],
     reviews: [
       {
-        name: "Patient 1",
+        name: "Ravi, Nagpur",
         feedback:
           "Dr. Prasad is good at explaining things. He answers all your questions and makes sure you know what's going on. It helps a lot.",
         date: new Date(),
         rating: 4,
       },
       {
-        name: "Patient 2",
+        name: "Arjun, Nagpur",
         feedback:
           "When you go to see Dr. Prasad, everyone is friendly. It feels good to be there. Dr. Prasad is easy to talk to and very friendly",
         date: new Date(),
-        rating: 4,
+        rating: 3,
       },
       {
-        name: "Patient 3",
+        name: "Nirali, Amravti",
         feedback:
           "Dr. Prasad is really nice and listens to what you have to say. He makes sure you understand everything and feel okay about your care",
         date: new Date(),
         rating: 4,
       },
+      {
+        name: "Jagmohan, Wardha",
+        feedback:
+          "He explains things clearly. I always know what he means because he uses simple words. It makes me feel more sure about my health",
+        date: new Date(),
+        rating: 4,
+      },
+      
     ],
     videos: [
       {
@@ -334,7 +338,7 @@ const DoctorProfile = () => {
         link: "https://www.youtube.com/watch?v=iWSewFlU6o8",
       },
       {
-        title: "Parenting Tips: Navigating common childhood illness",
+        title: "Nephrology Kidney",
         link: "https://www.youtube.com/watch?v=fv53QZRk4hs",
       },
       {
@@ -571,7 +575,7 @@ const DoctorProfile = () => {
             IN THEIR OWN WORDS: PRASAD'S IMPACT
           </Typography>
         </Details>
-        <Box sx={{ overflowX: "auto", width: "100%", padding: "10px" }}>
+        <Box sx={{ overflowY: "auto", width: "100%", padding: "10px" }}>
           <Grid
             container
             spacing={2}
