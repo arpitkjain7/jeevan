@@ -606,6 +606,7 @@ class PatientController:
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
+                            "Content-Type": "application/json",
                         },
                     )
                     self.CRUDGatewayInteraction.update(
@@ -638,6 +639,7 @@ class PatientController:
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
+                            "Content-Type": "application/json",
                         },
                     )
                     self.CRUDGatewayInteraction.update(
@@ -660,6 +662,44 @@ class PatientController:
                         )
                     )
                     logging.info(f"{pmr_record=}")
+                    if len(pmr_record) == 0:
+                        resp, resp_code = APIInterface().post(
+                            route=on_discover_url,
+                            data=json.dumps(
+                                {
+                                    "requestId": str(uuid.uuid1()),
+                                    "timestamp": datetime.now(timezone.utc).strftime(
+                                        "%Y-%m-%dT%H:%M:%S.%f"
+                                    ),
+                                    "transactionId": txn_id,
+                                    "patient": None,
+                                    "error": {
+                                        "code": 10001,
+                                        "message": "no health records found for the patient",
+                                    },
+                                    "resp": {"requestId": req_id},
+                                }
+                            ),
+                            headers={
+                                "X-CM-ID": os.environ["X-CM-ID"],
+                                "Authorization": f"Bearer {gateway_access_token}",
+                                "Content-Type": "application/json",
+                            },
+                        )
+                        self.CRUDGatewayInteraction.update(
+                            **{
+                                "request_id": req_id,
+                                "request_status": "FAILED",
+                                "error_code": "1000",
+                                "error_message": "no health records found for the patient",
+                            }
+                        )
+                        return {
+                            "request_id": req_id,
+                            "request_status": "FAILED",
+                            "error_code": "1000",
+                            "error_message": "no health records found for the patient",
+                        }
                     for pmr in pmr_record:
                         care_context.append(
                             {
@@ -820,6 +860,8 @@ class PatientController:
                     logging.info(f"{pmr_id=}")
                     pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
                     logging.info(f"{pmr_obj=}")
+                    pmr_update_request = {"id": pmr_id, "abdm_linked": True}
+                    self.CRUDPatientMedicalRecord.update(**pmr_update_request)
                     careContext.append(
                         {
                             "referenceNumber": pmr_id,

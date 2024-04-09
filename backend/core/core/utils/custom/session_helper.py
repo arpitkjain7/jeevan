@@ -17,7 +17,7 @@ def get_session_token(session_parameter: str):
         client_secret = str(os.environ["client_secret"])
         session_url = f"{gateway_url}/v0.5/sessions"
         session_obj = CRUDSession().read(session_parameter=session_parameter)
-        logging.info(f"{session_obj=}")
+        # logging.info(f"{session_obj=}")
         time_now = datetime.now()
         logging.info(f"{time_now=}")
         ist_tz = timezone("Asia/Kolkata")
