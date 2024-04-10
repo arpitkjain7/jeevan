@@ -290,7 +290,7 @@ const DoctorProfile = () => {
     name: "Dr. Prasad Gurjar",
     registrationNo: "2012020164",
     specialty: "DM Nephrology",
-    consultation: "Consultant Neurologist",
+    consultation: "Consultant Nephrology | Transplant Physician",
     experience: "3 Years",
     age: "35 years",
     location: "Nagpur",
@@ -307,8 +307,13 @@ const DoctorProfile = () => {
      
     ],
     appointmentAvailability: "Monday-Saturday",
-    appointmentTime: "10:00am-4:00pm",
+    appointmentTime: "10:30am-8:00pm",
     education: [
+      {
+        year: 2020,
+        degree: "DM Nephrology",
+        college: "Dr. DY Patil Medical College, Pune",
+      },
       {
         year: 2015,
         degree: "MD Genereal Medicine",
@@ -318,12 +323,7 @@ const DoctorProfile = () => {
         year: 2010,
         degree: "MBBS",
         college: "Jawaharlal Nehru Medical College, Wardha",
-      },
-      {
-        year: 2020,
-        degree: "DM Nephrology",
-        college: "Dr. DY Patil Medical College, Pune",
-      },
+      }
     ],
     awards: [
       {
@@ -371,11 +371,11 @@ const DoctorProfile = () => {
         link: "https://www.youtube.com/watch?v=fv53QZRk4hs",
       },
       {
-        title: "Sample3",
+        title: "Nephrology - Kidney Physiology Overview",
         link: "https://www.youtube.com/watch?v=KWHasxDRf54",
       },
       {
-        title: "Sample4",
+        title: "Can I reverse kidney disease? Is there a cure?",
         link: "https://www.youtube.com/watch?v=z1nCUmWHvsU",
       },
     ],
