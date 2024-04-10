@@ -337,6 +337,7 @@ function App() {
                 ) : (
                   <Route path="*" element={<SignInPage />} />
                 )}
+                <Route path="/view-profile/dr-prasad" element={<DoctorProfilePage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/" element={<SignInPage />} />
               </Routes>
