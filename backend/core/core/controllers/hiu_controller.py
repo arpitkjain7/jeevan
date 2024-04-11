@@ -404,6 +404,7 @@ class HIUController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.info(f"Response Code is {resp_code=}")
