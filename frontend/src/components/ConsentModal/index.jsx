@@ -93,7 +93,7 @@ const ConsentModal = ({
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
       const payload = {
-        patient_id: currentPatient?.patient_id,
+        patient_id: currentPatient?.patient_id || currentPatient?.id,
         abha_address: formData?.patientIdentifier,
         purpose: formData?.purposeOfRequest,
         hi_type: [formData?.healthInfoType],
