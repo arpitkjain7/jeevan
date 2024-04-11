@@ -15,7 +15,7 @@ class FetchRegisterationMode(BaseModel):
 
 
 class AuthInit(BaseModel):
-    abha_number: str
+    abha_address: str
     purpose: str = "KYC_AND_LINK"
     auth_mode: str
     hip_id: str

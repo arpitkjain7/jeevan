@@ -260,7 +260,7 @@ class PatientController:
                         "requestId": request_id,
                         "timestamp": time_now,
                         "query": {
-                            "id": request_dict.get("abha_number"),
+                            "id": request_dict.get("abha_address"),
                             "purpose": request_dict.get("purpose"),
                             "authMode": request_dict.get("auth_mode"),
                             "requester": {"type": "HIP", "id": request_dict["hip_id"]},
@@ -311,7 +311,7 @@ class PatientController:
                             "requestId": request_id,
                             "timestamp": time_now,
                             "query": {
-                                "id": patient_obj.get("abha_number"),
+                                "id": patient_obj.get("abha_address"),
                                 "purpose": request_dict.get("purpose"),
                                 "authMode": request_dict.get("auth_mode"),
                                 "requester": {
