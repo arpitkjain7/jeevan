@@ -297,10 +297,10 @@ const DoctorProfile = () => {
     languages: ["English", "Hindi", "Marathi"],
     availability: "Mon-Sat(10:30am-8:00pm)",
     about:
-      "Dr. Prasad Gurjar is a respected kidney specialist at Aaradhya Balaji Healthcare, committed to improving patient health through expert kidney care, dialysis, and transplant services. He's known for his skill in preparing patients for dialysis and supporting them through the process, ensuring they receive the best possible treatment with compassion and care.",
+      "Dr. Prasad Gurjar is a respected kidney specialist at Aaradhya Balaji Kidney Care, committed to improving patient health through expert opinion  kidney to kidney patient about their disease  , treatment option and management strategies.He is expert in  hemodialysis, Kidney biopsy   and Kidney  transplant services.  He's known for his skill in preparing patients for dialysis and supporting them through the process, ensuring they receive the best possible treatment with compassion and care. He is also expert in hemodialysis catheter insertion both temporary permanent (perm cath). Aaradhya Balaji Kidney Care also provide services for AV fistula creation which are crucial for hemodialysis. He is specialize in providing comprehensive care for kidney transplant patients, ensuring they receive the necessary medical attention and support throughout their transplant journey.",
     addresses: [
       {
-        text: "A-wing 2 Floor Neeti Gaurav Complex Ramdaspeth Nagpur 440010",
+        text: "A-wing, 2 Floor, Neeti Gaurav Complex, Ramdaspeth, Nagpur - 440010",
         location:
           "https://www.google.com/maps/dir//21.134892,79.076768/@21.1348922,78.9943632,12z?entry=ttu",
       },
@@ -336,28 +336,28 @@ const DoctorProfile = () => {
         name: "Ravi, Nagpur",
         feedback:
           "Dr. Prasad is good at explaining things. He answers all your questions and makes sure you know what's going on. It helps a lot.",
-        date: new Date(),
+        date: "20/03/2024",
         rating: 4,
       },
       {
         name: "Arjun, Nagpur",
         feedback:
           "When you go to see Dr. Prasad, everyone is friendly. It feels good to be there. Dr. Prasad is easy to talk to and very friendly",
-        date: new Date(),
+        date: "25/03/2024",
         rating: 3,
       },
       {
         name: "Nirali, Amravti",
         feedback:
           "Dr. Prasad is really nice and listens to what you have to say. He makes sure you understand everything and feel okay about your care",
-        date: new Date(),
+        date: "04/04/2024",
         rating: 4,
       },
       {
         name: "Jagmohan, Wardha",
         feedback:
           "He explains things clearly. I always know what he means because he uses simple words. It makes me feel more sure about my health",
-        date: new Date(),
+        date: "09/04/2024",
         rating: 4,
       },
     ],
@@ -406,9 +406,9 @@ const DoctorProfile = () => {
   //Rating:
   const [value, setValue] = useState(4);
 
-  const formatTimeDifference = (date) => {
-    return formatDistanceToNow(new Date(date), { addSuffix: true });
-  };
+  // const formatTimeDifference = (date) => {
+  //   return formatDistanceToNow(new Date(date), { addSuffix: true });
+  // };
 
   const getYouTubeThumbnail = (url) => {
     // Extract the video id from the url
@@ -551,7 +551,7 @@ const DoctorProfile = () => {
                   <DetailsInfo>{doctorDetails.appointmentTime}</DetailsInfo>
                 </DetailsRow>
               </DetailsContainer>
-              <Button variant="contained" onClick={handleGetDirections} sx={{}}>
+              <Button variant="contained" onClick={handleGetDirections} >
                 <DirectionsIcon /> Get Directions
               </Button>
             </DetailsAndActionButtonContainer>
@@ -635,7 +635,8 @@ const DoctorProfile = () => {
                         component="span"
                         fontSize={12}
                       >
-                        {formatTimeDifference(review.date)}
+                        {/* {formatTimeDifference(review.date)} */}
+                        {review.date}
                       </Typography>
                     </Stack>
 
