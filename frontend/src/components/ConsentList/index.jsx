@@ -88,8 +88,8 @@ const ConsentList = () => {
           const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy hh:mm aaaaa'm'");
           const fromDate = convertDateFormat(item?.date_range?.from, "dd-MM-yyyy hh:mm aaaaa'm'");
           const toDate = convertDateFormat(item?.date_range?.to, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const requested_Hi = item?.hi_type?.requested_hi_types.join(", ");
-          const granted_Hi = item?.hi_type?.granted_hi_types.join(", ");
+          const requested_Hi = item?.hi_type?.requested_hi_types ? item?.hi_type?.requested_hi_types.join(", ") : "";
+          const granted_Hi = item?.hi_type?.granted_hi_types ? item?.hi_type?.granted_hi_types.join(", ") : "";
           const consentStatus = item?.status;
           return {
             consentStatus: consentStatus,
