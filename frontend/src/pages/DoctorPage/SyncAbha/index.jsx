@@ -65,7 +65,6 @@ const SecondaryButton = styled("Button")(({ theme }) => ({
 const OTPWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  marginTop: theme.spacing(8),
 }));
 
 const SyncAbha = ({
@@ -101,17 +100,17 @@ const SyncAbha = ({
     setShowLoader(true);
     setSelectedAuthOption(event.target.value);
     const payload = {
-      // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
-      patient_id: currentPatient?.patient_details?.patient_id || currentPatient?.patient_id || currentPatient?.patientId,
+      patient_id: currentPatient?.patient_details?.patient_id || currentPatient?.patient_id || currentPatient?.patientId || currentPatient?.patient_details?.patientId,
       purpose: "KYC_AND_LINK",
       auth_mode: event.target.value,
-      // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
     };
     dispatch(getPatientAuth(payload)).then((res) => {
       setShowLoader(false);
       setTxnId(res.payload?.txn_id);
-      if(event.target.value === "DEMOGRAPHICS")
+      if(event.target.value === "DEMOGRAPHICS"){
+        setTxnId("");
         setDemographics(true);
+      }
       else 
         setDemographics(false);
     });
@@ -204,15 +203,17 @@ const SyncAbha = ({
                 
                 />
               ))}
-            </RadioGroup><br/>
+            </RadioGroup>
           </FormControl>
           {!demographics && (
-          <OTPWrapper>
-            {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
-          </OTPWrapper>
+            <>
+            <OTPWrapper>
+              {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
+            </OTPWrapper><br/>
+          </>
           )}
-          {demographics && (
-            <Grid container spacing={2}>
+          {/* {demographics && ( */}
+            <Grid container spacing={2} style={{ marginTop: "5px" }}>
             <Grid item xs={6}>
               <TextField
               label="Name"
@@ -274,7 +275,7 @@ const SyncAbha = ({
               />
             </Grid>
           </Grid>
-          )}
+          {/* )} */}
         </DialogContent>
         <DialogActions>
           <SecondaryButton onClick={clearData}>Clear</SecondaryButton>
