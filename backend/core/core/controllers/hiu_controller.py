@@ -112,6 +112,14 @@ class HIUController:
                             },
                             "patient": {"id": request_dict["abha_address"]},
                             "hiu": {"id": request_dict["hip_id"]},
+                            # "careContexts": [
+                            #     {
+                            #         "patientReference": request_dict["abha_address"],
+                            #         "careContextReference": "Episode1",
+                            #     }
+                            # ],
+                            # "hip": {"id": request_dict["hip_id"]},
+                            # "careContexts": None,
                             "requester": {
                                 "name": doc_obj["doc_name"],
                                 "identifier": {
@@ -128,7 +136,7 @@ class HIUController:
                                     "to": to_date,
                                 },
                                 "dataEraseAt": expire_time,
-                                "frequency": {"unit": "HOUR", "value": 1, "repeats": 0},
+                                "frequency": {"unit": "HOUR", "value": 0, "repeats": 0},
                             },
                         },
                     }
@@ -145,7 +153,7 @@ class HIUController:
                 "request_type": "CONSENT_INIT",
                 "request_status": "PROCESSING",
                 "callback_response": {
-                    "status": "RAISED",
+                    "status": "REQUESTED",
                     "patient_id": request_dict["patient_id"],
                     "purpose": purpose.value,
                     "abha_address": request_dict["abha_address"],
@@ -185,6 +193,26 @@ class HIUController:
         except Exception as error:
             logging.error(f"Error in HIUController.consent_on_init function: {error}")
             raise error
+
+    # def consent_status(self, consent_id: str):
+    #     try:
+    #         logging.info("executing HIUController.consent_status function")
+    #         logging.info(f"{consent_id=}")
+    #         gateway_obj = self.CRUDGatewayInteraction.read(request_id=request_id)
+    #         consent_request_obj = gateway_obj.get("callback_response")
+    #         consent_request_obj.update({"id": request.get("consentRequest").get("id")})
+    #         self.CRUDHIUConsents.create(**consent_request_obj)
+    #         crud_request = {
+    #             "request_id": request_id,
+    #             "transaction_id": consent_id,
+    #             "request_status": "SUCCESS",
+    #         }
+    #         logging.info("Updating gateway record")
+    #         self.CRUDGatewayInteraction.update(**crud_request)
+    #         return crud_request
+    #     except Exception as error:
+    #         logging.error(f"Error in HIUController.consent_status function: {error}")
+    #         raise error
 
     def find_patient(self, request):
         try:
@@ -290,7 +318,7 @@ class HIUController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.info(f"Response Code for {consentArtifactId=} is {resp_code=}")
