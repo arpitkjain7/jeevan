@@ -101,10 +101,11 @@ const SyncAbha = ({
     setShowLoader(true);
     setSelectedAuthOption(event.target.value);
     const payload = {
-      abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+      // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
+      patient_id: currentPatient?.patient_details?.patient_id || currentPatient?.patient_id,
       purpose: "KYC_AND_LINK",
       auth_mode: event.target.value,
-      hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
+      // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
     };
     dispatch(getPatientAuth(payload)).then((res) => {
       setShowLoader(false);
