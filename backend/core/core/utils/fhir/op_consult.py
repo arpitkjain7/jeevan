@@ -80,7 +80,7 @@ def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str)
         logging.info(f"Creating Patient Entry")
         patient_obj = pmr_obj.get("patient")
         logging.info(f"{patient_obj=}")
-        birth_date, birth_month, birth_year = patient_obj["DOB"].split("/")
+        birth_year, birth_month, birth_date = patient_obj["DOB"].split("-")
         patient_bundle = BundleEntry()
         patient_url = f"Patient/{patient_obj['id']}"
         patient_bundle.fullUrl = patient_url
@@ -175,7 +175,7 @@ def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str)
             composition_section = CompositionSection(
                 title="Document Reference",
                 code=codeable_obj,
-                entry=[{"reference": document_url}],
+                entry=[{"reference": document_url},{"reference": appointment_url}],
             )
             composition_section_list.append(composition_section)
         # Creating Composition
@@ -192,9 +192,10 @@ def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str)
             org_ref={"reference": organization_url},
             encounter_ref={"reference": encounter_url, "type": "Encounter"},
         )
-        composition_section = CompositionSection(
-            entry=[{"reference": document_url}, {"reference": appointment_url}]
-        )
+
+        # composition_section = CompositionSection(
+        #     entry=[{"reference": document_url}, {"reference": appointment_url}]
+        # )
         composition_resource_obj.section = composition_section_list
         composition_bundle.resource = composition_resource_obj
         entry_list.append(composition_bundle)

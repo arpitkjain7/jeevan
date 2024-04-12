@@ -97,7 +97,7 @@ class HIUController:
             logging.info(f"{raise_consent_url=}")
             request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
-            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             logging.info("Calling raise consent url")
             _, resp_code = APIInterface().post(
                 route=raise_consent_url,
@@ -122,11 +122,11 @@ class HIUController:
                             # "careContexts": None,
                             "requester": {
                                 "name": doc_obj["doc_name"],
-                                # "identifier": {
-                                #     "type": "REGNO",
-                                #     "value": doc_obj["doc_licence_no"],
-                                #     "system": "https://www.mciindia.org",
-                                # },
+                                "identifier": {
+                                    "type": "REGNO",
+                                    "value": doc_obj["doc_licence_no"],
+                                    "system": "https://www.mciindia.org",
+                                },
                             },
                             "hiTypes": hiTypeList,
                             "permission": {
@@ -432,6 +432,7 @@ class HIUController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.info(f"Response Code is {resp_code=}")

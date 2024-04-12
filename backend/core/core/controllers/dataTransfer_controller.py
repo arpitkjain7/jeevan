@@ -161,11 +161,11 @@ class DataTransferController:
             logging.info(f"{expire_datetime_object=}")
             utc_timezone = pytz_timezone("UTC")
             logging.info(f"{utc_timezone=}")
-            expire_time_utc = utc_timezone.localize(expire_datetime_object)
-            logging.info(f"{expire_time_utc=}")
+            #expire_time_utc = utc_timezone.localize(expire_datetime_object)
+            #logging.info(f"{expire_time_utc=}")
             expire_time = expire_datetime_object.strftime("%Y-%m-%dT%H:%M:%S")
             logging.info(f"{expire_time=}")
-            if time_now < expire_time_utc and consent_obj.get("status") == "GRANTED":
+            if time_now < expire_datetime_object and consent_obj.get("status") == "GRANTED":
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "DATA_REQUEST",
@@ -173,7 +173,7 @@ class DataTransferController:
                     "transaction_id": transaction_id,
                     "callback_response": hi_request_obj,
                 }
-                CRUDGatewayInteraction().create(**crud_request)
+                CRUDGatewayInteraction().update(**crud_request)
                 logging.info("Getting session access Token")
                 gateway_access_token = get_session_token(
                     session_parameter="gateway_token"
