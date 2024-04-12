@@ -154,15 +154,17 @@ const ConsentList = () => {
     { label: "Self Requested", value: "Self Requested" },
   ];
 
-  const infoTypeOptions = [
-    { label: "Prescription", value: "Prescription" },
-    { label: "Diagnostic Report", value: "Diagnostic Report" },
-    { label: "OP Consultation", value: "OP Consultation" },
-    { label: "Discharge Summary", value: "Discharge Summary" },
-    { label: "Immunization Record", value: "Immunization Record" },
-    { label: "Record artifact", value: "Record artifact" },
-    { label: "Wellness Record", value: "Wellness Record" },
-  ];
+  const infoTypeOptions = ["Prescription", "Diagnostic Report", "OP Consultation", "Discharge Summary", "Immunization Record", "Record artifact", "Wellness Record"];
+  // [
+  //   { label: "Select All", value: "selectAll" }, //[},
+  //   { label: "Prescription", value: "Prescription" },
+  //   { label: "Diagnostic Report", value: "Diagnostic Report" },
+  //   { label: "OP Consultation", value: "OP Consultation" },
+  //   { label: "Discharge Summary", value: "Discharge Summary" },
+  //   { label: "Immunization Record", value: "Immunization Record" },
+  //   { label: "Record artifact", value: "Record artifact" },
+  //   { label: "Wellness Record", value: "Wellness Record" },
+  // ];
 
   return (
     <ConsentListContainer>
