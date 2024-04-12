@@ -703,7 +703,7 @@ class PatientController:
                     for pmr in pmr_record:
                         care_context.append(
                             {
-                                "referenceNumber": f"{hip_obj['hip_uid']}-{pmr['id']}",
+                                "referenceNumber": pmr["id"],
                                 "display": f"Consultation Record for {pmr['date_of_consultation']}",
                             }
                         )
@@ -856,7 +856,7 @@ class PatientController:
                 careContext = []
                 logging.info(f"{hip_id=}")
                 for pmr_id in gateway_meta.get("pmr_list"):
-                    pmr_id = pmr_id.split("-", 1)[1]
+                    # pmr_id = pmr_id.split("-", 1)[1]
                     logging.info(f"{pmr_id=}")
                     pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
                     logging.info(f"{pmr_obj=}")
