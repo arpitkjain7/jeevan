@@ -15,6 +15,7 @@ class Consent(BaseModel):
     date_range: dict
     hi_type: dict = None
     expire_at: str
+    abha_address: str
     created_at: datetime
     updated_at: datetime
 
