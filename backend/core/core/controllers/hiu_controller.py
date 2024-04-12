@@ -99,7 +99,7 @@ class HIUController:
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
             logging.info("Calling raise consent url")
-            _, resp_code = APIInterface().post(
+            resp_json, resp_code = APIInterface().post(
                 route=raise_consent_url,
                 data=json.dumps(
                     {
@@ -148,26 +148,51 @@ class HIUController:
                 },
             )
             logging.debug(f"{resp_code=}")
-            crud_request = {
-                "request_id": request_id,
-                "request_type": "CONSENT_INIT",
-                "request_status": "PROCESSING",
-                "callback_response": {
-                    "status": "REQUESTED",
-                    "patient_id": request_dict["patient_id"],
-                    "purpose": purpose.value,
-                    "abha_address": request_dict["abha_address"],
-                    "hiu_id": request_dict["hip_id"],
-                    "access_mode": "VIEW",
-                    "date_range": {
-                        "from": from_date,
-                        "to": to_date,
+            if resp_code <= 250:
+                crud_request = {
+                    "request_id": request_id,
+                    "request_type": "CONSENT_INIT",
+                    "request_status": "PROCESSING",
+                    "callback_response": {
+                        "status": "REQUESTED",
+                        "patient_id": request_dict["patient_id"],
+                        "purpose": purpose.value,
+                        "abha_address": request_dict["abha_address"],
+                        "hiu_id": request_dict["hip_id"],
+                        "hi_type": {"requested_hi_types": hiTypeList},
+                        "access_mode": "VIEW",
+                        "date_range": {
+                            "from": from_date,
+                            "to": to_date,
+                        },
+                        "expire_at": expire_time,
                     },
-                    "expire_at": expire_time,
-                },
-            }
-            self.CRUDGatewayInteraction.create(**crud_request)
-            return crud_request
+                }
+                self.CRUDGatewayInteraction.create(**crud_request)
+                return crud_request
+            else:
+                crud_request = {
+                    "request_id": request_id,
+                    "request_type": "CONSENT_INIT",
+                    "request_status": "ERROR",
+                    "error_code": resp_code,
+                    "error_message": resp_json.get("error").get("message"),
+                    "callback_response": {
+                        "status": "ERROR",
+                        "patient_id": request_dict["patient_id"],
+                        "purpose": purpose.value,
+                        "abha_address": request_dict["abha_address"],
+                        "hiu_id": request_dict["hip_id"],
+                        "access_mode": "VIEW",
+                        "date_range": {
+                            "from": from_date,
+                            "to": to_date,
+                        },
+                        "expire_at": expire_time,
+                    },
+                }
+                self.CRUDGatewayInteraction.create(**crud_request)
+                return crud_request
         except Exception as error:
             logging.error(f"Error in HIUController.raise_consent function: {error}")
             raise error
@@ -356,6 +381,8 @@ class HIUController:
                     consent_details.get("permission").get("dateRange").get("to")
                 )
                 expire_at = consent_details.get("permission").get("dataEraseAt")
+                hi_types = hiu_consent_obj.get("hi_type", {})
+                hi_types.update({"granted_hi_types": consent_details.get("hiTypes")})
                 self.CRUDHIUConsents.update(
                     **{
                         "id": hiu_consent_obj.get("id"),
@@ -366,7 +393,7 @@ class HIUController:
                         "hip_name": consent_details.get("hip").get("name"),
                         "hiu_id": consent_details.get("hiu").get("id"),
                         "hiu_name": consent_details.get("requester").get("name"),
-                        "hi_type": {"hi_types": consent_details.get("hiTypes")},
+                        "hi_type": hi_types,
                         "access_mode": consent_details.get("permission").get(
                             "accessMode"
                         ),
