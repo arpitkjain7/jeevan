@@ -91,6 +91,7 @@ const ConsentModal = ({
   const [hiTypes, setHiTypes] = React.useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [formData, setFormData] = useState({
     patientIdentifier: "",
     purposeOfRequest: "",
@@ -107,20 +108,31 @@ const ConsentModal = ({
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const handleSelectAll = () => { 
+    if (!selectAllChecked) { 
+      setHiTypes(infoTypeOptions); // Add all options 
+    } else { 
+      setHiTypes([]); // Deselect all options 
+    } 
+    setSelectAllChecked(!selectAllChecked); 
+  }; 
 
   const handleHealthInfoChange = (event) => {
     const {
       target: { value },
     } = event;
-    console.log(value, event);
-    setHiTypes(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
+    if (value.includes('selectAll')) { 
+      handleSelectAll(); 
+    } else {
+      setHiTypes(
+        // On autofill we get a stringified value.
+        typeof value === 'string' ? value.split(',') : value,
+      );
+      setSelectAllChecked(false); 
+    }
   };
 
   const handleSubmit = (e) => {
-    console.log(e);
     e.preventDefault();
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
@@ -146,7 +158,6 @@ const ConsentModal = ({
           purposeOfRequest: "",
           healthInfoFromDate: "",
           healthInfoToDate: "",
-          // healthInfoType: {},
           consentExpiryDate: "",
         });
         setHiTypes([]);
@@ -256,11 +267,14 @@ const ConsentModal = ({
                       renderValue={(selected) => selected.join(', ')}
                       MenuProps={MenuProps}
                     >
+                      <MenuItem value="selectAll">
+                        <Checkbox checked={selectAllChecked} />
+                        <ListItemText primary={'Select All'} />
+                      </MenuItem>
                       {infoTypeOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                           <Checkbox checked={hiTypes.indexOf(option.value) > -1} />
-                           <ListItemText primary={option.label} />
-                          {/* {option.label} */}
+                        <MenuItem key={option} value={option}>
+                            <Checkbox checked={hiTypes.indexOf(option) > -1} />
+                            <ListItemText primary={option} />
                         </MenuItem>
                       ))}
                     </Select>
