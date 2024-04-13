@@ -13,7 +13,10 @@ import {
   Dialog,
   AppBar,
   Toolbar,
-  Slide
+  Slide,
+  Checkbox,
+  ListItemText,
+  OutlinedInput
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,6 +24,7 @@ import { Close } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import { postConsentRequest } from "../ConsentList/consentList.slice";
 import { convertDateFormat } from "../../utils/utils";
+import CustomSnackbar from "../CustomSnackbar";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -65,36 +69,66 @@ const FormLabel = styled(Typography)(({ theme }) => ({
   "&": theme.typography.body1,
 }));
 
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
 const ConsentModal = ({
   open,
   handleClose,
   purposeOptions,
   infoTypeOptions,
 }) => {
+  const currentPatient = JSON.parse(sessionStorage?.getItem("selectedPatient"));
+  const [hiTypes, setHiTypes] = React.useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showSnackbar, setShowSnackbar] = useState(false);
   const [formData, setFormData] = useState({
     patientIdentifier: "",
     purposeOfRequest: "",
     healthInfoFromDate: "",
     healthInfoToDate: "",
-    healthInfoType: "",
+    // healthInfoType: {},
     consentExpiryDate: "",
   });
   const hospital = sessionStorage?.getItem("selectedHospital");
   const dispatch = useDispatch();
   const isMobile = window.innerWidth < 600;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleHealthInfoChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    console.log(value, event);
+    setHiTypes(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
   const handleSubmit = (e) => {
+    console.log(e);
     e.preventDefault();
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
       const payload = {
+        patient_id: currentPatient?.patient_id || currentPatient?.id,
         abha_address: formData?.patientIdentifier,
         purpose: formData?.purposeOfRequest,
-        hi_type: [formData?.healthInfoType],
+        hi_type: hiTypes,//[formData?.healthInfoType],
         date_from: formData?.healthInfoFromDate,
         date_to: formData?.healthInfoToDate,
         expiry: convertDateFormat(formData?.consentExpiryDate, "yyyy-MM-dd HH:mm:SS"),
@@ -102,21 +136,37 @@ const ConsentModal = ({
         doc_id: "1",
       };
       dispatch(postConsentRequest(payload)).then((res) => {
+        if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setErrorMessage(res?.detail?.error_message);
+          setShowSnackbar(true);
+          return;
+        }
         setFormData({
           patientIdentifier: "",
           purposeOfRequest: "",
           healthInfoFromDate: "",
           healthInfoToDate: "",
-          healthInfoType: "",
+          // healthInfoType: {},
           consentExpiryDate: "",
         });
+        setHiTypes([]);
         handleClose();
       });
     }
   };
 
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
   return (
     <>
+     <CustomSnackbar
+          message={errorMessage || "Something went wrong"}
+          open={showSnackbar}
+          status={"error"}
+          onClose={onSnackbarClose}
+        />
       {!isMobile && (
         <Modal open={open} onClose={handleClose}>
           <ModalContainer sx={{ padding: "0" }}>
@@ -199,12 +249,18 @@ const ConsentModal = ({
                   <FormControl fullWidth>
                     <Select
                       name="healthInfoType"
-                      value={formData.healthInfoType}
-                      onChange={handleChange}
+                      multiple
+                      value={hiTypes}
+                      onChange={handleHealthInfoChange}
+                      input={<OutlinedInput label="Tag" />}
+                      renderValue={(selected) => selected.join(', ')}
+                      MenuProps={MenuProps}
                     >
                       {infoTypeOptions.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
-                          {option.label}
+                           <Checkbox checked={hiTypes.indexOf(option.value) > -1} />
+                           <ListItemText primary={option.label} />
+                          {/* {option.label} */}
                         </MenuItem>
                       ))}
                     </Select>
@@ -233,7 +289,8 @@ const ConsentModal = ({
                       formData?.purposeOfRequest?.length &&
                       formData?.healthInfoFromDate?.length &&
                       formData?.healthInfoToDate?.length &&
-                      formData?.healthInfoType?.length &&
+                      // formData?.healthInfoType?.length &&
+                      hiTypes &&
                       formData?.consentExpiryDate?.length
                     )
                   }

@@ -84,17 +84,15 @@ function VerificationSelection({
   modes,
   handleOptionChange,
   selectedOption,
-  checkedOption,
-  handleOptionCheck,
   handleConfirmSelection,
   displayHeaderContainer
 }) {
   return (
     <VerificationSelectionWrapper>
       <div className="select-mode">
-        {modes?.map((item) => {
+        {modes?.map((item, index) => {
           return (
-            <div className="form-radio-group">
+            <div className="form-radio-group" key={index}>
               <label>
                 <input
                   type="radio"

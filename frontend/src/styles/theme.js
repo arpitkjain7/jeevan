@@ -70,7 +70,7 @@ const theme = createTheme({
       lineHeight: "150%",
       fontFamily: "Source Sans Pro",
       color: "#171717",
-      textTransform: "capitalize",
+      // textTransform: "capitalize",
     },
     sectionBody: {
       fontSize: "20px",

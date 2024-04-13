@@ -65,6 +65,20 @@ export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
   return response;
 });
 
+// export const verifyDemographics = createAsyncThunk("verifyPatientDemographics", async (payload) => {
+//   const response = await apiRequest("POST", apis?.verifyDemographics, payload);
+//   return response;
+// });
+export const verifyDemographics = createAsyncThunk("verifyPatientDemographics", async (payload) => {
+  const response = await apiRequest("POST", apis?.demographicsAuthInit, payload);
+  return response;
+});
+
+export const deepLink = createAsyncThunk("sendLink", async (payload) => {
+  const response = await apiRequest("POST", apis?.deepLink, payload);
+  return response;
+});
+
 export const uploadPmrPdf = createAsyncThunk(
   "uploadPMR/PMR",
   async (pdfBlob, pmr_id, document_type) => {
