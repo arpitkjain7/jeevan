@@ -10,6 +10,9 @@ from core.apis.schemas.requests.patient_request import (
     RegisterPatientV3,
     VerifyPatient,
     AuthInitV2,
+    PatientAuth,
+    PatientAuthResendOTP,
+    PatientAuthVerifyOTP,
 )
 from core.apis.schemas.requests.vital_request import Read, VitalType
 from core.controllers.patient_controller import PatientController
@@ -192,6 +195,91 @@ def auth_init(request: AuthInitV2, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v2/patient/auth/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/init")
+def v3_auth_init(request: PatientAuth, token: str = Depends(oauth2_scheme)):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/init endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_init_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/init endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/resendOtp")
+def v3_auth_resendOtp(
+    request: PatientAuthResendOTP, token: str = Depends(oauth2_scheme)
+):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/resendOtp endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_resendOTP_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/resendOtp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/resendOtp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/verifyOtp")
+def v3_auth_verifyOtp(
+    request: PatientAuthVerifyOTP, token: str = Depends(oauth2_scheme)
+):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/verifyOtp endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_verifyOTP_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/verifyOtp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/verifyOtp endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

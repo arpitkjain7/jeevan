@@ -11,10 +11,11 @@ from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from datetime import datetime, timezone, timedelta
 import os, json
-import uuid
+import uuid, base64
 from pytz import timezone as pytz_timezone
 from core.utils.custom.patient_helper import calculate_age
 from fastapi import HTTPException, status
+from core.utils.custom.encryption_helper import rsa_encryption, rsa_encryption_oaep
 
 logging = logger(__name__)
 
@@ -343,6 +344,236 @@ class PatientController:
             return {"status": "Not Found"}
         except Exception as error:
             logging.error(f"Error in PatientController.auth_init_v2 function: {error}")
+            raise error
+
+    def auth_init_v3(self, request):
+        try:
+            logging.info("executing  auth_init_v3 function")
+            request_dict = request.dict()
+            auth_method = request_dict.get("mode").name
+            abha_identifier = request_dict.get("abha_identifier")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            abha_auth_init = f"{self.abha_url}/v2/auth/init"
+            payload = {"authMethod": auth_method, "healthid": abha_identifier}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_init,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            return resp_json
+        except Exception as error:
+            logging.error(f"Error in PatientController.auth_init_v3 function: {error}")
+            raise error
+
+    def auth_resendOTP_v3(self, request):
+        try:
+            logging.info("executing  auth_resendOTP_v3 function")
+            request_dict = request.dict()
+            auth_method = request_dict.get("mode").name
+            txn_id = request_dict.get("txnId")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            abha_auth_resendOtp = f"{self.abha_url}/v1/auth/resendAuthOTP"
+            payload = {"authMethod": auth_method, "txnId": txn_id}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_resendOtp,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            return resp_json
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.auth_resendOTP_v3 function: {error}"
+            )
+            raise error
+
+    def auth_verifyOTP_v3(self, request):
+        try:
+            logging.info("executing  auth_verifyOTP_v3 function")
+            request_dict = request.dict()
+            txn_id = request_dict.get("txnId")
+            auth_mode = request_dict.get("mode")
+            hip_id = request_dict.get("hip_id")
+            otp = request_dict.get("otp")
+            logging.info(f"{otp=}")
+            encrypted_otp = rsa_encryption(data_to_encrypt=otp)
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            if auth_mode == "MOBILE_OTP":
+                abha_auth_verify = f"{self.abha_url}/v2/auth/confirmWithMobileOTP"
+            else:
+                abha_auth_verify = f"{self.abha_url}/v2/auth/confirmWithAadhaarOtp"
+            payload = {"txnId": txn_id, "otp": encrypted_otp}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_verify,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            if resp_code <= 250:
+                access_token = resp_json.get("token")
+                logging.info("OTP verified successfully")
+                logging.info("Getting ABHA details")
+                account_get_url = f"{self.abha_url}/v2/account/profile"
+                resp_json, resp_code = APIInterface().get(
+                    route=account_get_url,
+                    headers={
+                        "X-Token": f"Bearer {access_token}",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                abha_number = resp_json.get("healthIdNumber")
+                abha_number = abha_number.replace("-", "")
+                abha_address = resp_json.get("healthId")
+                auth_methods = resp_json.get("authMethods")
+                mobile_number = resp_json.get("mobile")
+                name = resp_json.get("name")
+                gender = resp_json.get("gender")
+                yob = resp_json.get("yearOfBirth")
+                DOB = f"{resp_json.get('dayOfBirth')}-{resp_json.get('monthOfBirth')}-{resp_json.get('yearOfBirth')}"
+                dob_obj = datetime.strptime(DOB, "%d-%m-%Y")
+                dob_str = dob_obj.strftime("%Y-%m-%d")
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
+
+                abha_registered_patient_obj = self.CRUDPatientDetails.read_by_abhaId(
+                    abha_number=abha_number, hip_id=hip_id
+                )
+                patient_payload = {}
+                if abha_registered_patient_obj:
+                    logging.info("Patient already exists with ABHA Id")
+                    patient_payload = {
+                        "id": abha_registered_patient_obj.get("id"),
+                        "abha_number": abha_number,
+                        "abha_address": abha_registered_patient_obj.get("abha_address"),
+                        "primary_abha_address": abha_registered_patient_obj.get(
+                            "primary_abha_address"
+                        ),
+                        "mobile_number": abha_registered_patient_obj.get(
+                            "mobile_number"
+                        ),
+                        "name": abha_registered_patient_obj.get("name"),
+                        "gender": abha_registered_patient_obj.get("gender"),
+                        "DOB": dob_str,
+                        "email": abha_registered_patient_obj.get("email"),
+                        "address": abha_registered_patient_obj.get("address"),
+                        "pincode": abha_registered_patient_obj.get("pincode"),
+                        "hip_id": hip_id,
+                        "auth_methods": abha_registered_patient_obj.get("auth_methods"),
+                        "status": "Patient already exists with ABHA Id",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
+                else:
+                    normal_registered_patient_obj = FuzzyMatch().find_duplicate_record(
+                        mobile_number=mobile_number,
+                        name=name,
+                        gender=gender,
+                        hip_id=hip_id,
+                        yob=yob,
+                    )
+                    if normal_registered_patient_obj:
+                        logging.info("Patient already exists without ABHA Id")
+                        patient_id = normal_registered_patient_obj.get("id")
+                        logging.info("Update Abha details on patient record")
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "abha_number": abha_number,
+                                "abha_address": abha_address,
+                                "primary_abha_address": abha_address,
+                                "auth_methods": {"authMethods": auth_methods},
+                            }
+                        )
+                        patient_payload = {
+                            "id": patient_id,
+                            "abha_number": abha_number,
+                            "abha_address": abha_address,
+                            "primary_abha_address": abha_address,
+                            "mobile_number": normal_registered_patient_obj.get(
+                                "mobile_number"
+                            ),
+                            "name": normal_registered_patient_obj.get("name"),
+                            "gender": normal_registered_patient_obj.get("gender"),
+                            "DOB": dob_str,
+                            "email": normal_registered_patient_obj.get("email"),
+                            "address": normal_registered_patient_obj.get("address"),
+                            "pincode": normal_registered_patient_obj.get("pincode"),
+                            "hip_id": hip_id,
+                            "auth_methods": normal_registered_patient_obj.get(
+                                "auth_methods"
+                            ),
+                            "status": "Patient already exists without ABHA Id",
+                            "age_in_years": age_in_years,
+                            "age_in_months": age_in_months,
+                        }
+                    else:
+                        logging.info("New patient registeration")
+                        patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                        patient_payload = {
+                            "id": patient_id,
+                            "abha_number": abha_number,
+                            "abha_address": abha_address,
+                            "primary_abha_address": abha_address,
+                            "mobile_number": mobile_number,
+                            "name": name,
+                            "gender": gender,
+                            "DOB": dob_str,
+                            "email": resp_json.get("email"),
+                            "address": resp_json.get("address"),
+                            "pincode": resp_json.get("pincode"),
+                            "hip_id": hip_id,
+                            "auth_methods": {"": resp_json.get("authMethods")},
+                            "is_verified": True,
+                        }
+                        self.CRUDPatientDetails.create(**patient_payload)
+                        patient_payload.update(
+                            {
+                                "status": "New Patient created",
+                                "age_in_years": age_in_years,
+                                "age_in_months": age_in_months,
+                            }
+                        )
+                logging.info("Getting ABHA Card")
+                account_get_abha_card_url = f"{self.abha_url}/v2/account/getPngCard"
+                resp_bytes, resp_code = APIInterface().get_bytes(
+                    route=account_get_abha_card_url,
+                    headers={
+                        "X-Token": f"Bearer {access_token}",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                pdf_bytes_str = base64.b64encode(resp_bytes).decode("utf-8")
+                patient_payload.update({"abha_card_bytes": pdf_bytes_str})
+                return patient_payload
+            raise HTTPException(
+                status_code=resp_code,
+                detail=resp_json.get("details")[0].get("message"),
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.auth_verifyOTP_v3 function: {error}"
+            )
             raise error
 
     def verify_otp(self, request):

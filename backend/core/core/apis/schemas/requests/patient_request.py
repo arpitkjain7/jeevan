@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
+from enum import Enum
 
 
 class RegisterPatient(BaseModel):
@@ -12,6 +13,28 @@ class FetchRegisterationMode(BaseModel):
     abha_number: str
     purpose: str = "KYC_AND_LINK"
     hip_id: str
+
+
+class AuthMode(str, Enum):
+    MOBILE_OTP = "MOBILE_OTP"
+    AADHAAR_OTP = "AADHAAR_OTP"
+
+
+class PatientAuth(BaseModel):
+    abha_identifier: str
+    mode: AuthMode
+
+
+class PatientAuthResendOTP(BaseModel):
+    mode: AuthMode
+    txnId: str
+
+
+class PatientAuthVerifyOTP(BaseModel):
+    mode: AuthMode
+    hip_id: str
+    txnId: str
+    otp: str
 
 
 class AuthInit(BaseModel):
