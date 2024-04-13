@@ -31,7 +31,7 @@ export const apis = {
   getDocBytes: "v1/PMR/getDocumentBytes",
   submitConsentReq: "v1/HIU/consentInit",
   fetchModes: "v1/patient/fetchModes",
-  authInit: "v1/patient/auth/init",
+  authInit: "v2/patient/auth/init",
   verifySyncOtp: "v1/patient/auth/verifyOtp",
   syncPMREndpoint: "v1/PMR/sync",
   patientDetails: "v1/patient",
@@ -53,4 +53,7 @@ export const apis = {
   patientAuthVerifyOTP: "v1/patient/auth/verifyOtp",
   gatewayInteraction: "v1/gatewayInteraction",
   verifyAbhaPatient: "v1.0/patients/verify",
+  verifyDemographics: "v1/patient/auth/verifyDemographic",
+  demographicsAuthInit: "v2/patient/auth/init",
+  deepLink: "v1/deepLinkNotify",
 };

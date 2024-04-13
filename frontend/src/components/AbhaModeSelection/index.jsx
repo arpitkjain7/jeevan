@@ -73,13 +73,12 @@ import {
         marginBottom: "4px",
       },
     },
-  
     ".confirm-verification-btn": {
       "&.MuiButtonBase-root": theme.typography.primaryButton,
     },
   }));
   
-  function AbhaModeSelection({
+  const AbhaModeSelection = ({
     abhaModes,
     registrationModes,
     handleAbhaModeChange,
@@ -87,13 +86,13 @@ import {
     selectedAbhaModeOption,
     selectedAbhaRegistrationOption,
     handleConfirmAbhaSelection,
-  }) {
+  }) => {
     return (
       <VerificationSelectionWrapper>
         <div className="select-mode">
-          {abhaModes?.map((item) => {
+          {abhaModes?.map((item, index) => {
             return (
-              <div className="form-radio-group">
+              <div className="form-radio-group" key={index}>
                 <label>
                   <input
                     type="radio"
@@ -101,6 +100,7 @@ import {
                     checked={selectedAbhaModeOption === item?.value}
                     onChange={handleAbhaModeChange}
                     className="radio-input"
+                   
                   />
                   {item?.label}
                 </label>
@@ -118,9 +118,9 @@ import {
               onChange={handleAbhaRegistrationChange}
               aria-label="Platform"
             >
-              {registrationModes?.map((item) => {
+              {registrationModes?.map((item, index) => {
                 return(
-                <ToggleButton value={item?.value} style={{ fontWeight: 500, border: "1px solid #a2a2a2" }}>
+                <ToggleButton value={item?.value} key={index} style={{ fontWeight: 500, border: "1px solid #a2a2a2" }}>
                   {item?.label}
                 </ToggleButton>
                 )

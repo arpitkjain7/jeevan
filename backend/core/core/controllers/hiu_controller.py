@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_hiu_consent_crud import CRUDHIUConsents
@@ -192,7 +193,7 @@ class HIUController:
                     },
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                return crud_request
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=crud_request) 
         except Exception as error:
             logging.error(f"Error in HIUController.raise_consent function: {error}")
             raise error

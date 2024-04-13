@@ -46,6 +46,7 @@ const TabsContainer = styled("div")(({ theme }) => ({
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
+      textTransform: "none"
     },
   },
 }));
@@ -59,9 +60,12 @@ const ButtonWrapper = styled("div")(({ theme }) => ({
 const CustomButton = styled(Button)(({ theme }) => ({
   "&": theme.typography.tertiaryButton,
 }));
-const tableStyle = {
+const consentTableStyle = {
   backgroundColor: "#f1f1f1",
   // maxWidth: '600px'
+  ".linkTypography": {
+    textTransform: "none !important",
+  }
 };
 
 const ConsentList = () => {
@@ -79,13 +83,23 @@ const ConsentList = () => {
       dispatch(fetchConsentList(patientId)).then((response) => {
         const consentData = response?.payload;
         const formattedConsentList = consentData?.map((item) => {
-          const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy");
-          const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy");
+          const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+          const updatedAt = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+          const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+          const fromDate = convertDateFormat(item?.date_range?.from, "dd-MM-yyyy hh:mm aaaaa'm'");
+          const toDate = convertDateFormat(item?.date_range?.to, "dd-MM-yyyy hh:mm aaaaa'm'");
+          const requested_Hi = item?.hi_type?.requested_hi_types ? item?.hi_type?.requested_hi_types.join(", ") : "";
+          const granted_Hi = item?.hi_type?.granted_hi_types ? item?.hi_type?.granted_hi_types.join(", ") : "";
           const consentStatus = item?.status;
           return {
             consentStatus: consentStatus,
             createdAt: createdAt,
+            updatedAt: updatedAt,
             expireAt: expireAt,
+            fromDate: fromDate,
+            toDate: toDate,
+            requested_Hi: requested_Hi,
+            granted_Hi: granted_Hi,
             ...item,
           };
         });
@@ -95,8 +109,14 @@ const ConsentList = () => {
   }, []);
 
   const columns = [
+    { key: "abha_address", header: "ABHA Address"},
     { key: "createdAt", header: "Consent Created On"},
     { key: "consentStatus", header: "Consent Status"},
+    { key: "updatedAt", header: "Consent Updated On"},
+    { key: "fromDate", header: "Consent from Date"},
+    { key: "toDate", header: "Consent to Date"},
+    { key: "requested_Hi", header: "Requested HI Types"},
+    { key: "granted_Hi", header: "Granted HI Types"},
     { key: "expireAt", header: "Consent Expiry On" },
     {
       key: "actions",
@@ -134,15 +154,17 @@ const ConsentList = () => {
     { label: "Self Requested", value: "Self Requested" },
   ];
 
-  const infoTypeOptions = [
-    { label: "Prescription", value: "Prescription" },
-    { label: "Diagnostic Report", value: "DiagnosticReport" },
-    { label: "OP Consultation", value: "OPConsultation" },
-    { label: "Discharge Summary", value: "DischargeSummary" },
-    { label: "Immunization Record", value: "ImmunizationRecord" },
-    { label: "Record artifact", value: "HealthDocumentRecord" },
-    { label: "Wellness Record", value: "WellnessRecord" },
-  ];
+  const infoTypeOptions = ["Prescription", "Diagnostic Report", "OP Consultation", "Discharge Summary", "Immunization Record", "Record artifact", "Wellness Record"];
+  // [
+  //   { label: "Select All", value: "selectAll" }, //[},
+  //   { label: "Prescription", value: "Prescription" },
+  //   { label: "Diagnostic Report", value: "Diagnostic Report" },
+  //   { label: "OP Consultation", value: "OP Consultation" },
+  //   { label: "Discharge Summary", value: "Discharge Summary" },
+  //   { label: "Immunization Record", value: "Immunization Record" },
+  //   { label: "Record artifact", value: "Record artifact" },
+  //   { label: "Wellness Record", value: "Wellness Record" },
+  // ];
 
   return (
     <ConsentListContainer>
@@ -161,7 +183,7 @@ const ConsentList = () => {
             <MyTable
               columns={columns}
               data={tableData}
-              tableStyle={tableStyle}
+              consentTableStyle={consentTableStyle}
               tableClassName="table-class"
               showSearch={false}
             />
