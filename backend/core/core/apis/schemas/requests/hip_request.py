@@ -14,6 +14,6 @@ class CreateHIP(BaseModel):
 
 
 class DeepLinkNotify(BaseModel):
-    mobile_number: str
+    mobile_no: str
     hip_id: str
     hip_name: str

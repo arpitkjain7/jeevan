@@ -37,7 +37,7 @@ def deep_link_notify(
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return Common().deep_link_notify(
-                mobile_no=deep_link_request.mobile_number,
+                mobile_no=deep_link_request.mobile_no,
                 hip_id=deep_link_request.hip_id,
                 hip_name=deep_link_request.hip_name,
             )
