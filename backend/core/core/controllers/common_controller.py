@@ -74,8 +74,8 @@ class Common:
             deep_link_request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now + timedelta(seconds=300)
-            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
-            deep_link_url = f"{self.gateway_url }/v0.5/patients/sms/notify"
+            time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            deep_link_url = f"{self.gateway_url }/v0.5/patients/sms/notify2"
             resp, resp_code = APIInterface().post(
                 route=deep_link_url,
                 data=json.dumps(
