@@ -85,6 +85,7 @@ class DataTransferController:
                     route=data_push_url, data=data_request
                 )
                 print(f"Data push {resp_code=}")
+                print(f"Data push {resp=}")
                 ack_data_request = {
                     "consent_id": consent_id,
                     "transaction_id": transaction_id,

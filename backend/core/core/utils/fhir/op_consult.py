@@ -8,6 +8,10 @@ from core.utils.fhir.modules import *
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.crud.hims_hip_crud import CRUDHIP
+from core.crud.hims_appointments_crud import CRUDAppointments
+from core.crud.hims_patientDetails_crud import CRUDPatientDetails
+from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.utils.aws.s3_helper import get_object, read_object
 from core import logger
 import json
@@ -36,14 +40,32 @@ def remove_none_values(d):
 def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
     logging.info("executing opConsultUnstructured function")
     time_str = datetime.now(timezone).isoformat()
-    logging.info(f"Creating Practitioner Entry")
-    # Creating Practitioner Entry
-    # pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
-    pmr_obj = CRUDPatientMedicalRecord().read_details(pmr_id=pmr_id)
-    composition_section_list, entry_list = [], []
-    if len(pmr_obj) > 0:
-        pmr_obj = pmr_obj[0]
+    logging.info(f"Getting PMR record")
+    pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+    if pmr_obj:
+        logging.info(f"Getting Doctor record")
+        doc_rec = CRUDDocDetails().read_by_docId(doc_id=pmr_obj["doc_id"])
+        logging.info(f"Getting Appointment record")
+        appointment_rec = CRUDAppointments().read(
+            appointment_id=pmr_obj["appointment_id"]
+        )
+        logging.info(f"Getting HIP record")
+        hip_rec = CRUDHIP().read(hip_ip=pmr_obj["hip_id"])
+        logging.info(f"Getting Patient record")
+        patient_rec = CRUDPatientDetails().read_by_patientId(
+            patient_id=pmr_obj["patient_id"]
+        )
+        pmr_obj.update(
+            {
+                "hip": hip_rec,
+                "doctor": doc_rec,
+                "appointment": appointment_rec,
+                "patient": patient_rec,
+            }
+        )
         logging.info(f"{pmr_obj=}")
+        # pmr_obj = CRUDPatientMedicalRecord().read_details(pmr_id=pmr_id)
+        composition_section_list, entry_list = [], []
         doctor_obj = pmr_obj.get("doctor")
         logging.info(f"{doctor_obj=}")
         # doctor_id = pmr_obj.get("doc_id")
@@ -175,7 +197,7 @@ def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str)
             composition_section = CompositionSection(
                 title="Document Reference",
                 code=codeable_obj,
-                entry=[{"reference": document_url},{"reference": appointment_url}],
+                entry=[{"reference": document_url}, {"reference": appointment_url}],
             )
             composition_section_list.append(composition_section)
         # Creating Composition
@@ -240,13 +262,36 @@ def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str)
 def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
     logging.info("executing opConsultStructured function")
     time_str = datetime.now(timezone).isoformat()
-    logging.info(f"Creating Practitioner Entry")
-    # Creating Practitioner Entry
-    # pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
-    pmr_obj = CRUDPatientMedicalRecord().read_details(pmr_id=pmr_id)
-    if len(pmr_obj) > 0:
-        pmr_obj = pmr_obj[0]
+    logging.info(f"Getting PMR Object")
+    pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+    if pmr_obj:
+        logging.info(f"Getting Doctor record")
+        doc_rec = CRUDDocDetails().read_by_docId(doc_id=pmr_obj["doc_id"])
+        logging.info(f"Getting Appointment record")
+        appointment_rec = CRUDAppointments().read(
+            appointment_id=pmr_obj["appointment_id"]
+        )
+        logging.info(f"Getting HIP record")
+        hip_rec = CRUDHIP().read(hip_ip=pmr_obj["hip_id"])
+        logging.info(f"Getting Patient record")
+        patient_rec = CRUDPatientDetails().read_by_patientId(
+            patient_id=pmr_obj["patient_id"]
+        )
+        pmr_obj.update(
+            {
+                "hip": hip_rec,
+                "doctor": doc_rec,
+                "appointment": appointment_rec,
+                "patient": patient_rec,
+            }
+        )
         logging.info(f"{pmr_obj=}")
+        # Creating Practitioner Entry
+        # pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+        # pmr_obj = CRUDPatientMedicalRecord().read_details(pmr_id=pmr_id)
+        # if len(pmr_obj) > 0:
+        #     pmr_obj = pmr_obj[0]
+        # logging.info(f"{pmr_obj=}")
         doctor_obj = pmr_obj.get("doctor")
         logging.info(f"{doctor_obj=}")
         # doctor_id = pmr_obj.get("doc_id")
@@ -281,7 +326,7 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
         logging.info(f"Creating Patient Entry")
         patient_obj = pmr_obj.get("patient")
         logging.info(f"{patient_obj=}")
-        birth_date, birth_month, birth_year = patient_obj["DOB"].split("/")
+        birth_year, birth_month, birth_date = patient_obj["DOB"].split("-")
         patient_bundle = BundleEntry()
         patient_url = f"Patient/{patient_obj['id']}"
         patient_bundle.fullUrl = patient_url

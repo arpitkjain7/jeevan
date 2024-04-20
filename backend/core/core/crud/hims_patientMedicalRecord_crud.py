@@ -189,7 +189,7 @@ class CRUDPatientMedicalRecord:
                 f"Error in CRUDPatientMedicalRecord read_by_patientId function : {error}"
             )
             raise error
-    
+
     def read_unlinked_by_patientId(self, patient_id: int):
         """[CRUD function to read a PatientMedicalRecord record]
 
@@ -207,7 +207,8 @@ class CRUDPatientMedicalRecord:
             with session() as transaction_session:
                 obj: PatientMedicalRecord = (
                     transaction_session.query(PatientMedicalRecord)
-                    .filter(PatientMedicalRecord.patient_id == patient_id).filter(PatientMedicalRecord.abdm_linked == False)
+                    .filter(PatientMedicalRecord.patient_id == patient_id)
+                    .filter(PatientMedicalRecord.abdm_linked == False)
                     .order_by(PatientMedicalRecord.date_of_consultation.desc())
                     .all()
                 )

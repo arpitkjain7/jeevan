@@ -2,7 +2,7 @@ from core.utils.custom.external_call import APIInterface
 from datetime import datetime, timezone, timedelta
 from core.utils.custom.session_helper import get_session_token
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
-from core.utils.fhir.op_consult import opConsultUnstructured
+from core.utils.fhir.op_consult import opConsultUnstructured, opConsultStructured
 from core.utils.aws.s3_helper import upload_to_s3
 import os
 import uuid
@@ -14,10 +14,16 @@ logging = logger(__name__)
 s3_location = os.environ["s3_location"]
 
 
-def prepare_data(pmr_id: str):
+def prepare_data(pmr_id: str, type: str = "structured"):
     try:
         logging.info(f"Preparing data to transfer for {pmr_id=}")
         bundle_id = str(uuid.uuid1())
+        if type == "structured":
+            return opConsultStructured(
+                bundle_name=f"OPConsultNote-{bundle_id}",
+                bundle_identifier=bundle_id,
+                pmr_id=pmr_id,
+            )
         return opConsultUnstructured(
             bundle_name=f"OPConsultNote-{bundle_id}",
             bundle_identifier=bundle_id,
@@ -41,7 +47,8 @@ def send_data(
         for care_context_obj in care_context_list:
             logging.info(f"{care_context_obj=}")
             fhir_bundle = prepare_data(
-                pmr_id=care_context_obj.get("careContextReference")
+                pmr_id=care_context_obj.get("careContextReference"),
+                type="structured",
             )
             if fhir_bundle:
                 fhir_bundle_list.append(
@@ -61,7 +68,7 @@ def send_data(
         send_data_json = json.dumps(send_data_obj)
         uploaded_file_location = upload_to_s3(
             bucket_name=s3_location,
-            file_name=f"{hip_id}/{transaction_id}/encrypt/{request_id}.json",
+            file_name=f"FHIR_DATA/{hip_id}/{transaction_id}/encrypt/{request_id}.json",
             byte_data=send_data_json,
         )
         return uploaded_file_location

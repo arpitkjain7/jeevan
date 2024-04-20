@@ -161,11 +161,14 @@ class DataTransferController:
             logging.info(f"{expire_datetime_object=}")
             utc_timezone = pytz_timezone("UTC")
             logging.info(f"{utc_timezone=}")
-            #expire_time_utc = utc_timezone.localize(expire_datetime_object)
-            #logging.info(f"{expire_time_utc=}")
+            # expire_time_utc = utc_timezone.localize(expire_datetime_object)
+            # logging.info(f"{expire_time_utc=}")
             expire_time = expire_datetime_object.strftime("%Y-%m-%dT%H:%M:%S")
             logging.info(f"{expire_time=}")
-            if time_now < expire_datetime_object and consent_obj.get("status") == "GRANTED":
+            if (
+                time_now < expire_datetime_object
+                and consent_obj.get("status") == "GRANTED"
+            ):
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "DATA_REQUEST",
@@ -178,9 +181,6 @@ class DataTransferController:
                 gateway_access_token = get_session_token(
                     session_parameter="gateway_token"
                 ).get("accessToken")
-                consent_on_notify_url = (
-                    f"{gateway_url}/v0.5/health-information/hip/on-request"
-                )
                 notify_request_id = str(uuid.uuid1())
                 time_now = datetime.now(timezone.utc)
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
@@ -200,6 +200,7 @@ class DataTransferController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.debug("Request acknowledged")
@@ -263,11 +264,11 @@ class DataTransferController:
 
     def send_data_transfer_ack(self, request):
         try:
-            consent_id = request.consent_id
-            transaction_id = request.transaction_id
-            hip_id = request.hip_id
-            care_context_ack = request.care_context_ack
-            request_id = request.request_id
+            consent_id = request["consent_id"]
+            transaction_id = request["transaction_id"]
+            hip_id = request["hip_id"]
+            care_context_ack = request["care_context_ack"]
+            request_id = request["request_id"]
             ack_request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -276,30 +277,29 @@ class DataTransferController:
             ).get("accessToken")
             gateway_url = os.environ["gateway_url"]
             data_transfer_success_url = f"{gateway_url}/v0.5/health-information/notify"
-            request = json.dumps(
-                {
-                    "requestId": ack_request_id,
-                    "timestamp": time_now,
-                    "notification": {
-                        "consentId": consent_id,
-                        "transactionId": transaction_id,
-                        "doneAt": time_now,
-                        "notifier": {"type": "HIP", "id": hip_id},
-                        "statusNotification": {
-                            "sessionStatus": "TRANSFERRED",
-                            "hipId": hip_id,
-                            "statusResponses": care_context_ack,
-                        },
+            ack_request = {
+                "requestId": ack_request_id,
+                "timestamp": time_now,
+                "notification": {
+                    "consentId": consent_id,
+                    "transactionId": transaction_id,
+                    "doneAt": time_now,
+                    "notifier": {"type": "HIP", "id": hip_id},
+                    "statusNotification": {
+                        "sessionStatus": "TRANSFERRED",
+                        "hipId": hip_id,
+                        "statusResponses": care_context_ack,
                     },
-                }
-            )
+                },
+            }
             headers = {
                 "X-CM-ID": os.environ["X-CM-ID"],
                 "Authorization": f"Bearer {gateway_access_token}",
+                "Content-Type": "application/json",
             }
             _, ack_resp_code = APIInterface().post(
                 route=data_transfer_success_url,
-                data=json.dumps(request),
+                data=json.dumps(ack_request),
                 headers=headers,
             )
             print(f"ack sent {ack_resp_code=}")
