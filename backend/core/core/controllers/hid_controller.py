@@ -1971,7 +1971,7 @@ class HIDController:
 
     def v3_retrieve_abha_getAbhaCard(self, token: str, patient_id: str):
         try:
-            logging.info("executing  retrieve_abha_getAbhaCard function")
+            logging.info("executing  v3_retrieve_abha_getAbhaCard function")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
@@ -1993,35 +1993,35 @@ class HIDController:
                 },
             )
             if resp_code <= 250:
-                upload_to_s3(
-                    bucket_name=self.s3_location,
-                    byte_data=byte_data,
-                    content_type="image/png",
-                    file_name=f"PATIENT_DATA/{patient_id}/abha_card.png",
-                )
-                logging.info("Updating ABHA s3 location in database")
-                self.CRUDPatientDetails.update(
-                    **{
-                        "id": patient_id,
-                        "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha_card.png",
-                    }
-                )
-                logging.info("Generating Presigned URL for Abha S3")
-                s3_presigned_url = create_presigned_url(
-                    bucket_name=self.s3_location,
-                    key=f"PATIENT_DATA/{patient_id}/abha_card.png",
-                    expires_in=1800,
-                )
-                logging.info("Returning S3 presigned url")
-                return {"abha_s3_url": s3_presigned_url}
+                # upload_to_s3(
+                #     bucket_name=self.s3_location,
+                #     byte_data=byte_data,
+                #     content_type="image/png",
+                #     file_name=f"PATIENT_DATA/{patient_id}/abha_card.png",
+                # )
+                # logging.info("Updating ABHA s3 location in database")
+                # self.CRUDPatientDetails.update(
+                #     **{
+                #         "id": patient_id,
+                #         "abha_s3_location": f"PATIENT_DATA/{patient_id}/abha_card.png",
+                #     }
+                # )
+                # logging.info("Generating Presigned URL for Abha S3")
+                # s3_presigned_url = create_presigned_url(
+                #     bucket_name=self.s3_location,
+                #     key=f"PATIENT_DATA/{patient_id}/abha_card.png",
+                #     expires_in=1800,
+                # )
+                # logging.info("Returning S3 presigned url")
+                return {"abha_card_bytes": byte_data}
             else:
                 raise HTTPException(
                     status_code=resp_code,
-                    detail="Error in getting QR code",
+                    detail="Error in getting ABHA card",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
         except Exception as error:
             logging.error(
-                f"Error in HIDController.retrieve_abha_getAbhaCard function: {error}"
+                f"Error in HIDController.v3_retrieve_abha_getAbhaCard function: {error}"
             )
             raise error
