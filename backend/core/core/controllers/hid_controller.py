@@ -1969,7 +1969,7 @@ class HIDController:
             )
             raise error
 
-    def v3_retrieve_abha_getAbhaCard(self, token: str, patient_id: str):
+    def v3_retrieve_abha_getAbhaCard(self, token: str,):
         try:
             logging.info("executing  v3_retrieve_abha_getAbhaCard function")
             gateway_access_token = get_session_token(

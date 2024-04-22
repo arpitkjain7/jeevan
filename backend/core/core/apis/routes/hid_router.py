@@ -520,14 +520,14 @@ def retrieveAbha_getQRCode(
 
 @hid_router.get("/v3/HID/retrieveAbha/getAbhaCard")
 def retrieveAbha_getQRCode(
-    access_token: str, patient_id: str, token: str = Depends(oauth2_scheme)
+    access_token: str, token: str = Depends(oauth2_scheme)
 ):
     try:
         logging.info(f"Calling /v3/HID/retrieveAbha/getAbhaCard endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return HIDController().v3_retrieve_abha_getAbhaCard(
-                token=access_token, patient_id=patient_id
+                token=access_token,
             )
         else:
             raise HTTPException(
