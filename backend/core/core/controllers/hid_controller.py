@@ -1992,6 +1992,7 @@ class HIDController:
                     "X-Token": f"Bearer {token}",
                 },
             )
+            logging.debug(f"{resp_code=}")
             if resp_code <= 250:
                 # upload_to_s3(
                 #     bucket_name=self.s3_location,
@@ -2012,7 +2013,7 @@ class HIDController:
                 #     key=f"PATIENT_DATA/{patient_id}/abha_card.png",
                 #     expires_in=1800,
                 # )
-                # logging.info("Returning S3 presigned url")
+                logging.info("Returning ABHA Bytes")
                 return {"abha_card_bytes": byte_data}
             else:
                 raise HTTPException(
