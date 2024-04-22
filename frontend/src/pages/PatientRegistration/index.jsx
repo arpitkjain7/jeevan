@@ -23,7 +23,7 @@ import {
   patientAuthInit,
   patientAuthVerifyOTP,
   patientFetchModes,
-  // registerAADHAAR,
+  patientAuthResendOtp,
   registerAadhaarAbha,
   suggestAbhaAddress,
   verifyAadhaarAbhaOTP,
@@ -155,7 +155,7 @@ const PatientRegistration = () => {
   const [isAbhaValid, setIsAbhaValid] = useState(false);
   const [verifyAbha, setVerifyAbha] = useState(true);
   const [abhaOTP, setAbhaOTP] = useState(false);
-  const [isAbhaAuthMode, setIsAbhaAuthMode] = useState(false);
+  const [isAbhaAuthMode, setIsAbhaAuthMode] = useState(true);
   const [abhaAuthModeValue, setAbhaAuthModeValue] = useState("");
   const [abhaAuthTxn, setAbhaAuthTxn] = useState("");
   const [retryCount, setRetryCount] = useState(0);
@@ -257,35 +257,35 @@ const PatientRegistration = () => {
     setConsentCount(0);
   };
 
-  useEffect(() => {
-    if (functionCalled && retryCount < 4) { 
-      const fetchGatewayData = async () => { 
-          try { 
-            dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-              if(response?.error && Object.keys(response?.error)?.length > 0) {
-                setShowSnackbar(true);
-                setStepThree(false);
-                return;
-              }
-              else if(response?.payload?.request_status === "SUCESS"){
-                setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-                setStepThree(true);
-                setFunctionCalled(false);
-              } else {
-                  setTimeout(() => {
-                    fetchGatewayData()
-                    setRetryCount(retryCount + 1); 
-                  }, 5000);
-              }
-            })
-          } catch (error) { console.error(error); } 
-      };
-      fetchGatewayData();
-    } else if (functionCalled && retryCount > 4) {
-      setShowSnackbar(true);
-      setFunctionCalled(false);
-    }
-}, [retryCount, functionCalled]); 
+//   useEffect(() => {
+//     if (functionCalled && retryCount < 4) { 
+//       const fetchGatewayData = async () => { 
+//           try { 
+//             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
+//               if(response?.error && Object.keys(response?.error)?.length > 0) {
+//                 setShowSnackbar(true);
+//                 setStepThree(false);
+//                 return;
+//               }
+//               else if(response?.payload?.request_status === "SUCESS"){
+//                 setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
+//                 setStepThree(true);
+//                 setFunctionCalled(false);
+//               } else {
+//                   setTimeout(() => {
+//                     fetchGatewayData()
+//                     setRetryCount(retryCount + 1); 
+//                   }, 5000);
+//               }
+//             })
+//           } catch (error) { console.error(error); } 
+//       };
+//       fetchGatewayData();
+//     } else if (functionCalled && retryCount > 4) {
+//       setShowSnackbar(true);
+//       setFunctionCalled(false);
+//     }
+// }, [retryCount, functionCalled]); 
 
   const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
@@ -409,12 +409,13 @@ const PatientRegistration = () => {
 
   const handleAbhaGenerateOTP = () => {
     const payload = {
-      abha_number: abha,
-      purpose: "KYC_AND_LINK",
-      auth_mode: abhaAuthModeValue,
-      hip_id: currentHospital?.hip_id,
+      // abha_number: abha,
+      // purpose: "KYC_AND_LINK",
+      // auth_mode: abhaAuthModeValue,
+      // hip_id: currentHospital?.hip_id,
+      abha_identifier: abha,
+      mode: abhaAuthModeValue
     };
-    console.log(payload);
     dispatch(patientAuthInit(payload)).then((res) => {
       setShowLoader(false);
       if (res?.error && Object.keys(res?.error)?.length > 0) {
@@ -423,12 +424,25 @@ const PatientRegistration = () => {
       }
       if(res?.payload){
         setIsAbhaValid(true);
-        setAbhaAuthTxn(res?.payload?.txn_id);
+        setAbhaAuthTxn(res?.payload?.txnId);
         setAbhaOTPSeconds(60);
         setAbhaOTP(true);
       }
     });
- 
+  }
+
+  const handleAbhaResetOTP = () => {
+    const payload = {
+      mode: abhaAuthModeValue,
+      txnId: abhaAuthTxn
+    };
+    dispatch(patientAuthResendOtp(payload)).then((res) => {
+      setShowLoader(false);
+      if (res?.error && Object.keys(res?.error)?.length > 0) {
+        setShowSnackbar(true);
+        return;
+      }
+    });
   }
   const handleSubmit = (type) => {
     // Handle the form submission
@@ -541,26 +555,26 @@ const PatientRegistration = () => {
         setIsAbhaValid(true);
         console.log("Form submitted:");
         if(selectedAbhaModeOption === "link_abha"){
-          const payload = {
-            abha_number: abha,
-            purpose: "KYC_AND_LINK",
-            hip_id: currentHospital?.hip_id,
-          };
-          dispatch(patientFetchModes(payload)).then((res) => {
-            setShowLoader(false);
-            if (res?.error && Object.keys(res?.error)?.length > 0) {
-              setShowSnackbar(true);
-              return;
-            }
-            if(res?.payload){
-              setIsAbhaAuthMode(true);
-              setIsAbhaValid(true);
-              // setAadhaarDataTxn(res?.payload?.txn_id);
-             
-            }
-          });
+          setShowLoader(false);
+          // setIsAbhaAuthMode(true);
+          // setIsAbhaValid(true);
+          // const payload = {
+          //   abha_number: abha,
+          //   purpose: "KYC_AND_LINK",
+          //   hip_id: currentHospital?.hip_id,
+          // };
+          // dispatch(patientFetchModes(payload)).then((res) => {
+          //   setShowLoader(false);
+          //   if (res?.error && Object.keys(res?.error)?.length > 0) {
+          //     setShowSnackbar(true);
+          //     return;
+          //   }
+          //   if(res?.payload){
+          //     setIsAbhaAuthMode(true);
+          //     setIsAbhaValid(true);             
+          //   }
+          // });
         } 
-         
       } else {
         console.log("Failed");
         setIsAbhaError(true);
@@ -572,7 +586,6 @@ const PatientRegistration = () => {
   };
 
   const verifyOTP = (otp, type) => {
-    console.log(otp, type);
     if (selectedOption === "abha" && type === "aadhaar") {
       if(selectedAbhaModeOption === "link_abha"){
         const payload = {
@@ -665,6 +678,8 @@ const PatientRegistration = () => {
       }
     } else if (selectedOption === "abha" && type === "abha"){ 
       const payload = {
+        mode: abhaAuthModeValue,
+        hip_id: currentHospital?.hip_id,
         txnId: abhaAuthTxn,
         otp: otp,
       };
@@ -674,25 +689,13 @@ const PatientRegistration = () => {
           setStepThree(false);
           return;
         } else {
-          setGatewayRequestId(res?.payload?.request_id);
-          setFunctionCalled(true); 
-          setRetryCount((prevCount) => prevCount + 1); 
-          // const requestId = res?.payload?.request_id;
-          // dispatch(gatewayInteraction(requestId)).then(response => {
-          //   console.log("gateway response", response);
-          //   if(response?.error && Object.keys(response?.error)?.length > 0) {
-          //     setShowSnackbar(true);
-          //     setStepThree(false);
-          //     return;
-          //   }
-          //   else if(response?.payload?.callback_response !== null){
-          //     setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-          //     setStepThree(true);
-          //   } else {
-          //     setShowSnackbar(true);
-          //     return;
-          //   }
-          // })
+          console.log(res?.payload);
+          setPatientAbhaData(res?.payload);
+          setStepThree(true);
+          // setGatewayRequestId(res?.payload?.request_id);
+          // setFunctionCalled(true); 
+          // setRetryCount((prevCount) => prevCount + 1); 
+          
         }
       });
     }
@@ -1038,7 +1041,7 @@ const PatientRegistration = () => {
             abha={abha}
             handleAbhaChange={handleAbhaChange}
             isAbhaError={isAbhaError}
-            handleSubmit={handleSubmit}
+            // handleSubmit={handleSubmit}
             isAbhaValid={isAbhaValid}
             abhaOTP={abhaOTP}
             setSixDigitOTP={setSixDigitOTP}
