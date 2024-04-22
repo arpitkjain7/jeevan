@@ -26,6 +26,7 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ForgotPasswordPage from "../pages/ForgotPassword";
+import DoctorProfilePage from "../pages/DoctorProfilePage";
 
 const drawerWidth = 235;
 
@@ -239,6 +240,8 @@ function App() {
                 ) : (
                   <Route path="*" element={<SignInPage />} />
                 )}
+                {/* <Route path="/view-profile" element={<DoctorProfilePage />} /> */}
+                <Route path="/view-profile/dr-prasad" element={<DoctorProfilePage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/" element={<SignInPage />} />
               </Routes>
@@ -334,6 +337,7 @@ function App() {
                 ) : (
                   <Route path="*" element={<SignInPage />} />
                 )}
+                <Route path="/view-profile/dr-prasad" element={<DoctorProfilePage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/" element={<SignInPage />} />
               </Routes>
