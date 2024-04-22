@@ -13,7 +13,7 @@ from core.utils.aws.s3_helper import (
 )
 from core.utils.custom.encryption_helper import rsa_encryption, rsa_encryption_oaep
 import os
-import json
+import json, base64
 import uuid, pytz
 
 logging = logger(__name__)
@@ -1969,7 +1969,10 @@ class HIDController:
             )
             raise error
 
-    def v3_retrieve_abha_getAbhaCard(self, token: str,):
+    def v3_retrieve_abha_getAbhaCard(
+        self,
+        token: str,
+    ):
         try:
             logging.info("executing  v3_retrieve_abha_getAbhaCard function")
             gateway_access_token = get_session_token(
@@ -1992,6 +1995,7 @@ class HIDController:
                     "X-Token": f"Bearer {token}",
                 },
             )
+            #logging.debug(f"{byte_data=}")
             logging.debug(f"{resp_code=}")
             if resp_code <= 250:
                 # upload_to_s3(
@@ -2014,7 +2018,8 @@ class HIDController:
                 #     expires_in=1800,
                 # )
                 logging.info("Returning ABHA Bytes")
-                return {"abha_card_bytes": byte_data}
+                pdf_bytes_str = base64.b64encode(byte_data).decode("utf-8")
+                return {"abha_card_bytes": pdf_bytes_str}
             else:
                 raise HTTPException(
                     status_code=resp_code,
