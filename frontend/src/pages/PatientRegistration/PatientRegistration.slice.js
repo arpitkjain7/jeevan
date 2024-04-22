@@ -140,6 +140,14 @@ export const displayAbha = createAsyncThunk(
   }
 );
 
+export const getAbhaCard = createAsyncThunk(
+  "registration/getAbhaCard",
+  async (payload) => {
+    const response = await apiRequest("GET", `${apis?.getAbhaCard}?access_token=${payload?.access_token}`);
+    return response;
+  }
+);
+
 export const patientFetchModes = createAsyncThunk(
   "registration/patientFetchModes",
   async (payload) => {

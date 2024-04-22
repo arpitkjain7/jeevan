@@ -147,6 +147,7 @@ const PatientRegistration = () => {
   const [abhaAccounts, setAbhaAccounts] = useState([]);
   const [abhaUserDetails, setAbhaUserDetails] = useState({});
   const [patientAbhaData, setPatientAbhaData] = useState({});
+  const [patientAbhaToken, setPatientAbhaToken] = useState("");
   const [abhaSuggestionList, setAbhaSuggestionList] = useState([]);
   const [abhaSuggestionTxnId, setAbhaSuggestionTxnId] = useState("");
   const [abhaDialogOpen, setAbhaDialogOpen] = useState(false);
@@ -256,36 +257,6 @@ const PatientRegistration = () => {
     setOpenConsent(true);
     setConsentCount(0);
   };
-
-//   useEffect(() => {
-//     if (functionCalled && retryCount < 4) { 
-//       const fetchGatewayData = async () => { 
-//           try { 
-//             dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-//               if(response?.error && Object.keys(response?.error)?.length > 0) {
-//                 setShowSnackbar(true);
-//                 setStepThree(false);
-//                 return;
-//               }
-//               else if(response?.payload?.request_status === "SUCESS"){
-//                 setPatientAbhaData(response?.payload?.callback_response?.auth?.patient);
-//                 setStepThree(true);
-//                 setFunctionCalled(false);
-//               } else {
-//                   setTimeout(() => {
-//                     fetchGatewayData()
-//                     setRetryCount(retryCount + 1); 
-//                   }, 5000);
-//               }
-//             })
-//           } catch (error) { console.error(error); } 
-//       };
-//       fetchGatewayData();
-//     } else if (functionCalled && retryCount > 4) {
-//       setShowSnackbar(true);
-//       setFunctionCalled(false);
-//     }
-// }, [retryCount, functionCalled]); 
 
   const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
@@ -612,6 +583,7 @@ const PatientRegistration = () => {
               }
               else if(profileResponse?.payload){
                 setPatientAbhaData(profileResponse?.payload);
+                setPatientAbhaToken(res?.payload?.token);
                 setStepThree(true);
               }
             })
@@ -634,6 +606,7 @@ const PatientRegistration = () => {
           if(res?.payload?.ABHAProfile) {
             dispatch(suggestAbhaAddress(res?.payload?.txnId)).then((result) => {
               setPatientAbhaData(res?.payload?.ABHAProfile);
+              setPatientAbhaToken(res?.payload?.tokens?.token);
               setAbhaSuggestionList(result?.payload?.abhaAddressList);
               setAbhaSuggestionTxnId(result?.payload?.txnId);
               setStepThree(true);
@@ -791,12 +764,12 @@ const PatientRegistration = () => {
   }, [abhaOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if(selectedOption === "abha") {
-      setOpen(true);
-      // setStepAbha(true);
-    } else {
-      setStepOne(true);
-    }
+    // if(selectedOption === "abha") {
+    //   setOpen(true);
+    //   // setStepAbha(true);
+    // } else {
+      setStepAbha(true);
+    // }
   };
 
   const handleConfirmAbhaSelection = () => {
@@ -854,6 +827,7 @@ const PatientRegistration = () => {
           }
           else if(profileResponse?.payload){
             setPatientAbhaData(profileResponse?.payload);
+            setPatientAbhaToken(result?.payload?.token);
             setStepThree(true);
           }
         })
@@ -1052,6 +1026,7 @@ const PatientRegistration = () => {
             abhaAuthModeOptions={abhaAuthModeOptions}
             abhaAuthModeValue={abhaAuthModeValue}
             handleAbhaGenerateOTP={handleAbhaGenerateOTP}
+            handleAbhaResetOTP={handleAbhaResetOTP}
           /> 
         </ExpandableCard>
       )}
@@ -1091,6 +1066,7 @@ const PatientRegistration = () => {
                 txnId={aadhaarDataTxn || phoneDataTxn}
                 isForAbha={checkedOption}
                 patientAbhaData={patientAbhaData}
+                patientAbhaToken={patientAbhaToken}
                 abhaSuggestionList={abhaSuggestionList}
                 abhaSuggestionTxnId={abhaSuggestionTxnId}
                 selectedAbhaModeOption={selectedAbhaModeOption}

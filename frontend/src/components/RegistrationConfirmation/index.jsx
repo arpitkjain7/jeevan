@@ -18,7 +18,7 @@ import {
   getEMRId,
   getPatientDetails,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { downloadAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import { downloadAbha, getAbhaCard } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import CustomLoader from "../CustomLoader";
 
@@ -197,14 +197,23 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    if(patientData?.abha_address || currentPatient?.abha_address){
+    console.log(patientData, "patientData");
+    if(patientData?.abhaBytes){
+      setIsAbhaPresent(true);
+      setAbhaCardBytes(patientData?.abhaBytes);
+    }
+    // else if(patientData?.abha_address || currentPatient?.abha_address){
     // if (!isAppointment) {
-      dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
+    else if(patientData?.token){
+      const abhaCardPayload = { 
+        access_token:patientData?.token
+      }
+      dispatch(getAbhaCard(abhaCardPayload)).then((res) => {
         if (res?.error) {
           return;
         } else {
           setIsAbhaPresent(true);
-          setAbhaCardBytes(res.payload?.abha_bytes);
+          setAbhaCardBytes(res?.payload?.abha_card_bytes);
         }
       });
     }
@@ -212,17 +221,23 @@ const RegisterationConfirmation = ({
 
   const downloadAbhaCard = () => {
     console.log("Downloading ABHA");
-    setIsAbhaDisabled(true);
-    dispatch(downloadAbha({ patientId: patientData.id })).then((res) => {
-      setIsAbhaDisabled(false);
-      if (res?.error && Object.keys(res?.error)?.length > 0) {
-        console.log("Download ABHA failed");
-        return;
-      } else {
-        const abha_url = res?.payload.abha_url;
-        window.location.replace(abha_url);
-      }
-    });
+      const blob = bytesToBlob(abhaCardBytes); 
+      const url = URL.createObjectURL(blob); 
+      const link = document.createElement('a'); 
+      link.href = url; link.download = 'image.jpg'; 
+      document.body.appendChild(link); link.click(); 
+      document.body.removeChild(link); 
+    // setIsAbhaDisabled(true);
+    // dispatch(downloadAbha({ patientId: patientData.id })).then((res) => {
+    //   setIsAbhaDisabled(false);
+    //   if (res?.error && Object.keys(res?.error)?.length > 0) {
+    //     console.log("Download ABHA failed");
+    //     return;
+    //   } else {
+    //     const abha_url = res?.payload.abha_url;
+    //     window.location.replace(abha_url);
+    //   }
+    // });
   };
   const doctor_details = sessionStorage.getItem("DoctorDetails");
   // const docName = sessionStorage.getItem("DoctorName");
@@ -369,6 +384,24 @@ const RegisterationConfirmation = ({
 
     handleCloseDrPopup();
   };
+
+  const bytesToBlob = (bytesArray) => { 
+    // const byteArray = new Uint8Array(bytesArray); 
+    // return new Blob([byteArray], { type: 'image/jpeg' }); 
+    const decodedByteCode = atob(bytesArray);
+    const byteNumbers = new Array(decodedByteCode.length);
+    for (let i = 0; i < decodedByteCode.length; i++) {
+      byteNumbers[i] = decodedByteCode.charCodeAt(i);
+    }
+    const blobData = new Blob([new Uint8Array(byteNumbers)], {
+      type: 'image/jpeg',
+    });
+    // const pdfUrls = URL.createObjectURL(blobData);
+      return blobData
+  };
+
+
+
   return (
     <RegisterationConfirmationWrapper>
       <CustomLoader
@@ -477,6 +510,7 @@ const RegisterationConfirmation = ({
         <embed
           style={{ width: "-webkit-fill-available" }}
           src={`data:image/jpeg;base64,${abhaCardBytes}`}
+          download
         />
       )}
     </RegisterationConfirmationWrapper>
