@@ -156,6 +156,14 @@ export const patientAuthInit = createAsyncThunk(
   }
 );
 
+export const patientAuthResendOtp = createAsyncThunk(
+  "registration/patientAuthResendOtp",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.patientAuthResendOtp, payload);
+    return response;
+  }
+);
+
 export const patientAuthVerifyOTP = createAsyncThunk(
   "registration/patientAuthVerifyOTP",
   async (payload) => {

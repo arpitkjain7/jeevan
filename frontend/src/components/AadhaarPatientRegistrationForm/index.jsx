@@ -16,6 +16,7 @@ const AadhaarPatientRegForm = ({
   abhaSuggestionTxnId,
   selectedAbhaModeOption
  }) => {
+  console.log(patientAbhaData);
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -101,35 +102,37 @@ const AadhaarPatientRegForm = ({
     }
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      const payload = Object.keys(patientAbhaData).length > 0 ? {
-        name: patientAbhaData?.name || patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
-        email: patientAbhaData?.email,
-        mobile_number: patientAbhaData?.mobile || patientAbhaData?.identifiers[0].value,
-        abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
-        primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
-        DOB: patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
-        gender: patientAbhaData?.gender,
-        abha_number: patientAbhaData?.ABHANumber || patientAbhaData?.identifiers[1].value,
-        pincode: patientPincode,
-        //address: patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state || patientAbhaData?.address,
-        address: patientAddress,
-        state_name: patientAbhaData?.stateName || patientAbhaData?.address?.state,
-        district_name: patientAbhaData?.districtName || patientAbhaData?.address?.district,
-        district_code: patientAbhaData?.districtCode,
-        hip_id: currentHospital?.hip_id,
-      } : {
-        name: formData?.firstname + " " + formData?.middlename + " " + formData?.lastname,
-        email: formData?.email,
-        mobile_number: formData?.mobile,
-        abha_address: formData?.abhaAddress,
-        primary_abha_address: formData?.abhaAddress,
-        DOB: formData?.dob,
-        gender: formData?.gender,
-        abha_number: formData?.abhaNumber,
-        pincode: formData?.pincode,
-        address: formData?.address,
-        hip_id: currentHospital?.hip_id,
-      }
+      if(Object.keys(patientAbhaData).length > 0){
+        const payload = {
+          name: patientAbhaData?.name || patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
+          email: patientAbhaData?.email,
+          mobile_number: patientAbhaData?.mobile || patientAbhaData?.mobile_number || patientAbhaData?.identifiers[0].value,
+          abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
+          primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
+          DOB: patientAbhaData?.dob || patientAbhaData?.DOB ? format(new Date(patientAbhaData?.DOB), "dd-MM-yyyy") : "" || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
+          gender: patientAbhaData?.gender,
+          abha_number: patientAbhaData?.ABHANumber || patientAbhaData?.abha_number || patientAbhaData?.identifiers[1].value,
+          pincode: patientPincode,
+          //address: patientAbhaData?.address?.line !== null ? patientAbhaData?.address?.line + " " + patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state : patientAbhaData?.address?.district + " " + patientAbhaData?.address?.state || patientAbhaData?.address,
+          address: patientAddress,
+          state_name: patientAbhaData?.stateName || patientAbhaData?.address?.state || "",
+          district_name: patientAbhaData?.districtName || patientAbhaData?.address?.district || "",
+          district_code: patientAbhaData?.districtCode || "",
+          hip_id: currentHospital?.hip_id,
+        }
+      // } : {
+      //   name: formData?.firstname + " " + formData?.middlename + " " + formData?.lastname,
+      //   email: formData?.email,
+      //   mobile_number: formData?.mobile,
+      //   abha_address: formData?.abhaAddress,
+      //   primary_abha_address: formData?.abhaAddress,
+      //   DOB: formData?.dob,
+      //   gender: formData?.gender,
+      //   abha_number: formData?.abhaNumber,
+      //   pincode: formData?.pincode,
+      //   address: formData?.address,
+      //   hip_id: currentHospital?.hip_id,
+      // }
       const abhaAddressPayload = {
         abhaAddress: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || formData?.abhaAddress,
         txnId: abhaSuggestionTxnId
@@ -150,6 +153,7 @@ const AadhaarPatientRegForm = ({
           dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
           navigate("/registered-patient");
         });
+      }
     }
   };
 
@@ -218,7 +222,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Mobile Number"
               name="mobile"
-              value={patientAbhaData?.mobile || patientAbhaData?.identifiers[0].value}
+              value={patientAbhaData?.mobile || patientAbhaData?.mobile_number} //  || patientAbhaData?.identifiers[0]?.value
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               disabled
@@ -229,7 +233,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="DOB"
               name="dob"
-              value={patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`}
+              value={patientAbhaData?.dob || patientAbhaData?.DOB || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`}
               onChange={handleChange}
               disabled
               InputLabelProps={{ shrink: true }}
@@ -251,7 +255,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="ABHA number"
               name="abhaNumber"
-              value={patientAbhaData?.ABHANumber || patientAbhaData?.identifiers[1].value}
+              value={patientAbhaData?.ABHANumber || patientAbhaData?.abha_number} // || patientAbhaData?.identifiers[1]?.value
               onChange={handleChange}
               disabled
               InputLabelProps={{ shrink: true }}
@@ -305,7 +309,7 @@ const AadhaarPatientRegForm = ({
               <TextField
                 label="ABHA Address"
                 name="abhaAddress"
-                value={patientAbhaData?.preferredAbhaAddress || patientAbhaData?.id}
+                value={patientAbhaData?.preferredAbhaAddress || patientAbhaData[0]?.abha_address || patientAbhaData?.id}
                 onChange={handleChange}
                 required
                 disabled

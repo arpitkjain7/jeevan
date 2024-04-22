@@ -22,7 +22,14 @@ const Sidebar = ({ open, onClose, list }) => {
   const selectedIndex = JSON.parse(sessionStorage.getItem("PageSelected")) || 0;
 
   const handleListItemClick = (event, index) => {
-    sessionStorage.setItem("PageSelected", index)
+    sessionStorage.setItem("PageSelected", index);
+    if(index === 0){
+      redirectRoutes("/dashboard");
+    } else if(index === 1){
+      redirectRoutes("/patient-list");
+    } else if(index === 2){
+      redirectRoutes("/appointment-list");
+    }
   };
   return (
     <Drawer
@@ -47,8 +54,7 @@ const Sidebar = ({ open, onClose, list }) => {
           selected={selectedIndex === 0}
           onClick={(event) => handleListItemClick(event, 0)}
         >
-        <ListItem sx={{ padding: "0"}}
-          onClick={() => redirectRoutes("/dashboard")}>
+        <ListItem sx={{ padding: "0"}} >
           <img
             src={HomeIcon}
             alt="Home"
@@ -60,8 +66,7 @@ const Sidebar = ({ open, onClose, list }) => {
           selected={selectedIndex === 1}
           onClick={(event) => handleListItemClick(event, 1)}
         >
-        <ListItem sx={{ padding: "5px 0"}}
-            onClick={() => redirectRoutes("/patient-list")}>
+        <ListItem sx={{ padding: "5px 0"}} >
           <img
             src={PersonIcon}
             alt="person"
@@ -73,8 +78,7 @@ const Sidebar = ({ open, onClose, list }) => {
           selected={selectedIndex === 2}
           onClick={(event) => handleListItemClick(event, 2)}
         >
-        <ListItem sx={{ padding: "5px 0"}}
-            onClick={() => redirectRoutes("/appointment-list")}>
+        <ListItem sx={{ padding: "5px 0"}} >
           <img
             src={AppointmentIcon}
             alt="appointment"

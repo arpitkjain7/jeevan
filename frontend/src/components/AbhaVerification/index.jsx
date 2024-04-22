@@ -61,7 +61,7 @@ import {
     abha,
     handleAbhaChange,
     isAbhaError,
-    handleSubmit,
+    // handleSubmit,
     isAbhaValid,
     abhaOTP,
     setSixDigitOTP,
@@ -71,7 +71,8 @@ import {
     handleAbhaAuthModeChange,
     abhaAuthModeOptions,
     abhaAuthModeValue,
-    handleAbhaGenerateOTP
+    handleAbhaGenerateOTP,
+    handleAbhaResetOTP
   }) => {
     const dataState = useSelector((state) => state);
     const fetchingAbhaOtp = dataState?.PatientRegistartion?.loading;
@@ -86,13 +87,13 @@ import {
             error={isAbhaError}
             className="abha-text"
           />
-           <Button
+           {/* <Button
               onClick={() => handleSubmit("abha")}
               variant="contained"
               className="verification-btn"
             >
                 Submit
-            </Button>
+            </Button> */}
         </div>
         <div>
           <span style={{ color: "red" }}>
@@ -101,7 +102,7 @@ import {
         </div>
 
         {isAbhaAuthMode && (
-            <div style={{ padding: "15px 0" }}>
+            <div style={{ paddingBottom: "1px" }}>
                 <Typography className="otp-title">Select Mode</Typography>
                 <FormControl>
                     <div component="fieldset">
@@ -109,6 +110,7 @@ import {
                             row
                             value={abhaAuthModeValue}
                             onChange={handleAbhaAuthModeChange}
+                            style= {{ marginBottom: "10px" }}
                             >
                             {abhaAuthModeOptions?.map((option) => (
                                 <FormControlLabel
@@ -121,7 +123,7 @@ import {
                         </RadioGroup>
                         {seconds > 0 || seconds < 0 ? (
                             <Button
-                                // disabled={isAbhaValid}
+                                disabled={isAbhaValid}
                                 onClick={() => handleAbhaGenerateOTP()}
                                 variant="contained"
                                 className="verification-btn"
@@ -134,7 +136,7 @@ import {
                             style={{
                                 color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
                             }}
-                            onClick={() => handleAbhaGenerateOTP()}
+                            onClick={() => handleAbhaResetOTP()}
                             variant="contained"
                             className="verification-btn"
                             >
@@ -155,7 +157,6 @@ import {
                 )}
             </div>
         )}
-     
 
         {abhaOTP && (
           <div>
