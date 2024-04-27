@@ -1,46 +1,95 @@
-name: CI/CD counter app
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-#First we will see the application build or not , then we will deploy in EC2
-  build:
+  Docker:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Build the docker_compose
-      run: docker-compose -f docker-compose-prod.yml up --build -d
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
       
-    # - name: Buid the application
-    #   run: docker-compose exec -T counter_app npm run build
+      # - name: setup git config
+      #   run: |
+      #     git config user.name "GitHub Actions Bot"
+      #     git config user.email "<>"
+      
+      # - name: Dependecies
+      #   run: npm ci
+      
+      # - name: Build
+      #   run: npm run build
+        
+      # - name: Save version
+      #   id: version
+      #   run: echo ::set-output name=tag::$(echo $(node -p -e "require('./package.json').version"))
+        
+      # - name: Increase version
+      #   run: npm version patch
+        
+      # - name: Push new version
+      #   run: git push
+      
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        
+      # - name: Build Docker image
+      #   run: docker build . --file Dockerfile --tag ziermann/tut:${{steps.version.outputs.tag}}
 
-  Deploy:
-    needs: build
-    runs-on: ubuntu-latest
+      - name: Build Docker Compose image
+        run: docker-compose -f docker-compose-ui.yml up --build -d
+
+      - name: Push to Docker Hub
+        run: docker push cliniq360/lobster-ui:1.6
+        
+# name: CI/CD counter app
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+# #First we will see the application build or not , then we will deploy in EC2
+#   build:
+#     runs-on: ubuntu-latest
     
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Deploy in EC2
-        env:
-            PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
-            HOSTNAME : ${{ secrets.HOSTNAME  }}
-            USER_NAME : ${{ secrets.USER_NAME  }}
+#     steps:
+#     - uses: actions/checkout@v2
+    
+#     - name: Build the docker_compose
+#       run: docker-compose -f docker-compose-prod.yml up --build -d
+      
+#     # - name: Buid the application
+#     #   run: docker-compose exec -T counter_app npm run build
+
+#   Deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#       - uses: actions/checkout@v2 
+#       - name: Deploy in EC2
+#         env:
+#             PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
+#             HOSTNAME : ${{ secrets.HOSTNAME  }}
+#             USER_NAME : ${{ secrets.USER_NAME  }}
             
-        run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+#         run: |
+#           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+#           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
-            #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ec2-user/jeevan &&
-            git checkout main &&
-            git fetch --all &&
-            git reset --hard origin/main &&
-            git pull origin main &&
-            export AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} &&
-            export AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} &&
-            docker-compose -f docker-compose-prod.yml up --pull --build -d
-          '
+#             #Now we have got the access of EC2 and we will start the deploy .
+#             cd /home/ec2-user/jeevan &&
+#             git checkout main &&
+#             git fetch --all &&
+#             git reset --hard origin/main &&
+#             git pull origin main &&
+#             export AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} &&
+#             export AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} &&
+#             docker-compose -f docker-compose-prod.yml up --pull --build -d
+#           '
