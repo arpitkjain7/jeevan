@@ -1262,83 +1262,101 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             )
             section_refs.append(phy_exam_ref)
 
-            # Creating medical history
-            logging.info(f"Creating medical history")
-            medical_history_list = CRUDMedicalHistory().read_self_by_pmrId(
-                pmr_id=pmr_id
-            )
-            med_history_sections = [
-                create_section(
-                    title="Medical History",
-                    code="371529009",
-                    ref_id=medical_history_obj["id"],
-                    display="Medical History section",
-                    text=medical_history_obj["medical_history"],
-                )
-                for medical_history_obj in medical_history_list
-            ]
-            ref_data.extend(med_history_sections)
-            med_history_ref = [
-                Reference.construct(
-                    reference=f"MedicalHistory/{med_history_section.id}",
-                    display=f"{med_history_section.title}",
-                )
-                for med_history_section in med_history_sections
-            ]
-            section_refs.extend(med_history_ref)
+            # # Creating medical history
+            # logging.info(f"Creating medical history")
+            # medical_history_list = CRUDMedicalHistory().read_self_by_pmrId(
+            #     pmr_id=pmr_id
+            # )
+            # med_history_sections = [
+            #     create_section(
+            #         title="Medical History",
+            #         code="371529009",
+            #         ref_id=medical_history_obj["id"],
+            #         display="Medical History section",
+            #         text=medical_history_obj["medical_history"],
+            #     )
+            #     for medical_history_obj in medical_history_list
+            # ]
+            # ref_data.extend(med_history_sections)
+            # med_history_ref = [
+            #     Reference.construct(
+            #         reference=f"MedicalHistory/{med_history_section.id}",
+            #         display=f"{med_history_section.title}",
+            #     )
+            #     for med_history_section in med_history_sections
+            # ]
+            # section_refs.extend(med_history_ref)
 
-            # Creating family medical history
-            logging.info(f"Creating family medical history")
-            family_medical_history_list = CRUDMedicalHistory().read_others_by_pmrId(
-                pmr_id=pmr_id
-            )
-            family_med_history_sections = [
-                create_section(
-                    title="Family History",
-                    code="371529009",
-                    ref_id=family_medical_history_obj["id"],
-                    display="Family History section",
-                    text=family_medical_history_obj["medical_history"],
-                )
-                for family_medical_history_obj in family_medical_history_list
-            ]
-            ref_data.extend(family_med_history_sections)
-            family_med_history_ref = [
-                Reference.construct(
-                    reference=f"FamilyHistory/{family_med_history_section.id}",
-                    display=f"{family_med_history_section.title}",
-                )
-                for family_med_history_section in family_med_history_sections
-            ]
-            section_refs.extend(family_med_history_ref)
+            # # Creating family medical history
+            # logging.info(f"Creating family medical history")
+            # family_medical_history_list = CRUDMedicalHistory().read_others_by_pmrId(
+            #     pmr_id=pmr_id
+            # )
+            # family_med_history_sections = [
+            #     create_section(
+            #         title="Family History",
+            #         code="371529009",
+            #         ref_id=family_medical_history_obj["id"],
+            #         display="Family History section",
+            #         text=family_medical_history_obj["medical_history"],
+            #     )
+            #     for family_medical_history_obj in family_medical_history_list
+            # ]
+            # ref_data.extend(family_med_history_sections)
+            # family_med_history_ref = [
+            #     Reference.construct(
+            #         reference=f"FamilyHistory/{family_med_history_section.id}",
+            #         display=f"{family_med_history_section.title}",
+            #     )
+            #     for family_med_history_section in family_med_history_sections
+            # ]
+            # section_refs.extend(family_med_history_ref)
 
             # Creating medication history
             logging.info(f"Creating medication history")
             medicines_list = CRUDMedicines().read_by_pmrId(pmr_id=pmr_id)
             logging.info(f"{medicines_list=}")
             medicines_sections = [
-                create_section(
-                    title="Medication",
-                    code="371529009",
-                    ref_id=medicines_obj["id"],
-                    display="Medication section",
-                    text=medicines_obj["medicine_name"],
+                get_medical_statement_construct(
+                    patient_ref=patient_obj["id"],
+                    medication_obj_code=medicines_obj["snowmed_code"],
+                    medication_obj_display=medicines_obj["snowmed_display"],
+                    medication_statement_id=medicines_obj["id"],
                 )
                 for medicines_obj in medicines_list
             ]
+            # medicines_sections = [
+            #     create_section(
+            #         title="Medication",
+            #         code="371529009",
+            #         ref_id=medicines_obj["id"],
+            #         display="Medication section",
+            #         text=medicines_obj["medicine_name"],
+            #     )
+            #     for medicines_obj in medicines_list
+            # ]
             logging.info(f"{medicines_sections=}")
             ref_data.extend(medicines_sections)
             medicines_ref = [
                 Reference.construct(
                     reference=f"Medicine/{medicines_section.id}",
-                    display=f"{medicines_section.title}",
+                    # display=f"{medicines_section.title}",
                 )
                 for medicines_section in medicines_sections
             ]
             section_refs.extend(medicines_ref)
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"MedicationStatement/{medicines_bundle.id}",
+                        resource=medicines_bundle,
+                    )
+                    for medicines_bundle in medicines_sections
+                ]
+            )
 
             # Create Composition resource for OP Consult Record
-            logging.info(f"Creating compisition")
+            logging.info(f"Creating composition")
             composition = Composition.construct(
                 title="OP Consult Record",
                 date=slot_obj["date"],

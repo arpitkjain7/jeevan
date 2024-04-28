@@ -945,3 +945,42 @@ def get_organization_construct(organization_info: dict):
         return organization_construct
     except Exception as error:
         print(f"Error in get_organization_construct : {error}")
+
+
+def get_medical_statement_construct(
+    patient_ref: str,
+    medication_obj_code: str,
+    medication_obj_display: str,
+    medication_statement_id: str,
+):
+    print("Inside Medical Statement")
+    subject = {"reference": patient_ref}
+    medication_obj = CodeableConcept()
+    medication_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": medication_obj_code,
+            "display": medication_obj_display,
+        }
+    ]
+    medication = CodeableReference()  # this CODE part need to be checked furhter
+    medication.concept = medication_obj
+    medication_statement = MedicationStatement(
+        resource_type="MedicationStatement",
+        subject=subject,
+        status="completed",
+        medication=medication,
+        id=medication_statement_id,
+    )
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationStatement"
+        ],
+    )
+    medication_statement.meta = meta
+    medication_statement.id = medication_statement_id
+    medication_statement.subject = subject
+    # medication_statement.medicationCodeableConcept = medication_obj
+    medication_statement_json = medication_statement.json()
+    print(medication_statement_json)
+    return medication_statement
