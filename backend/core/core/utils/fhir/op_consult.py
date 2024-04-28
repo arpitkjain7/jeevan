@@ -1237,19 +1237,31 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             logging.info(f"Creating Vitals Entry")
             vital_obj = CRUDVital().read_by_pmrId(pmr_id=pmr_id)
             physical_examination = f"Temperature {vital_obj['body_temperature']} Blood Pressure {vital_obj['systolic_blood_pressure']}/{vital_obj['diastolic_blood_pressure']}"
-            physical_examination = create_section(
-                ref_id=vital_obj["id"],
-                title="Physical Examination",
-                code="422843007",
-                display="Physical Examination section",
-                text=physical_examination,
+            physical_examination = get_observation_construct(
+                observation_id=vital_obj["id"],
+                clinical_display=physical_examination,
+                patient_ref=patient_obj["id"],
+                encounter_ref=appointment_obj["id"],
             )
+            # physical_examination = create_section(
+            #     ref_id=vital_obj["id"],
+            #     title="Physical Examination",
+            #     code="422843007",
+            #     display="Physical Examination section",
+            #     text=physical_examination,
+            # )
             ref_data.append(physical_examination)
+            bundle_entry_list.append(
+                BundleEntry.construct(
+                    fullUrl=f"PhysicalExamination/{physical_examination.id}",
+                    resource=physical_examination,
+                )
+            )
             phy_exam_ref = Reference.construct(
-                reference=f"PhysicalExamination/{physical_examination.id}",
-                display=f"{physical_examination.title}",
+                reference=f"PhysicalExamination/{physical_examination.id}"
             )
             section_refs.append(phy_exam_ref)
+
             # Creating medical history
             logging.info(f"Creating medical history")
             medical_history_list = CRUDMedicalHistory().read_self_by_pmrId(

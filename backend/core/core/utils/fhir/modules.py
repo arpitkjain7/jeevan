@@ -13,6 +13,7 @@ from fhir.resources.patient import Patient
 from fhir.resources.practitioner import Practitioner
 from fhir.resources.practitionerrole import PractitionerRole
 from fhir.resources.procedure import Procedure
+from fhir.resources.observation import Observation
 from fhir.resources.servicerequest import ServiceRequest
 from fhir.resources.composition import Composition, CompositionSection
 from fhir.resources.humanname import HumanName
@@ -866,6 +867,51 @@ def get_condition_construct(
     condition_json = condition_obj.json()
     print(condition_json)
     return condition_obj
+
+
+def get_observation_construct(
+    observation_id: str,
+    clinical_display: str,
+    patient_ref: str,
+    encounter_ref: str,
+):
+    print("Inside observation")
+    clinicalStatus_codeable_obj = CodeableConcept()
+    clinicalStatus_codeable_obj.coding = [
+        {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "code": "active",
+            "display": "active",
+        }
+    ]
+    codeable_obj = CodeableConcept()
+    codeable_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "425044008",
+            "display": "Physical exam section",
+        }
+    ]
+    codeable_obj.text = clinical_display
+    observation_obj = Observation(
+        resource_type="Observation",
+        id=observation_id,
+        status="Active",
+        code=codeable_obj,
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    observation_obj.meta = meta
+    observation_obj.encounter = encounter
+    observation_obj.valueString = clinical_display
+    # Convert the Patient resource to JSON
+    observation_json = observation_obj.json()
+    print(observation_json)
+    return observation_obj
 
 
 def get_organization_construct(organization_info: dict):
