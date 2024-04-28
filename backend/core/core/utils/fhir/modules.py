@@ -1,5 +1,6 @@
 from fhir.resources.appointment import Appointment, AppointmentParticipant
 from fhir.resources.encounter import Encounter
+from fhir.resources.condition import Condition
 from fhir.resources.documentreference import DocumentReference, DocumentReferenceContent
 from fhir.resources.attachment import Attachment
 from fhir.resources.period import Period
@@ -768,7 +769,7 @@ def get_patient_construct(patient_info):
             system="phone", value=telephone_number, use="mobile"
         )
 
-    patient_ref_id = patient_info.get("patient_ref_id")
+    patient_ref_id = patient_info["patient_id"]
     patient_construct = Patient.construct(
         id=patient_ref_id,
         name=[{"text": name}],
@@ -821,6 +822,50 @@ def get_practitioner_construct(practitioner_info: dict):
         ],
     )
     return practitioner_construct
+
+
+def get_condition_construct(
+    condition_id: str,
+    clinical_code: str,
+    clinical_display: str,
+    patient_ref: str,
+    encounter_ref: str,
+):
+    print("Inside condition")
+    clinicalStatus_codeable_obj = CodeableConcept()
+    clinicalStatus_codeable_obj.coding = [
+        {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "code": "active",
+            "display": "active",
+        }
+    ]
+    condition_obj = Condition(
+        resource_type="Condition",
+        id=condition_id,
+        clinicalStatus=clinicalStatus_codeable_obj,
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+    codeable_obj = CodeableConcept()
+    codeable_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": clinical_code,
+            "display": clinical_display,
+        }
+    ]
+    codeable_obj.text = clinical_display
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    condition_obj.meta = meta
+    condition_obj.code = codeable_obj
+    condition_obj.encounter = encounter
+    # Convert the Patient resource to JSON
+    condition_json = condition_obj.json()
+    print(condition_json)
+    return condition_obj
 
 
 def get_organization_construct(organization_info: dict):

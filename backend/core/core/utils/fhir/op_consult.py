@@ -1125,6 +1125,7 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
                 )
             )
             ref_data.append(practitioner_ref)
+
             # Creating Organization Entry
             hip_obj = pmr_obj.get("hip")
             logging.info(f"{hip_obj=}")
@@ -1201,29 +1202,35 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
                 reference=f"Encounter/{encounter_bundle.id}",
                 display="Encounter/OP Consult Record",
             )
-            ref_data.append(encounter_bundle)
-            # Creating chief complaint
-            logging.info(f"Creating Complaints Entry")
+            ref_data.append(encounter_ref)
+
+            # Creating ChiefComplaint/Conditions
+            logging.info(f"Creating ChiefComplaint/Conditions Entry")
             sympt_list = CRUDSymptoms().read_by_pmrId(pmr_id=pmr_id)
             logging.info(f"{sympt_list=}")
-            sympt_sections = [
-                create_section(
-                    title="Chief Complaints",
-                    code="422843007",
-                    ref_id=sympt_obj["id"],
-                    display="Chief complaint section",
-                    text=sympt_obj["symptom"],
+            condition_sections = [
+                get_condition_construct(
+                    condition_id=sympt_obj["id"],
+                    clinical_code=sympt_obj["snowmed_code"],
+                    clinical_display=sympt_obj["snowmed_display"],
+                    patient_ref=patient_obj["id"],
+                    encounter_ref=appointment_obj["id"],
                 )
                 for sympt_obj in sympt_list
             ]
-            logging.info(f"{sympt_sections=}")
-            ref_data.extend(sympt_sections)
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"Condition/{condition_bundle.id}",
+                        resource=condition_bundle,
+                    )
+                    for condition_bundle in condition_sections
+                ]
+            )
+            ref_data.extend(condition_sections)
             section_refs = [
-                Reference.construct(
-                    reference=f"ChiefComplaints/{section.id}",
-                    display=f"{section.title}",
-                )
-                for section in sympt_sections
+                Reference.construct(reference=f"ChiefComplaints/{section.id}")
+                for section in condition_sections
             ]
 
             # Creating physical examination
