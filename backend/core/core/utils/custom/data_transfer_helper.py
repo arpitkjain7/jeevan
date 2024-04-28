@@ -2,7 +2,11 @@ from core.utils.custom.external_call import APIInterface
 from datetime import datetime, timezone, timedelta
 from core.utils.custom.session_helper import get_session_token
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
-from core.utils.fhir.op_consult import opConsultUnstructured, opConsultStructured
+from core.utils.fhir.op_consult import (
+    opConsultUnstructured,
+    opConsultStructured,
+    opConsultDummy,
+)
 from core.utils.aws.s3_helper import upload_to_s3
 import os
 import uuid
@@ -20,6 +24,12 @@ def prepare_data(pmr_id: str, type: str = "structured"):
         bundle_id = str(uuid.uuid1())
         if type == "structured":
             return opConsultStructured(
+                bundle_name=f"OPConsultNote-{bundle_id}",
+                bundle_identifier=bundle_id,
+                pmr_id=pmr_id,
+            )
+        elif type == "dummy":
+            return opConsultDummy(
                 bundle_name=f"OPConsultNote-{bundle_id}",
                 bundle_identifier=bundle_id,
                 pmr_id=pmr_id,
@@ -50,6 +60,10 @@ def send_data(
                 pmr_id=care_context_obj.get("careContextReference"),
                 type="structured",
             )
+            # fhir_bundle = prepare_data(
+            #     pmr_id=care_context_obj.get("careContextReference"),
+            #     type="structured",
+            # )
             if fhir_bundle:
                 fhir_bundle_list.append(
                     {care_context_obj.get("careContextReference"): fhir_bundle}

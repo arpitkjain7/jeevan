@@ -63,6 +63,64 @@ class CRUDMedicalHistory:
             logging.error(f"Error in CRUDMedicalHistory read function : {error}")
             raise error
 
+    def read_self_by_pmrId(self, pmr_id: int):
+        """[CRUD function to read a medicalHistory record]
+
+        Args:
+            pmr_id (str): [Patient Medical Record Id to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [MedicalHistory record matching the criteria]
+        """
+        try:
+            logging.info("CRUDMedicalHistory read request")
+            with session() as transaction_session:
+                obj: MedicalHistory = (
+                    transaction_session.query(MedicalHistory)
+                    .filter(MedicalHistory.pmr_id == pmr_id)
+                    .filter(MedicalHistory.relationship == "self")
+                    .order_by(MedicalHistory.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDMedicalHistory read function : {error}")
+            raise error
+
+    def read_others_by_pmrId(self, pmr_id: int):
+        """[CRUD function to read a medicalHistory record]
+
+        Args:
+            pmr_id (str): [Patient Medical Record Id to filter the record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [MedicalHistory record matching the criteria]
+        """
+        try:
+            logging.info("CRUDMedicalHistory read request")
+            with session() as transaction_session:
+                obj: MedicalHistory = (
+                    transaction_session.query(MedicalHistory)
+                    .filter(MedicalHistory.pmr_id == pmr_id)
+                    .filter(MedicalHistory.relationship != "self")
+                    .order_by(MedicalHistory.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDMedicalHistory read function : {error}")
+            raise error
+
     def read_all(self):
         """[CRUD function to read_all MedicalHistory record]
 

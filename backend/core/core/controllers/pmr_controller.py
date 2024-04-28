@@ -15,7 +15,11 @@ from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_condition_crud import CRUDCondition
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
 from core.crud.hims_hip_crud import CRUDHIP
-from core.utils.fhir.op_consult import opConsultUnstructured
+from core.utils.fhir.op_consult import (
+    opConsultUnstructured,
+    opConsultStructured,
+    opConsultDummy,
+)
 from core.utils.aws.s3_helper import upload_to_s3, create_presigned_url, read_object
 from core.utils.custom.session_helper import get_session_token
 from core.utils.custom.gupshup_helper import whatsappHelper
@@ -1381,16 +1385,29 @@ class PMRController:
             )
             raise error
 
-    def get_fhir(self, pmr_id):
+    def get_fhir(self, pmr_id, mode):
         try:
             logging.info("executing get_fhir function")
             logging.info(f"{pmr_id=}")
             bundle_id = str(uuid.uuid1())
-            return opConsultUnstructured(
-                bundle_name=f"OPConsultNote-{bundle_id}",
-                bundle_identifier=bundle_id,
-                pmr_id=pmr_id,
-            )
+            if mode == "structured":
+                return opConsultStructured(
+                    bundle_name=f"OPConsultNote-{bundle_id}",
+                    bundle_identifier=bundle_id,
+                    pmr_id=pmr_id,
+                )
+            elif mode == "unstructured":
+                return opConsultUnstructured(
+                    bundle_name=f"OPConsultNote-{bundle_id}",
+                    bundle_identifier=bundle_id,
+                    pmr_id=pmr_id,
+                )
+            else:
+                return opConsultDummy(
+                    bundle_name=f"OPConsultNote-{bundle_id}",
+                    bundle_identifier=bundle_id,
+                    pmr_id=pmr_id,
+                )
         except Exception as error:
             logging.error(f"Error in PMRController.get_fhir function: {error}")
             raise error

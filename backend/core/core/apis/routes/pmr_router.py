@@ -958,7 +958,7 @@ async def uploadPrescription(
             for file in files:
                 file_bytes.append(await file.read())
             return PMRController().upload_prescription(
-                pmr_id=pmr_id, mode=mode.value, files =file_bytes
+                pmr_id=pmr_id, mode=mode.value, files=file_bytes
             )
         else:
             raise HTTPException(
@@ -1140,12 +1140,12 @@ async def uploadHealthDocuments(
 
 
 @pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")
-def getFHIR(pmr_id: str, token: str = Depends(oauth2_scheme)):
+def getFHIR(pmr_id: str, mode: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/PMR/getFHIR/{pmr_id} endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().get_fhir(pmr_id=pmr_id)
+            return PMRController().get_fhir(pmr_id=pmr_id, mode=mode)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

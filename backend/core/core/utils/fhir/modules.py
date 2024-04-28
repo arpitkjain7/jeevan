@@ -23,6 +23,7 @@ from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.codeablereference import CodeableReference
 from fhir.resources.reference import Reference
 from fhir.resources.meta import Meta
+from fhir.resources.coding import Coding
 from datetime import datetime
 import pytz
 
@@ -705,3 +706,151 @@ def medication_request(
     medication_request_json = medication_request.json()
     print(medication_request_json)
     return medication_request_json
+
+
+def create_section(ref_id: str, title: str, code: str, display: str, text: str):
+    section = CompositionSection.construct(
+        id=ref_id,
+        title=title,
+        code=CodeableConcept.construct(
+            text=display,
+            coding=Coding.construct(
+                system="http://snomed.info/sct", code=code, display=display
+            ),
+        ),
+        text=text,
+    )
+    return section
+
+
+def get_patient_construct(patient_info):
+    name = patient_info["name"]
+    gender = patient_info["gender"]
+    patient_id = patient_info["patient_id"]
+    abha_no = patient_info.get("abha_no")
+    telephone_number = patient_info.get("telephone_number")
+
+    identifier = [
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "MR",
+                        "display": "Medical record number",
+                    }
+                ]
+            },
+            "system": "https://healthid.ndhm.gov.in",
+            "value": patient_id,
+        }
+    ]
+
+    if abha_no:
+        identifier.append(
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "AN",
+                            "display": "Account number",
+                        }
+                    ]
+                },
+                "system": "https://healthid.ndhm.gov.in",
+                "value": abha_no,
+            }
+        )
+    extra_args = {}
+    if telephone_number:
+        extra_args["telecom"] = ContactPoint.construct(
+            system="phone", value=telephone_number, use="mobile"
+        )
+
+    patient_ref_id = patient_info.get("patient_ref_id")
+    patient_construct = Patient.construct(
+        id=patient_ref_id,
+        name=[{"text": name}],
+        gender=gender,
+        meta={"profile": ["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"]},
+        identifier=identifier,
+        **extra_args,
+    )
+    return patient_construct
+
+
+def get_practitioner_construct(practitioner_info: dict):
+    """
+    :param practitioner_info:
+    :return:
+    """
+    name = practitioner_info["name"]
+    practitioner_id = practitioner_info["practitioner_id"]
+    telephone_number = practitioner_info.get("telephone_number")
+
+    extra_args = {}
+    if telephone_number:
+        extra_args["telecom"] = ContactPoint.construct(
+            system="phone", value=telephone_number, use="mobile"
+        )
+
+    practitioner_ref_id = practitioner_info.get("practitioner_ref_id")
+    practitioner_construct = Practitioner.construct(
+        id=practitioner_ref_id,
+        name=[{"text": name}],
+        meta={
+            "profile": [
+                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
+            ]
+        },
+        identifier=[
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "MD",
+                            "display": "Medical License number",
+                        }
+                    ]
+                },
+                "system": "https://doctor.ndhm.gov.in",
+                "value": practitioner_id,
+            }
+        ],
+    )
+    return practitioner_construct
+
+
+def get_organization_construct(organization_info: dict):
+    try:
+
+        organization_id = organization_info.get("organization_id")
+        organization_construct = Organization.construct(
+            id=organization_id,
+            name=organization_info.get("name", "No Name"),
+            meta={
+                "profile": [
+                    "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Organization"
+                ]
+            },
+            identifier=[
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "PRN",
+                                "display": "Provider number",
+                            }
+                        ]
+                    },
+                    "system": "https://facility.ndhm.gov.in",
+                    "value": organization_info.get("organization_id", "1234567890"),
+                }
+            ],
+        )
+        return organization_construct
+    except Exception as error:
+        print(f"Error in get_organization_construct : {error}")
