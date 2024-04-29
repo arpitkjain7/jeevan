@@ -1228,8 +1228,24 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
                 ]
             )
             ref_data.extend(condition_sections)
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "422843007",
+                    "display": "Chief complaint section",
+                }
+            ]
             section_refs = [
-                Reference.construct(reference=f"ChiefComplaints/{section.id}")
+                {
+                    "title": "Chief complaints",
+                    "entry": [
+                        Reference.construct(
+                            reference=f"Condition/{section.id}",
+                        )
+                    ],
+                    "code": codeable_obj,
+                }
                 for section in condition_sections
             ]
 
@@ -1257,9 +1273,23 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
                     resource=physical_examination,
                 )
             )
-            phy_exam_ref = Reference.construct(
-                reference=f"PhysicalExamination/{physical_examination.id}"
-            )
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "425044008",
+                    "display": "Physical exam section",
+                }
+            ]
+            phy_exam_ref = {
+                "title": "Physical Examination",
+                "entry": [
+                    Reference.construct(
+                        reference=f"PhysicalExamination/{physical_examination.id}",
+                    )
+                ],
+                "code": codeable_obj,
+            }
             section_refs.append(phy_exam_ref)
 
             # # Creating medical history
@@ -1337,11 +1367,24 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             # ]
             logging.info(f"{medicines_sections=}")
             ref_data.extend(medicines_sections)
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "721912009",
+                    "display": "Medication summary document",
+                }
+            ]
             medicines_ref = [
-                Reference.construct(
-                    reference=f"Medicine/{medicines_section.id}",
-                    # display=f"{medicines_section.title}",
-                )
+                {
+                    "title": "Medication summary document",
+                    "entry": [
+                        Reference.construct(
+                            reference=f"Medicine/{medicines_section.id}",
+                        )
+                    ],
+                    "code": codeable_obj,
+                }
                 for medicines_section in medicines_sections
             ]
             section_refs.extend(medicines_ref)
@@ -1358,6 +1401,7 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
             composition = Composition.construct(
+                id="1",
                 title="OP Consult Record",
                 date=slot_obj["date"],
                 status="final",  # final | amended | entered-in-error | preliminary,
@@ -1402,7 +1446,7 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             bundle.identifier = identifier
             bundle.entry = [
                 BundleEntry.construct(
-                    fullUrl=f"OPConsultRecord/{composition.id}", resource=composition
+                    fullUrl=f"Composition/{composition.id}", resource=composition
                 )
             ]
             # bundle.entry.extend(
