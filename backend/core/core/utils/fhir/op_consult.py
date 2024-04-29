@@ -268,6 +268,7 @@ def opConsultDummy(bundle_name: str, bundle_identifier: str, pmr_id: str):
     time_str = datetime.now(timezone).isoformat()
     logging.info(f"Getting PMR record")
     pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+    dummy_fhir = None
     if pmr_obj:
         logging.info(f"Getting Doctor record")
         doc_rec = CRUDDocDetails().read_by_docId(doc_id=pmr_obj["doc_id"])
