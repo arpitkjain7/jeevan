@@ -8,6 +8,7 @@ from fhir.resources.allergyintolerance import AllergyIntolerance
 from fhir.resources.condition import Condition, ConditionStage
 from fhir.resources.medicationstatement import MedicationStatement
 from fhir.resources.medicationrequest import MedicationRequest
+from fhir.resources.medication import Medication
 from fhir.resources.organization import Organization
 from fhir.resources.patient import Patient
 from fhir.resources.practitioner import Practitioner
@@ -26,8 +27,8 @@ from fhir.resources.codeablereference import CodeableReference
 from fhir.resources.reference import Reference
 from fhir.resources.meta import Meta
 from fhir.resources.coding import Coding
-from datetime import datetime
-import pytz
+from datetime import datetime, timezone
+import pytz, uuid
 
 timezone = pytz.timezone("Asia/Kolkata")
 
@@ -847,21 +848,21 @@ def get_condition_construct(
         clinicalStatus=clinicalStatus_codeable_obj,
         subject={"reference": f"Patient/{patient_ref}"},
     )
-    codeable_obj = CodeableConcept()
-    codeable_obj.coding = [
-        {
-            "system": "http://snomed.info/sct",
-            "code": clinical_code,
-            "display": clinical_display,
-        }
-    ]
-    codeable_obj.text = clinical_display
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": clinical_code,
+    #         "display": clinical_display,
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
     encounter = {"reference": f"Encounter/{encounter_ref}"}
     meta = Meta(
         profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
     )
     condition_obj.meta = meta
-    condition_obj.code = codeable_obj
+    condition_obj.code = {"text": clinical_display}
     condition_obj.encounter = encounter
     # Convert the Patient resource to JSON
     condition_json = condition_obj.json()
@@ -874,30 +875,25 @@ def get_observation_construct(
     clinical_display: str,
     patient_ref: str,
     encounter_ref: str,
+    observation_type: str,
+    observation_unit: str,
+    observation_value: str,
 ):
     print("Inside observation")
-    clinicalStatus_codeable_obj = CodeableConcept()
-    clinicalStatus_codeable_obj.coding = [
-        {
-            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
-            "code": "active",
-            "display": "active",
-        }
-    ]
-    codeable_obj = CodeableConcept()
-    codeable_obj.coding = [
-        {
-            "system": "http://snomed.info/sct",
-            "code": "425044008",
-            "display": "Physical exam section",
-        }
-    ]
-    codeable_obj.text = clinical_display
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": "425044008",
+    #         "display": "Physical exam section",
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
     observation_obj = Observation(
         resource_type="Observation",
         id=observation_id,
-        status="Active",
-        code=codeable_obj,
+        status="final",
+        code={"text": observation_type},
         subject={"reference": f"Patient/{patient_ref}"},
     )
 
@@ -905,9 +901,13 @@ def get_observation_construct(
     meta = Meta(
         profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
     )
-    observation_obj.meta = meta
-    observation_obj.encounter = encounter
-    observation_obj.valueString = clinical_display
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
+    observation_obj.valueQuantity = {
+        "unit": observation_unit,
+        "value": observation_value,
+    }
+    # observation_obj.valueString = clinical_display
     # Convert the Patient resource to JSON
     observation_json = observation_obj.json()
     print(observation_json)
@@ -954,7 +954,7 @@ def get_medical_statement_construct(
     medication_statement_id: str,
 ):
     print("Inside Medical Statement")
-    subject = {"reference": patient_ref}
+    subject = {"reference": f"Patient/{patient_ref}"}
     medication_obj = CodeableConcept()
     medication_obj.coding = [
         {
@@ -984,3 +984,46 @@ def get_medical_statement_construct(
     medication_statement_json = medication_statement.json()
     print(medication_statement_json)
     return medication_statement
+
+
+def get_medication_request_construct(
+    medication_request_id: str,
+    dosage: str,
+    patient_ref: str,
+    practitioner_ref: str,
+    medicine_name: str,
+):
+    print("Inside get_medication_request_construct Request")
+    medicine_ref = str(uuid.uuid4())
+    medication = CodeableReference()
+    medication.reference = {"reference": f"Medication/{medicine_ref}"}
+    # medication_request = MedicationRequest(
+    #     id=medication_request_id,
+    #     resource_type="MedicationRequest",
+    #     subject={"reference": f"Patient/{patient_ref}"},
+    #     status="active",
+    #     intent="order",
+    #     authoredOn=datetime.now(timezone).isoformat(),
+    #     dosageInstruction=[{"text": dosage}],
+    #     medication=medication,
+    #     requester={"reference": f"Practitioner/{practitioner_ref}"},
+    # )
+    medication_request = {
+        "id": medication_request_id,
+        "resourceType": "MedicationRequest",
+        "subject": {"reference": f"Patient/{patient_ref}"},
+        "status": "active",
+        "intent": "order",
+        "authoredOn": datetime.now(timezone).isoformat(),
+        "dosageInstruction": [{"text": dosage}],
+        "medicationReference": {"reference": f"Medication/{medicine_ref}"},
+        "requester": {"reference": f"Practitioner/{practitioner_ref}"},
+    }
+    print(f"{medication_request=}")
+    medicine_bundle = Medication(
+        id=medicine_ref, resource_type="Medication", code={"text": medicine_name}
+    )
+    # Convert the Patient resource to JSON
+    # medication_request_json = medication_request.json()
+    # print(medication_request_json)
+    return medication_request, medicine_bundle
