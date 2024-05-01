@@ -583,19 +583,19 @@ const PatientEMRDetails = (props) => {
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
-              pulseRate: pmrDetails.vital.pulse,
-              oxygenSaturation: pmrDetails.vital.oxygen_saturation,
-              bloodPressure: pmrDetails.vital.blood_pressure,
-              respiratoryRate: pmrDetails.vital.respiratory_rate,
-              bodyTemp: pmrDetails.vital.body_temperature,
-              bodyHeight: pmrDetails.vital.height,
-              bodyWeight: pmrDetails.vital.weight,
-              bodyMass: pmrDetails.vital.body_mass_index,
-              systolicBP: pmrDetails.vital.systolic_blood_pressure,
-              diastolicaBP: pmrDetails.vital.diastolic_blood_pressure,
+              pulseRate: pmrDetails?.vital?.pulse,
+              oxygenSaturation: pmrDetails?.vital?.oxygen_saturation,
+              bloodPressure: pmrDetails?.vital?.blood_pressure,
+              respiratoryRate: pmrDetails?.vital?.respiratory_rate,
+              bodyTemp: pmrDetails?.vital?.body_temperature,
+              bodyHeight: pmrDetails?.vital?.height,
+              bodyWeight: pmrDetails?.vital?.weight,
+              bodyMass: pmrDetails?.vital?.body_mass_index,
+              systolicBP: pmrDetails?.vital?.systolic_blood_pressure,
+              diastolicaBP: pmrDetails?.vital?.diastolic_blood_pressure,
             });
           }
-          if (pmrDetails.symptom.data.length > 0) {
+          if (pmrDetails?.symptom?.data?.length > 0) {
             const symptomList = pmrDetails?.symptom.data;
             symptomList.map((symptomsData) => {
               setSymptoms((symptoms) => [
@@ -617,7 +617,7 @@ const PatientEMRDetails = (props) => {
               }));
             });
           }
-          if (pmrDetails.medical_history.data.length > 0) {
+          if (pmrDetails?.medical_history?.data?.length > 0) {
             const medicalHistoryList = pmrDetails?.medical_history.data;
             medicalHistoryList.map((medicalHistoryData) => {
               setMedicalHistory((medicalHistory) => [
@@ -640,7 +640,7 @@ const PatientEMRDetails = (props) => {
               }));
             });
           }
-          if (pmrDetails.examination_findings.data.length > 0) {
+          if (pmrDetails?.examination_findings?.data?.length > 0) {
             const examinationFindingsList =
               pmrDetails?.examination_findings.data;
             examinationFindingsList.map((findingsData) => {
@@ -661,7 +661,7 @@ const PatientEMRDetails = (props) => {
               }));
             });
           }
-          if (pmrDetails.diagnosis.data.length > 0) {
+          if (pmrDetails?.diagnosis?.data?.length > 0) {
             const diagnosisList = pmrDetails?.diagnosis.data;
             diagnosisList.map((diagnosisData) => {
               setDiagnosis((diagnosis) => [
@@ -683,7 +683,7 @@ const PatientEMRDetails = (props) => {
               }));
             });
           }
-          if (pmrDetails.lab_investigation.data.length > 0) {
+          if (pmrDetails?.lab_investigation?.data?.length > 0) {
             const labInvestigationList = pmrDetails?.lab_investigation.data;
             labInvestigationList.map((labInvestigationData) => {
               setLabInvestigation((labInvestigation) => [
@@ -703,7 +703,7 @@ const PatientEMRDetails = (props) => {
               }));
             });
           }
-          if (pmrDetails.medication.data.length > 0) {
+          if (pmrDetails?.medication?.data?.length > 0) {
             const medicationList = pmrDetails?.medication?.data;
             medicationList.map((medicationData) => {
               setMedications((medications) => [
@@ -748,7 +748,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -787,7 +787,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -828,7 +828,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -869,7 +869,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -910,7 +910,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -951,7 +951,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData.length > 0){
+        if(resData?.length > 0){
           resData?.map((item) => {
             const customItem = {
               label: item?.term,

@@ -764,12 +764,11 @@ const PatientRegistration = () => {
   }, [abhaOTPseconds]);
 
   const handleConfirmSelection = () => {
-    // if(selectedOption === "abha") {
-    //   setOpen(true);
-    //   // setStepAbha(true);
-    // } else {
+    if(selectedOption === "phone_number")
+      setStepOne(true);
+    else 
       setStepAbha(true);
-    // }
+    //   setOpen(true);
   };
 
   const handleConfirmAbhaSelection = () => {
