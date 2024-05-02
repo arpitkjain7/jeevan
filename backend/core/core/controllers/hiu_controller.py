@@ -110,9 +110,11 @@ class HIUController:
                             "purpose": {
                                 "text": purpose.value,
                                 "code": purpose.name,
+                                "refUri": "www.abdm.gov.in",
                             },
                             "patient": {"id": request_dict["abha_address"]},
                             "hiu": {"id": request_dict["hip_id"]},
+                            "consentManager": {"id": "sbx"},
                             # "careContexts": [
                             #     {
                             #         "patientReference": request_dict["abha_address"],
@@ -129,7 +131,15 @@ class HIUController:
                                     "system": "https://www.mciindia.org",
                                 },
                             },
-                            "hiTypes": hiTypeList,
+                            "hiTypes": [
+                                "DiagnosticReport",
+                                "Prescription",
+                                "ImmunizationRecord",
+                                "DischargeSummary",
+                                "OPConsultation",
+                                "HealthDocumentRecord",
+                                "WellnessRecord",
+                            ],
                             "permission": {
                                 "accessMode": "VIEW",
                                 "dateRange": {
@@ -137,7 +147,7 @@ class HIUController:
                                     "to": to_date,
                                 },
                                 "dataEraseAt": expire_time,
-                                "frequency": {"unit": "HOUR", "value": 0, "repeats": 0},
+                                "frequency": {"unit": "HOUR", "value": 1, "repeats": 0},
                             },
                         },
                     }
@@ -193,7 +203,9 @@ class HIUController:
                     },
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=crud_request) 
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=crud_request
+                )
         except Exception as error:
             logging.error(f"Error in HIUController.raise_consent function: {error}")
             raise error
