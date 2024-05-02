@@ -35,7 +35,7 @@ services:
     restart: "on-failure"
 
   lobster_ui:
-    image: cliniq360/lobster-ui:1.5
+    image: cliniq360/lobster-ui:1.7
 
     container_name: lobster-ui
     ports:
