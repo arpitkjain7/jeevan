@@ -58,7 +58,7 @@ def send_data(
             logging.info(f"{care_context_obj=}")
             fhir_bundle = prepare_data(
                 pmr_id=care_context_obj.get("careContextReference"),
-                type="structured",
+                type="dummy",
             )
             # fhir_bundle = prepare_data(
             #     pmr_id=care_context_obj.get("careContextReference"),
