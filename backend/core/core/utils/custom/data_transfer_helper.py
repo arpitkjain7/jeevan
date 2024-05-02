@@ -6,6 +6,7 @@ from core.utils.fhir.op_consult import (
     opConsultUnstructured,
     opConsultStructured,
     opConsultDummy,
+    opConsultDummyNew,
 )
 from core.utils.aws.s3_helper import upload_to_s3
 import os
@@ -24,6 +25,12 @@ def prepare_data(pmr_id: str, type: str = "structured"):
         bundle_id = str(uuid.uuid1())
         if type == "structured":
             return opConsultStructured(
+                bundle_name=f"OPConsultNote-{bundle_id}",
+                bundle_identifier=bundle_id,
+                pmr_id=pmr_id,
+            )
+        elif type == "dummy_new":
+            return opConsultDummyNew(
                 bundle_name=f"OPConsultNote-{bundle_id}",
                 bundle_identifier=bundle_id,
                 pmr_id=pmr_id,
@@ -58,7 +65,7 @@ def send_data(
             logging.info(f"{care_context_obj=}")
             fhir_bundle = prepare_data(
                 pmr_id=care_context_obj.get("careContextReference"),
-                type="dummy",
+                type="dummy_new",
             )
             # fhir_bundle = prepare_data(
             #     pmr_id=care_context_obj.get("careContextReference"),

@@ -1030,6 +1030,432 @@ def opConsultDummy(bundle_name: str, bundle_identifier: str, pmr_id: str):
         return dummy_fhir
 
 
+def opConsultDummyNew(bundle_name: str, bundle_identifier: str, pmr_id: str):
+    logging.info("executing opConsultDummy function")
+    time_str = datetime.now(timezone).isoformat()
+    logging.info(f"Getting PMR record")
+    pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+    dummy_fhir = None
+    if pmr_obj:
+        logging.info(f"Getting Doctor record")
+        doc_rec = CRUDDocDetails().read_by_docId(doc_id=pmr_obj["doc_id"])
+        logging.info(f"Getting Appointment record")
+        appointment_rec = CRUDAppointments().read(
+            appointment_id=pmr_obj["appointment_id"]
+        )
+        logging.info(f"Getting HIP record")
+        hip_rec = CRUDHIP().read(hip_ip=pmr_obj["hip_id"])
+        logging.info(f"Getting Patient record")
+        patient_rec = CRUDPatientDetails().read_by_patientId(
+            patient_id=pmr_obj["patient_id"]
+        )
+        pmr_obj.update(
+            {
+                "hip": hip_rec,
+                "doctor": doc_rec,
+                "appointment": appointment_rec,
+                "patient": patient_rec,
+            }
+        )
+        logging.info(f"{pmr_obj=}")
+        dummy_fhir = {
+            "id": "OPConsultNote-db39943a-0837-11ef-8a6f-0242ac1e0004",
+            "meta": {
+                "versionId": "1",
+                "lastUpdated": "2024-05-02T09:25:46.598273+05:30",
+                "profile": [
+                    "https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"
+                ],
+                "security": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+                        "code": "V",
+                        "display": "very restricted",
+                    }
+                ],
+            },
+            "entry": [
+                {
+                    "fullUrl": "Composition/1db6adb4-ca19-4509-9102-4a74d3ed05c4",
+                    "resource": {
+                        "resourceType": "Composition",
+                        "id": "1db6adb4-ca19-4509-9102-4a74d3ed05c4",
+                        "status": "final",
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "371530004",
+                                    "display": "Clinical consultation report",
+                                }
+                            ],
+                            "text": "OP Consult Record",
+                        },
+                        "subject": {
+                            "reference": "Patient/08067870-bca1-4d06-97b4-155774767650",
+                            "display": "Arpit Kumar Jain",
+                        },
+                        "encounter": {
+                            "reference": "Encounter/869bbe94-4090-434f-8533-085fb4db4a82",
+                            "display": "Encounter/OP Consult Record",
+                        },
+                        "date": "2024-04-29",
+                        "author": [
+                            {
+                                "reference": "Practitioner/5ae57ef8-6956-4b47-b5cd-8286026901d5",
+                                "display": "Dr Arpit Jain",
+                            }
+                        ],
+                        "title": "OP Consult Record",
+                        "custodian": {
+                            "reference": "Organization/b344e244-d284-48a7-b444-4644e5c7ce00",
+                            "display": "ABC Healthcare",
+                        },
+                        "section": [
+                            {
+                                "title": "Chief complaints",
+                                "entry": [
+                                    {
+                                        "reference": "Condition/74c6eac3-534c-410d-b432-c52886cce209"
+                                    },
+                                    {
+                                        "reference": "Condition/6a98603b-dc09-478b-97f4-91ed790cebde"
+                                    },
+                                    {
+                                        "reference": "Condition/09507ee1-cce4-4ca3-9056-c754b8a5beb0"
+                                    },
+                                ],
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://snomed.info/sct",
+                                            "code": "422843007",
+                                            "display": "Chief complaint section",
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                "title": "Physical Examination",
+                                "entry": [
+                                    {
+                                        "reference": "PhysicalExamination/868cc0c7-2882-4e47-a4f0-2eec36f92f0b"
+                                    },
+                                    {
+                                        "reference": "PhysicalExamination/226e9c69-a81a-433f-866b-f204e6685732"
+                                    },
+                                    {
+                                        "reference": "PhysicalExamination/21b9b24e-8087-4069-ad4e-7652772716a4"
+                                    },
+                                ],
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://snomed.info/sct",
+                                            "code": "425044008",
+                                            "display": "Physical exam section",
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                "title": "Medications",
+                                "entry": [
+                                    {
+                                        "reference": "MedicationRequest/7ae7e7cb-05a7-4837-8698-fd65462a8c53"
+                                    },
+                                    {
+                                        "reference": "MedicationRequest/999eaa50-2272-4871-8482-93963e0ee5be"
+                                    },
+                                ],
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://snomed.info/sct",
+                                            "code": "721912009",
+                                            "display": "Medication summary document",
+                                        }
+                                    ]
+                                },
+                            },
+                        ],
+                    },
+                },
+                {
+                    "fullUrl": "Practitioner/5ae57ef8-6956-4b47-b5cd-8286026901d5",
+                    "resource": {
+                        "resourceType": "Practitioner",
+                        "id": "5ae57ef8-6956-4b47-b5cd-8286026901d5",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
+                            ]
+                        },
+                        "identifier": [
+                            {
+                                "type": {
+                                    "coding": [
+                                        {
+                                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                            "code": "MD",
+                                            "display": "Medical License number",
+                                        }
+                                    ]
+                                },
+                                "system": "https://doctor.ndhm.gov.in",
+                                "value": "12312",
+                            }
+                        ],
+                        "name": [{"text": "Dr Arpit Jain"}],
+                    },
+                },
+                {
+                    "fullUrl": "Organization/b344e244-d284-48a7-b444-4644e5c7ce00",
+                    "resource": {
+                        "resourceType": "Organization",
+                        "id": "b344e244-d284-48a7-b444-4644e5c7ce00",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Organization"
+                            ]
+                        },
+                        "identifier": [
+                            {
+                                "type": {
+                                    "coding": [
+                                        {
+                                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                            "code": "PRN",
+                                            "display": "Provider number",
+                                        }
+                                    ]
+                                },
+                                "system": "https://facility.ndhm.gov.in",
+                                "value": "b344e244-d284-48a7-b444-4644e5c7ce00",
+                            }
+                        ],
+                        "name": "ABC Healthcare",
+                    },
+                },
+                {
+                    "fullUrl": "Patient/08067870-bca1-4d06-97b4-155774767650",
+                    "resource": {
+                        "resourceType": "Patient",
+                        "id": "08067870-bca1-4d06-97b4-155774767650",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"
+                            ]
+                        },
+                        "identifier": [
+                            {
+                                "type": {
+                                    "coding": [
+                                        {
+                                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                            "code": "MR",
+                                            "display": "Medical record number",
+                                        }
+                                    ]
+                                },
+                                "system": "https://healthid.ndhm.gov.in",
+                                "value": "08067870-bca1-4d06-97b4-155774767650",
+                            }
+                        ],
+                        "name": [{"text": "Arpit Kumar Jain"}],
+                        "gender": "male",
+                    },
+                },
+                {
+                    "fullUrl": "Encounter/869bbe94-4090-434f-8533-085fb4db4a82",
+                    "resource": {
+                        "resourceType": "Encounter",
+                        "id": "869bbe94-4090-434f-8533-085fb4db4a82",
+                        "status": "finished",
+                        "class": {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                            "code": "ACUTE",
+                            "display": "inpatient acute",
+                        },
+                        "subject": {
+                            "reference": "Patient/08067870-bca1-4d06-97b4-155774767650",
+                            "display": "Arpit Kumar Jain",
+                        },
+                    },
+                },
+                {
+                    "fullUrl": "Condition/74c6eac3-534c-410d-b432-c52886cce209",
+                    "resource": {
+                        "resourceType": "Condition",
+                        "id": "74c6eac3-534c-410d-b432-c52886cce209",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+                            ]
+                        },
+                        "clinicalStatus": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                                    "code": "active",
+                                    "display": "active",
+                                }
+                            ]
+                        },
+                        "code": {},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "encounter": {"reference": "Encounter/1149"},
+                    },
+                },
+                {
+                    "fullUrl": "Condition/6a98603b-dc09-478b-97f4-91ed790cebde",
+                    "resource": {
+                        "resourceType": "Condition",
+                        "id": "6a98603b-dc09-478b-97f4-91ed790cebde",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+                            ]
+                        },
+                        "clinicalStatus": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                                    "code": "active",
+                                    "display": "active",
+                                }
+                            ]
+                        },
+                        "code": {},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "encounter": {"reference": "Encounter/1149"},
+                    },
+                },
+                {
+                    "fullUrl": "Condition/09507ee1-cce4-4ca3-9056-c754b8a5beb0",
+                    "resource": {
+                        "resourceType": "Condition",
+                        "id": "09507ee1-cce4-4ca3-9056-c754b8a5beb0",
+                        "meta": {
+                            "profile": [
+                                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"
+                            ]
+                        },
+                        "clinicalStatus": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                                    "code": "active",
+                                    "display": "active",
+                                }
+                            ]
+                        },
+                        "code": {},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "encounter": {"reference": "Encounter/1149"},
+                    },
+                },
+                {
+                    "fullUrl": "PhysicalExamination/868cc0c7-2882-4e47-a4f0-2eec36f92f0b",
+                    "resource": {
+                        "resourceType": "Observation",
+                        "id": "868cc0c7-2882-4e47-a4f0-2eec36f92f0b",
+                        "status": "final",
+                        "code": {"text": "Temperature"},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "valueQuantity": {"value": 98, "unit": "F"},
+                    },
+                },
+                {
+                    "fullUrl": "PhysicalExamination/226e9c69-a81a-433f-866b-f204e6685732",
+                    "resource": {
+                        "resourceType": "Observation",
+                        "id": "226e9c69-a81a-433f-866b-f204e6685732",
+                        "status": "final",
+                        "code": {"text": "Systolic Blood pressure"},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "valueQuantity": {"value": 120, "unit": "mmHg"},
+                    },
+                },
+                {
+                    "fullUrl": "PhysicalExamination/21b9b24e-8087-4069-ad4e-7652772716a4",
+                    "resource": {
+                        "resourceType": "Observation",
+                        "id": "21b9b24e-8087-4069-ad4e-7652772716a4",
+                        "status": "final",
+                        "code": {"text": "Diastolic Blood pressure"},
+                        "subject": {"reference": "Patient/C360-PID-319053493794171106"},
+                        "valueQuantity": {"value": 88, "unit": "mmHg"},
+                    },
+                },
+                {
+                    "fullUrl": "Medication/cd817766-188a-4df8-a5f1-1b1a146cdb9d",
+                    "resource": {
+                        "resourceType": "Medication",
+                        "id": "cd817766-188a-4df8-a5f1-1b1a146cdb9d",
+                        "code": {"text": "Pudin Hara"},
+                    },
+                },
+                {
+                    "fullUrl": "Medication/43ae2778-0fb7-4c99-802b-6b1738e5dde3",
+                    "resource": {
+                        "resourceType": "Medication",
+                        "id": "43ae2778-0fb7-4c99-802b-6b1738e5dde3",
+                        "code": {"text": "Dolo"},
+                    },
+                },
+                {
+                    "fullUrl": "MedicationRequest/7ae7e7cb-05a7-4837-8698-fd65462a8c53",
+                    "resource": {
+                        "id": "7ae7e7cb-05a7-4837-8698-fd65462a8c53",
+                        "resourceType": "MedicationRequest",
+                        "subject": {
+                            "reference": "Patient/08067870-bca1-4d06-97b4-155774767650"
+                        },
+                        "status": "active",
+                        "intent": "order",
+                        "authoredOn": "2024-05-02T09:25:46.616135+05:30",
+                        "dosageInstruction": [{"text": "None||None|None"}],
+                        "medicationReference": {
+                            "reference": "Medication/cd817766-188a-4df8-a5f1-1b1a146cdb9d"
+                        },
+                        "requester": {
+                            "reference": "Practitioner/5ae57ef8-6956-4b47-b5cd-8286026901d5"
+                        },
+                    },
+                },
+                {
+                    "fullUrl": "MedicationRequest/999eaa50-2272-4871-8482-93963e0ee5be",
+                    "resource": {
+                        "id": "999eaa50-2272-4871-8482-93963e0ee5be",
+                        "resourceType": "MedicationRequest",
+                        "subject": {
+                            "reference": "Patient/08067870-bca1-4d06-97b4-155774767650"
+                        },
+                        "status": "active",
+                        "intent": "order",
+                        "authoredOn": "2024-05-02T09:25:46.616336+05:30",
+                        "dosageInstruction": [{"text": "None||None|None"}],
+                        "medicationReference": {
+                            "reference": "Medication/43ae2778-0fb7-4c99-802b-6b1738e5dde3"
+                        },
+                        "requester": {
+                            "reference": "Practitioner/5ae57ef8-6956-4b47-b5cd-8286026901d5"
+                        },
+                    },
+                },
+            ],
+            "identifier": {
+                "system": "http://hip.in",
+                "value": "db39943a-0837-11ef-8a6f-0242ac1e0004",
+            },
+            "timestamp": "2024-05-02T09:25:46.598273+05:30",
+            "type": "document",
+            "resourceType": "Bundle",
+        }
+        return dummy_fhir
+
+
 def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
     try:
         logging.info("executing opConsultStructured function")
