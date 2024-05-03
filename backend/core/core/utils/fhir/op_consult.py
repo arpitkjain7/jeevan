@@ -1456,7 +1456,7 @@ def opConsultDummyNew(bundle_name: str, bundle_identifier: str, pmr_id: str):
         return dummy_fhir
 
 
-def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
+def opConsultStructured(bundle_identifier: str, pmr_id: str):
     try:
         logging.info("executing opConsultStructured function")
         time_str = datetime.now(timezone).isoformat()
@@ -1895,7 +1895,7 @@ def opConsultStructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
             logging.info(f"Creating bundle")
             bundle = Bundle.construct()
             bundle.type = "document"
-            bundle.id = bundle_name
+            bundle.id = bundle_identifier
             bundle.meta = meta
             bundle.timestamp = time_str
             bundle.identifier = identifier

@@ -1392,7 +1392,6 @@ class PMRController:
             bundle_id = str(uuid.uuid1())
             if mode == "structured":
                 return opConsultStructured(
-                    bundle_name=f"OPConsultNote-{bundle_id}",
                     bundle_identifier=bundle_id,
                     pmr_id=pmr_id,
                 )
