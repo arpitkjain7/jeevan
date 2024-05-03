@@ -62,14 +62,14 @@ def send_data(
         fhir_bundle_list = []
         for care_context_obj in care_context_list:
             logging.info(f"{care_context_obj=}")
-            fhir_bundle = prepare_data(
-                pmr_id=care_context_obj.get("careContextReference"),
-                type="dummy_new",
-            )
             # fhir_bundle = prepare_data(
             #     pmr_id=care_context_obj.get("careContextReference"),
-            #     type="structured",
+            #     type="dummy_new",
             # )
+            fhir_bundle = prepare_data(
+                pmr_id=care_context_obj.get("careContextReference"),
+                type="structured",
+            )
             if fhir_bundle:
                 fhir_bundle_list.append(
                     {care_context_obj.get("careContextReference"): fhir_bundle}
