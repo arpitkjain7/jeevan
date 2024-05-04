@@ -334,6 +334,7 @@ class HIUController:
             ):
                 logging.info("Updating consent table record")
                 consent_crud_request = {"id": consent_id, "status": consent_status}
+                self.CRUDHIUConsents.update(**consent_crud_request)
             else:
                 consent_artifact_id = notification_obj.get("consentArtefacts")[0].get(
                     "id"
