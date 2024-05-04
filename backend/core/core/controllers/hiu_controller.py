@@ -326,7 +326,7 @@ class HIUController:
             notification_obj = request.get("notification")
             consent_id = notification_obj.get("consentRequestId")
             consent_status = notification_obj.get("status")
-            logging(f"{consent_status=}")
+            logging.info(f"{consent_status=}")
             if (
                 consent_status == "DENIED"
                 or consent_status == "REVOKED"
