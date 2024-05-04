@@ -326,48 +326,61 @@ class HIUController:
             notification_obj = request.get("notification")
             consent_id = notification_obj.get("consentRequestId")
             consent_status = notification_obj.get("status")
-            consent_artifact_id = notification_obj.get("consentArtefacts")[0].get("id")
-            logging.info("Updating consent table record")
-            consent_crud_request = {
-                "id": consent_id,
-                "status": consent_status,
-                "consent_artifact_id": consent_artifact_id,
-            }
-            self.CRUDHIUConsents.update(**consent_crud_request)
-            logging.info("Getting session access Token")
-            gateway_access_token = get_session_token(
-                session_parameter="gateway_token"
-            ).get("accessToken")
-            fetch_consent_url = f"{self.gateway_url}/v0.5/consents/fetch"
-            for consentArtifact in notification_obj.get("consentArtefacts"):
-                consentArtifactId = consentArtifact.get("id")
-                request_id = str(uuid.uuid1())
-                time_now = datetime.now(timezone.utc)
-                time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-                _, resp_code = APIInterface().post(
-                    route=fetch_consent_url,
-                    data=json.dumps(
-                        {
-                            "requestId": request_id,
-                            "timestamp": time_now,
-                            "consentId": consentArtifactId,
-                        }
-                    ),
-                    headers={
-                        "X-CM-ID": os.environ["X-CM-ID"],
-                        "Authorization": f"Bearer {gateway_access_token}",
-                        "Content-Type": "application/json",
-                    },
+            logging(f"{consent_status=}")
+            if (
+                consent_status == "DENIED"
+                or consent_status == "REVOKED"
+                or consent_status == "EXPIRED"
+            ):
+                logging.info("Updating consent table record")
+                consent_crud_request = {"id": consent_id, "status": consent_status}
+            else:
+                consent_artifact_id = notification_obj.get("consentArtefacts")[0].get(
+                    "id"
                 )
-                logging.info(f"Response Code for {consentArtifactId=} is {resp_code=}")
-                # self.CRUDHIUConsents.create(
-                #     **{"id": consentArtifactId, "status": "REQUESTED"}
-                # )
-            # if consent_status == "GRANTED":
-            #     self.CRUDHIUConsents.create(**consent_crud_request)
-            # elif consent_status == "EXPIRED" or consent_status == "REVOKED":
-            #     logging.info(f"{consent_crud_request=}")
-            #     self.CRUDHIUConsents.update(**consent_crud_request)
+                logging.info("Updating consent table record")
+                consent_crud_request = {
+                    "id": consent_id,
+                    "status": consent_status,
+                    "consent_artifact_id": consent_artifact_id,
+                }
+                self.CRUDHIUConsents.update(**consent_crud_request)
+                logging.info("Getting session access Token")
+                gateway_access_token = get_session_token(
+                    session_parameter="gateway_token"
+                ).get("accessToken")
+                fetch_consent_url = f"{self.gateway_url}/v0.5/consents/fetch"
+                for consentArtifact in notification_obj.get("consentArtefacts"):
+                    consentArtifactId = consentArtifact.get("id")
+                    request_id = str(uuid.uuid1())
+                    time_now = datetime.now(timezone.utc)
+                    time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                    _, resp_code = APIInterface().post(
+                        route=fetch_consent_url,
+                        data=json.dumps(
+                            {
+                                "requestId": request_id,
+                                "timestamp": time_now,
+                                "consentId": consentArtifactId,
+                            }
+                        ),
+                        headers={
+                            "X-CM-ID": os.environ["X-CM-ID"],
+                            "Authorization": f"Bearer {gateway_access_token}",
+                            "Content-Type": "application/json",
+                        },
+                    )
+                    logging.info(
+                        f"Response Code for {consentArtifactId=} is {resp_code=}"
+                    )
+                    # self.CRUDHIUConsents.create(
+                    #     **{"id": consentArtifactId, "status": "REQUESTED"}
+                    # )
+                # if consent_status == "GRANTED":
+                #     self.CRUDHIUConsents.create(**consent_crud_request)
+                # elif consent_status == "EXPIRED" or consent_status == "REVOKED":
+                #     logging.info(f"{consent_crud_request=}")
+                #     self.CRUDHIUConsents.update(**consent_crud_request)
         except Exception as error:
             logging.error(f"Error in HIUController.hiu_notify function: {error}")
             raise error
