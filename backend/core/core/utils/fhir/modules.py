@@ -803,9 +803,11 @@ def get_practitioner_construct(practitioner_info: dict):
         id=practitioner_ref_id,
         name=[{"text": name}],
         meta={
+            "lastUpdated": practitioner_info.get("time_str"),
+            "versionId": 1,
             "profile": [
                 "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
-            ]
+            ],
         },
         identifier=[
             {
@@ -828,10 +830,10 @@ def get_practitioner_construct(practitioner_info: dict):
 
 def get_condition_construct(
     condition_id: str,
-    clinical_code: str,
     clinical_display: str,
     patient_ref: str,
     encounter_ref: str,
+    condition_type: str,
 ):
     print("Inside condition")
     clinicalStatus_codeable_obj = CodeableConcept()
@@ -842,9 +844,11 @@ def get_condition_construct(
             "display": "active",
         }
     ]
+    clinicalStatus_codeable_obj.text = condition_type
     condition_obj = Condition(
         resource_type="Condition",
         id=condition_id,
+        recordedDate=datetime.today().date(),
         clinicalStatus=clinicalStatus_codeable_obj,
         subject={"reference": f"Patient/{patient_ref}"},
     )
@@ -872,7 +876,6 @@ def get_condition_construct(
 
 def get_observation_construct(
     observation_id: str,
-    clinical_display: str,
     patient_ref: str,
     encounter_ref: str,
     observation_type: str,

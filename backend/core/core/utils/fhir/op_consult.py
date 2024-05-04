@@ -10,12 +10,13 @@ from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
 from core.crud.hims_hip_crud import CRUDHIP
+from core.crud.hims_diagnosis_crud import CRUDDiagnosis
+from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
 from core.crud.hims_appointments_crud import CRUDAppointments
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.crud.hims_symptoms_crud import CRUDSymptoms
 from core.crud.hims_vitals_crud import CRUDVital
-from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
 from core.crud.hims_medicines_crud import CRUDMedicines
 from core.utils.aws.s3_helper import get_object, read_object
 from core import logger
@@ -1459,7 +1460,13 @@ def opConsultDummyNew(bundle_name: str, bundle_identifier: str, pmr_id: str):
 def opConsultStructured(bundle_identifier: str, pmr_id: str):
     try:
         logging.info("executing opConsultStructured function")
-        time_str = datetime.now(timezone).isoformat()
+        ist_timezone = pytz.timezone("Asia/Kolkata")
+        current_time_ist = datetime.now(ist_timezone)
+        offset_hours = current_time_ist.utcoffset().seconds // 3600
+        offset_minutes = (current_time_ist.utcoffset().seconds // 60) % 60
+        offset_string = "{:02}:{:02}".format(offset_hours, offset_minutes)
+        time_str = current_time_ist.strftime("%Y-%m-%dT%H:%M:%S") + "+" + offset_string
+        # time_str = datetime.now(timezone).isoformat()
         logging.info(f"Getting PMR Object")
         pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
         if pmr_obj:
@@ -1475,6 +1482,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             patient_rec = CRUDPatientDetails().read_by_patientId(
                 patient_id=pmr_obj["patient_id"]
             )
+            diagnosis_rec = CRUDDiagnosis().read_by_pmrId(pmr_id=pmr_id)
             pmr_obj.update(
                 {
                     "hip": hip_rec,
@@ -1497,6 +1505,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     "gender": "Female",
                     "practitioner_id": doctor_obj["doc_licence_no"],
                     "telecom": "1234567890",
+                    "time_str": time_str,
                 }
             )
             practitioner_ref = Reference.construct(
@@ -1579,6 +1588,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     code=appointment_obj["encounter_type_code"],
                     display=appointment_obj["encounter_type"],
                 ),
+                diagnosis=diagnosis_rec[0].get("disease", None),
             )
             bundle_entry_list.append(
                 BundleEntry.construct(
@@ -1587,8 +1597,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 )
             )
             encounter_ref = Reference.construct(
-                reference=f"Encounter/{encounter_bundle.id}",
-                display="Encounter/OP Consult Record",
+                reference=f"Encounter/{encounter_bundle.id}"
             )
             ref_data.append(encounter_ref)
 
@@ -1599,10 +1608,10 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             condition_sections = [
                 get_condition_construct(
                     condition_id=str(uuid.uuid4()),
-                    clinical_code=sympt_obj["snowmed_code"],
                     clinical_display=sympt_obj["snowmed_display"],
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
+                    patient_ref=patient_ref_id,
+                    encounter_ref=encounter_ref_id,
+                    condition_type="COMPLAIN",
                 )
                 for sympt_obj in sympt_list
             ]
@@ -1636,6 +1645,49 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 }
             ]
 
+            # Creating Medical History
+            logging.info(f"Creating Medical History Entry")
+            med_history_list = CRUDMedicalHistory().read_by_pmrId(pmr_id=pmr_id)
+            logging.info(f"{med_history_list=}")
+            med_his_sections = [
+                get_condition_construct(
+                    condition_id=str(uuid.uuid4()),
+                    clinical_display=med_history_obj["medical_history"],
+                    patient_ref=patient_ref_id,
+                    encounter_ref=encounter_ref_id,
+                    condition_type="HISTORY",
+                )
+                for med_history_obj in med_history_list
+            ]
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"Condition/{med_his_bundle.id}",
+                        resource=med_his_bundle,
+                    )
+                    for med_his_bundle in med_his_sections
+                ]
+            )
+            ref_data.extend(med_his_sections)
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "371529009",
+                    "display": "History and physical report",
+                }
+            ]
+            med_his_entry = [
+                Reference.construct(reference=f"Condition/{section.id}")
+                for section in med_his_sections
+            ]
+            med_his_ref = {
+                "title": "Medical History",
+                "entry": med_his_entry,
+                "code": codeable_obj,
+            }
+            section_refs.append(med_his_ref)
+
             # Creating physical examination
             physical_examination_bundle_list = []
             logging.info(f"Creating Vitals Entry")
@@ -1643,7 +1695,6 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             physical_examination = f"Temperature {vital_obj['body_temperature']} Blood Pressure {vital_obj['systolic_blood_pressure']}/{vital_obj['diastolic_blood_pressure']}"
             physical_examination_temp_bundle = get_observation_construct(
                 observation_id=str(uuid.uuid4()),
-                clinical_display=physical_examination,
                 patient_ref=patient_obj["id"],
                 encounter_ref=appointment_obj["id"],
                 observation_type="Temperature",
@@ -1654,13 +1705,12 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             ref_data.append(physical_examination_temp_bundle)
             bundle_entry_list.append(
                 BundleEntry.construct(
-                    fullUrl=f"PhysicalExamination/{physical_examination_temp_bundle.id}",
+                    fullUrl=f"Observation/{physical_examination_temp_bundle.id}",
                     resource=physical_examination_temp_bundle,
                 )
             )
             physical_examination_sbp_bundle = get_observation_construct(
                 observation_id=str(uuid.uuid4()),
-                clinical_display=physical_examination,
                 patient_ref=patient_obj["id"],
                 encounter_ref=appointment_obj["id"],
                 observation_type="Systolic Blood pressure",
@@ -1678,14 +1728,13 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             physical_examination_bundle_list.append(physical_examination_sbp_bundle)
             bundle_entry_list.append(
                 BundleEntry.construct(
-                    fullUrl=f"PhysicalExamination/{physical_examination_sbp_bundle.id}",
+                    fullUrl=f"Observation/{physical_examination_sbp_bundle.id}",
                     resource=physical_examination_sbp_bundle,
                 )
             )
 
             physical_examination_dbp_bundle = get_observation_construct(
                 observation_id=str(uuid.uuid4()),
-                clinical_display=physical_examination,
                 patient_ref=patient_obj["id"],
                 encounter_ref=appointment_obj["id"],
                 observation_type="Diastolic Blood pressure",
@@ -1703,7 +1752,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             ref_data.append(physical_examination_dbp_bundle)
             bundle_entry_list.append(
                 BundleEntry.construct(
-                    fullUrl=f"PhysicalExamination/{physical_examination_dbp_bundle.id}",
+                    fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
                     resource=physical_examination_dbp_bundle,
                 )
             )
@@ -1717,7 +1766,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             ]
             physical_examination_entry = [
                 Reference.construct(
-                    reference=f"PhysicalExamination/{physical_examination_bundle.id}"
+                    reference=f"Observation/{physical_examination_bundle.id}"
                 )
                 for physical_examination_bundle in physical_examination_bundle_list
             ]
@@ -1847,13 +1896,20 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
 
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
+            composition_meta = Meta(
+                versionId=1,
+                lastUpdated=time_str,
+                profile=[
+                    "https://nrces.in/ndhm/fhir/r4/StructureDefinition/OPConsultRecord"
+                ],
+            )
             composition = Composition.construct(
                 id=str(uuid.uuid4()),
-                title="OP Consult Record",
+                title="Consultation Report",
                 date=slot_obj["date"],
                 status="final",  # final | amended | entered-in-error | preliminary,
                 type=CodeableConcept.construct(
-                    text="OP Consult Record",
+                    text="Clinical consultation report",
                     coding=[
                         {
                             "system": "http://snomed.info/sct",
@@ -1867,6 +1923,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 author=[practitioner_ref],
                 subject=patient_ref,
                 section=section_refs,
+                meta=composition_meta,
             )
             # Coding.construct(
             #     system="http://snomed.info/sct",
