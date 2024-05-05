@@ -1811,7 +1811,6 @@ const PatientEMRDetails = (props) => {
     setPmrFinished(true);
     setStep("preview");
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
-    // 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
     console.log(pdfjs.version);
     let pdf_data = await createPdfBlob(patientDetails);
     const pdfUrls = URL.createObjectURL(pdf_data);

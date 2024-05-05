@@ -5,10 +5,8 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchConsentList } from "./consentList.slice";
 import RightArrow from "../../assets/arrows/arrow-right.svg";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ConsentModal from "../ConsentModal";
 import { convertDateFormat } from "../../utils/utils";
-import CustomSnackbar from "../CustomSnackbar";
 import CustomLoader from "../CustomLoader";
 
 const ConsentListContainer = styled("div")(({ theme }) => ({
