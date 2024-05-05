@@ -58,4 +58,5 @@ export const apis = {
   verifyDemographics: "v1/patient/auth/verifyDemographic",
   demographicsAuthInit: "v2/patient/auth/init",
   deepLink: "v1/deepLinkNotify",
+  searchAbha: "v1/HID/searchAbha",
 };

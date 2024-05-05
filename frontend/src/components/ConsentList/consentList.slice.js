@@ -40,6 +40,14 @@ export const postConsentRequest = createAsyncThunk(
   }
 );
 
+export const searchAbha = createAsyncThunk(
+  "post/searchAbha",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.searchAbha, payload);
+    return response;
+  }
+);
+
 // Create the slice
 const ConsentListSlice = createSlice({
   name: "list",

@@ -49,7 +49,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   useEffect(() => {
     if(docType === "application/pdf" && isMobile){
       // setIsPDF(true);
-      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; 
+      pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
       if (docBytes) {
         const decodedByteCode = atob(docBytes);
         const byteNumbers = new Array(decodedByteCode.length);

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import AutoSearch from "../../../components/AutoSearch";
 import PatientDetailsHeader from "../../../components/PatientDetailsHeader";
 import {
   Typography,
@@ -19,19 +18,15 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEMRId,
-  getPatientAuth,
   postEMR,
   searchVitalsDetails,
-  syncPMR,
-  verifyDemographics,
 } from "./EMRPage.slice";
-import { gatewayInteraction } from "../../PatientRegistration/PatientRegistration.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
-import { calculateBMI, convertDateFormat } from "../../../utils/utils";
+import { calculateBMI } from "../../../utils/utils";
 import CustomizedDialogs from "../../../components/Dialog";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf";
@@ -150,13 +145,13 @@ const VitalValue = styled("div")(({ theme }) => ({
   },
 }));
 
-const CommentSection = styled("div")(({ theme }) => ({
-  "&": {
-    padding: theme.spacing(3),
-    border: `1px solid ${theme.palette.primaryGrey}`,
-    textAlign: "center",
-  },
-}));
+// const CommentSection = styled("div")(({ theme }) => ({
+//   "&": {
+//     padding: theme.spacing(3),
+//     border: `1px solid ${theme.palette.primaryGrey}`,
+//     textAlign: "center",
+//   },
+// }));
 const FieldSpecsContainer = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
@@ -318,7 +313,7 @@ const DeleteWrapper = styled("div")(({ theme }) => ({
 const SelectedRecord = styled(Typography)(({ theme }) => ({
   "&": theme.typography.body1,
   marginBottom: theme.spacing(4),
-  marginBottom: "0",
+  // marginBottom: "0",
   [theme.breakpoints.down("sm")]: {
     marginBottom: "0",
   },
@@ -334,14 +329,14 @@ const DeleteField = styled(Delete)(({ theme }) => ({
   width: "30px",
 }));
 
-const PageTitle = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.h1,
-  marginBottom: theme.spacing(2),
-}));
-const PageSubText = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.h2,
-  marginBottom: theme.spacing(8),
-}));
+// const PageTitle = styled(Typography)(({ theme }) => ({
+//   "&": theme.typography.h1,
+//   marginBottom: theme.spacing(2),
+// }));
+// const PageSubText = styled(Typography)(({ theme }) => ({
+//   "&": theme.typography.h2,
+//   marginBottom: theme.spacing(8),
+// }));
 
 const PdfDisplayWrapper = styled("div")(({ theme }) => ({
   // display: "flex",
@@ -422,12 +417,12 @@ const PatientEMRDetails = (props) => {
   const [labInvestigation, setLabInvestigation] = useState([]);
   const [prescriptionComment, setPrescriptionComment] = useState("");
   const [advices, setAdvices] = useState("");
-  const [showSeveritySymptomps, setShowSeveritySymptomps] = useState(false);
-  const [showMedicalHistory, setShowMedicalHistory] = useState(false);
+  // const [showSeveritySymptomps, setShowSeveritySymptomps] = useState(false);
+  // const [showMedicalHistory, setShowMedicalHistory] = useState(false);
   const [optionTextValues, setOptionTextValues] = useState({});
   const [existingConditionSpecs, setExistingConditionsSpecs] = useState({});
   const [symptomsSpecs, setSymptomsSpecs] = useState({});
-  const [medicalHistorySpecs, setMedicalHistorySpecs] = useState({});
+  // const [medicalHistorySpecs, setMedicalHistorySpecs] = useState({});
   const [examinationSpecs, setExaminationSpecs] = useState({});
   const [diagnosisSpecs, setDiagnosisSpecs] = useState({});
   const [medicationsSpecs, setMedicationsSpecs] = useState({});
@@ -460,7 +455,7 @@ const PatientEMRDetails = (props) => {
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
   const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  // const [pageNumber, setPageNumber] = useState(1);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
@@ -478,47 +473,10 @@ const PatientEMRDetails = (props) => {
   });
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [functionCalled, setFunctionCalled] = useState(false); 
-  const [gatewayRequestId, setGatewayRequestId]= useState("");
+  // const [retryCount, setRetryCount] = useState(0);
+  // const [functionCalled, setFunctionCalled] = useState(false); 
+  // const [gatewayRequestId, setGatewayRequestId]= useState("");
   
-  useEffect(() => { 
-    console.log(retryCount, "retryCount", functionCalled);
-    if (functionCalled && retryCount < 4) { 
-      const fetchGatewayData = async () => { 
-          try { 
-            console.log("gatewayRequestId", gatewayRequestId);
-            dispatch(gatewayInteraction(gatewayRequestId)).then(response => {
-              console.log("gateway response", response);
-              if(response?.error && Object.keys(response?.error)?.length > 0) {
-                setShowSnackbar(true);
-                return;
-              }
-              else if(response?.payload?.request_status === "SUCESS"){
-                setFunctionCalled(false);
-                setNotifyModal(true);
-              } else {
-                // if (retryCount < 4) { 
-                  setTimeout(() => {
-                    fetchGatewayData()
-                    setRetryCount(retryCount + 1); 
-                  }, 5000);
-                // } else {
-                //   setShowSnackbar(true);
-                //   setFunctionCalled(false);
-                //   return;
-                // }
-              }
-            })
-          } catch (error) { console.error(error); } 
-      };
-      fetchGatewayData();
-    } else if (functionCalled && retryCount > 4) {
-      setShowSnackbar(true);
-      setFunctionCalled(false);
-      // return;
-    }
-}, [retryCount, functionCalled]); 
 
   useEffect(() => {
     if (cleared) {
@@ -1708,50 +1666,12 @@ const PatientEMRDetails = (props) => {
         dispatch(postEMR(allData))
           .then((res) => {
             setShowLoader(false);
-            if (res.meta.requestStatus === "rejected") {
+            if (res?.meta?.requestStatus === "rejected") {
               setPmrDialogOpen(true);
             } else {
               setDocumentId(pdfResponse?.payload?.data?.document_id);
               setNotifyModal(true);
-              // if(currentPatient?.patient_details?.abha_number || currentPatient?.abha_number){
-              //   const payload = {
-              //     // abha_number: currentPatient?.patient_details?.abha_number || currentPatient?.abha_number,
-              //     patient_id: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
-              //     purpose: "KYC_AND_LINK",
-              //     auth_mode: "DEMOGRAPHICS", //event.target.value,
-              //     // hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
-              //   };
-              //   dispatch(verifyDemographics(payload)).then((patientAuthResponse) => {
-              //     setGatewayRequestId(patientAuthResponse?.payload?.request_id);
-              //     setFunctionCalled(true); 
-              //     setRetryCount((prevCount) => prevCount + 1);
-              //     // setTxnId(res.payload?.txn_id);
-              //     // const demographicsPayload = {
-              //     //   txnId: patientAuthResponse.payload?.txn_id,
-              //     //   pid: currentPatient?.patient_details?.patientId || currentPatient?.patientId,
-              //     // };
-              //     // dispatch(verifyDemographics(demographicsPayload)).then((deographicResponse) => {
-              //     //   if(deographicResponse?.payload?.request_id){
-              //     //     const syncPMRPayload = {
-              //     //       hip_id: currentPatient?.patient_details?.hip_id || currentPatient?.hip_id,
-              //     //       pmr_id: sessionStorage.getItem("pmrID"),
-              //     //     };
-              //     //     dispatch(syncPMR(syncPMRPayload)).then((syncPMRResponse) => {
-              //     //       // sessionStorage.removeItem("pmrId");
-              //     //       // navigate("/appointment-list");
-              //     //       if(syncPMRResponse?.payload?.status === "success"){
-              //     //         setNotifyModal(true);
-              //     //       } else {
-              //     //         setErrorMessage("Sync ABHA failed");
-              //     //         setShowSnackbar(true);
-              //     //       }
-              //     //     });
-              //     //   }
-              //     // });
-              //   });
-              // } else {
-              //   setNotifyModal(true);
-              // }
+              
             }
           })
           .catch((error) => {
@@ -1890,7 +1810,9 @@ const PatientEMRDetails = (props) => {
 
     setPmrFinished(true);
     setStep("preview");
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+    // 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
+    console.log(pdfjs.version);
     let pdf_data = await createPdfBlob(patientDetails);
     const pdfUrls = URL.createObjectURL(pdf_data);
     setPdfUrl(pdfUrls);
