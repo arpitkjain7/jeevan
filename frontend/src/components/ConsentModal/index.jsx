@@ -22,7 +22,7 @@ import { styled } from "@mui/material/styles";
 import CloseIcon from '@mui/icons-material/Close';
 import { Close } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { postConsentRequest } from "../ConsentList/consentList.slice";
+import { postConsentRequest, searchAbha } from "../ConsentList/consentList.slice";
 import { convertDateFormat } from "../../utils/utils";
 import CustomSnackbar from "../CustomSnackbar";
 
@@ -92,6 +92,8 @@ const ConsentModal = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [abhaUserName, setAbhaUserName] = useState("");
+  const [isAbhaUserName, setIsAbhaUserName] = useState(false);
   const [formData, setFormData] = useState({
     patientIdentifier: "",
     purposeOfRequest: "",
@@ -108,6 +110,18 @@ const ConsentModal = ({
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const handleAbhaName = (e) => {
+    dispatch(searchAbha({healthNumber: e.target.value})).then(response => {
+      if(response?.payload){
+        setIsAbhaUserName(true);
+        setAbhaUserName(response?.payload?.name);
+      } else {
+        setIsAbhaUserName(false);
+        setAbhaUserName("");
+      }
+    })
+  }
   const handleSelectAll = () => { 
     if (!selectAllChecked) { 
       setHiTypes(infoTypeOptions); // Add all options 
@@ -205,7 +219,11 @@ const ConsentModal = ({
                     name="patientIdentifier"
                     value={formData.patientIdentifier}
                     onChange={handleChange}
+                    onBlur={handleAbhaName}
                   />
+                  {isAbhaUserName && 
+                    <span>{abhaUserName}</span>
+                  }
                 </Grid>
                 <Grid item xs={6}>
                   <FormLabel>Purpose of request</FormLabel>

@@ -5,9 +5,9 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchConsentList } from "./consentList.slice";
 import RightArrow from "../../assets/arrows/arrow-right.svg";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ConsentModal from "../ConsentModal";
 import { convertDateFormat } from "../../utils/utils";
+import CustomLoader from "../CustomLoader";
 
 const ConsentListContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 6),
@@ -74,13 +74,16 @@ const ConsentList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
     sessionStorage.removeItem("consentSelected");
+    setShowLoader(true);
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
       const patientId = currentPatient?.id;
       dispatch(fetchConsentList(patientId)).then((response) => {
+        setShowLoader(false);
         const consentData = response?.payload;
         const formattedConsentList = consentData?.map((item) => {
           const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy hh:mm aaaaa'm'");
@@ -168,6 +171,9 @@ const ConsentList = () => {
 
   return (
     <ConsentListContainer>
+      <CustomLoader
+        open={showLoader}
+      />
        <ButtonWrapper>
         <CustomButton onClick={handleModalOpen}>Request Consent</CustomButton>
       </ButtonWrapper>
