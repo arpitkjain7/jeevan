@@ -834,6 +834,7 @@ def get_condition_construct(
     patient_ref: str,
     encounter_ref: str,
     condition_type: str,
+    recorded_date: str,
 ):
     print("Inside condition")
     clinicalStatus_codeable_obj = CodeableConcept()
@@ -848,7 +849,7 @@ def get_condition_construct(
     condition_obj = Condition(
         resource_type="Condition",
         id=condition_id,
-        recordedDate=datetime.today().date(),
+        recordedDate=recorded_date,
         clinicalStatus=clinicalStatus_codeable_obj,
         subject={"reference": f"Patient/{patient_ref}"},
     )

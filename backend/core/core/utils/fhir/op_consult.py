@@ -198,6 +198,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     patient_ref=patient_ref_id,
                     encounter_ref=encounter_ref_id,
                     condition_type="COMPLAIN",
+                    recorded_date=sympt_obj["created_at"],
                 )
                 for sympt_obj in sympt_list
             ]
@@ -242,6 +243,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     patient_ref=patient_ref_id,
                     encounter_ref=encounter_ref_id,
                     condition_type="HISTORY",
+                    recorded_date=med_history_obj["created_at"],
                 )
                 for med_history_obj in med_history_list
             ]
