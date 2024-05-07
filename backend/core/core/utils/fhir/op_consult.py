@@ -1873,72 +1873,72 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             # ]
             # section_refs.extend(family_med_history_ref)
 
-            # Creating medication history
-            logging.info(f"Creating medication history")
-            medicines_list = CRUDMedicines().read_by_pmrId(pmr_id=pmr_id)
-            logging.info(f"{medicines_list=}")
-            # medicines_sections = [
-            #     get_medical_statement_construct(
-            #         patient_ref=patient_ref_id,
-            #         medication_obj_code=medicines_obj["snowmed_code"],
-            #         medication_obj_display=medicines_obj["snowmed_display"],
-            #         medication_statement_id=str(uuid.uuid4()),
+            # # Creating medication history
+            # logging.info(f"Creating medication history")
+            # medicines_list = CRUDMedicines().read_by_pmrId(pmr_id=pmr_id)
+            # logging.info(f"{medicines_list=}")
+            # # medicines_sections = [
+            # #     get_medical_statement_construct(
+            # #         patient_ref=patient_ref_id,
+            # #         medication_obj_code=medicines_obj["snowmed_code"],
+            # #         medication_obj_display=medicines_obj["snowmed_display"],
+            # #         medication_statement_id=str(uuid.uuid4()),
+            # #     )
+            # #     for medicines_obj in medicines_list
+            # # ]
+            # medicines_req_sections, medicines_sections = [], []
+            # for medicines_obj in medicines_list:
+            #     medication_request_id = str(uuid.uuid4())
+            #     medication_request_bundle, medicine_bundle = (
+            #         get_medication_request_construct(
+            #             medication_request_id=medication_request_id,
+            #             dosage=f"{medicines_obj['dosage']}|{medicines_obj['frequency']}|{medicines_obj['time_of_day']}|{medicines_obj['duration_period']}",
+            #             patient_ref=patient_ref_id,
+            #             practitioner_ref=practitioner_ref_id,
+            #             medicine_name=medicines_obj["medicine_name"],
+            #         )
             #     )
-            #     for medicines_obj in medicines_list
+            #     medicines_req_sections.append(medication_request_bundle)
+            #     medicines_sections.append(medicine_bundle)
+            # logging.info(f"{medicines_req_sections=}")
+            # codeable_obj = CodeableConcept()
+            # codeable_obj.coding = [
+            #     {
+            #         "system": "http://snomed.info/sct",
+            #         "code": "721912009",
+            #         "display": "Medication summary document",
+            #     }
             # ]
-            medicines_req_sections, medicines_sections = [], []
-            for medicines_obj in medicines_list:
-                medication_request_id = str(uuid.uuid4())
-                medication_request_bundle, medicine_bundle = (
-                    get_medication_request_construct(
-                        medication_request_id=medication_request_id,
-                        dosage=f"{medicines_obj['dosage']}|{medicines_obj['frequency']}|{medicines_obj['time_of_day']}|{medicines_obj['duration_period']}",
-                        patient_ref=patient_ref_id,
-                        practitioner_ref=practitioner_ref_id,
-                        medicine_name=medicines_obj["medicine_name"],
-                    )
-                )
-                medicines_req_sections.append(medication_request_bundle)
-                medicines_sections.append(medicine_bundle)
-            logging.info(f"{medicines_req_sections=}")
-            codeable_obj = CodeableConcept()
-            codeable_obj.coding = [
-                {
-                    "system": "http://snomed.info/sct",
-                    "code": "721912009",
-                    "display": "Medication summary document",
-                }
-            ]
-            medicines_entry = [
-                Reference.construct(
-                    reference=f"MedicationRequest/{medicines_req_bundle['id']}"
-                )
-                for medicines_req_bundle in medicines_req_sections
-            ]
-            medicines_ref = {
-                "title": "Medications",
-                "entry": medicines_entry,
-                "code": codeable_obj,
-            }
-            section_refs.append(medicines_ref)
-            bundle_entry_list.extend(
-                [
-                    BundleEntry.construct(
-                        fullUrl=f"Medication/{medicines_bundle.id}",
-                        resource=medicines_bundle,
-                    )
-                    for medicines_bundle in medicines_sections
-                ]
-            )
-            bundle_entry_list.extend(
-                [
-                    BundleEntry.construct(
-                        fullUrl=f"MedicationRequest/{medicines_req_bundle['id']}",
-                        resource=medicines_req_bundle,
-                    )
-                    for medicines_req_bundle in medicines_req_sections
-                ]
-            )
+            # medicines_entry = [
+            #     Reference.construct(
+            #         reference=f"MedicationRequest/{medicines_req_bundle['id']}"
+            #     )
+            #     for medicines_req_bundle in medicines_req_sections
+            # ]
+            # medicines_ref = {
+            #     "title": "Medications",
+            #     "entry": medicines_entry,
+            #     "code": codeable_obj,
+            # }
+            # section_refs.append(medicines_ref)
+            # bundle_entry_list.extend(
+            #     [
+            #         BundleEntry.construct(
+            #             fullUrl=f"Medication/{medicines_bundle.id}",
+            #             resource=medicines_bundle,
+            #         )
+            #         for medicines_bundle in medicines_sections
+            #     ]
+            # )
+            # bundle_entry_list.extend(
+            #     [
+            #         BundleEntry.construct(
+            #             fullUrl=f"MedicationRequest/{medicines_req_bundle['id']}",
+            #             resource=medicines_req_bundle,
+            #         )
+            #         for medicines_req_bundle in medicines_req_sections
+            #     ]
+            # )
 
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
