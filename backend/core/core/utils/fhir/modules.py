@@ -804,7 +804,6 @@ def get_practitioner_construct(practitioner_info: dict):
         name=[{"text": name}],
         meta={
             "lastUpdated": practitioner_info.get("time_str"),
-            "versionId": 1,
             "profile": [
                 "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
             ],
@@ -913,6 +912,43 @@ def get_observation_construct(
     }
     # observation_obj.valueString = clinical_display
     # Convert the Patient resource to JSON
+    observation_json = observation_obj.json()
+    print(observation_json)
+    return observation_obj
+
+
+def get_physical_examination_construct(
+    observation_id: str,
+    patient_ref: str,
+    encounter_ref: str,
+    observation_str: str,
+    observation_type: str,
+):
+    print("Inside observation")
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": "425044008",
+    #         "display": "Physical exam section",
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
+    observation_obj = Observation(
+        resource_type="Observation",
+        id=observation_id,
+        status="final",
+        code={"text": observation_type},
+        valueString=observation_str,
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
     observation_json = observation_obj.json()
     print(observation_json)
     return observation_obj

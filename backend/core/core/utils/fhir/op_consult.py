@@ -1,5 +1,5 @@
 # from core import logger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fhir.resources.bundle import Bundle, BundleEntry
 from fhir.resources.meta import Meta
 from fhir.resources.identifier import Identifier
@@ -7,6 +7,7 @@ import pytz
 import uuid
 from core.utils.fhir.modules import *
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
+from core.crud.hims_examination_findings_crud import CRUDExaminationFindings
 from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
 from core.crud.hims_hip_crud import CRUDHIP
@@ -41,6 +42,21 @@ def remove_none_values(d):
         return [remove_none_values(item) for item in d if item is not None]
     else:
         return d
+
+
+def datetime_conversion(input_datetime):
+    logging.info(f"{input_datetime=}")
+    logging.info(f"{type(input_datetime)=}")
+    tz = pytz.timezone(
+        "Asia/Kolkata"
+    )  # Replace 'Asia/Kolkata' with your desired timezone
+
+    # Make the datetime object timezone-aware
+    dt_aware = tz.localize(input_datetime)
+
+    # Format the datetime object with timezone offset
+    formatted_dt = dt_aware.strftime("%Y-%m-%dT%H:%M:%S%z")
+    return formatted_dt
 
 
 def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
@@ -1579,6 +1595,9 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             encounter_start = datetime.combine(slot_obj["date"], slot_obj["start_time"])
             encounter_end = datetime.combine(slot_obj["date"], slot_obj["end_time"])
             encounter_ref_id = str(uuid.uuid4())
+            diagnosis_list = [
+                diagnosis.get("disease", None) for diagnosis in diagnosis_rec
+            ]
             encounter_bundle = Encounter.construct(
                 id=encounter_ref_id,
                 status="finished",
@@ -1588,7 +1607,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     code=appointment_obj["encounter_type_code"],
                     display=appointment_obj["encounter_type"],
                 ),
-                diagnosis=diagnosis_rec[0].get("disease", None),
+                # diagnosis=diagnosis_list,
             )
             bundle_entry_list.append(
                 BundleEntry.construct(
@@ -1612,7 +1631,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     patient_ref=patient_ref_id,
                     encounter_ref=encounter_ref_id,
                     condition_type="COMPLAIN",
-                    recorded_date=sympt_obj["created_at"],
+                    recorded_date=datetime_conversion(sympt_obj["created_at"]),
                 )
                 for sympt_obj in sympt_list
             ]
@@ -1657,7 +1676,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     patient_ref=patient_ref_id,
                     encounter_ref=encounter_ref_id,
                     condition_type="HISTORY",
-                    recorded_date=med_history_obj["created_at"],
+                    recorded_date=datetime_conversion(med_history_obj["created_at"]),
                 )
                 for med_history_obj in med_history_list
             ]
@@ -1694,7 +1713,6 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             physical_examination_bundle_list = []
             logging.info(f"Creating Vitals Entry")
             vital_obj = CRUDVital().read_by_pmrId(pmr_id=pmr_id)
-            physical_examination = f"Temperature {vital_obj['body_temperature']} Blood Pressure {vital_obj['systolic_blood_pressure']}/{vital_obj['diastolic_blood_pressure']}"
             physical_examination_temp_bundle = get_observation_construct(
                 observation_id=str(uuid.uuid4()),
                 patient_ref=patient_obj["id"],
@@ -1757,6 +1775,32 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
                     resource=physical_examination_dbp_bundle,
                 )
+            )
+            physical_examinations_list = CRUDExaminationFindings().read_by_pmrId(
+                pmr_id=pmr_id
+            )
+            physical_examination_finding_bundle_list = [
+                get_physical_examination_construct(
+                    observation_id=str(uuid.uuid4()),
+                    patient_ref=patient_obj["id"],
+                    encounter_ref=appointment_obj["id"],
+                    observation_type="DIAGNOSIS",
+                    observation_str=physical_examination["disease"],
+                )
+                for physical_examination in physical_examinations_list
+            ]
+            physical_examination_bundle_list.extend(
+                physical_examination_finding_bundle_list
+            )
+            ref_data.extend(physical_examination_finding_bundle_list)
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"Observation/{physical_examination_finding_bundle.id}",
+                        resource=physical_examination_finding_bundle,
+                    )
+                    for physical_examination_finding_bundle in physical_examination_finding_bundle_list
+                ]
             )
             codeable_obj = CodeableConcept()
             codeable_obj.coding = [
@@ -1899,7 +1943,6 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
             composition_meta = Meta(
-                versionId=1,
                 lastUpdated=time_str,
                 profile=[
                     "https://nrces.in/ndhm/fhir/r4/StructureDefinition/OPConsultRecord"
@@ -1935,8 +1978,8 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             identifier = Identifier()
             identifier.value = bundle_identifier
             meta = Meta(
-                versionId=1,
                 lastUpdated=time_str,
+                versionId=1,
                 profile=[
                     "https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"
                 ],
