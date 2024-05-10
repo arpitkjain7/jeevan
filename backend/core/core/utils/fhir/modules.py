@@ -1005,22 +1005,27 @@ def get_medical_statement_construct(
     ]
     medication = CodeableReference()  # this CODE part need to be checked furhter
     medication.concept = medication_obj
-    medication_statement = MedicationStatement(
-        resource_type="MedicationStatement",
-        subject=subject,
-        status="completed",
-        medication=medication,
-        id=medication_statement_id,
-    )
     meta = Meta(
         profile=[
             "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationStatement"
         ],
     )
-    medication_statement.meta = meta
-    medication_statement.id = medication_statement_id
-    medication_statement.subject = subject
+    medication_statement = MedicationStatement(
+        resource_type="MedicationStatement",
+        subject=subject,
+        status="completed",
+        # medication=medication,
+        id=medication_statement_id,
+        dateAsserted=datetime.now(timezone).isoformat(),
+        meta=meta,
+        medication=medication_obj,
+    )
+
+    # medication_statement.meta = meta
+    # medication_statement.id = medication_statement_id
+    # medication_statement.subject = subject
     # medication_statement.medicationCodeableConcept = medication_obj
+
     medication_statement_json = medication_statement.json()
     print(medication_statement_json)
     return medication_statement
@@ -1032,23 +1037,15 @@ def get_medication_request_construct(
     patient_ref: str,
     practitioner_ref: str,
     medicine_name: str,
+    medicine_code: str,
 ):
     print("Inside get_medication_request_construct Request")
-    medicine_ref = str(uuid.uuid4())
-    medication = CodeableReference()
-    medication.reference = {"reference": f"Medication/{medicine_ref}"}
-    # medication_request = MedicationRequest(
-    #     id=medication_request_id,
-    #     resource_type="MedicationRequest",
-    #     subject={"reference": f"Patient/{patient_ref}"},
-    #     status="active",
-    #     intent="order",
-    #     authoredOn=datetime.now(timezone).isoformat(),
-    #     dosageInstruction=[{"text": dosage}],
-    #     medication=medication,
-    #     requester={"reference": f"Practitioner/{practitioner_ref}"},
-    # )
     medication_request = {
+        "meta": {
+            "profile": [
+                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationRequest"
+            ],
+        },
         "id": medication_request_id,
         "resourceType": "MedicationRequest",
         "subject": {"reference": f"Patient/{patient_ref}"},
@@ -1056,14 +1053,17 @@ def get_medication_request_construct(
         "intent": "order",
         "authoredOn": datetime.now(timezone).isoformat(),
         "dosageInstruction": [{"text": dosage}],
-        "medicationReference": {"reference": f"Medication/{medicine_ref}"},
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": medicine_code,
+                    "display": medicine_name,
+                }
+            ],
+            "text": "Warfarin 5 MG Oral Tablet",
+        },
         "requester": {"reference": f"Practitioner/{practitioner_ref}"},
     }
     print(f"{medication_request=}")
-    medicine_bundle = Medication(
-        id=medicine_ref, resource_type="Medication", code={"text": medicine_name}
-    )
-    # Convert the Patient resource to JSON
-    # medication_request_json = medication_request.json()
-    # print(medication_request_json)
-    return medication_request, medicine_bundle
+    return medication_request

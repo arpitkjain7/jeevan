@@ -1,5 +1,5 @@
 # from core import logger
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from fhir.resources.bundle import Bundle, BundleEntry
 from fhir.resources.meta import Meta
 from fhir.resources.identifier import Identifier
@@ -7,7 +7,6 @@ import pytz
 import uuid
 from core.utils.fhir.modules import *
 from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
-from core.crud.hims_examination_findings_crud import CRUDExaminationFindings
 from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
 from core.crud.hims_hip_crud import CRUDHIP
@@ -42,21 +41,6 @@ def remove_none_values(d):
         return [remove_none_values(item) for item in d if item is not None]
     else:
         return d
-
-
-def datetime_conversion(input_datetime):
-    logging.info(f"{input_datetime=}")
-    logging.info(f"{type(input_datetime)=}")
-    tz = pytz.timezone(
-        "Asia/Kolkata"
-    )  # Replace 'Asia/Kolkata' with your desired timezone
-
-    # Make the datetime object timezone-aware
-    dt_aware = tz.localize(input_datetime)
-
-    # Format the datetime object with timezone offset
-    formatted_dt = dt_aware.strftime("%Y-%m-%dT%H:%M:%S%z")
-    return formatted_dt
 
 
 def opConsultUnstructured(bundle_name: str, bundle_identifier: str, pmr_id: str):
@@ -1511,7 +1495,6 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             logging.info(f"{pmr_obj=}")
             doctor_obj = pmr_obj.get("doctor")
             logging.info(f"{doctor_obj=}")
-
             # Create Practitioner Record
             logging.info("Create Practitioner Record")
             practitioner_ref_id = str(uuid.uuid4())
@@ -1596,9 +1579,6 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             encounter_start = datetime.combine(slot_obj["date"], slot_obj["start_time"])
             encounter_end = datetime.combine(slot_obj["date"], slot_obj["end_time"])
             encounter_ref_id = str(uuid.uuid4())
-            diagnosis_list = [
-                diagnosis.get("disease", None) for diagnosis in diagnosis_rec
-            ]
             encounter_bundle = Encounter.construct(
                 id=encounter_ref_id,
                 status="finished",
@@ -1608,7 +1588,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     code=appointment_obj["encounter_type_code"],
                     display=appointment_obj["encounter_type"],
                 ),
-                # diagnosis=diagnosis_list,
+                diagnosis=diagnosis_rec[0].get("disease", None),
             )
             bundle_entry_list.append(
                 BundleEntry.construct(
@@ -1625,230 +1605,255 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             logging.info(f"Creating ChiefComplaint/Conditions Entry")
             sympt_list = CRUDSymptoms().read_by_pmrId(pmr_id=pmr_id)
             logging.info(f"{sympt_list=}")
-            if len(sympt_list) > 0:
-                condition_sections = [
-                    get_condition_construct(
-                        condition_id=str(uuid.uuid4()),
-                        clinical_display=sympt_obj["symptom"],
-                        patient_ref=patient_ref_id,
-                        encounter_ref=encounter_ref_id,
-                        condition_type="COMPLAIN",
-                        recorded_date=datetime_conversion(sympt_obj["created_at"]),
-                    )
-                    for sympt_obj in sympt_list
-                ]
-                bundle_entry_list.extend(
-                    [
-                        BundleEntry.construct(
-                            fullUrl=f"Condition/{condition_bundle.id}",
-                            resource=condition_bundle,
-                        )
-                        for condition_bundle in condition_sections
-                    ]
+            condition_sections = [
+                get_condition_construct(
+                    condition_id=str(uuid.uuid4()),
+                    clinical_display=sympt_obj["snowmed_display"],
+                    patient_ref=patient_ref_id,
+                    encounter_ref=encounter_ref_id,
+                    condition_type="COMPLAIN",
                 )
-                ref_data.extend(condition_sections)
-                codeable_obj = CodeableConcept()
-                codeable_obj.coding = [
-                    {
-                        "system": "http://snomed.info/sct",
-                        "code": "422843007",
-                        "display": "Chief complaint section",
-                    }
+                for sympt_obj in sympt_list
+            ]
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"Condition/{condition_bundle.id}",
+                        resource=condition_bundle,
+                    )
+                    for condition_bundle in condition_sections
                 ]
-                condition_entry = [
-                    Reference.construct(reference=f"Condition/{section.id}")
-                    for section in condition_sections
-                ]
-                section_refs = [
-                    {
-                        "title": "Chief complaints",
-                        "entry": condition_entry,
-                        "code": codeable_obj,
-                    }
-                ]
+            )
+            ref_data.extend(condition_sections)
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "422843007",
+                    "display": "Chief complaint section",
+                }
+            ]
+            condition_entry = [
+                Reference.construct(reference=f"Condition/{section.id}")
+                for section in condition_sections
+            ]
+            section_refs = [
+                {
+                    "title": "Chief complaints",
+                    "entry": condition_entry,
+                    "code": codeable_obj,
+                }
+            ]
 
             # Creating Medical History
             logging.info(f"Creating Medical History Entry")
             med_history_list = CRUDMedicalHistory().read_by_pmrId(pmr_id=pmr_id)
             logging.info(f"{med_history_list=}")
-            if len(med_history_list) > 0:
-                med_his_sections = [
-                    get_condition_construct(
-                        condition_id=str(uuid.uuid4()),
-                        clinical_display=med_history_obj["medical_history"],
-                        patient_ref=patient_ref_id,
-                        encounter_ref=encounter_ref_id,
-                        condition_type="HISTORY",
-                        recorded_date=datetime_conversion(
-                            med_history_obj["created_at"]
-                        ),
-                    )
-                    for med_history_obj in med_history_list
-                ]
-                bundle_entry_list.extend(
-                    [
-                        BundleEntry.construct(
-                            fullUrl=f"Condition/{med_his_bundle.id}",
-                            resource=med_his_bundle,
-                        )
-                        for med_his_bundle in med_his_sections
-                    ]
+            med_his_sections = [
+                get_condition_construct(
+                    condition_id=str(uuid.uuid4()),
+                    clinical_display=med_history_obj["medical_history"],
+                    patient_ref=patient_ref_id,
+                    encounter_ref=encounter_ref_id,
+                    condition_type="HISTORY",
                 )
-                ref_data.extend(med_his_sections)
-                codeable_obj = CodeableConcept()
-                codeable_obj.coding = [
-                    {
-                        "system": "http://snomed.info/sct",
-                        "code": "371529009",
-                        "display": "History and physical report",
-                    }
+                for med_history_obj in med_history_list
+            ]
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
+                        fullUrl=f"Condition/{med_his_bundle.id}",
+                        resource=med_his_bundle,
+                    )
+                    for med_his_bundle in med_his_sections
                 ]
-                med_his_entry = [
-                    Reference.construct(reference=f"Condition/{section.id}")
-                    for section in med_his_sections
-                ]
-                med_his_ref = {
-                    "title": "Medical History",
-                    "entry": med_his_entry,
-                    "code": codeable_obj,
+            )
+            ref_data.extend(med_his_sections)
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "371529009",
+                    "display": "History and physical report",
                 }
-                section_refs.append(med_his_ref)
+            ]
+            med_his_entry = [
+                Reference.construct(reference=f"Condition/{section.id}")
+                for section in med_his_sections
+            ]
+            med_his_ref = {
+                "title": "Medical History",
+                "entry": med_his_entry,
+                "code": codeable_obj,
+            }
+            section_refs.append(med_his_ref)
 
             # Creating physical examination
             physical_examination_bundle_list = []
             logging.info(f"Creating Vitals Entry")
             vital_obj = CRUDVital().read_by_pmrId(pmr_id=pmr_id)
-            if vital_obj:
-                physical_examination_temp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Temperature",
-                    observation_unit="F",
-                    observation_value=vital_obj["body_temperature"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_temp_bundle
-                )
-                ref_data.append(physical_examination_temp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_temp_bundle.id}",
-                        resource=physical_examination_temp_bundle,
-                    )
-                )
-                physical_examination_sbp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Systolic Blood pressure",
-                    observation_unit="mmHg",
-                    observation_value=vital_obj["systolic_blood_pressure"],
-                )
-                # physical_examination = create_section(
-                #     ref_id=vital_obj["id"],
-                #     title="Physical Examination",
-                #     code="422843007",
-                #     display="Physical Examination section",
-                #     text=physical_examination,
-                # )
-                ref_data.append(physical_examination_sbp_bundle)
-                physical_examination_bundle_list.append(physical_examination_sbp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_sbp_bundle.id}",
-                        resource=physical_examination_sbp_bundle,
-                    )
-                )
-
-                physical_examination_dbp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Diastolic Blood pressure",
-                    observation_unit="mmHg",
-                    observation_value=vital_obj["diastolic_blood_pressure"],
-                )
-                # physical_examination = create_section(
-                #     ref_id=vital_obj["id"],
-                #     title="Physical Examination",
-                #     code="422843007",
-                #     display="Physical Examination section",
-                #     text=physical_examination,
-                # )
-                physical_examination_bundle_list.append(physical_examination_dbp_bundle)
-                ref_data.append(physical_examination_dbp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
-                        resource=physical_examination_dbp_bundle,
-                    )
-                )
-            physical_examinations_list = CRUDExaminationFindings().read_by_pmrId(
-                pmr_id=pmr_id
+            physical_examination = f"Temperature {vital_obj['body_temperature']} Blood Pressure {vital_obj['systolic_blood_pressure']}/{vital_obj['diastolic_blood_pressure']}"
+            physical_examination_temp_bundle = get_observation_construct(
+                observation_id=str(uuid.uuid4()),
+                patient_ref=patient_obj["id"],
+                encounter_ref=appointment_obj["id"],
+                observation_type="Temperature",
+                observation_unit="F",
+                observation_value=vital_obj["body_temperature"],
             )
-            if len(physical_examinations_list) > 0:
-                physical_examination_finding_bundle_list = [
-                    get_physical_examination_construct(
-                        observation_id=str(uuid.uuid4()),
-                        patient_ref=patient_obj["id"],
-                        encounter_ref=appointment_obj["id"],
-                        observation_type="DIAGNOSIS",
-                        observation_str=physical_examination["disease"],
-                    )
-                    for physical_examination in physical_examinations_list
-                ]
-                physical_examination_bundle_list.extend(
-                    physical_examination_finding_bundle_list
+            physical_examination_bundle_list.append(physical_examination_temp_bundle)
+            ref_data.append(physical_examination_temp_bundle)
+            bundle_entry_list.append(
+                BundleEntry.construct(
+                    fullUrl=f"Observation/{physical_examination_temp_bundle.id}",
+                    resource=physical_examination_temp_bundle,
                 )
-                ref_data.extend(physical_examination_finding_bundle_list)
-                bundle_entry_list.extend(
-                    [
-                        BundleEntry.construct(
-                            fullUrl=f"Observation/{physical_examination_finding_bundle.id}",
-                            resource=physical_examination_finding_bundle,
-                        )
-                        for physical_examination_finding_bundle in physical_examination_finding_bundle_list
-                    ]
+            )
+            physical_examination_sbp_bundle = get_observation_construct(
+                observation_id=str(uuid.uuid4()),
+                patient_ref=patient_obj["id"],
+                encounter_ref=appointment_obj["id"],
+                observation_type="Systolic Blood pressure",
+                observation_unit="mmHg",
+                observation_value=vital_obj["systolic_blood_pressure"],
+            )
+            # physical_examination = create_section(
+            #     ref_id=vital_obj["id"],
+            #     title="Physical Examination",
+            #     code="422843007",
+            #     display="Physical Examination section",
+            #     text=physical_examination,
+            # )
+            ref_data.append(physical_examination_sbp_bundle)
+            physical_examination_bundle_list.append(physical_examination_sbp_bundle)
+            bundle_entry_list.append(
+                BundleEntry.construct(
+                    fullUrl=f"Observation/{physical_examination_sbp_bundle.id}",
+                    resource=physical_examination_sbp_bundle,
                 )
-            if len(physical_examination_bundle_list) > 0:
-                codeable_obj = CodeableConcept()
-                codeable_obj.coding = [
-                    {
-                        "system": "http://snomed.info/sct",
-                        "code": "425044008",
-                        "display": "Physical exam section",
-                    }
-                ]
-                physical_examination_entry = [
-                    Reference.construct(
-                        reference=f"Observation/{physical_examination_bundle.id}"
-                    )
-                    for physical_examination_bundle in physical_examination_bundle_list
-                ]
-                phy_exam_ref = {
-                    "title": "Physical Examination",
-                    "entry": physical_examination_entry,
-                    "code": codeable_obj,
+            )
+
+            physical_examination_dbp_bundle = get_observation_construct(
+                observation_id=str(uuid.uuid4()),
+                patient_ref=patient_obj["id"],
+                encounter_ref=appointment_obj["id"],
+                observation_type="Diastolic Blood pressure",
+                observation_unit="mmHg",
+                observation_value=vital_obj["diastolic_blood_pressure"],
+            )
+            # physical_examination = create_section(
+            #     ref_id=vital_obj["id"],
+            #     title="Physical Examination",
+            #     code="422843007",
+            #     display="Physical Examination section",
+            #     text=physical_examination,
+            # )
+            physical_examination_bundle_list.append(physical_examination_dbp_bundle)
+            ref_data.append(physical_examination_dbp_bundle)
+            bundle_entry_list.append(
+                BundleEntry.construct(
+                    fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
+                    resource=physical_examination_dbp_bundle,
+                )
+            )
+            codeable_obj = CodeableConcept()
+            codeable_obj.coding = [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "425044008",
+                    "display": "Physical exam section",
                 }
-                section_refs.append(phy_exam_ref)
+            ]
+            physical_examination_entry = [
+                Reference.construct(
+                    reference=f"Observation/{physical_examination_bundle.id}"
+                )
+                for physical_examination_bundle in physical_examination_bundle_list
+            ]
+            phy_exam_ref = {
+                "title": "Physical Examination",
+                "entry": physical_examination_entry,
+                "code": codeable_obj,
+            }
+            section_refs.append(phy_exam_ref)
+
+            # # Creating medical history
+            # logging.info(f"Creating medical history")
+            # medical_history_list = CRUDMedicalHistory().read_self_by_pmrId(
+            #     pmr_id=pmr_id
+            # )
+            # med_history_sections = [
+            #     create_section(
+            #         title="Medical History",
+            #         code="371529009",
+            #         ref_id=medical_history_obj["id"],
+            #         display="Medical History section",
+            #         text=medical_history_obj["medical_history"],
+            #     )
+            #     for medical_history_obj in medical_history_list
+            # ]
+            # ref_data.extend(med_history_sections)
+            # med_history_ref = [
+            #     Reference.construct(
+            #         reference=f"MedicalHistory/{med_history_section.id}",
+            #         display=f"{med_history_section.title}",
+            #     )
+            #     for med_history_section in med_history_sections
+            # ]
+            # section_refs.extend(med_history_ref)
+
+            # # Creating family medical history
+            # logging.info(f"Creating family medical history")
+            # family_medical_history_list = CRUDMedicalHistory().read_others_by_pmrId(
+            #     pmr_id=pmr_id
+            # )
+            # family_med_history_sections = [
+            #     create_section(
+            #         title="Family History",
+            #         code="371529009",
+            #         ref_id=family_medical_history_obj["id"],
+            #         display="Family History section",
+            #         text=family_medical_history_obj["medical_history"],
+            #     )
+            #     for family_medical_history_obj in family_medical_history_list
+            # ]
+            # ref_data.extend(family_med_history_sections)
+            # family_med_history_ref = [
+            #     Reference.construct(
+            #         reference=f"FamilyHistory/{family_med_history_section.id}",
+            #         display=f"{family_med_history_section.title}",
+            #     )
+            #     for family_med_history_section in family_med_history_sections
+            # ]
+            # section_refs.extend(family_med_history_ref)
 
             # Creating medication history
             logging.info(f"Creating medication history")
             medicines_list = CRUDMedicines().read_by_pmrId(pmr_id=pmr_id)
             logging.info(f"{medicines_list=}")
-            medicines_req_sections = []
+            # medicines_sections = [
+            #     get_medical_statement_construct(
+            #         patient_ref=patient_ref_id,
+            #         medication_obj_code=medicines_obj["snowmed_code"],
+            #         medication_obj_display=medicines_obj["snowmed_display"],
+            #         medication_statement_id=str(uuid.uuid4()),
+            #     )
+            #     for medicines_obj in medicines_list
+            # ]
+            medicines_req_sections, medicines_sections = [], []
             for medicines_obj in medicines_list:
                 medication_request_id = str(uuid.uuid4())
-                medication_request_bundle = get_medication_request_construct(
-                    medication_request_id=medication_request_id,
-                    dosage=f"{medicines_obj['dosage']}|{medicines_obj['frequency']}|{medicines_obj['time_of_day']}|{medicines_obj['duration_period']}",
-                    patient_ref=patient_ref_id,
-                    practitioner_ref=practitioner_ref_id,
-                    medicine_name=medicines_obj["medicine_name"],
-                    medicine_code=medicines_obj["snowmed_code"],
+                medication_request_bundle, medicine_bundle = (
+                    get_medication_request_construct(
+                        medication_request_id=medication_request_id,
+                        dosage=f"{medicines_obj['dosage']}|{medicines_obj['frequency']}|{medicines_obj['time_of_day']}|{medicines_obj['duration_period']}",
+                        patient_ref=patient_ref_id,
+                        practitioner_ref=practitioner_ref_id,
+                        medicine_name=medicines_obj["medicine_name"],
+                    )
                 )
                 medicines_req_sections.append(medication_request_bundle)
+                medicines_sections.append(medicine_bundle)
             logging.info(f"{medicines_req_sections=}")
             codeable_obj = CodeableConcept()
             codeable_obj.coding = [
@@ -1873,6 +1878,15 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             bundle_entry_list.extend(
                 [
                     BundleEntry.construct(
+                        fullUrl=f"Medication/{medicines_bundle.id}",
+                        resource=medicines_bundle,
+                    )
+                    for medicines_bundle in medicines_sections
+                ]
+            )
+            bundle_entry_list.extend(
+                [
+                    BundleEntry.construct(
                         fullUrl=f"MedicationRequest/{medicines_req_bundle['id']}",
                         resource=medicines_req_bundle,
                     )
@@ -1883,6 +1897,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
             composition_meta = Meta(
+                versionId=1,
                 lastUpdated=time_str,
                 profile=[
                     "https://nrces.in/ndhm/fhir/r4/StructureDefinition/OPConsultRecord"
@@ -1918,8 +1933,8 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             identifier = Identifier()
             identifier.value = bundle_identifier
             meta = Meta(
-                lastUpdated=time_str,
                 versionId=1,
+                lastUpdated=time_str,
                 profile=[
                     "https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle"
                 ],
