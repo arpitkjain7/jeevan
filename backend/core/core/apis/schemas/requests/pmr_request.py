@@ -261,8 +261,14 @@ class PrescriptionMode(str, Enum):
     digital = "digital"
     handwritten = "handwritten"
 
+
 class SendNotificationByDocumentId(BaseModel):
     document_id: str
     pmr_id: str
+    channel: NotificationChannel
+    mobile_number: str = None
+
+
+class SendGoogleReview(BaseModel):
     channel: NotificationChannel
     mobile_number: str = None
