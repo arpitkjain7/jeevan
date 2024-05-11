@@ -17,6 +17,7 @@ from core.apis.schemas.requests.pmr_request import (
     SendNotification,
     PrescriptionMode,
     SendNotificationByDocumentId,
+    SendGoogleReview,
 )
 from core.controllers.pmr_controller import PMRController
 from core.controllers.appointment_controller import AppointmentsController
@@ -1234,6 +1235,37 @@ def pmr_send_notification(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/PMR/sendDocument endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/sendGoogleReviewLink")
+def pmr_send_notification(
+    send_google_link_request: SendGoogleReview,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/PMR/sendGoogleReviewLink endpoint")
+        logging.debug(f"Request: {send_google_link_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().send_google_review_link(
+                request=send_google_link_request
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
