@@ -7,6 +7,7 @@ from fhir.resources.period import Period
 from fhir.resources.allergyintolerance import AllergyIntolerance
 from fhir.resources.condition import Condition, ConditionStage
 from fhir.resources.medicationstatement import MedicationStatement
+from fhir.resources.servicerequest import ServiceRequest
 from fhir.resources.medicationrequest import MedicationRequest
 from fhir.resources.medication import Medication
 from fhir.resources.organization import Organization
@@ -15,7 +16,6 @@ from fhir.resources.practitioner import Practitioner
 from fhir.resources.practitionerrole import PractitionerRole
 from fhir.resources.procedure import Procedure
 from fhir.resources.observation import Observation
-from fhir.resources.servicerequest import ServiceRequest
 from fhir.resources.composition import Composition, CompositionSection
 from fhir.resources.humanname import HumanName
 from fhir.resources.identifier import Identifier
@@ -1067,3 +1067,34 @@ def get_medication_request_construct(
     }
     print(f"{medication_request=}")
     return medication_request
+
+
+def get_lab_investigation_construct(
+    investigation_id: str,
+    patient_ref: str,
+    practitioner_ref: str,
+    investigation_name: str,
+):
+    print("Inside Lab Investigation")
+    category = CodeableConcept()
+    category.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "108252007",
+            "display": "Laboratory procedure",
+        }
+    ]
+    investigation = ServiceRequest(
+        resource_type="ServiceRequest",
+        id=investigation_id,
+        requester={"reference": f"Practitioner/{practitioner_ref}"},
+        subject={"reference": f"Patient/{patient_ref}"},
+        category=[category],
+        intent="order",
+        status="active",
+    )
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
+    investigation_json = investigation.json()
+    print(investigation_json)
+    return investigation

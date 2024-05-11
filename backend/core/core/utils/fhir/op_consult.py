@@ -10,6 +10,7 @@ from core.crud.hims_patientMedicalRecord_crud import CRUDPatientMedicalRecord
 from core.crud.hims_examination_findings_crud import CRUDExaminationFindings
 from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_patientMedicalDocuments_crud import CRUDPatientMedicalDocuments
+from core.crud.hims_labInvestigation_crud import CRUDLabInvestigation
 from core.crud.hims_hip_crud import CRUDHIP
 from core.crud.hims_diagnosis_crud import CRUDDiagnosis
 from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
@@ -1983,6 +1984,50 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                     for medicines_req_bundle in medicines_req_sections
                 ]
             )
+
+            # Create Lab Investigation resource
+            lab_investigations_list = CRUDLabInvestigation().read_by_pmrId(
+                pmr_id=pmr_id
+            )
+            logging.info(f"{lab_investigations_list=}")
+            if len(lab_investigations_list) > 0:
+                lab_investigation_sections = [
+                    get_lab_investigation_construct(
+                        investigation_id=str(uuid.uuid4()),
+                        patient_ref=patient_ref_id,
+                        practitioner_ref=practitioner_ref_id,
+                        investigation_name=lab_investigation_obj["name"],
+                    )
+                    for lab_investigation_obj in lab_investigations_list
+                ]
+                bundle_entry_list.extend(
+                    [
+                        BundleEntry.construct(
+                            fullUrl=f"ServiceRequest/{lab_investigation_bundle.id}",
+                            resource=lab_investigation_bundle,
+                        )
+                        for lab_investigation_bundle in lab_investigation_sections
+                    ]
+                )
+                ref_data.extend(lab_investigation_sections)
+                codeable_obj = CodeableConcept()
+                codeable_obj.coding = [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "721963009",
+                        "display": "Order document",
+                    }
+                ]
+                lab_investigation_entry = [
+                    Reference.construct(reference=f"ServiceRequest/{section.id}")
+                    for section in lab_investigation_sections
+                ]
+                lab_investigation_ref = {
+                    "title": "Investigation Advice",
+                    "entry": lab_investigation_entry,
+                    "code": codeable_obj,
+                }
+                section_refs.append(lab_investigation_ref)
 
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
