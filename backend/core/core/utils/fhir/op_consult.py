@@ -2029,6 +2029,56 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 }
                 section_refs.append(lab_investigation_ref)
 
+            # Create Document resource
+            pmr_document_list = CRUDPatientMedicalDocuments().read_by_pmr_id(
+                pmr_id=pmr_id
+            )
+            logging.info(f"{pmr_document_list=}")
+            if len(pmr_document_list) > 0:
+                document_sections = []
+                for pmr_document_obj in pmr_document_list:
+                    document_location = pmr_document_obj.get("document_location")
+                    bucket_name = document_location.split("/")[0]
+                    document_key = "/".join(document_location.split("/")[1:])
+                    document_content = read_object(
+                        bucket_name=bucket_name, prefix=document_key
+                    )
+                    document_section = get_document_construct(
+                        document_id=str(uuid.uuid4()),
+                        patient_ref=patient_ref_id,
+                        document_bytes=document_content,
+                    )
+                    document_sections.append(document_section)
+
+                bundle_entry_list.extend(
+                    [
+                        BundleEntry.construct(
+                            fullUrl=f"DocumentReference/{document_bundle.id}",
+                            resource=document_bundle,
+                        )
+                        for document_bundle in document_sections
+                    ]
+                )
+                ref_data.extend(document_sections)
+                codeable_obj = CodeableConcept()
+                codeable_obj.coding = [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "371530004",
+                        "display": "Clinical consultation report",
+                    }
+                ]
+                document_entry = [
+                    Reference.construct(reference=f"DocumentReference/{section.id}")
+                    for section in document_sections
+                ]
+                document_ref = {
+                    "title": "Document Reference",
+                    "entry": document_entry,
+                    "code": codeable_obj,
+                }
+                section_refs.append(document_ref)
+
             # Create Composition resource for OP Consult Record
             logging.info(f"Creating composition")
             composition_meta = Meta(

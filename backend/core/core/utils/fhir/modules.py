@@ -1098,3 +1098,38 @@ def get_lab_investigation_construct(
     investigation_json = investigation.json()
     print(investigation_json)
     return investigation
+
+
+def get_document_construct(
+    document_id: str,
+    patient_ref: str,
+    document_bytes: str,
+    document_mime_type: str = "application/pdf",
+):
+    document_type = CodeableConcept()
+    document_type.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "371530004",
+            "display": "Clinical consultation report",
+        }
+    ]
+    document_type.text = "Clinical consultation report"
+    attachment_obj = Attachment(
+        contentType=document_mime_type,
+        language="en-IN",
+        data=document_bytes,
+        title="Clinical consultation report",
+    )
+    document_ref_obj = DocumentReferenceContent(attachment=attachment_obj)
+    document = DocumentReference(
+        resource_type="DocumentReference",
+        id=document_id,
+        status="current",
+        docStatus="final",
+        type=document_type,
+        subject={"reference": f"Patient/{patient_ref}"},
+        content=[document_ref_obj],
+    )
+    document_json = document.json()
+    return document
