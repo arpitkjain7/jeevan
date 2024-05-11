@@ -61,6 +61,7 @@ class VerifyDemographic(BaseModel):
 
 
 class RegisterWithoutABHA(BaseModel):
+    id: str = None
     name: str
     gender: str
     DOB: str
@@ -79,6 +80,7 @@ class UpdatePatient(BaseModel):
 
 
 class RegisterPatientV3(BaseModel):
+    id: str = None
     abha_number: str = None
     abha_address: str = None
     primary_abha_address: str = None

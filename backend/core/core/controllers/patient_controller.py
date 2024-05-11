@@ -1182,9 +1182,11 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
+            patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+            if request_json.get("id", None):
+                self.CRUDPatientDetails.update(**request_json)
+                return request_json
             dob_str = request_json.get("DOB")
-            # dob_obj = datetime.strptime(dob_str, "%Y-%m-%d")
-            # dob_str = dob_obj.strftime("%d/%m/%Y")
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json["mobile_number"],
                 name=request_json["name"],
@@ -1198,7 +1200,6 @@ class PatientController:
                 self.CRUDPatientDetails.update(**request_json)
                 return patient_obj
             else:
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
@@ -1229,6 +1230,10 @@ class PatientController:
                     }
                 }
             )
+            patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+            if request_json.get("id", None):
+                self.CRUDPatientDetails.update(**request_json)
+                return request_json
             dob_str = request_json.get("DOB", None)
             age_str = request_json.get("age", None)
             if dob_str:
@@ -1275,7 +1280,6 @@ class PatientController:
                 )
                 return request_json
             else:
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
                 request_json.update({"id": patient_id, "is_verified": True})
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update(
