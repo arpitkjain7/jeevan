@@ -1191,7 +1191,7 @@ class PatientController:
                 mobile_number=request_json["mobile_number"],
                 name=request_json["name"],
                 dob=dob_str,
-                gender="M" if request_json["gender"].lower() == "male" else "F",
+                gender=request_json["gender"],
                 hip_id=request_json["hip_id"],
             )
             if patient_obj:
