@@ -83,6 +83,35 @@ def get_appointment(hip_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
+@appointment_router.get("/v1/appointment/listByDate")
+def get_appointment_by_date(
+    hip_id: str, appointment_date: str, token: str = Depends(oauth2_scheme)
+):
+    try:
+        logging.info(f"Calling /v1/appointment/listByDate")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return AppointmentsController().get_all_appointments_by_date(
+                hip_id=hip_id, appointment_date=appointment_date
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/appointment/listByDate: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/appointment/listByDate: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @appointment_router.get("/v1/appointment/{doc_id}")
 def get_appointment_by_docId(
     doc_id: str, hip_id: str, token: str = Depends(oauth2_scheme)

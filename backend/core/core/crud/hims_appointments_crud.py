@@ -200,6 +200,44 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read_all function : {error}")
             raise error
 
+    def read_appointments_by_date(self, hip_id: str, appointment_date: str):
+        try:
+            logging.info("CRUDAppointments read_appointments_by_date request")
+            with session() as transaction_session:
+                obj: Appointments = (
+                    transaction_session.query(Appointments)
+                    .filter(Appointments.hip_id == hip_id)
+                    .filter(Appointments.appointment_date == appointment_date)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments read_appointments_by_date function : {error}"
+            )
+            raise error
+
+    def read_followups_by_date(self, hip_id: str, followup_date: str):
+        try:
+            logging.info("CRUDAppointments read_followups_by_date request")
+            with session() as transaction_session:
+                obj: Appointments = (
+                    transaction_session.query(Appointments)
+                    .filter(Appointments.hip_id == hip_id)
+                    .filter(Appointments.followup_date == followup_date)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments read_followups_by_date function : {error}"
+            )
+            raise error
+
     def update(self, **kwargs):
         """[CRUD function to update a User record]
 

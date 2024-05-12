@@ -60,6 +60,7 @@ class AppointmentsController:
                 "appointment_type": appointment_type,
                 "encounter_type_code": encounter_type_code,
                 "encounter_type": encounter_type,
+                "appointment_date": appointment_date,
                 "patient_id": patient_id,
                 "consultation_status": "Scheduled",
                 "slot_id": slot_id,
@@ -82,6 +83,27 @@ class AppointmentsController:
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_all_appointment function: {error}"
+            )
+            raise error
+
+    def get_all_appointments_by_date(self, hip_id, appointment_date):
+        try:
+            logging.info("executing  get_all_appointments_by_date function")
+            logging.info(f"{hip_id=}")
+            logging.info(f"{appointment_date=}")
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+            appointment_obj = self.CRUDAppointments.read_appointments_by_date(
+                hip_id=hip_id, appointment_date=appointment_date
+            )
+            logging.info(f"{appointment_obj=}")
+            follow_up_obj = self.CRUDAppointments.read_followups_by_date(
+                hip_id=hip_id, followup_date=appointment_date
+            )
+            logging.info(f"{follow_up_obj=}")
+            return {"appointments": appointment_obj, "follow_ups": follow_up_obj}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_appointments_by_date function: {error}"
             )
             raise error
 
