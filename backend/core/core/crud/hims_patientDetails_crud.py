@@ -246,7 +246,7 @@ class CRUDPatientDetails:
             [dict]: [PatientDetails record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientDetails read request")
+            logging.info("CRUDPatientDetails read_by_patientId request")
             with session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
@@ -257,7 +257,28 @@ class CRUDPatientDetails:
                 return obj.__dict__
             return None
         except Exception as error:
-            logging.error(f"Error in CRUDPatientDetails read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_patientId function : {error}"
+            )
+            raise error
+
+    def read_by_patientUId(self, patient_uid: str, hip_id: str):
+        try:
+            logging.info("CRUDPatientDetails read_by_patientUId request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.patient_uid == patient_uid)
+                    .filter(PatientDetails.hip_id == hip_id)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_patientUId function : {error}"
+            )
             raise error
 
     def read_by_name(self, name: str, DOB: str):
@@ -386,6 +407,31 @@ class CRUDPatientDetails:
                     result.append(patient_obj)
                 return result  # testing return [row.__dict__ for row in obj]
             return result
+        except Exception as error:
+            logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
+            raise error
+
+    def read_by_hip(self, hip_id: str):
+        """[CRUD function to read_all PatientDetails record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all PatientDetails records]
+        """
+        try:
+            logging.info("CRUDPatientDetails read_all request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.hip_id == hip_id)
+                    .order_by(PatientDetails.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
             raise error

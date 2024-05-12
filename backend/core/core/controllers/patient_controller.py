@@ -1200,7 +1200,18 @@ class PatientController:
                 self.CRUDPatientDetails.update(**request_json)
                 return patient_obj
             else:
-                request_json.update({"id": patient_id, "is_verified": True})
+                patient_list = self.CRUDPatientDetails.read_by_hip(
+                    hip_id=request_json["hip_id"]
+                )
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                request_json.update(
+                    {"id": patient_id, "patient_uid": patient_uid, "is_verified": True}
+                )
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
@@ -1280,7 +1291,18 @@ class PatientController:
                 )
                 return request_json
             else:
-                request_json.update({"id": patient_id, "is_verified": True})
+                patient_list = self.CRUDPatientDetails.read_by_hip(
+                    hip_id=request_json["hip_id"]
+                )
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                request_json.update(
+                    {"id": patient_id, "patient_uid": patient_uid, "is_verified": True}
+                )
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update(
                     {
@@ -1326,18 +1348,40 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            if patient_obj.get("DOB", None):
-                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
-                age_in_years, age_in_months = calculate_age(dob=dob_obj)
-                patient_obj["age_in_years"] = age_in_years
-                patient_obj["age_in_months"] = age_in_months
-            else:
-                patient_obj["age_in_years"] = datetime.today().year - int(
-                    patient_obj["year_of_birth"]
-                )
+            if patient_obj:
+                if patient_obj.get("DOB", None):
+                    dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
+                    age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                    patient_obj["age_in_years"] = age_in_years
+                    patient_obj["age_in_months"] = age_in_months
+                else:
+                    patient_obj["age_in_years"] = datetime.today().year - int(
+                        patient_obj["year_of_birth"]
+                    )
             return patient_obj
         except Exception as error:
             logging.error(f"Error in get_patient_details function: {error}")
+            raise error
+
+    def get_patient_by_puid(self, patient_uid: str, hip_id: str):
+        try:
+            logging.info("executing get_patient_by_puid function")
+            patient_obj = self.CRUDPatientDetails.read_by_patientUId(
+                patient_uid=patient_uid, hip_id=hip_id
+            )
+            if patient_obj:
+                if patient_obj.get("DOB", None):
+                    dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
+                    age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                    patient_obj["age_in_years"] = age_in_years
+                    patient_obj["age_in_months"] = age_in_months
+                else:
+                    patient_obj["age_in_years"] = datetime.today().year - int(
+                        patient_obj["year_of_birth"]
+                    )
+            return patient_obj
+        except Exception as error:
+            logging.error(f"Error in get_patient_by_puid function: {error}")
             raise error
 
     def list_all_patients(self, hip_id: str):
