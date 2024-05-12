@@ -1191,14 +1191,20 @@ class PatientController:
                 mobile_number=request_json["mobile_number"],
                 name=request_json["name"],
                 dob=dob_str,
-                gender=request_json["gender"],
+                gender="M" if request_json["gender"].lower() == "male" else "F",
                 hip_id=request_json["hip_id"],
             )
             if patient_obj:
                 patient_obj.update({"status": "Patient already exist"})
-                request_json.update({"id": patient_obj["id"], "is_verified": True})
+                request_json.update(
+                    {
+                        "id": patient_obj["id"],
+                        "is_verified": True,
+                        "patient_uid": patient_obj["patient_uid"],
+                    }
+                )
                 self.CRUDPatientDetails.update(**request_json)
-                return patient_obj
+                return request_json
             else:
                 patient_list = self.CRUDPatientDetails.read_by_hip(
                     hip_id=request_json["hip_id"]
@@ -1284,6 +1290,7 @@ class PatientController:
                 self.CRUDPatientDetails.update(**request_json)
                 request_json.update(
                     {
+                        "patient_uid": patient_obj["patient_uid"],
                         "status": "Patient already exist, Updated database",
                         "age_in_years": age_in_years,
                         "age_in_months": age_in_months,
