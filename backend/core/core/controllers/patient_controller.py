@@ -737,7 +737,14 @@ class PatientController:
             }
             if patient_obj is None:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                patient_request.update({"id": patient_id})
+                patient_list = self.CRUDPatientDetails.read_by_hip(hip_id=hip_id)
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                patient_request.update({"id": patient_id, "patient_uid": patient_uid})
                 self.CRUDPatientDetails.create(**patient_request)
             else:
                 patient_request.update({"id": patient_obj["id"]})
