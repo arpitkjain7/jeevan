@@ -212,7 +212,10 @@ class CRUDAppointments:
                     .filter(PatientDetails.id == Appointments.patient_id)
                     .all()
                 ):
+                    appointment_obj_dict = appointment_obj.__dict__
+                    logging.debug(f"{appointment_obj_dict=}")
                     patient_obj_dict = patient_obj.__dict__
+                    logging.debug(f"{patient_obj_dict=}")
                     patient_dob = patient_obj_dict.get("DOB")
                     if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d")
@@ -224,10 +227,10 @@ class CRUDAppointments:
                         today = datetime.today()
                         age_in_years = today.year - int(patient_yob)
                         patient_obj_dict["age_in_years"] = age_in_years
-                    appointment_obj.__dict__.update(
+                    appointment_obj_dict.update(
                         {"patient_details": patient_obj_dict}
                     )
-                    joined_result.append(appointment_obj)
+                    joined_result.append(appointment_obj_dict)
             if joined_result is not None:
                 return joined_result
             return []
