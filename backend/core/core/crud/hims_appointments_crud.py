@@ -204,15 +204,43 @@ class CRUDAppointments:
         try:
             logging.info("CRUDAppointments read_appointments_by_date request")
             with session() as transaction_session:
-                obj: Appointments = (
-                    transaction_session.query(Appointments)
+                joined_result = []
+                for appointment_obj, patient_obj in (
+                    transaction_session.query(Appointments, PatientDetails)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.appointment_date == appointment_date)
+                    .filter(PatientDetails.id == Appointments.patient_id)
                     .all()
-                )
-            if obj is not None:
-                return [row.__dict__ for row in obj]
+                ):
+                    patient_obj_dict = patient_obj.__dict__
+                    patient_dob = patient_obj_dict.get("DOB")
+                    if patient_dob:
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
+                        patient_obj_dict["age_in_years"] = age_in_years
+                        patient_obj_dict["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj_dict.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj_dict["age_in_years"] = age_in_years
+                    appointment_obj.__dict__.update(
+                        {"patient_details": patient_obj_dict}
+                    )
+                    joined_result.append(appointment_obj)
+            if joined_result is not None:
+                return joined_result
             return []
+            #         pass
+            #     obj: Appointments = (
+            #         transaction_session.query(Appointments)
+            #         .filter(Appointments.hip_id == hip_id)
+            #         .filter(Appointments.appointment_date == appointment_date)
+            #         .all()
+            #     )
+            # if obj is not None:
+            #     return [row.__dict__ for row in obj]
+            # return []
         except Exception as error:
             logging.error(
                 f"Error in CRUDAppointments read_appointments_by_date function : {error}"
@@ -223,15 +251,42 @@ class CRUDAppointments:
         try:
             logging.info("CRUDAppointments read_followups_by_date request")
             with session() as transaction_session:
-                obj: Appointments = (
-                    transaction_session.query(Appointments)
+                joined_result = []
+                for appointment_obj, patient_obj in (
+                    transaction_session.query(Appointments, PatientDetails)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.followup_date == followup_date)
+                    .filter(PatientDetails.id == Appointments.patient_id)
                     .all()
-                )
-            if obj is not None:
-                return [row.__dict__ for row in obj]
+                ):
+                    patient_obj_dict = patient_obj.__dict__
+                    patient_dob = patient_obj_dict.get("DOB")
+                    if patient_dob:
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
+                        patient_obj_dict["age_in_years"] = age_in_years
+                        patient_obj_dict["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj_dict.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj_dict["age_in_years"] = age_in_years
+                    appointment_obj.__dict__.update(
+                        {"patient_details": patient_obj_dict}
+                    )
+                    joined_result.append(appointment_obj)
+            if joined_result is not None:
+                return joined_result
             return []
+            #     obj: Appointments = (
+            #         transaction_session.query(Appointments)
+            #         .filter(Appointments.hip_id == hip_id)
+            #         .filter(Appointments.followup_date == followup_date)
+            #         .all()
+            #     )
+            # if obj is not None:
+            #     return [row.__dict__ for row in obj]
+            # return []
         except Exception as error:
             logging.error(
                 f"Error in CRUDAppointments read_followups_by_date function : {error}"
