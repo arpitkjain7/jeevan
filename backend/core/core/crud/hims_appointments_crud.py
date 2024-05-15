@@ -205,11 +205,14 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read_appointments_by_date request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, patient_obj, slot_obj in (
-                    transaction_session.query(Appointments, PatientDetails, Slots)
+                for appointment_obj, patient_obj, doctor_obj, slot_obj in (
+                    transaction_session.query(
+                        Appointments, PatientDetails, DocDetails, Slots
+                    )
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.appointment_date == appointment_date)
                     .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(DocDetails.id == Appointments.doc_id)
                     .filter(Slots.slot_id == Appointments.slot_id)
                     .order_by(Slots.start_time.asc())
                     .all()
@@ -233,6 +236,7 @@ class CRUDAppointments:
                         {
                             "patient_details": patient_obj_dict,
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                            "doc_details": doctor_obj.__dict__,
                         }
                     )
                     joined_result.append(appointment_obj_dict)
@@ -260,11 +264,14 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read_followups_by_date request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, patient_obj, slot_obj in (
-                    transaction_session.query(Appointments, PatientDetails, Slots)
+                for appointment_obj, patient_obj, doctor_obj, slot_obj in (
+                    transaction_session.query(
+                        Appointments, PatientDetails, DocDetails, Slots
+                    )
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.followup_date == followup_date)
                     .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(DocDetails.id == Appointments.doc_id)
                     .filter(Slots.slot_id == Appointments.slot_id)
                     .order_by(Slots.start_time.asc())
                     .all()
@@ -287,6 +294,7 @@ class CRUDAppointments:
                         {
                             "patient_details": patient_obj_dict,
                             "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                            "doc_details": doctor_obj.__dict__,
                         }
                     )
                     joined_result.append(appointment_obj)
