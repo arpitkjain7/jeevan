@@ -205,17 +205,19 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read_appointments_by_date request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, patient_obj in (
-                    transaction_session.query(Appointments, PatientDetails)
+                for appointment_obj, patient_obj, slot_obj in (
+                    transaction_session.query(Appointments, PatientDetails, Slots)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.appointment_date == appointment_date)
                     .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(Slots.slot_id == Appointments.slot_id)
+                    .order_by(Slots.start_time.asc())
                     .all()
                 ):
                     appointment_obj_dict = appointment_obj.__dict__
-                    logging.debug(f"{appointment_obj_dict=}")
                     patient_obj_dict = patient_obj.__dict__
-                    logging.debug(f"{patient_obj_dict=}")
+                    start_time = slot_obj.start_time.strftime("%H:%M")
+                    end_time = slot_obj.end_time.strftime("%H:%M")
                     patient_dob = patient_obj_dict.get("DOB")
                     if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d")
@@ -228,7 +230,10 @@ class CRUDAppointments:
                         age_in_years = today.year - int(patient_yob)
                         patient_obj_dict["age_in_years"] = age_in_years
                     appointment_obj_dict.update(
-                        {"patient_details": patient_obj_dict}
+                        {
+                            "patient_details": patient_obj_dict,
+                            "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                        }
                     )
                     joined_result.append(appointment_obj_dict)
             if joined_result is not None:
@@ -255,15 +260,19 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read_followups_by_date request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, patient_obj in (
-                    transaction_session.query(Appointments, PatientDetails)
+                for appointment_obj, patient_obj, slot_obj in (
+                    transaction_session.query(Appointments, PatientDetails, Slots)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.followup_date == followup_date)
                     .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(Slots.slot_id == Appointments.slot_id)
+                    .order_by(Slots.start_time.asc())
                     .all()
                 ):
                     patient_obj_dict = patient_obj.__dict__
                     patient_dob = patient_obj_dict.get("DOB")
+                    start_time = slot_obj.start_time.strftime("%H:%M")
+                    end_time = slot_obj.end_time.strftime("%H:%M")
                     if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d")
                         age_in_years, age_in_months = calculate_age(dob=dob)
@@ -275,7 +284,10 @@ class CRUDAppointments:
                         age_in_years = today.year - int(patient_yob)
                         patient_obj_dict["age_in_years"] = age_in_years
                     appointment_obj.__dict__.update(
-                        {"patient_details": patient_obj_dict}
+                        {
+                            "patient_details": patient_obj_dict,
+                            "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
+                        }
                     )
                     joined_result.append(appointment_obj)
             if joined_result is not None:
