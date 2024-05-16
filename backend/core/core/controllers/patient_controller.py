@@ -528,6 +528,17 @@ class PatientController:
                     else:
                         logging.info("New patient registeration")
                         patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                        patient_list = self.CRUDPatientDetails.read_by_hip(
+                            hip_id=hip_id
+                        )
+                        if len(patient_list) == 0:
+                            patient_uid = "PID1"
+                        else:
+                            latest_patient_obj = patient_list[0]
+                            latest_patient_uid = latest_patient_obj["patient_uid"]
+                            patient_uid = (
+                                f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                            )
                         patient_payload = {
                             "id": patient_id,
                             "abha_number": abha_number,
@@ -535,6 +546,7 @@ class PatientController:
                             "primary_abha_address": abha_address,
                             "mobile_number": mobile_number,
                             "name": name,
+                            "patient_uid": patient_uid,
                             "gender": gender,
                             "DOB": dob_str,
                             "email": resp_json.get("email"),
