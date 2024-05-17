@@ -1267,11 +1267,12 @@ class PatientController:
                 }
             )
             patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+            dob_str = request_json.get("DOB", None)
+            age_str = request_json.get("age", None)
+            del request_json["age"]            
             if request_json.get("id", None):
                 self.CRUDPatientDetails.update(**request_json)
                 return request_json
-            dob_str = request_json.get("DOB", None)
-            age_str = request_json.get("age", None)
             if dob_str:
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
@@ -1303,7 +1304,6 @@ class PatientController:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             request_json.update({"DOB": dob_str, "year_of_birth": yob_str})
-            del request_json["age"]
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
