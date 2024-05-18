@@ -562,9 +562,12 @@ class HIUController:
             sender_key_material = request["keyMaterial"]
             consent_details = gateway_obj.get("callback_response")
             logging.info(f"{consent_details=}")
-            consent_id = consent_details.get("consent_id")
+            consent_id = consent_details.get("consent").get("id")
             logging.info(f"{consent_id=}")
-            requester_key_material = consent_details.get("requester_key_material")
+            consent_obj = self.CRUDHIUConsents.read_by_consentArtifactId(
+                consent_artifact_id=consent_id
+            )
+            requester_key_material = consent_obj.get("requester_key_material")
             logging.info(f"{requester_key_material=}")
             patient_data_list = []
             resources_dict = {}
@@ -580,7 +583,7 @@ class HIUController:
                     ),
                 }
             )
-            consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
+            # consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
             hip_id = consent_obj.get("hip_id")
             send_data_json = json.dumps(decrypt_payload)
             uploaded_file_location = upload_to_s3(
