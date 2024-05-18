@@ -16,6 +16,10 @@ export const fetchAppointmentList = createAsyncThunk(
     return response;
   }
 );
+export const listAppointmentByDate = createAsyncThunk("listAppointmentByDate", async (payload) => {
+  const response = await apiRequest("GET", `${apis?.listAppointmentByDate}?hip_id=${payload.hipId}&appointment_date=${payload.appointmentDate}`);
+  return response;
+});
 
 // Create the slice
 const AppointmentSlice = createSlice({

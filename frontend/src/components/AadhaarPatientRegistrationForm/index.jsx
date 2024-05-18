@@ -312,7 +312,7 @@ const AadhaarPatientRegForm = ({
               <TextField
                 label="ABHA Address"
                 name="abhaAddress"
-                value={patientAbhaData?.preferredAbhaAddress || patientAbhaData[0]?.abha_address || patientAbhaData?.id}
+                value={patientAbhaData?.preferredAbhaAddress || patientAbhaData[0]?.abha_address || patientAbhaData?.abha_address}
                 onChange={handleChange}
                 required
                 disabled

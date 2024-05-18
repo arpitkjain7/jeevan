@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { AppointmentPageActions, fetchAppointmentList } from "./AppointmentPage.slice";
+import { AppointmentPageActions, fetchAppointmentList, listAppointmentByDate } from "./AppointmentPage.slice";
 import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
 import CustomLoader from "../../components/CustomLoader";
@@ -87,8 +87,10 @@ const AppointmentPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [showLoader, setShowLoader] = useState(false);
+  const [followUpData, setFollowUpData] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [filterDateValue, setFilterDateValue] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
 
   const columns = [
     { 
@@ -105,7 +107,7 @@ const AppointmentPage = () => {
         },
       ]
     },
-    { key: "patientId", header: "Patient ID" },
+    { key: "patientUid", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
     { key: "doc_name", header: "Doctor" },
@@ -155,7 +157,7 @@ const AppointmentPage = () => {
         },
       ],
     },
-    { key: "patientId", header: "Patient ID" },
+    { key: "patientUid", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
     { key: "doc_name", header: "Doctor" },
@@ -163,24 +165,31 @@ const AppointmentPage = () => {
     { key: "slotTime", header: "Slot" },
     { key: "status", header: "Status" }
   ];
-
   useEffect(() => {
+    fetchList();
+  }, []);
+
+  const fetchList = (date) => {
     setShowLoader(true);
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = {
-        hip_id: currentHospital?.hip_id,
+        hipId: currentHospital?.hip_id,
+        appointmentDate: date || filterDateValue
       };
-      dispatch(fetchAppointmentList(payload)).then((res) => {
+      dispatch(listAppointmentByDate(payload)).then((res) => {
         setShowLoader(false);
-        const mainList = res.payload;
+        let mainList = res?.payload?.appointments;
+        setFollowUpData(res?.payload?.follow_ups);
+        let followUpList = res?.payload?.follow_ups;
         // let patientList = [];
         // mainList?.map((item) => {
         //   patientList?.push(item[1]);
         // });
         const formattedAppointmentList = mainList?.map((item) => {
           const patientId = item?.patient_id;
+          const patientUid = item?.patient_details?.patient_uid;
           const patientGender = item?.patient_details?.gender
             .toLowerCase()
             ?.includes("m")
@@ -188,7 +197,7 @@ const AppointmentPage = () => {
             : "F";
           const mobileNumber = item?.patient_details?.mobile_number;
           const encounterType = item?.appointment_type;
-          const slotDate = convertDateFormat(item?.slot_details?.date, "dd/MM/yyyy");
+          const slotDate = convertDateFormat(item?.appointment_date, "dd/MM/yyyy");
           const slotTime = convertTimeSlot(item?.slot_time);
           const status = item?.consultation_status;
           let action = "Start Visit";
@@ -198,12 +207,13 @@ const AppointmentPage = () => {
           else if(status === "InProgress") {
             action = "Resume"
           }
-          // const updatedDate = convertDateFormat(item?.updated_at);
-          // const createdDate = convertDateFormat(item?.created_at);
+          const updatedDate = convertDateFormat(item?.updated_at, "dd/MM/yyyy");
+          const createdDate = convertDateFormat(item?.created_at, "dd/MM/yyyy");
           return {
             patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
             p_name: `${item?.patient_details?.name}`,
             patientId: patientId,
+            patientUid: patientUid,
             mobileNumber: mobileNumber,
             encounterType: encounterType,
             doc_name: item?.doc_details?.doc_name,
@@ -211,15 +221,71 @@ const AppointmentPage = () => {
             slotTime: slotTime,
             status: status,
             action: action,
-            // updatedDate: updatedDate,
-            // createdDate: createdDate,
+            updatedDate: updatedDate,
+            createdDate: createdDate,
+            type: 'appointment',
             ...item,
           };
         });
-        if(formattedAppointmentList){
-          const sortedData = formattedAppointmentList.sort((a, b) => {
-            const dateA = new Date(a.slot_details.date);
-            const dateB = new Date(b.slot_details.date);
+        // if(formattedAppointmentList){
+        //   const sortedData = formattedAppointmentList.sort((a, b) => {
+        //     const dateA = new Date(a.slotDate);//slot_details.date);
+        //     const dateB = new Date(b.slotDate);
+    
+        //     if (dateA < dateB) {
+        //       return -1;
+        //     }
+        //     else return 1;
+        //   });
+        //   setTableData(sortedData);
+        // } 
+
+        const formattedFollowUpList = followUpList?.map((item) => {
+          const patientId = item?.patient_id;
+          const patientUid = item?.patient_details?.patient_uid;
+          const patientGender = item?.patient_details?.gender
+            .toLowerCase()
+            ?.includes("m")
+            ? "M"
+            : "F";
+          const mobileNumber = item?.patient_details?.mobile_number;
+          const encounterType = item?.appointment_type;
+          const slotDate = convertDateFormat(item?.followup_date, "dd/MM/yyyy");
+          const slotTime = convertTimeSlot(item?.slot_time);
+          const status = item?.consultation_status;
+          let action = "Start Visit";
+          if(status === "Completed") {
+            action = "Edit"
+          }
+          else if(status === "InProgress") {
+            action = "Resume"
+          }
+          const updatedDate = convertDateFormat(item?.updated_at, "dd/MM/yyyy");
+          const createdDate = convertDateFormat(item?.created_at, "dd/MM/yyyy");
+          return {
+            patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
+            p_name: `${item?.patient_details?.name}`,
+            patientId: patientId,
+            patientUid: patientUid,
+            mobileNumber: mobileNumber,
+            encounterType: encounterType,
+            doc_name: item?.doc_details?.doc_name,
+            slotDate: slotDate,
+            slotTime: slotTime,
+            status: status,
+            action: action,
+            updatedDate: updatedDate,
+            createdDate: createdDate,
+            type: 'followUp',
+            ...item,
+          };
+        });
+
+        const finalData = formattedAppointmentList.concat(formattedFollowUpList);
+        if(finalData){
+          const sortedData = finalData.sort((a, b) => {
+            const dateA = new Date(a.slotDate);//slot_details.date);
+            const dateB = new Date(b.slotDate);
     
             if (dateA < dateB) {
               return -1;
@@ -230,7 +296,13 @@ const AppointmentPage = () => {
         } 
       });
     }
-  }, []);
+  }
+  const handleDateChange = (event) => {
+    setFilterDateValue(event.target.value);
+    console.log(event.target.value);
+    fetchList(event.target.value);
+  };
+
   const isMobile = window.innerWidth < 600;
   return (
     <ListWrapper>
@@ -250,6 +322,9 @@ const AppointmentPage = () => {
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          handleDateChange={handleDateChange}
+          filterDateValue={filterDateValue}
+          followUpData={followUpData}
           showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"
@@ -260,6 +335,9 @@ const AppointmentPage = () => {
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          handleDateChange={handleDateChange}
+          filterDateValue={filterDateValue}
+          followUpData={followUpData}
           showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"

@@ -166,7 +166,7 @@ const AadhaarVerification = ({
           </Button>
         : 
         (
-          seconds > 0 || seconds < 0 ? (
+          seconds === -1 ? ( //> 0 || seconds < 0
             <Button
               disabled={!isAadhaarValid}
               onClick={() => handleSubmit("aadhaar")}
@@ -179,7 +179,7 @@ const AadhaarVerification = ({
             <Button
               disabled={!isAadhaarValid}
               style={{
-                color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+                color: seconds > 0 ? "#DFE3E8" : "#FFF",
               }}
               onClick={() => handleSubmit("aadhaar")}
               variant="contained"

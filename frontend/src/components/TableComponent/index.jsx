@@ -155,12 +155,14 @@ const MyTable = ({
   searchClassName,
   onRowClick,
   showFilter,
+  handleDateChange,
+  filterDateValue,
+  followUpData
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterValue, setFilterValue] = useState("");
-  const [filterDateValue, setFilterDateValue] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
 
   const filteredData = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -169,11 +171,10 @@ const MyTable = ({
       let filterSearch;
       if (filterValue === "All") filterSearch = "";
       else filterSearch = filterValue.toLowerCase();
-
       let formattedDate;
       if (filterDateValue === "") formattedDate = "";
       else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
-
+      
       return columns.some(
         (column) =>
           (item["patientId"]
@@ -187,13 +188,16 @@ const MyTable = ({
             item["mobileNumber"]
               ?.toString()
               ?.toLowerCase()
-              ?.includes(lowerCaseSearchTerm)) &&
-            // item["doc_name"]
-            //   ?.toString()
-            //   ?.toLowerCase()
-            //   ?.includes(lowerCaseSearchTerm)) 
-          item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) &&
-          item["slotDate"]?.toString()?.toLowerCase()?.includes(formattedDate)
+              ?.includes(lowerCaseSearchTerm)) 
+            && (
+            ((filterSearch === "followup") ? 
+              item["type"]?.toString()?.toLowerCase()?.includes(filterSearch)
+            : "") ||
+            ((filterSearch !== "followup") ?
+            item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) : "")
+              // item["type"]?.toString()?.toLowerCase()?.includes(filterSearch))
+            )
+          // && item["slotDate"]?.toString()?.includes(formattedDate)
       );
     } else {
       return columns.some((column) =>
@@ -223,12 +227,6 @@ const MyTable = ({
 
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
-  };
-
-  const handleDateChange = (event) => {
-    // if(event.target.value !== "")
-    //   setFilterDateChange(convertDateFormat(event.target.value, "dd/MM/yyyy"));
-    setFilterDateValue(event.target.value);
   };
 
   return (
@@ -274,6 +272,7 @@ const MyTable = ({
                   <MenuItem value="Scheduled">Scheduled</MenuItem>
                   <MenuItem value="InProgress">InProgress</MenuItem>
                   <MenuItem value="Completed">Completed</MenuItem>
+                  <MenuItem value="followUp">Follow Ups</MenuItem>
                 </Select>
               </FormControl>
             </>
@@ -301,7 +300,7 @@ const MyTable = ({
               </TableRow>
             </TableHead>
             <TableBody className="table-body-container">
-              {filteredData.length > 0 ? (
+              {filteredData ? (
                 (rowsPerPage > 0
                   ? filteredData.slice(
                       page * rowsPerPage,
@@ -433,23 +432,25 @@ const MyTable = ({
             </TableFooter>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-          component="div"
-          colSpan={columns.length}
-          count={filteredData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          SelectProps={{
-            inputProps: {
-              "aria-label": "rows per page",
-            },
-            native: true,
-          }}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          ActionsComponent={TablePaginationActions}
-        />
+        {filteredData &&
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
+            component="div"
+            colSpan={columns.length}
+            count={filteredData.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            SelectProps={{
+              inputProps: {
+                "aria-label": "rows per page",
+              },
+              native: true,
+            }}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            ActionsComponent={TablePaginationActions}
+          />
+        }
       </Paper>
     </TableComponentWrapper>
   );
