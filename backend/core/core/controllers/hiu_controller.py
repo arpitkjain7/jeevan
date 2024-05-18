@@ -575,6 +575,7 @@ class HIUController:
             decrypt_payload = request.copy()
             decrypt_payload.update(
                 {
+                    "consent_id": consent_id,
                     "requesterNonce": requester_key_material.get("nonce"),
                     "senderNonce": sender_key_material.get("nonce"),
                     "requesterPrivateKey": requester_key_material.get("privateKey"),
@@ -588,7 +589,7 @@ class HIUController:
             send_data_json = json.dumps(decrypt_payload)
             uploaded_file_location = upload_to_s3(
                 bucket_name=self.s3_location,
-                file_name=f"{hip_id}/{transaction_id}/encrypt/{gateway_obj['request_id']}.json",
+                file_name=f"FHIR_DATA/{hip_id}/{transaction_id}/decrypt/{gateway_obj['request_id']}.json",
                 byte_data=send_data_json,
             )
             return uploaded_file_location
@@ -600,15 +601,21 @@ class HIUController:
 
     def hiu_store_patient_data(self, request):
         try:
+            logging.info("Recording decrypted payload to database")
+            logging.info("Calling HIUController.hiu_store_patient_data function")
             logging.info(f"{request=}")
+            consent_obj = self.CRUDHIUConsents.read_by_consentArtifactId(
+                consent_artifact_id=request.get("consent_id")
+            )
+            logging.info(f"{consent_obj=}")
             self.CRUDHIUConsents.update(
                 **{
-                    "id": request.get("consent_id"),
+                    "id": consent_obj.get("id"),
                     "patient_data_raw": request.get("patient_data_list"),
                     "patient_data_transformed": request.get("patient_data_transformed"),
                 }
             )
-            return {"satatus": "success"}
+            return {"status": "success"}
         except Exception as error:
             logging.error(
                 f"Error in HIUController.hiu_store_patient_data function: {error}"
