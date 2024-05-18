@@ -1201,10 +1201,8 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
+            request_json = dict((k, v) for k, v in request_json.items() if v)
             patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-            if request_json.get("id", None):
-                self.CRUDPatientDetails.update(**request_json)
-                return request_json
             dob_str = request_json.get("DOB")
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json["mobile_number"],
@@ -1213,6 +1211,9 @@ class PatientController:
                 gender=request_json["gender"],
                 hip_id=request_json["hip_id"],
             )
+            if request_json.get("id", None):
+                self.CRUDPatientDetails.update(**request_json)
+                return request_json
             if patient_obj:
                 patient_obj.update({"status": "Patient already exist"})
                 request_json.update(
