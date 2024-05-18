@@ -112,6 +112,7 @@ class DataTransferController:
                 resources_dict = {}
                 patient_data_transformed = []
                 consent_id = data_obj.get("consent_id")
+                print(f"{consent_id=}")
                 transaction_id = data_obj.get("transactionId")
                 patient_data = data_obj.get("entries")
                 requesterNonce = data_obj.get("requesterNonce")
