@@ -1271,6 +1271,8 @@ class PatientController:
             patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
             dob_str = request_json.get("DOB", None)
             age_str = request_json.get("age", None)
+            if request_json.get("age", None):
+                del request_json["age"]
             if dob_str:
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
@@ -1281,7 +1283,6 @@ class PatientController:
                 yob_str = today.year - int(age_str)
                 age_in_years = age_str
                 age_in_months = "0"
-                del request_json["age"]
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
