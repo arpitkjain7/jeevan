@@ -545,8 +545,11 @@ class HIUController:
             logging.info("executing hiu_process_patient_data function")
             logging.info(f"{request=}")
             transaction_id = request["transactionId"]
-            gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
-                transaction_id=transaction_id, request_type="DATA_TRANSFER_TRIGGERED"
+            # gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
+            #     transaction_id=transaction_id, request_type="DATA_TRANSFER_TRIGGERED"
+            # )
+            gateway_obj = self.CRUDGatewayInteraction.read_by_transId_v1(
+                transaction_id=transaction_id
             )
             logging.info(f"{gateway_obj=}")
             crud_request = {
