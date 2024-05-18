@@ -603,11 +603,11 @@ class HIUController:
         try:
             logging.info("Recording decrypted payload to database")
             logging.info("Calling HIUController.hiu_store_patient_data function")
-            logging.info(f"{request=}")
             consent_obj = self.CRUDHIUConsents.read_by_consentArtifactId(
-                consent_artifact_id=request.get("consent_id")
+                consent_artifact_id=request.get("id")
             )
             logging.info(f"{consent_obj=}")
+            logging.info(f"Updating HIU Consent record: {consent_obj.get('id')}")
             self.CRUDHIUConsents.update(
                 **{
                     "id": consent_obj.get("id"),
