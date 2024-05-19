@@ -239,15 +239,7 @@ const PatientDetailsHeader = ({ documents }) => {
     if (currentPatient) {
       if (Object.keys(currentPatient)?.length) {
         setPatientData(currentPatient);
-        setPatientdetails({
-          id: currentPatient?.id,
-          name: currentPatient?.name,
-          DOB: currentPatient?.DOB,
-          gender: currentPatient?.gender,
-          email: currentPatient?.email,
-          age: currentPatient?.age_in_years,
-          mobile_number: currentPatient?.mobile_number
-        });
+        setPatientdetails(currentPatient);
       } else {
         setPatientData({});
       }
@@ -430,18 +422,18 @@ const PatientDetailsHeader = ({ documents }) => {
         const age = differenceInYears(new Date(), new Date(value));
         setPatientdetails((prevData) => ({
           ...prevData,
-          age: age,
+          age_in_years: age,
         }));
       } else {
         setPatientdetails((prevData) => ({
           ...prevData,
-          age: "",
+          age_in_years: "",
         }));
       }
     } else if(name === "age"){
       setPatientdetails((prevData) => ({
         ...prevData,
-        age: value,
+        age_in_years: value,
       }));
     }
   };
@@ -451,25 +443,34 @@ const PatientDetailsHeader = ({ documents }) => {
   };
 
   const handleFormSubmit = () => {
-    console.log(patientDetails);
+    setShowLoader(true);
     const url = apis?.registerUser;
     const payload = {
       id: patientDetails.id,
       name: patientDetails.name,
       gender: patientDetails.gender,
       DOB: patientDetails.DOB ? convertDateFormat(patientDetails?.DOB, "dd-MM-yyyy") : "",
-      age: (patientDetails.age).toString(),
+      age: patientDetails.age_in_years ? (patientDetails.age_in_years ).toString() : "",
       email: patientDetails.email,
       mobile_number: patientDetails.mobile_number
     }
     dispatch(registerPatient({payload, url: url})).then((res) => {
-      console.log(res);
-      if(res?.payload)
-      setPatientData(res?.payload);
+      if(res?.payload){
+          setPatientData(patientDetails);
+          sessionStorage?.setItem("selectedPatient", JSON.stringify(patientDetails));
+      } else {
+        setErrorMessage("Error while updating details");
+        setShowSnackbar(true);
+      }      
+      setShowLoader(false);
+      setFormOpen(false);
     })
   }
   return (
     <DetailsHeaderContainer>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="details-header">
         <div className="details-avatar-container">
           <Avatar />
@@ -652,22 +653,35 @@ const PatientDetailsHeader = ({ documents }) => {
         // scroll="paper"
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
-      >
-        <DialogTitle id="scroll-dialog-title"  style={{ fontWeight: "550" }}>Edit Patient Details</DialogTitle>
-        <DialogContent dividers={scroll === 'paper'}> 
-          <DialogContentText
-            id="scroll-dialog-description"
-            // ref={descriptionElementRef}
-            tabIndex={-1}
-            style={{ color: "#323232" }}
-          > 
-          <form>
-            <CustomSnackbar
-              message={errorMessage || "Something went wrong"}
-              open={showSnackbar}
-              status={"error"}
-              onClose={onSnackbarClose}
-            /><br/>
+      >  
+        <CustomLoader open={showLoader} />
+        <AppBar sx={{ position: "relative" }}>
+          <Toolbar>
+            <Typography
+              sx={{ ml: 2, flex: 1 }}
+              variant="h6"
+              component="div"
+            >
+              Update Patient Details
+            </Typography>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleFormClose}
+              aria-label="close"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <DialogContent > 
+          <CustomSnackbar
+            message={errorMessage || "Something went wrong"}
+            open={showSnackbar}
+            status={"error"}
+            onClose={onSnackbarClose}
+          />
+          <form> 
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -744,8 +758,8 @@ const PatientDetailsHeader = ({ documents }) => {
                 <Grid item xs={12} md={6}>
                 <TextField
                   label="Age(in years)"
-                  name="age"
-                  value={patientDetails?.age}
+                  name="age_in_years"
+                  value={patientDetails?.age_in_years}
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
                   // style={{ width: "50%" }}
@@ -784,7 +798,6 @@ const PatientDetailsHeader = ({ documents }) => {
             </span>
             <br/>
           </form>
-          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleFormClose} className='cancel_btn'>Discard</Button>
