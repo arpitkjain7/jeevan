@@ -45,7 +45,7 @@ jobs:
         run: docker-compose -f docker-compose-ui.yml up --build -d
 
       - name: Push to Docker Hub
-        run: docker push cliniq360/lobster-ui:1.8
+        run: docker push cliniq360/lobster-ui:1.9
         
 # name: CI/CD counter app
 
