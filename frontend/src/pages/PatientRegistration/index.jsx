@@ -159,9 +159,6 @@ const PatientRegistration = () => {
   const [isAbhaAuthMode, setIsAbhaAuthMode] = useState(true);
   const [abhaAuthModeValue, setAbhaAuthModeValue] = useState("");
   const [abhaAuthTxn, setAbhaAuthTxn] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
-  const [functionCalled, setFunctionCalled] = useState(false); 
-  const [gatewayRequestId, setGatewayRequestId]= useState("");
   const [abhaOTPseconds, setAbhaOTPSeconds] = useState(-1);
   const [aadhaarOTPseconds, setAadhaarOTPSeconds] = useState(-1);
   const [seconds, setSeconds] = useState(-1);
@@ -234,6 +231,7 @@ const PatientRegistration = () => {
     setStepTwo(false);
     setStepThree(false);
     setStepFour(false);
+    setStepAbha(false);
     setPhoneNumberUsed(true);
     setNumber("");
     setUserDeatilsForm(true);
@@ -260,8 +258,9 @@ const PatientRegistration = () => {
 
   const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
+  const mobile_pattern = new RegExp(/^[789]\d{9}$/);
   const handleOptionChange = (event) => {
-    if (selectedOption?.length) {
+    if (selectedOption?.length > 0) {
       resetFields();
     }
     setSelectedOption(event.target.value);
@@ -337,18 +336,15 @@ const PatientRegistration = () => {
 
   const handleNumberChange = (event) => {
     const inputValue = event.target.value;
-    setNumber(inputValue)
-    // const numericValue = parseInt(inputValue);
-    // if (isNaN(numericValue) || numericValue !== "") {
-    //   console.log(numericValue);
-    //   setNumber(numericValue)
-    // }
+    setNumber(inputValue);
     let new_Number_length = inputValue.length;
-    if (new_Number_length > 10 || new_Number_length < 10) {
+    const isMobileValid = mobile_pattern.test(inputValue);
+    if (!isMobileValid) {
+      //new_Number_length > 10 || new_Number_length < 10
       // setErrorMessage("Please enter valid number")
       setIsMobileError(true);
       setPhoneDisabled(true);
-    } else if (new_Number_length === 10) {
+    } else if (isMobileValid) {
       setIsMobileError(false);
       setPhoneDisabled(false);
     }
@@ -412,6 +408,9 @@ const PatientRegistration = () => {
       if (res?.error && Object.keys(res?.error)?.length > 0) {
         setShowSnackbar(true);
         return;
+      } else {
+        setAbhaOTPSeconds(60);
+        setAbhaOTP(true);
       }
     });
   }
@@ -441,7 +440,7 @@ const PatientRegistration = () => {
                 setAadhaarDataTxn(res?.payload?.txn_id);
                 setAadhaarOTPSeconds(60);
                 setAadhaarOTP(true);
-                setIsAadhaarValid(true);
+                // setIsAadhaarValid(true);
               }
             });
           }
@@ -460,7 +459,7 @@ const PatientRegistration = () => {
               setAadhaarDataTxn(res?.payload?.txn_id);
               setAadhaarOTPSeconds(60);
               setAadhaarOTP(true);
-              setIsAadhaarValid(true);
+              // setIsAadhaarValid(true);
             }
           })
         }
@@ -471,9 +470,9 @@ const PatientRegistration = () => {
         setShowSnackbar(true);
       }
     } else if (type === "phone_number") {
-      const mobile_pattern = new RegExp(/^[0-9]{10}$/);
+       ///^[0-9]{10}$/
       if (mobile_pattern.test(number)){
-        setPhoneDisabled(false);
+        // setPhoneDisabled(false);
         setMobileNumber(number);
         let payload;
         let url;
@@ -497,22 +496,23 @@ const PatientRegistration = () => {
           // }
           const resData = res?.payload;
          
-          if (resData?.txn_id && selectedOption === "abha") {
+          if (selectedOption === "abha") {
             // setPhoneNumberUsed(resData?.mobileLinked);
             // setStepTwo(true);
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
             setPhoneNumberUsed(false);
-            setPhoneDisabled(false);
+            // setPhoneDisabled(true);
           } else if(!resData?.txn_id && selectedOption === "abha"){
-            setErrorMessage("The phone number entered does not match with any of the records");
+            // setErrorMessage("The phone number entered does not match with any of the records");
+            setErrorMessage("We did not find any ABHA number linked to this mobile number");
             setShowSnackbar(true);
             setStepTwo(true);
           } else if(selectedOption === "phone_number"){
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
             setPhoneNumberUsed(false);
-            setPhoneDisabled(false);
+            // setPhoneDisabled(false);
           }
         });
       } else {
@@ -566,7 +566,7 @@ const PatientRegistration = () => {
         };
         dispatch(verifyAbhaOTP(payload)).then((res) => {
           if (res?.error && Object.keys(res?.error)?.length > 0) {
-            // setErrorMessage("Please enter correct OTP");
+            setErrorMessage("Invalid OTP");
             setShowSnackbar(true);
             setStepThree(false);
             return;
@@ -598,7 +598,7 @@ const PatientRegistration = () => {
         };
         dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
           if (res?.error && Object.keys(res?.error)?.length > 0) {
-            // setErrorMessage("Please enter correct OTP");
+            setErrorMessage("Invalid OTP");
             setShowSnackbar(true);
             setStepThree(false);
             return;
@@ -622,7 +622,7 @@ const PatientRegistration = () => {
       dispatch(verifyPhoneOTP(payload)).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
           setShowSnackbar(true);
-          setErrorMessage("Please enter correct OTP");
+          setErrorMessage("Invalid OTP");
           setStepTwo(false);
           return;
         }
@@ -638,7 +638,9 @@ const PatientRegistration = () => {
           otp: otp,
         };
         dispatch(verifyAbhaOTP(payload)).then((res) => {
-          if (res?.error && Object.keys(res?.error)?.length > 0) {
+          console.log(res);
+          if ((res?.error && Object.keys(res?.error)?.length > 0) || res?.payload?.authResult === "failed") {
+            setErrorMessage("Invalid OTP");
             setShowSnackbar(true);
             return;
           }
@@ -658,6 +660,7 @@ const PatientRegistration = () => {
       };
       dispatch(patientAuthVerifyOTP(payload)).then((res) => {
         if (res?.error && Object.keys(res?.error)?.length > 0) {
+          setErrorMessage("Invalid OTP");
           setShowSnackbar(true);
           setStepThree(false);
           return;
@@ -764,11 +767,13 @@ const PatientRegistration = () => {
   }, [abhaOTPseconds]);
 
   const handleConfirmSelection = () => {
-    if(selectedOption === "phone_number")
+    if(selectedOption === "phone_number"){
       setStepOne(true);
-    else 
+      setStepAbha(false);
+    } else {
       setStepAbha(true);
-    //   setOpen(true);
+      setStepOne(false);
+    }
   };
 
   const handleConfirmAbhaSelection = () => {
@@ -888,6 +893,7 @@ const PatientRegistration = () => {
             return(
             <FormControl>
               <span style={{ fontWeight: "600" }}>{item.name}</span>
+              <img src={item?.profilephoto} width="100" height="100" />
               <RadioGroup
                 row
                 aria-labelledby="demo-row-radio-buttons-group-label"
@@ -897,6 +903,7 @@ const PatientRegistration = () => {
                 style={{ marginTop: "10px" }}
               >
                 <FormControlLabel key={index} value={item.ABHANumber} control={<Radio size="small"/>} label={item.ABHANumber} />
+                <FormControlLabel key={index} value={item.abha_address} control={<Radio size="small"/>} label={item.abha_address} />
               </RadioGroup>
             </FormControl>
            )

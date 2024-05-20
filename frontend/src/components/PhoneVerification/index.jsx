@@ -59,14 +59,14 @@ const PhoneVerification = ({
     <PhoneVerificationWrapper>
       <div className="validate-phone-form">
         <TextField
-          type="number"
+          type="tel"
           value={number}
           onChange={handleNumberChange}
           error={isMobileError}
           className="phone-text"
         />
         {selectedAbhaModeOption !== "create_abha" && (
-          seconds > 0 || seconds < 0 ? (
+          seconds === -1 ? (
           <Button
             disabled={PhoneDisabled}
             onClick={() => handleSubmit("phone_number")}
@@ -74,12 +74,12 @@ const PhoneVerification = ({
             className="verification-btn"
           >
             Verify
-          </Button>         
+          </Button>
           ) : (
             <Button
             disabled={PhoneDisabled}
             style={{
-              color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+              color: seconds > 0 ? "#DFE3E8" : "#FFF", // || seconds < 0
             }}
             variant="contained"
             className="verification-btn"
