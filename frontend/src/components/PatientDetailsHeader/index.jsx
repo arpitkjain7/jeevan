@@ -430,11 +430,29 @@ const PatientDetailsHeader = ({ documents }) => {
           age_in_years: "",
         }));
       }
-    } else if(name === "age"){
+    } else if(name === "age_in_years"){
       setPatientdetails((prevData) => ({
         ...prevData,
         age_in_years: value,
       }));
+      console.log(patientDetails.DOB);
+      if(patientDetails.DOB){
+        const birthDate = new Date(patientDetails.DOB);
+        const dateToday = new Date();
+        let year = dateToday.getFullYear();
+        const calculated_birth_year = year - value;
+        console.log(calculated_birth_year);
+        const birthDay = birthDate.getDate();
+        const birthMonth = birthDate.getMonth() + 1;
+        // const birthYear = birthDate.getFullYear();
+        console.log(birthMonth, birthDay);
+        const dateOfBirth = `${calculated_birth_year}-${birthMonth}-${birthDay}`;
+        console.log(convertDateFormat(dateOfBirth, 'yyyy-MM-dd'));
+        setPatientdetails((prevData) => ({
+          ...prevData,
+          DOB: convertDateFormat(dateOfBirth, 'yyyy-MM-dd'),
+        }));
+      }
     }
   };
 

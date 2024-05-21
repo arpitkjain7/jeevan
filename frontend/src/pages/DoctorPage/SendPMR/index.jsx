@@ -145,6 +145,7 @@ const SendPMR= ({
                 <FormControlLabel value="sms" control={<Radio size="small"/>} label="SMS" />
               </RadioGroup>
             </Grid>
+            {currentHospital?.hip_id === "H3" &&
             <Grid item xs={12} md={6}>
               <FormControlLabel control={
                 <Checkbox 
@@ -154,6 +155,7 @@ const SendPMR= ({
                 } 
                 label="Send Google Review" />
             </Grid>
+              }
           </Grid>
         </DialogContent>
         <DialogActions>
