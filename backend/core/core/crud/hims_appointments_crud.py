@@ -264,22 +264,16 @@ class CRUDAppointments:
             logging.info("CRUDAppointments read_followups_by_date request")
             with session() as transaction_session:
                 joined_result = []
-                for appointment_obj, patient_obj, doctor_obj, slot_obj in (
-                    transaction_session.query(
-                        Appointments, PatientDetails, DocDetails, Slots
-                    )
+                for appointment_obj, patient_obj, doctor_obj in (
+                    transaction_session.query(Appointments, PatientDetails, DocDetails)
                     .filter(Appointments.hip_id == hip_id)
                     .filter(Appointments.followup_date == followup_date)
                     .filter(PatientDetails.id == Appointments.patient_id)
                     .filter(DocDetails.id == Appointments.doc_id)
-                    .filter(Slots.slot_id == Appointments.slot_id)
-                    .order_by(Slots.start_time.asc())
                     .all()
                 ):
                     patient_obj_dict = patient_obj.__dict__
                     patient_dob = patient_obj_dict.get("DOB")
-                    start_time = slot_obj.start_time.strftime("%H:%M")
-                    end_time = slot_obj.end_time.strftime("%H:%M")
                     if patient_dob:
                         dob = datetime.strptime(patient_dob, "%Y-%m-%d")
                         age_in_years, age_in_months = calculate_age(dob=dob)
@@ -290,14 +284,15 @@ class CRUDAppointments:
                         today = datetime.today()
                         age_in_years = today.year - int(patient_yob)
                         patient_obj_dict["age_in_years"] = age_in_years
-                    appointment_obj.__dict__.update(
-                        {
-                            "patient_details": patient_obj_dict,
-                            "slot_time": str(f"{start_time}" + " - " + f"{end_time}"),
-                            "doc_details": doctor_obj.__dict__,
-                        }
-                    )
-                    joined_result.append(appointment_obj)
+                    appointment_obj = appointment_obj.__dict__
+                    appointment_op_obj = {
+                        "id": appointment_obj.get("id"),
+                        "appointment_date": appointment_obj.get("appointment_date"),
+                        "followup_date": appointment_obj.get("followup_date"),
+                        "patient_details": patient_obj_dict,
+                        "doc_details": doctor_obj.__dict__,
+                    }
+                    joined_result.append(appointment_op_obj)
             if joined_result is not None:
                 return joined_result
             return []

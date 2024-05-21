@@ -736,10 +736,10 @@ class PatientController:
                 "DOB": dob_str,
                 "year_of_birth": patient_data.get("yearOfBirth"),
                 # "email": email_id,
-                "address": patient_data["address"]["line"],
-                "district": patient_data["address"]["district"],
-                "pincode": patient_data["address"]["pinCode"],
-                "state_name": patient_data["address"]["state"],
+                "address": patient_data["address"].get("line"),
+                "district": patient_data["address"].get("district"),
+                "pincode": patient_data["address"].get("pincode"),
+                "state_name": patient_data["address"].get("state"),
                 "auth_methods": {
                     "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
                 },
