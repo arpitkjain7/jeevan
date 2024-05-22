@@ -4,7 +4,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    image: cliniq360/lobster-ui:1.10
+    image: cliniq360/lobster-ui:1.11
 
     container_name: lobster-ui
     ports:
