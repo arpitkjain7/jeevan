@@ -21,6 +21,9 @@ import {
   InputLabel,
   Select,
   Button,
+  FormGroup,
+  Switch,
+  Stack,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -307,12 +310,24 @@ const AppointmentTable = ({
                   <MenuItem value="Completed">Completed</MenuItem>
                 </Select>
               </FormControl>
-              {isFollowUp
+              {/* {isFollowUp
                ? 
               <Button onClick={handleFollowUp} variant="contained" className="followBtn">Appointment</Button> 
                :
               <Button onClick={handleFollowUp} variant="contained" className="followBtn">Follow Up</Button> 
-              }
+              } */}
+              <FormGroup style={{ display: "inline-flex", padding: "8px" }}>
+               <Stack direction="row" spacing={1} alignItems="center">
+                <Typography>Appointment</Typography>
+                {/* <AntSwitch defaultChecked inputProps={{ 'aria-label': 'ant design' }} /> */}
+                <Switch
+                  checked={isFollowUp}
+                  onChange={handleFollowUp}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+                <Typography>Follow Up</Typography>
+               </Stack>
+              </FormGroup>
             </>
           )}
         </div>
