@@ -253,10 +253,11 @@ const PastVisits = ({ isPatientHistory }) => {
     <VisitsWrapper>
       <VitalsDetailsContainer>
         <SideList>
-          {visitList.map((item) => (
+          {visitList.map((item, index) => (
             <VitalsListContainer
               className={pmrId === item?.id ? "selected-vital" : ""}
               onClick={() => selectVisit(item)}
+              key={index}
             >
               <VisitListContainer>
                 <ListItem>
