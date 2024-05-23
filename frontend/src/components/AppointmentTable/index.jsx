@@ -177,8 +177,6 @@ const AppointmentTable = ({
   const [isFollowUp, setIsFollowUp] = useState(false);
   const [filteredData, setFilteredData] = useState();
   const [columns, setColumns] = useState(apmntColumns);
-  console.log(appointmentData);
-  console.log(followUpData);
   const finalData = (data) => {
     const filteredDataa = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -225,7 +223,6 @@ const AppointmentTable = ({
   }
 
   useEffect(() => {
-    console.log('useEffect');
     setIsFollowUp(false);
     // if(appointmentData) {
       finalData(appointmentData);
@@ -254,7 +251,6 @@ const AppointmentTable = ({
   };
 
   const handleFollowUp = () => {
-    console.log(isFollowUp);
     if(isFollowUp){
       finalData(appointmentData);
       setColumns(apmntColumns);
