@@ -26,7 +26,7 @@ const AadhaarPatientRegForm = ({
     email: "",
     mobile: "",
     dob: "",
-    gender: "",
+    gender: "M",
     address: "",
     pincode: "",
   });

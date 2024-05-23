@@ -23,7 +23,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     firstname: "",
     lastname: "",
     middlename: "",
-    gender: "",
+    gender: "M",
     dob: "",
     age_years: "",
     abhaAddress: "",
