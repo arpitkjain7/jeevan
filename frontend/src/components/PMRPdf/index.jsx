@@ -264,7 +264,7 @@ const PMRPdf = ({ patientData }) => {
     return resultArray;
   };
 
-  const [pmrPdfData, setPmrPdfData] = useState([]);
+  // const [pmrPdfData, setPmrPdfData] = useState([]);
 
   useEffect(() => {
     if (Object.keys(patientData)?.length) {
@@ -338,7 +338,7 @@ const PMRPdf = ({ patientData }) => {
               <View style={pmrPdfStyles?.dataWrapper}>
                 {Object.entries(pdfData?.vital).map(([key, value]) =>
                   value ? (
-                    <View style={pmrPdfStyles?.dataBox}>
+                    <View style={pmrPdfStyles?.dataBox} key={key}>
                       <Text style={pmrPdfStyles?.dataLabel}>
                         {key.replace("_", " ")}
                       </Text>

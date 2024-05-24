@@ -146,16 +146,16 @@ const SendPMR= ({
               </RadioGroup>
             </Grid>
             {currentHospital?.hip_id === "H3" &&
-            <Grid item xs={12} md={6}>
-              <FormControlLabel control={
-                <Checkbox 
-                checked={checked}
-                onChange={handleReviewChange}
-                defaultChecked />
-                } 
-                label="Send Google Review" />
-            </Grid>
-              }
+              <Grid item xs={12} md={6}>
+                <FormControlLabel control={
+                  <Checkbox 
+                  checked={checked}
+                  onChange={handleReviewChange}
+                  defaultChecked />
+                  } 
+                  label="Send Google Review" />
+              </Grid>
+            }
           </Grid>
         </DialogContent>
         <DialogActions>

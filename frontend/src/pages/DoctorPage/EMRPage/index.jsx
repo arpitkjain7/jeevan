@@ -28,7 +28,8 @@ import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import { calculateBMI } from "../../../utils/utils";
 import CustomizedDialogs from "../../../components/Dialog";
-import { Document, Page, pdfjs } from "react-pdf";
+import { pdfjs } from 'react-pdf';
+import { Document, Page } from "react-pdf";
 import "react-pdf";
 import CustomLoader from "../../../components/CustomLoader";
 import { format } from "date-fns";
@@ -529,11 +530,11 @@ const PatientEMRDetails = (props) => {
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
         setShowLoader(false);
-        setEMRId(res.payload?.pmr_details.id);
-        sessionStorage.setItem("pmrID", res.payload?.pmr_details.id);
-        const pmrDetails = res.payload?.pmr_details.pmr_data;
-        setAdvices(res.payload?.pmr_details?.advices);
-        setPrescriptionComment(res.payload?.pmr_details?.notes);       
+        setEMRId(res?.payload?.pmr_details.id);
+        sessionStorage.setItem("pmrID", res?.payload?.pmr_details.id);
+        const pmrDetails = res?.payload?.pmr_details.pmr_data;
+        setAdvices(res?.payload?.pmr_details?.advices);
+        setPrescriptionComment(res?.payload?.pmr_details?.notes);       
         // { res.payload?.appointment_details?.followup_date !== null ? 
         //   setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
         // }
@@ -568,7 +569,7 @@ const PatientEMRDetails = (props) => {
               setSymptomsSpecs((prevState) => ({
                 ...prevState,
                 [symptomsData.symptom]: {
-                  since: symptomsData.duration || null,
+                  since: symptomsData.duration || "",
                   severity: symptomsData.severity,
                   notes: symptomsData.notes,
                 },
@@ -590,7 +591,7 @@ const PatientEMRDetails = (props) => {
               setOptionTextValues((prevState) => ({
                 ...prevState,
                 [medicalHistoryData.medical_history]: {
-                  since: medicalHistoryData.since || null,
+                  since: medicalHistoryData.since || "",
                   relationship: medicalHistoryData.relationship,
                   severity: medicalHistoryData.severity,
                   notes: medicalHistoryData.notes,
@@ -634,7 +635,7 @@ const PatientEMRDetails = (props) => {
               setDiagnosisSpecs((prevState) => ({
                 ...prevState,
                 [diagnosisData.disease]: {
-                  since: diagnosisData.status || null,
+                  since: diagnosisData.status || "",
                   severity: diagnosisData.diagnosis_type,
                   notes: diagnosisData.notes,
                 },
@@ -1811,7 +1812,12 @@ const PatientEMRDetails = (props) => {
     setPmrFinished(true);
     setStep("preview");
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
-    console.log(pdfjs.version);
+    // console.log(pdfjs.version);
+    // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    //   'pdfjs-dist/build/pdf.worker.min.js',
+    //   import.meta.url,
+    // ).toString();
+    // pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
     let pdf_data = await createPdfBlob(patientDetails);
     const pdfUrls = URL.createObjectURL(pdf_data);
     setPdfUrl(pdfUrls);
@@ -2320,8 +2326,8 @@ const PatientEMRDetails = (props) => {
                         {symptoms
                           ?.slice(0)
                           .reverse()
-                          .map((item) => (
-                            <FieldSpecsContainer>
+                          .map((item, index) => (
+                            <FieldSpecsContainer key={index}>
                               <RecordLayout>
                                 <SelectedRecord>
                                   {item?.label || item}
@@ -3023,8 +3029,8 @@ const PatientEMRDetails = (props) => {
                         {medications
                           ?.slice(0)
                           .reverse()
-                          .map((item) => (
-                            <FieldSpecsContainer>
+                          .map((item, index) => (
+                            <FieldSpecsContainer key={index}>
                               <RecordLayout>
                                 <SelectedRecord>
                                   {item?.label || item}
@@ -3148,7 +3154,7 @@ const PatientEMRDetails = (props) => {
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
                                   value={
-                                    medicationsSpecs[item?.label]?.timing || null
+                                    medicationsSpecs[item?.label]?.timing || ""
                                   }
                                   onChange={(event, newValue) =>
                                     handleMedicationsTextChange(
@@ -3379,20 +3385,23 @@ const PatientEMRDetails = (props) => {
                 </PrimaryButton>
               </div>
               <PDFViewerWrapper>
-                <Document
-                  file={pdfUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                >
-                   {Array.apply(null, Array(numPages))
-                  .map((x, i)=>i+1)
-                  .map(page =>
-                    <Page
-                      pageNumber={page}
-                      renderTextLayer={true}
-                      width={width - 15}
-                    />
-                  )}
-                </Document>
+                <PDFViewer>
+                  <Document
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                  >
+                    {Array.apply(null, Array(numPages))
+                    .map((x, i)=>i+1)
+                    .map((page, index) =>
+                      <Page
+                        pageNumber={page}
+                        key={index}
+                        renderTextLayer={true}
+                        width={width - 15}
+                      />
+                    )}
+                  </Document>
+                </PDFViewer>
               </PDFViewerWrapper>
             </>
           )}
