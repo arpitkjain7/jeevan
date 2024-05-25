@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = "https://engine.doc.cliniq360.com";
+export const BASE_URL = "http://localhost:8001";
 
 const defaultHeader = () => {
   const access_token = sessionStorage.getItem("accesstoken");

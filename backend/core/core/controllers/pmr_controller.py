@@ -1573,3 +1573,43 @@ class PMRController:
                 f"Error in PMRController.send_google_review_link function: {error}"
             )
             raise error
+
+
+    def send_appointment_list(self, request):
+            try:
+                logging.info("executing  PMRController.send_google_review_link function")
+                request = request.dict()
+                logging.info(f"{request=}")
+                channel = request.get("channel").value
+                logging.info(f"{channel=}")
+                destination_mobile_number = request.get("destination_mobile_number", None)
+                if channel == "whatsapp":
+                    opt_in_response, opt_in_status_code = whatsappHelper().optin_user(
+                        mobile_number=destination_mobile_number
+                    )
+                    logging.info(f"{opt_in_response=} | {opt_in_status_code=}")
+                    (
+                        send_msg_response,
+                        send_msg_status_code,
+                    ) = whatsappHelper().send_appointment_list(
+                        mobile_number=request.get("mobile_number", None),
+                        patient_name=request.get("patient_name", None),
+                        doc_name=request.get("doc_name", None),
+                        app_date=request.get("app_date", None),
+                        destination_mobile_number=destination_mobile_number,
+                    )
+                    logging.info(f"{send_msg_response=} | {send_msg_status_code=}")
+                # elif channel == "sms":
+                #     encoded_url = quote(document_url)
+                #     double_encoded_url = quote(encoded_url)
+                #     sms_response, sms_response_code = smsHelper().send_prescription(
+                #         mobile_number=mobile_number,
+                #         hospital_name=hip_obj.get("name"),
+                #         document_url=double_encoded_url,
+                #     )
+                #     logging.info(f"{sms_response=} | {sms_response_code=}")
+            except Exception as error:
+                logging.error(
+                    f"Error in PMRController.send_appointment_list function: {error}"
+                )
+                raise error

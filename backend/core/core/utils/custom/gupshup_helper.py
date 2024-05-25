@@ -127,3 +127,47 @@ class whatsappHelper:
         except Exception as error:
             logging.error(f"Error in send_google_review_link function: {error}")
             raise error
+
+
+    def send_appointment_list(
+        self,
+        mobile_number: str, 
+        destination_mobile_number: str,
+        patient_name: str,
+        app_date: str,
+        doc_name: str,
+    ):
+        try:
+            if len(destination_mobile_number) == 10:
+               destination_mobile_number = f"91{destination_mobile_number}"
+            payload = {
+                "channel": "whatsapp",
+                "source": 918329655340,
+                "destination": int(destination_mobile_number),
+                "src.name": "CliniQ360",
+            }
+            payload["template"] = json.dumps(
+                {"id": "b2e50a17-172b-4ca2-95f5-06d3624b2489" , "params": [doc_name,app_date,patient_name, mobile_number ]}
+            )
+            flat_payload = {
+                key: val if not isinstance(val, dict) else json.dumps(val)
+                for key, val in payload.items()
+            }
+            # Convert the Python dictionary to a URL-encoded string
+            payload_encoded = urlencode(flat_payload)
+            headers = {
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "apikey": self.gupshup_api_key,
+                "cache-control": "no-cache",
+            }
+            send_appointment_list_link = f"{self.gupshup_base_url}/wa/api/v1/template/msg"
+            response, status_code = APIInterface().post_v1(
+                route=send_appointment_list_link,
+                data=payload_encoded,
+                headers=headers,
+            )
+            return response, status_code
+        except Exception as error:
+            logging.error(f"Error in send_appointment_list function: {error}")
+            raise error

@@ -18,6 +18,7 @@ from core.apis.schemas.requests.pmr_request import (
     PrescriptionMode,
     SendNotificationByDocumentId,
     SendGoogleReview,
+    SendAppointmentList,
 )
 from core.controllers.pmr_controller import PMRController
 from core.controllers.appointment_controller import AppointmentsController
@@ -1272,6 +1273,27 @@ def pmr_send_notification(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+@pmr_router.post("/v1/PMR/sendAppointementList")
+def pmr_send_notification(
+    send_appointment_list_request: SendAppointmentList,
+    
+):
+    try:
+        logging.info("Calling /v1/PMR/sendGoogleReviewLink endpoint")
+        logging.debug(f"Request: {send_appointment_list_request}")
+        return PMRController().send_appointment_list(
+                request=send_appointment_list_request
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 @pmr_router.post("/test123")
 def test(pmr_id: str):

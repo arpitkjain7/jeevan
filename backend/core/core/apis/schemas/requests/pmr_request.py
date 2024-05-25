@@ -272,3 +272,11 @@ class SendNotificationByDocumentId(BaseModel):
 class SendGoogleReview(BaseModel):
     channel: NotificationChannel
     mobile_number: str = None
+
+class SendAppointmentList(BaseModel):
+    channel: NotificationChannel
+    mobile_number: str = None
+    destination_mobile_number: str = None
+    patient_name: str = None
+    app_date : str = None
+    doc_name : str = None
