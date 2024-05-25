@@ -12,6 +12,7 @@ class whatsappHelper:
         self.gupshup_base_url = os.environ["gupshup_base_url"]
         self.gupshup_api_key = os.environ["gupshup_api_key"]
         self.gupshup_notification_template = os.environ["gupshup_notification_template"]
+        self.gupshup_appointment_notification_template = os.environ["gupshup_appointment_notification_template"]
         self.gupshup_google_review_template = os.environ[
             "gupshup_google_review_template"
         ]
@@ -147,7 +148,7 @@ class whatsappHelper:
                 "src.name": "CliniQ360",
             }
             payload["template"] = json.dumps(
-                {"id": "b2e50a17-172b-4ca2-95f5-06d3624b2489" , "params": [doc_name,app_date,patient_name, mobile_number ]}
+                {"id": self.gupshup_appointment_notification_template , "params": [doc_name,app_date,patient_name, mobile_number ]}
             )
             flat_payload = {
                 key: val if not isinstance(val, dict) else json.dumps(val)
