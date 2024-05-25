@@ -545,8 +545,11 @@ class HIUController:
             logging.info("executing hiu_process_patient_data function")
             logging.info(f"{request=}")
             transaction_id = request["transactionId"]
-            gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
-                transaction_id=transaction_id, request_type="DATA_TRANSFER_TRIGGERED"
+            # gateway_obj = self.CRUDGatewayInteraction.read_by_transId(
+            #     transaction_id=transaction_id, request_type="DATA_TRANSFER_TRIGGERED"
+            # )
+            gateway_obj = self.CRUDGatewayInteraction.read_by_transId_v1(
+                transaction_id=transaction_id
             )
             logging.info(f"{gateway_obj=}")
             crud_request = {
@@ -559,9 +562,12 @@ class HIUController:
             sender_key_material = request["keyMaterial"]
             consent_details = gateway_obj.get("callback_response")
             logging.info(f"{consent_details=}")
-            consent_id = consent_details.get("consent_id")
+            consent_id = consent_details.get("consent").get("id")
             logging.info(f"{consent_id=}")
-            requester_key_material = consent_details.get("requester_key_material")
+            consent_obj = self.CRUDHIUConsents.read_by_consentArtifactId(
+                consent_artifact_id=consent_id
+            )
+            requester_key_material = consent_obj.get("requester_key_material")
             logging.info(f"{requester_key_material=}")
             patient_data_list = []
             resources_dict = {}
@@ -569,6 +575,7 @@ class HIUController:
             decrypt_payload = request.copy()
             decrypt_payload.update(
                 {
+                    "consent_id": consent_id,
                     "requesterNonce": requester_key_material.get("nonce"),
                     "senderNonce": sender_key_material.get("nonce"),
                     "requesterPrivateKey": requester_key_material.get("privateKey"),
@@ -577,12 +584,12 @@ class HIUController:
                     ),
                 }
             )
-            consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
+            # consent_obj = self.CRUDHIUConsents.read(consent_id=consent_id)
             hip_id = consent_obj.get("hip_id")
             send_data_json = json.dumps(decrypt_payload)
             uploaded_file_location = upload_to_s3(
                 bucket_name=self.s3_location,
-                file_name=f"{hip_id}/{transaction_id}/encrypt/{gateway_obj['request_id']}.json",
+                file_name=f"FHIR_DATA/{hip_id}/{transaction_id}/decrypt/{gateway_obj['request_id']}.json",
                 byte_data=send_data_json,
             )
             return uploaded_file_location
@@ -594,15 +601,21 @@ class HIUController:
 
     def hiu_store_patient_data(self, request):
         try:
-            logging.info(f"{request=}")
+            logging.info("Recording decrypted payload to database")
+            logging.info("Calling HIUController.hiu_store_patient_data function")
+            consent_obj = self.CRUDHIUConsents.read_by_consentArtifactId(
+                consent_artifact_id=request.get("id")
+            )
+            logging.info(f"{consent_obj=}")
+            logging.info(f"Updating HIU Consent record: {consent_obj.get('id')}")
             self.CRUDHIUConsents.update(
                 **{
-                    "id": request.get("consent_id"),
+                    "id": consent_obj.get("id"),
                     "patient_data_raw": request.get("patient_data_list"),
                     "patient_data_transformed": request.get("patient_data_transformed"),
                 }
             )
-            return {"satatus": "success"}
+            return {"status": "success"}
         except Exception as error:
             logging.error(
                 f"Error in HIUController.hiu_store_patient_data function: {error}"

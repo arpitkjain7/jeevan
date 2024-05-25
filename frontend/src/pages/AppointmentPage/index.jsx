@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import MyTable from "../../components/TableComponent";
+import AppointmentTable from "../../components/AppointmentTable";
 import { Typography, styled } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { AppointmentPageActions, fetchAppointmentList } from "./AppointmentPage.slice";
+import { AppointmentPageActions, fetchAppointmentList, fetchPatientDetails, listAppointmentByDate } from "./AppointmentPage.slice";
 import { convertDateFormat, convertTimeSlot } from "../../utils/utils";
 import { useNavigate } from "react-router";
 import CustomLoader from "../../components/CustomLoader";
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 const tableStyle = {
   backgroundColor: "#f1f1f1",
@@ -87,8 +88,13 @@ const AppointmentPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
   const [showLoader, setShowLoader] = useState(false);
+  const [followUpData, setFollowUpData] = useState([]);
+  const [appointmentData, setAppointmentData] = useState([]);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [filterDateValue, setFilterDateValue] = useState(convertDateFormat(new Date(), "yyyy-MM-dd"));
 
   const columns = [
     { 
@@ -98,14 +104,21 @@ const AppointmentPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-            navigate("/patient-details");
+            // dispatch(AppointmentPageActions.setSelectedPatientData(row));
+            dispatch(fetchPatientDetails({pId: row.patientId})).then(response => {
+              if(response?.payload){
+                sessionStorage.setItem("selectedPatient", JSON.stringify(response?.payload));
+                navigate("/patient-details");
+              } else {
+                setShowSnackbar(true);
+                setErrorMessage("Error while fetching details");
+              }
+            });
           },
         },
       ]
     },
-    { key: "patientId", header: "Patient ID" },
+    { key: "patientUid", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
     { key: "doc_name", header: "Doctor" },
@@ -134,9 +147,15 @@ const AppointmentPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-            navigate("/patient-details");
+            dispatch(fetchPatientDetails({pId: row.patientId})).then(response => {
+              if(response?.payload){
+                sessionStorage.setItem("selectedPatient", JSON.stringify(response?.payload));
+                navigate("/patient-details");
+              } else {
+                setShowSnackbar(true);
+                setErrorMessage("Error while fetching details");
+              }
+            });
           },
         },
       ]
@@ -155,7 +174,7 @@ const AppointmentPage = () => {
         },
       ],
     },
-    { key: "patientId", header: "Patient ID" },
+    { key: "patientUid", header: "Patient ID" },
     { key: "mobileNumber", header: "Contact Number" },
     { key: "encounterType", header: "Encounter Type" },
     { key: "doc_name", header: "Doctor" },
@@ -164,23 +183,111 @@ const AppointmentPage = () => {
     { key: "status", header: "Status" }
   ];
 
+  const followUpColumns = [
+    { 
+      key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(fetchPatientDetails({pId: row.patientId})).then(response => {
+              if(response?.payload){
+                sessionStorage.setItem("selectedPatient", JSON.stringify(response?.payload));
+                navigate("/patient-details");
+              } else {
+                setShowSnackbar(true);
+                setErrorMessage("Error while fetching details");
+              }
+            });
+          },
+        },
+      ]
+    },
+    { key: "patientUid", header: "Patient ID" },
+    { key: "mobileNumber", header: "Contact Number" },
+    { key: "type", header: "Encounter Type" },
+    { key: "doc_name", header: "Doctor" },
+    { key: "slotDate", header: "Date" },
+    {
+      key: "actions",
+      actions: [
+        {
+          key: "action",
+          type: "link",
+          onClick: (item) => {
+            navigate("/patient-emr");
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+          },
+        },
+      ],
+    },
+  ];
+
+  const mobilefollowUpColumns = [
+    { key: "p_name", 
+      header: "Patient Name",
+      actions: [
+        {
+          type: "link",
+          onClick: (row) => {
+            dispatch(fetchPatientDetails({pId: row.patientId})).then(response => {
+              if(response?.payload){
+                sessionStorage.setItem("selectedPatient", JSON.stringify(response?.payload));
+                navigate("/patient-details");
+              } else {
+                setShowSnackbar(true);
+                setErrorMessage("Error while fetching details");
+              }
+            });
+          },
+        },
+      ]
+    },
+    {
+      key: "actions",
+      header: "Start Visit",
+      actions: [
+        {
+          key: "action",
+          type: "link",
+          onClick: (item) => {
+            navigate("/patient-emr");
+            sessionStorage.setItem("selectedPatient", JSON.stringify(item));
+          },
+        },
+      ],
+    },
+    { key: "patientUid", header: "Patient ID" },
+    { key: "mobileNumber", header: "Contact Number" },
+    { key: "type", header: "Encounter Type" },
+    { key: "doc_name", header: "Doctor" },
+    { key: "slotDate", header: "Date" },
+  ];
   useEffect(() => {
+    fetchList();
+  }, []);
+
+  const fetchList = (date) => {
     setShowLoader(true);
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
       const payload = {
-        hip_id: currentHospital?.hip_id,
+        hipId: currentHospital?.hip_id,
+        appointmentDate: date || filterDateValue
       };
-      dispatch(fetchAppointmentList(payload)).then((res) => {
+      dispatch(listAppointmentByDate(payload)).then((res) => {
         setShowLoader(false);
-        const mainList = res.payload;
+        let mainList = res?.payload?.appointments;
+        let followUpList = res?.payload?.follow_ups;
         // let patientList = [];
         // mainList?.map((item) => {
         //   patientList?.push(item[1]);
         // });
         const formattedAppointmentList = mainList?.map((item) => {
           const patientId = item?.patient_id;
+          const patientUid = item?.patient_details?.patient_uid;
           const patientGender = item?.patient_details?.gender
             .toLowerCase()
             ?.includes("m")
@@ -188,8 +295,8 @@ const AppointmentPage = () => {
             : "F";
           const mobileNumber = item?.patient_details?.mobile_number;
           const encounterType = item?.appointment_type;
-          const slotDate = convertDateFormat(item?.slot_details?.date, "dd/MM/yyyy");
-          const slotTime = convertTimeSlot(item?.slot_time);
+          const slotDate = item?.appointment_date ? convertDateFormat(item?.appointment_date, "dd/MM/yyyy") : "";
+          const slotTime = item?.slot_time ? convertTimeSlot(item?.slot_time) : "";
           const status = item?.consultation_status;
           let action = "Start Visit";
           if(status === "Completed") {
@@ -198,12 +305,13 @@ const AppointmentPage = () => {
           else if(status === "InProgress") {
             action = "Resume"
           }
-          // const updatedDate = convertDateFormat(item?.updated_at);
-          // const createdDate = convertDateFormat(item?.created_at);
+          const updatedDate = item?.updated_at ? convertDateFormat(item?.updated_at, "dd/MM/yyyy") : "";
+          const createdDate = item?.created_at ? convertDateFormat(item?.created_at, "dd/MM/yyyy") : "";
           return {
             patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
             p_name: `${item?.patient_details?.name}`,
             patientId: patientId,
+            patientUid: patientUid,
             mobileNumber: mobileNumber,
             encounterType: encounterType,
             doc_name: item?.doc_details?.doc_name,
@@ -211,32 +319,109 @@ const AppointmentPage = () => {
             slotTime: slotTime,
             status: status,
             action: action,
-            // updatedDate: updatedDate,
-            // createdDate: createdDate,
+            updatedDate: updatedDate,
+            createdDate: createdDate,
+            type: 'appointment',
             ...item,
           };
         });
+
         if(formattedAppointmentList){
-          const sortedData = formattedAppointmentList.sort((a, b) => {
-            const dateA = new Date(a.slot_details.date);
-            const dateB = new Date(b.slot_details.date);
+          const sortedApmntData = formattedAppointmentList.sort((a, b) => {
+            const dateA = new Date(a.slotDate);//slot_details.date);
+            const dateB = new Date(b.slotDate);
     
             if (dateA < dateB) {
               return -1;
             }
             else return 1;
           });
-          setTableData(sortedData);
+          // setTableData(sortedApmntData);
+          setAppointmentData(sortedApmntData);
+        } 
+        // if(formattedAppointmentList){
+        //   const sortedData = formattedAppointmentList.sort((a, b) => {
+        //     const dateA = new Date(a.slotDate);//slot_details.date);
+        //     const dateB = new Date(b.slotDate);
+    
+        //     if (dateA < dateB) {
+        //       return -1;
+        //     }
+        //     else return 1;
+        //   });
+        //   setTableData(sortedData);
+        // } 
+
+        const formattedFollowUpList = followUpList?.map((item) => {
+          const patientId = item?.patient_id;
+          const patientUid = item?.patient_details?.patient_uid;
+          const patientGender = item?.patient_details?.gender
+            .toLowerCase()
+            ?.includes("m")
+            ? "M"
+            : "F";
+          const mobileNumber = item?.patient_details?.mobile_number;
+          const slotDate = item?.followup_date ? convertDateFormat(item?.followup_date, "dd/MM/yyyy") : "";
+          // const slotTime = item?.slot_time ? convertTimeSlot(item?.slot_time) : "";
+          // const status = item?.consultation_status;
+          let action = "Start Visit";
+          const updatedDate = item?.updated_at ? convertDateFormat(item?.updated_at, "dd/MM/yyyy") : "";
+          const createdDate = item?.created_at ? convertDateFormat(item?.created_at, "dd/MM/yyyy") : "";
+          return {
+            patientDetails: `${item?.patient_details?.name} | ${patientGender}`,
+            p_name: `${item?.patient_details?.name}`,
+            patientId: patientId,
+            patientUid: patientUid,
+            mobileNumber: mobileNumber,
+            doc_name: item?.doc_details?.doc_name,
+            slotDate: slotDate,
+            action: action,
+            updatedDate: updatedDate,
+            createdDate: createdDate,
+            type: 'Follow Up',
+            ...item,
+          };
+        });
+
+        // const finalData = formattedAppointmentList.concat(formattedFollowUpList);
+    
+
+        if(formattedFollowUpList){
+          const sortedFollowUpData = formattedFollowUpList.sort((a, b) => {
+            const dateA = new Date(a.slotDate);//slot_details.date);
+            const dateB = new Date(b.slotDate);
+    
+            if (dateA < dateB) {
+              return -1;
+            }
+            else return 1;
+          });
+          setFollowUpData(sortedFollowUpData);
         } 
       });
     }
-  }, []);
+  }
+  const handleDateChange = (event) => {
+    setFilterDateValue(event.target.value);
+    fetchList(event.target.value);
+  };
+
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
   const isMobile = window.innerWidth < 600;
   return (
     <ListWrapper>
       <CustomLoader
         open={showLoader}
       />
+      <CustomSnackbar
+          message={errorMessage || "Something went wrong"}
+          open={showSnackbar}
+          status={"error"}
+          onClose={onSnackbarClose}
+        />
       <div className="patientList-title-wrapper">
         <Typography className="patientList-heading">
           Appointment List
@@ -245,21 +430,31 @@ const AppointmentPage = () => {
       </div>
       <div className="table-container">
         {isMobile ? (
-          <MyTable
-          columns={mobileColumns}
+          <AppointmentTable
+          apmntColumns={mobileColumns}
+          followUpColumns={mobilefollowUpColumns}
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          handleDateChange={handleDateChange}
+          filterDateValue={filterDateValue}
+          followUpData={followUpData}
+          appointmentData={appointmentData}
           showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"
         />
         ) : (
-        <MyTable
-          columns={columns}
+        <AppointmentTable
+          apmntColumns={columns}
+          followUpColumns={followUpColumns}
           data={tableData}
           tableStyle={tableStyle}
           searchInputStyle={searchInputStyle}
+          handleDateChange={handleDateChange}
+          filterDateValue={filterDateValue}
+          followUpData={followUpData}
+          appointmentData={appointmentData}
           showFilter = "true"
           tableClassName="table-class"
           searchClassName="search-class"

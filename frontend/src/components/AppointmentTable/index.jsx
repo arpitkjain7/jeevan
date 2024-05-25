@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -20,6 +20,10 @@ import {
   MenuItem,
   InputLabel,
   Select,
+  Button,
+  FormGroup,
+  Switch,
+  Stack,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -74,6 +78,11 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
       backgroundColor: "#bde4ff",
       // borderRight: "1px solid #e0e0e0",
     },
+  },
+  ".followBtn" : {
+    padding: "10px",
+    backgroundColor: "#1976d2db",
+    marginTop: "5px",
   },
 }));
 
@@ -146,8 +155,9 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-const MyTable = ({
-  columns,
+const AppointmentTable = ({
+  apmntColumns,
+  followUpColumns,
   data,
   showSearch = true,
   tableStyle,
@@ -157,57 +167,68 @@ const MyTable = ({
   showFilter,
   handleDateChange,
   filterDateValue,
+  appointmentData,
   followUpData
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterValue, setFilterValue] = useState("");
-
-  const filteredData = data?.filter((item) => {
+  const [isFollowUp, setIsFollowUp] = useState(false);
+  const [filteredData, setFilteredData] = useState();
+  const [columns, setColumns] = useState(apmntColumns);
+  const finalData = (data) => {
+    const filteredDataa = data?.filter((item) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
-    if (showFilter) {
-      let filterSearch;
-      if (filterValue === "All") filterSearch = "";
-      else filterSearch = filterValue.toLowerCase();
-      let formattedDate;
-      if (filterDateValue === "") formattedDate = "";
-      else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
-      
-      return columns.some(
-        (column) =>
-          (item["patientId"]
-            ?.toString()
-            ?.toLowerCase()
-            ?.includes(lowerCaseSearchTerm) ||
-            item["patientDetails"]
+    
+      if (showFilter && isFollowUp) {
+        let filterSearch;
+        if (filterValue === "All") filterSearch = "";
+        else filterSearch = filterValue.toLowerCase();
+        let formattedDate;
+        if (filterDateValue === "") formattedDate = "";
+        else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
+        
+        return columns.some(
+          (column) =>
+            (item["patientId"]
               ?.toString()
               ?.toLowerCase()
               ?.includes(lowerCaseSearchTerm) ||
-            item["mobileNumber"]
-              ?.toString()
-              ?.toLowerCase()
-              ?.includes(lowerCaseSearchTerm)) 
-            && (
-            ((filterSearch === "followup") ? 
-              item["type"]?.toString()?.toLowerCase()?.includes(filterSearch)
-            : "") ||
-            ((filterSearch !== "followup") ?
-            item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) : "")
-              // item["type"]?.toString()?.toLowerCase()?.includes(filterSearch))
-            )
-          // && item["slotDate"]?.toString()?.includes(formattedDate)
-      );
-    } else {
-      return columns.some((column) =>
-        item[column.key]
-          ?.toString()
-          ?.toLowerCase()
-          ?.includes(lowerCaseSearchTerm)
-      );
-    }
-  });
+              item["patientDetails"]
+                ?.toString()
+                ?.toLowerCase()
+                ?.includes(lowerCaseSearchTerm) ||
+              item["mobileNumber"]
+                ?.toString()
+                ?.toLowerCase()
+                ?.includes(lowerCaseSearchTerm)) 
+              && (            
+              item["status"]?.toString()?.toLowerCase()?.includes(filterSearch)
+              )
+                // item["type"]?.toString()?.toLowerCase()?.includes(filterSearch))
+            // && item["slotDate"]?.toString()?.includes(formattedDate)
+        );
+      } else {
+        return columns.some((column) =>
+          item[column.key]
+            ?.toString()
+            ?.toLowerCase()
+            ?.includes(lowerCaseSearchTerm)
+        );
+      }
+   
+    });
+    setFilteredData(filteredDataa);
+  }
+
+  useEffect(() => {
+    setIsFollowUp(false);
+    // if(appointmentData) {
+      finalData(appointmentData);
+    // }
+  }, [appointmentData]);
+
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
@@ -227,6 +248,17 @@ const MyTable = ({
 
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
+  };
+
+  const handleFollowUp = () => {
+    if(isFollowUp){
+      finalData(appointmentData);
+      setColumns(apmntColumns);
+    } else {
+      finalData(followUpData);
+      setColumns(followUpColumns);
+    }
+      setIsFollowUp((prevValue) => !prevValue);
   };
 
   return (
@@ -272,9 +304,26 @@ const MyTable = ({
                   <MenuItem value="Scheduled">Scheduled</MenuItem>
                   <MenuItem value="InProgress">InProgress</MenuItem>
                   <MenuItem value="Completed">Completed</MenuItem>
-                  <MenuItem value="followUp">Follow Ups</MenuItem>
                 </Select>
               </FormControl>
+              {/* {isFollowUp
+               ? 
+              <Button onClick={handleFollowUp} variant="contained" className="followBtn">Appointment</Button> 
+               :
+              <Button onClick={handleFollowUp} variant="contained" className="followBtn">Follow Up</Button> 
+              } */}
+              <FormGroup style={{ display: "inline-flex", padding: "8px" }}>
+               <Stack direction="row" spacing={1} alignItems="center">
+                <Typography>Appointment</Typography>
+                {/* <AntSwitch defaultChecked inputProps={{ 'aria-label': 'ant design' }} /> */}
+                <Switch
+                  checked={isFollowUp}
+                  onChange={handleFollowUp}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+                <Typography>Follow Up</Typography>
+               </Stack>
+              </FormGroup>
             </>
           )}
         </div>
@@ -456,4 +505,4 @@ const MyTable = ({
   );
 };
 
-export default MyTable;
+export default AppointmentTable;

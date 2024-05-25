@@ -2,6 +2,10 @@ import {
   Avatar,
   Box,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   AppBar,
   Slide,
   Toolbar,
@@ -10,6 +14,12 @@ import {
   styled,
   Button,
   TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Grid,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
@@ -24,16 +34,16 @@ import { forwardRef } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch } from "react-redux";
 import { convertDateFormat } from "../../utils/utils";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { uploadHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
-import { format } from "date-fns";
 import imageCompression from 'browser-image-compression';
+import EditIcon from '@mui/icons-material/Edit';
+import PatientRegistartionForm from "../PatientRegistrationForm";
+import { differenceInYears, format } from "date-fns";
+import CustomSnackbar from "../CustomSnackbar";
+import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import { apis } from "../../utils/apis";
 
 const rotateImage = {
   // -webkit-transform: "rotate(90deg)",
@@ -203,10 +213,15 @@ const PatientDetailsHeader = ({ documents }) => {
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
-
+  const scroll = 'paper';
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
   const [cleared, setCleared] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isMobileError, setIsMobileError] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [patientDetails, setPatientdetails] = useState({});
 
   useEffect(() => {
     if (cleared) {
@@ -224,11 +239,16 @@ const PatientDetailsHeader = ({ documents }) => {
     if (currentPatient) {
       if (Object.keys(currentPatient)?.length) {
         setPatientData(currentPatient);
+        setPatientdetails(currentPatient);
       } else {
         setPatientData({});
       }
     }
   }, []);
+
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
 
   const handleNotifyModalClose = () => {
     setNotifyModal(false);
@@ -382,9 +402,93 @@ const PatientDetailsHeader = ({ documents }) => {
       console.log(error);
     })
   };
+  //Patient edit form
+  const openPatientForm = () => {
+    setFormOpen(true);
+  };
 
+  const handleFormClose = () => {
+    setFormOpen(false);
+  }
+  
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setPatientdetails((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    if(name === "DOB"){  // && value !== "01-01-1900"
+      if(value){
+        const age = differenceInYears(new Date(), new Date(value));
+        setPatientdetails((prevData) => ({
+          ...prevData,
+          age_in_years: age,
+        }));
+      } else {
+        setPatientdetails((prevData) => ({
+          ...prevData,
+          age_in_years: "",
+        }));
+      }
+    } else if(name === "age_in_years"){
+      setPatientdetails((prevData) => ({
+        ...prevData,
+        age_in_years: value,
+      }));
+      console.log(patientDetails.DOB);
+      if(patientDetails.DOB){
+        const birthDate = new Date(patientDetails.DOB);
+        const dateToday = new Date();
+        let year = dateToday.getFullYear();
+        const calculated_birth_year = year - value;
+        console.log(calculated_birth_year);
+        const birthDay = birthDate.getDate();
+        const birthMonth = birthDate.getMonth() + 1;
+        // const birthYear = birthDate.getFullYear();
+        console.log(birthMonth, birthDay);
+        const dateOfBirth = `${calculated_birth_year}-${birthMonth}-${birthDay}`;
+        console.log(convertDateFormat(dateOfBirth, 'yyyy-MM-dd'));
+        setPatientdetails((prevData) => ({
+          ...prevData,
+          DOB: convertDateFormat(dateOfBirth, 'yyyy-MM-dd'),
+        }));
+      }
+    }
+  };
+
+  const formatDob = (date) => {
+    return format(new Date(date), "yyyy-MM-dd");
+  };
+
+  const handleFormSubmit = () => {
+    setShowLoader(true);
+    const url = apis?.registerUser;
+    const payload = {
+      id: patientDetails.id,
+      name: patientDetails.name,
+      gender: patientDetails.gender,
+      DOB: patientDetails.DOB ? convertDateFormat(patientDetails?.DOB, "dd-MM-yyyy") : "",
+      age: patientDetails.age_in_years ? (patientDetails.age_in_years ).toString() : "",
+      email: patientDetails.email,
+      mobile_number: patientDetails.mobile_number
+    }
+    dispatch(registerPatient({payload, url: url})).then((res) => {
+      if(res?.payload){
+          setPatientData(patientDetails);
+          sessionStorage?.setItem("selectedPatient", JSON.stringify(patientDetails));
+      } else {
+        setErrorMessage("Error while updating details");
+        setShowSnackbar(true);
+      }      
+      setShowLoader(false);
+      setFormOpen(false);
+    })
+  }
   return (
     <DetailsHeaderContainer>
+      <CustomLoader
+        open={showLoader}
+      />
       <div className="details-header">
         <div className="details-avatar-container">
           <Avatar />
@@ -395,7 +499,7 @@ const PatientDetailsHeader = ({ documents }) => {
           </Typography>
           <div className="details-subContainer">
             <Typography className="details-patient-id">
-              {patientData?.patientId || patientData?.id}
+              {patientData?.patientId || patientData?.patient_uid}
             </Typography>
             <Typography className="details-patient-id">
               {(patientData?.patient_details?.age_in_years || patientData?.age_in_years) ? (patientData?.patient_details?.age_in_years || patientData?.age_in_years) + 'Y ' : ""}
@@ -414,6 +518,9 @@ const PatientDetailsHeader = ({ documents }) => {
           <Typography className="details-patient-email">
             {patientData?.mobileNumber || patientData?.mobile_number}
           </Typography>
+        </div>
+        <div className="details-emailContainer">
+          <Button onClick={openPatientForm} variant="outlined"> Edit</Button>
         </div>
       </div>
       {documents && (
@@ -558,6 +665,163 @@ const PatientDetailsHeader = ({ documents }) => {
         handleNotifyModalClose={handleNotifyModalClose}
         documentId={documentId}
       />
+       <Dialog
+        open={formOpen}
+        onClose={handleFormClose}
+        // scroll="paper"
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >  
+        <CustomLoader open={showLoader} />
+        <AppBar sx={{ position: "relative" }}>
+          <Toolbar>
+            <Typography
+              sx={{ ml: 2, flex: 1 }}
+              variant="h6"
+              component="div"
+            >
+              Update Patient Details
+            </Typography>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleFormClose}
+              aria-label="close"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <DialogContent > 
+          <CustomSnackbar
+            message={errorMessage || "Something went wrong"}
+            open={showSnackbar}
+            status={"error"}
+            onClose={onSnackbarClose}
+          />
+          <form> 
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="First Name"
+                  name="name"
+                  value={patientDetails?.name}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  required
+                  fullWidth
+                />
+              </Grid>
+              {/* <Grid item xs={12} md={6}>
+                <TextField
+                  name="middlename"
+                  label="Middle Name"
+                  value={patientData?.middlename}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="lastname"
+                  label="Last Name"
+                  value={patientData?.lastname}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+              </Grid> */}
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Gender</FormLabel>
+                  <RadioGroup
+                    aria-label="gender"
+                    name="gender"
+                    value={patientDetails?.gender}
+                    onChange={handleChange}
+                  >
+                    <Grid>
+                      <FormControlLabel value="M" control={<Radio />} label="Male" />
+                      <FormControlLabel
+                        value="F"
+                        control={<Radio />}
+                        label="Female"
+                      />
+                      <FormControlLabel
+                        value="other"
+                        control={<Radio />}
+                        label="Other"
+                      />
+                    </Grid>
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="DOB"
+                  name="DOB"
+                  value={patientDetails?.DOB}
+                  onChange={handleChange}
+                  type="date"
+                  inputProps={{
+                    max: formatDob(new Date()), // Set max date to the current date
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  // style={{ width: "50%" }}
+                  // required
+                  fullWidth
+                />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                <TextField
+                  label="Age(in years)"
+                  name="age_in_years"
+                  value={patientDetails?.age_in_years}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  // style={{ width: "50%" }}
+                  // required
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Email Address"
+                  name="email"
+                  value={patientDetails?.email}
+                  onChange={handleChange}
+                  type="email"
+                  InputLabelProps={{ shrink: true }}
+                  // required
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="mobile_number"
+                  label="Mobile Number"
+                  type="number"
+                  value={patientDetails?.mobile_number}
+                  error={isMobileError}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  required
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <span style={{ color: "red" }}>
+              {isMobileError ? "Please enter valid number" : ""}
+            </span>
+            <br/>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFormClose} className='cancel_btn'>Discard</Button>
+          <Button onClick={handleFormSubmit} className='ok_btn'>Submit</Button>
+        </DialogActions>
+      </Dialog>
     </DetailsHeaderContainer>
   );
 };

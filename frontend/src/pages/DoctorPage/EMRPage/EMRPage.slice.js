@@ -56,6 +56,11 @@ export const sendNotification = createAsyncThunk(
   }
 );
 
+export const googleReview = createAsyncThunk("googleReview", async (payload) => {
+  const response = await apiRequest("POST", apis?.googleReview, payload);
+  return response;
+});
+
 export const syncPMR = createAsyncThunk(
   "patient/verifySyncOtp",
   async (payload) => {

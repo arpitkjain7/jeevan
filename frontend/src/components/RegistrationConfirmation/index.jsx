@@ -172,9 +172,14 @@ const RegisterationConfirmation = ({
           value: patientData?.DOB || "-",
         },
         { key: "Email Address", value: patientData?.email || "-" },
+        { key: "Mobile Number", value: patientData?.mobile_number || "-" },
         {
           key: "ABHA Address",
           value: patientData?.abha_address || "-",
+        },
+        {
+          key: "ABHA Number",
+          value: patientData?.abha_number || "-",
         },
       ];
       if (isAppointment) {

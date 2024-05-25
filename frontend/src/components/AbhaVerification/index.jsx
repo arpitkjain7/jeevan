@@ -121,7 +121,7 @@ import {
                                 />
                             ))}
                         </RadioGroup>
-                        {seconds > 0 || seconds < 0 ? (
+                        {seconds === -1 ? ( //> 0 || seconds < 0
                             <Button
                                 disabled={isAbhaValid}
                                 onClick={() => handleAbhaGenerateOTP()}
@@ -134,7 +134,7 @@ import {
                             <Button
                             disabled={!isAbhaValid}
                             style={{
-                                color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
+                                color: seconds > 0 ? "#DFE3E8" : "#FFF",
                             }}
                             onClick={() => handleAbhaResetOTP()}
                             variant="contained"

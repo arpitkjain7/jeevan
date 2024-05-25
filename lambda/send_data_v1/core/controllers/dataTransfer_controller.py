@@ -111,6 +111,8 @@ class DataTransferController:
                 patient_data_list = []
                 resources_dict = {}
                 patient_data_transformed = []
+                consent_id = data_obj.get("consent_id")
+                print(f"{consent_id=}")
                 transaction_id = data_obj.get("transactionId")
                 patient_data = data_obj.get("entries")
                 requesterNonce = data_obj.get("requesterNonce")
@@ -133,9 +135,13 @@ class DataTransferController:
                     fhir_json = ast.literal_eval(fhir_data)
                     data_entries = fhir_json["entry"]
                     for entry in data_entries:
-                        resources_dict[entry["resource"]["resourceType"]] = entry[
-                            "resource"
-                        ]
+                        resource_type = entry["resource"]["resourceType"]
+                        resource_list = resources_dict.get(resource_type, [])
+                        if len(resource_list) == 0:
+                            resources_dict[resource_type] = [entry["resource"]]
+                        else:
+                            resource_list.append(entry["resource"])
+                            resources_dict[resource_type] = resource_list
                     patient_data_transformed.append(resources_dict)
                     patient_data_list.append(fhir_json)
                 print(f"{patient_data_list=}")
