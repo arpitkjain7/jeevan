@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-alpine as build
+FROM --platform=linux/amd64 node:latest as build
 COPY package.json .
 WORKDIR /app
 COPY package.json .
