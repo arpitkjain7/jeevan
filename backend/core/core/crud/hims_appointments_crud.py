@@ -6,6 +6,7 @@ from core.orm_models.hims_patientDetails import PatientDetails
 from datetime import datetime
 from pytz import timezone
 from core.utils.custom.patient_helper import calculate_age
+from sqlalchemy import func, case
 
 logging = logger(__name__)
 
@@ -146,20 +147,84 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read function : {error}")
             raise error
 
-    def readByHIP(self, hip_id: str):
+    def count_all_appointments(self, hip_id: str):
         try:
-            logging.info("CRUDAppointments read request")
+            logging.info("CRUDAppointments count_all_appointments request")
             with session() as transaction_session:
-                obj: Appointments = (
+                count = (
                     transaction_session.query(Appointments)
                     .filter(Appointments.hip_id == hip_id)
-                    .all()
+                    .count()
                 )
-            if obj is not None:
-                return [row.__dict__ for row in obj]
-            return []
+            return count
         except Exception as error:
-            logging.error(f"Error in CRUDAppointments read function : {error}")
+            logging.error(
+                f"Error in CRUDAppointments count_all_appointments function : {error}"
+            )
+            raise error
+
+    def count_appointments_status(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments count_appointments_status request")
+            with session() as transaction_session:
+                counts = (
+                    transaction_session.query(
+                        func.count(
+                            case([(Appointments.consultation_status == "Completed", 1)])
+                        ).label("completed_count"),
+                        func.count(
+                            case(
+                                [(Appointments.consultation_status == "InProgress", 1)]
+                            )
+                        ).label("inprogress_count"),
+                    )
+                    .filter(Appointments.hip_id == hip_id)
+                    .first()
+                )
+
+            return {
+                "completed_count": counts.completed_count,
+                "inprogress_count": counts.inprogress_count,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments count_appointments_status function : {error}"
+            )
+            raise error
+
+    def count_appointments_type(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments count_appointments_type request")
+            with session() as transaction_session:
+                counts = (
+                    transaction_session.query(
+                        func.count(
+                            case([(Appointments.appointment_type == "first visit", 1)])
+                        ).label("first_visit_count"),
+                        func.count(
+                            case(
+                                [
+                                    (
+                                        Appointments.appointment_type
+                                        == "follow-up visit",
+                                        1,
+                                    )
+                                ]
+                            )
+                        ).label("follow_up_count"),
+                    )
+                    .filter(Appointments.hip_id == hip_id)
+                    .first()
+                )
+
+            return {
+                "first_visit_count": counts.first_visit_count,
+                "follow_up_count": counts.follow_up_count,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments count_appointments_type function : {error}"
+            )
             raise error
 
     def read_all(self, hip_id: str):

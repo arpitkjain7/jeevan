@@ -202,6 +202,21 @@ class AppointmentsController:
             raise error
 
     def get_appointment_metadata(self, hip_id: str):
-        list_of_appointments = self.CRUDAppointments.readByHIP(hip_id=hip_id)
-        total_appointments = len(list_of_appointments)
-        return {"total": total_appointments}
+        total_appointments = self.CRUDAppointments.count_all_appointments(hip_id=hip_id)
+        appointment_status_counts = self.CRUDAppointments.count_appointments_status(
+            hip_id=hip_id
+        )
+        completed_appointments = appointment_status_counts.get("completed_count")
+        inprogress_appointments = appointment_status_counts.get("inprogress_count")
+        appointment_type_counts = self.CRUDAppointments.count_appointments_type(
+            hip_id=hip_id
+        )
+        first_visit_appointments = appointment_type_counts.get("first_visit_count")
+        follow_up_appointments = appointment_type_counts.get("follow_up_count")
+        return {
+            "total_appointments": total_appointments,
+            "completed_appointments": completed_appointments,
+            "inprogress_appointments": inprogress_appointments,
+            "first_visit_appointments": first_visit_appointments,
+            "follow_up_appointments": follow_up_appointments,
+        }
