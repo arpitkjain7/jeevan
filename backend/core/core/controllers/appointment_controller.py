@@ -200,3 +200,8 @@ class AppointmentsController:
                 f"Error in AppointmentsController.update_appointment function: {error}"
             )
             raise error
+
+    def get_appointment_metadata(self, hip_id: str):
+        list_of_appointments = self.CRUDAppointments.readByHIP(hip_id=hip_id)
+        total_appointments = len(list_of_appointments)
+        return {"total": total_appointments}

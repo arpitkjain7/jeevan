@@ -146,6 +146,22 @@ class CRUDAppointments:
             logging.error(f"Error in CRUDAppointments read function : {error}")
             raise error
 
+    def readByHIP(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments read request")
+            with session() as transaction_session:
+                obj: Appointments = (
+                    transaction_session.query(Appointments)
+                    .filter(Appointments.hip_id == hip_id)
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
+        except Exception as error:
+            logging.error(f"Error in CRUDAppointments read function : {error}")
+            raise error
+
     def read_all(self, hip_id: str):
         """[CRUD function to read_all Users record]
 
