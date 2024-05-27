@@ -64,7 +64,6 @@ class PMRController:
             "png": "image/png",
         }
         self.abha_url = os.environ["abha_url"]
-        self.s3_client = boto3.client("s3")
 
     def get_pmr(self, pmr_id: str):
         """[Controller to create new pmr record]
@@ -1208,15 +1207,14 @@ class PMRController:
                         "document_location": s3_location,
                     }
                 )
-            s3_presigned_url = create_presigned_url(
+            document_bytes = read_object(
                 bucket_name=self.cliniq_bucket,
-                key=document_key,
-                expires_in=1800,
+                prefix=document_key,
             )
             return {
                 "document_id": document_id,
                 "s3_location": s3_location,
-                "document_url": s3_presigned_url,
+                "data": document_bytes,
             }
         except Exception as error:
             logging.error(f"Error in PMRController.preview_pmr function: {error}")
