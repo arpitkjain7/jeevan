@@ -256,10 +256,10 @@ def update_slot(request: Update, token: str = Depends(oauth2_scheme)):
         )
 
 
-@appointment_router.get("/v1/appointment/analytics")
+@appointment_router.get("/v1/appointmentAnalytics")
 def get_appointment_analystics(hip_id: str, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/appointment/analytics")
+        logging.info(f"Calling /v1/appointmentAnalytics")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return AppointmentsController().get_appointment_metadata(hip_id=hip_id)
@@ -270,10 +270,10 @@ def get_appointment_analystics(hip_id: str, token: str = Depends(oauth2_scheme))
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/appointment/analytics: {httperror}")
+        logging.error(f"Error in /v1/appointmentAnalytics: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/appointment/analytics: {error}")
+        logging.error(f"Error in /v1/appointmentAnalytics: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
