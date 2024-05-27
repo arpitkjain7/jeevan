@@ -8,5 +8,6 @@ class PatientList(BaseModel):
     name: str
     abha_number: str = None
     mobile_number: str = None
+    is_verified: bool
     created_at: datetime
     updated_at: datetime
