@@ -208,6 +208,7 @@ class AppointmentsController:
         )
         completed_appointments = appointment_status_counts.get("completed_count")
         inprogress_appointments = appointment_status_counts.get("inprogress_count")
+        scheduled_appointments = appointment_status_counts.get("scheduled_count")
         appointment_type_counts = self.CRUDAppointments.count_appointments_type(
             hip_id=hip_id
         )
@@ -217,6 +218,7 @@ class AppointmentsController:
             "total_appointments": total_appointments,
             "completed_appointments": completed_appointments,
             "inprogress_appointments": inprogress_appointments,
+            "scheduled_appointments": scheduled_appointments,
             "first_visit_appointments": first_visit_appointments,
             "follow_up_appointments": follow_up_appointments,
         }

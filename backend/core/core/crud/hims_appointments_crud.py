@@ -181,6 +181,12 @@ class CRUDAppointments:
                                 else_=None,
                             )
                         ).label("inprogress_count"),
+                        func.count(
+                            case(
+                                (Appointments.consultation_status == "Scheduled", 1),
+                                else_=None,
+                            )
+                        ).label("scheduled_count"),
                     )
                     .filter(Appointments.hip_id == hip_id)
                     .first()
@@ -189,6 +195,7 @@ class CRUDAppointments:
             return {
                 "completed_count": counts.completed_count,
                 "inprogress_count": counts.inprogress_count,
+                "scheduled_count": counts.scheduled_count,
             }
         except Exception as error:
             logging.error(
