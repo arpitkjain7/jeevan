@@ -170,11 +170,15 @@ class CRUDAppointments:
                 counts = (
                     transaction_session.query(
                         func.count(
-                            case([(Appointments.consultation_status == "Completed", 1)])
+                            case(
+                                (Appointments.consultation_status == "Completed", 1),
+                                else_=None,
+                            )
                         ).label("completed_count"),
                         func.count(
                             case(
-                                [(Appointments.consultation_status == "InProgress", 1)]
+                                (Appointments.consultation_status == "InProgress", 1),
+                                else_=None,
                             )
                         ).label("inprogress_count"),
                     )
@@ -199,17 +203,18 @@ class CRUDAppointments:
                 counts = (
                     transaction_session.query(
                         func.count(
-                            case([(Appointments.appointment_type == "first visit", 1)])
+                            case(
+                                (Appointments.appointment_type == "first visit", 1),
+                                else_=None,
+                            )
                         ).label("first_visit_count"),
                         func.count(
                             case(
-                                [
-                                    (
-                                        Appointments.appointment_type
-                                        == "follow-up visit",
-                                        1,
-                                    )
-                                ]
+                                (
+                                    Appointments.appointment_type == "follow-up visit",
+                                    1,
+                                ),
+                                else_=None,
                             )
                         ).label("follow_up_count"),
                     )
