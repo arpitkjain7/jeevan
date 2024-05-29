@@ -47,6 +47,7 @@ import patientDetailsReducer, {
   getPatientDetails,
 } from "../../pages/PatientDetails/patientDetailsSlice";
 import { apis } from "../../utils/apis";
+import BackDropDash from "../BackDropDash";
 
 const rotateImage = {
   // -webkit-transform: "rotate(90deg)",
@@ -514,11 +515,16 @@ const PatientDetailsHeader = ({ documents }) => {
       setFormOpen(false);
     });
   };
+  const [backDrop, setBackDrop] = useState(false);
+  const handleBackdrop = () => {
+    setBackDrop(!backDrop);
+  };
   return (
     <DetailsHeaderContainer>
+      <div>{backDrop && <BackDropDash />}</div>
       <CustomLoader open={showLoader} />
       <div className="details-header">
-        <div className="details-avatar-container">
+        <div className="details-avatar-container" onClick={handleBackdrop}>
           <Avatar />
         </div>
         <div className="details-Patientdetails">
@@ -531,19 +537,6 @@ const PatientDetailsHeader = ({ documents }) => {
             </Typography>
             <Typography className="details-patient-id">
               {newPatientDetails?.age_in_years + "Y "}
-              {patientData?.patient_details?.age_in_months ||
-              patientData?.age_in_months
-                ? (patientData?.patient_details?.age_in_months ||
-                    patientData?.age_in_months) + "M"
-                : ""}
-              {!(
-                patientData?.patient_details?.age_in_years ||
-                patientData?.age_in_years ||
-                patientData?.patient_details?.age_in_months ||
-                patientData?.age_in_months
-              )
-                ? patientData?.DOB
-                : ""}
             </Typography>
             <Typography className="details-patient-id">
               {newPatientDetails?.gender}
@@ -552,10 +545,18 @@ const PatientDetailsHeader = ({ documents }) => {
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {patientData?.patient_details?.email || patientData?.email}
+            {newPatientDetails?.email || "NOT AVAILABLE"}
           </Typography>
           <Typography className="details-patient-email">
             {patientData?.mobileNumber || patientData?.mobile_number}
+          </Typography>
+        </div>
+        <div className="details-emailContainer">
+          <Typography className="details-patient-email">
+            {newPatientDetails?.abha_address}
+          </Typography>
+          <Typography className="details-patient-email">
+            {patientData?.abha_number}
           </Typography>
         </div>
         <div className="details-emailContainer">

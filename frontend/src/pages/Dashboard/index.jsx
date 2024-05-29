@@ -114,9 +114,8 @@ function Dashboard() {
       }
       dispatch(fetchAppointmentAnalystics(payload)).then((res) => {
         const mainList = res?.payload;
-        console.log(mainList);
-        setAppointmentAnalystics(mainList);
 
+        setAppointmentAnalystics(mainList);
         // let appointment_days = [];
         // let finalArray;
         // mainList.map((list) => {
