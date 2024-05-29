@@ -15,7 +15,7 @@ import {
   CardMedia,
   Grid,
 } from "@mui/material";
-
+import CustomBackdrop from "../../components/CustomBackdrop";
 import PlayCircleFilledOutlinedIcon from "@mui/icons-material/PlayCircleFilledOutlined";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import profile from "../../assets/prasad.jpg";
@@ -30,7 +30,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const IntroContainer = styled("header")(({ theme })=> ({
+  const IntroContainer = styled("header")(({ theme }) => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -42,7 +42,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const ProfileImage = styled(Avatar)(({ theme })=>({
+  const ProfileImage = styled(Avatar)(({ theme }) => ({
     borderRadius: "50%",
     overflow: "hidden",
     width: "100px",
@@ -53,14 +53,14 @@ const DoctorProfile = () => {
     },
   }));
 
-  const DoctorInfoHeader = styled("div")(({ theme })=>({
+  const DoctorInfoHeader = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     [theme.breakpoints.down("sm")]: {},
   }));
 
-  const DoctorInfo = styled("div")(({ theme })=>({
+  const DoctorInfo = styled("div")(({ theme }) => ({
     flex: 1,
     marginLeft: "20px",
 
@@ -80,7 +80,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const AppointmentContainer = styled("div")(({ theme })=>({
+  const AppointmentContainer = styled("div")(({ theme }) => ({
     textAlign: "right",
     "& button": {
       backgroundColor: "#0088E8",
@@ -110,7 +110,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const DetailsCard = styled(Paper)(({ theme })=>({
+  const DetailsCard = styled(Paper)(({ theme }) => ({
     backgroundColor: "#fff",
     padding: "10px 18px",
     borderRadius: "5px",
@@ -127,7 +127,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const Details = styled("div")(({ theme })=>({
+  const Details = styled("div")(({ theme }) => ({
     "& p": {
       fontSize: "14px",
       fontWeight: "bold",
@@ -136,7 +136,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const DetailsColumn = styled("div")(({ theme })=>({
+  const DetailsColumn = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     width: "100%",
@@ -145,7 +145,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const DetailsBody = styled("div")(({ theme })=>({
+  const DetailsBody = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
     marginTop: "15px",
@@ -154,24 +154,24 @@ const DoctorProfile = () => {
     },
   }));
 
-  const DetailsRow = styled("div")(({ theme })=>({
+  const DetailsRow = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     height: "80px",
   }));
 
-  const DetailsLabel = styled("span")(({ theme })=>({
+  const DetailsLabel = styled("span")(({ theme }) => ({
     fontWeight: "bold",
     fontSize: "small",
     color: "#5A5A5A",
   }));
 
-  const DetailsInfo = styled("span")(({ theme })=>({
+  const DetailsInfo = styled("span")(({ theme }) => ({
     marginTop: "1px",
     fontWeight: 900,
   }));
 
-  const TreatsContainer = styled("div")(({ theme })=>({
+  const TreatsContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -180,7 +180,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const Treats = styled("div")(({ theme })=>({
+  const Treats = styled("div")(({ theme }) => ({
     marginTop: "15px",
     display: "flex",
     flexWrap: "wrap",
@@ -198,7 +198,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const AboutCard = styled(Paper)(({ theme })=>({
+  const AboutCard = styled(Paper)(({ theme }) => ({
     backgroundColor: "#fff",
     padding: "15px 20px",
     borderRadius: "5px",
@@ -211,7 +211,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const AddressesContainer = styled("div")(({ theme })=>({
+  const AddressesContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     height: "200px",
@@ -223,7 +223,7 @@ const DoctorProfile = () => {
     },
   }));
 
-  const AddressContainer = styled("div")(({ theme })=>({
+  const AddressContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -233,12 +233,12 @@ const DoctorProfile = () => {
     width: "400px",
     marginBottom: "5px",
     [theme.breakpoints.down("sm")]: {
-      width:'300px',
+      width: "300px",
       text: "10px",
     },
   }));
 
-  const DetailsAndActionButtonContainer = styled("div")(({ theme })=>({
+  const DetailsAndActionButtonContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -254,34 +254,34 @@ const DoctorProfile = () => {
       [theme.breakpoints.down("sm")]: {
         marginLeft: 0,
         width: 100,
-        fontSize:'8px',
-        height:50,
+        fontSize: "8px",
+        height: 50,
       },
     },
   }));
 
-  const DirectionContainer = styled("div")(({ theme })=>({
+  const DirectionContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
     marginTop: "15px",
     [theme.breakpoints.down("sm")]: {
       marginTop: "10px",
-      display:'flex',
-      flexDirection:'column-reverse'
+      display: "flex",
+      flexDirection: "column-reverse",
     },
   }));
 
-  const DetailsContainer = styled("div")(({ theme })=>({
+  const DetailsContainer = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     marginLeft: "100px",
     marginTop: "15px",
     [theme.breakpoints.down("sm")]: {
       margin: 0,
-      width:"200px",
-      display:'flex',
-      flexDirection:"row",
-      justifyContent:'space-evenly'
+      width: "200px",
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-evenly",
     },
   }));
 
@@ -304,7 +304,6 @@ const DoctorProfile = () => {
         location:
           "https://www.google.com/maps/dir//21.134892,79.076768/@21.1348922,78.9943632,12z?entry=ttu",
       },
-     
     ],
     appointmentAvailability: "Monday-Saturday",
     appointmentTime: "10:30am-8:00pm",
@@ -323,7 +322,7 @@ const DoctorProfile = () => {
         year: 2010,
         degree: "MBBS",
         college: "Jawaharlal Nehru Medical College, Wardha",
-      }
+      },
     ],
     awards: [
       {
@@ -396,7 +395,11 @@ const DoctorProfile = () => {
   const [selectedAddress, setSelectedAddress] = useState(
     doctorDetails.addresses[0].location
   );
-
+  //STATE FOR BACKDROP
+  const [backdrop, setBackDrop] = useState(false);
+  const onAppointementSubmit = () => {
+    setBackDrop(!backdrop);
+  };
   const handleGetDirections = () => {
     const addressToNavigate =
       selectedAddress || doctorDetails.addresses[0].location;
@@ -425,6 +428,7 @@ const DoctorProfile = () => {
 
   return (
     <ProfileContainer>
+      <div>{backdrop && <CustomBackdrop />}</div>
       <IntroContainer>
         <DoctorInfoHeader>
           <ProfileImage src={doctorDetails.avatar} alt="Doctor Profile Image" />
@@ -452,9 +456,14 @@ const DoctorProfile = () => {
         </DoctorInfoHeader>
 
         <AppointmentContainer>
-          <Button variant="contained" color="primary">
+          <Button
+            variant="contained"
+            onClick={onAppointementSubmit}
+            color="inherit"
+          >
             Book Your Appointment
           </Button>
+
           <Typography variant="body2" color="textSecondary">
             Available:{" "}
             <span style={{ color: "#5B5B5A" }}>
@@ -520,42 +529,40 @@ const DoctorProfile = () => {
           <Typography variant="body1">APPOINTMENT</Typography>
         </Details>
         <DirectionContainer>
-          
-            <AddressesContainer>
-              {doctorDetails.addresses.map((address, index) => (
-                <AddressContainer
-                  key={index}
-                  style={{
-                    border:
-                      selectedAddress === address.location
-                        ? "1px solid blue"
-                        : "1px solid #b3aeae",
-                  }}
-                >
-                  <Button onClick={() => handleAddress(address.location)}>
-                    <Typography variant="body1">{address.text}</Typography>
-                  </Button>
-                </AddressContainer>
-              ))}
-            </AddressesContainer>
-            <DetailsAndActionButtonContainer>
-              <DetailsContainer>
-                <DetailsRow>
-                  <DetailsLabel>Availability</DetailsLabel>
-                  <DetailsInfo>
-                    {doctorDetails.appointmentAvailability}
-                  </DetailsInfo>
-                </DetailsRow>
-                <DetailsRow>
-                  <DetailsLabel>Time</DetailsLabel>
-                  <DetailsInfo>{doctorDetails.appointmentTime}</DetailsInfo>
-                </DetailsRow>
-              </DetailsContainer>
-              <Button variant="contained" onClick={handleGetDirections} >
-                <DirectionsIcon /> Get Directions
-              </Button>
-            </DetailsAndActionButtonContainer>
-        
+          <AddressesContainer>
+            {doctorDetails.addresses.map((address, index) => (
+              <AddressContainer
+                key={index}
+                style={{
+                  border:
+                    selectedAddress === address.location
+                      ? "1px solid blue"
+                      : "1px solid #b3aeae",
+                }}
+              >
+                <Button onClick={() => handleAddress(address.location)}>
+                  <Typography variant="body1">{address.text}</Typography>
+                </Button>
+              </AddressContainer>
+            ))}
+          </AddressesContainer>
+          <DetailsAndActionButtonContainer>
+            <DetailsContainer>
+              <DetailsRow>
+                <DetailsLabel>Availability</DetailsLabel>
+                <DetailsInfo>
+                  {doctorDetails.appointmentAvailability}
+                </DetailsInfo>
+              </DetailsRow>
+              <DetailsRow>
+                <DetailsLabel>Time</DetailsLabel>
+                <DetailsInfo>{doctorDetails.appointmentTime}</DetailsInfo>
+              </DetailsRow>
+            </DetailsContainer>
+            <Button variant="contained" onClick={handleGetDirections}>
+              <DirectionsIcon /> Get Directions
+            </Button>
+          </DetailsAndActionButtonContainer>
         </DirectionContainer>
       </AboutCard>
 

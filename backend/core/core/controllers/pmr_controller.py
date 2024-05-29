@@ -25,11 +25,13 @@ from core.utils.custom.session_helper import get_session_token
 from core.utils.custom.gupshup_helper import whatsappHelper
 from core.utils.custom.prescription_helper import create_pdf_from_images, merge_pdf
 from core.utils.custom.msg91_helper import smsHelper
+from core.utils.custom.pmr_pdf import create_pdf
+from core.utils.aws.s3_helper import create_presigned_url
 from core import logger
 import base64
 from datetime import datetime, timezone
 from urllib.parse import quote
-import uuid, os, json
+import uuid, os, json, io
 from pytz import timezone as pytz_timezone
 
 logging = logger(__name__)
@@ -1152,6 +1154,72 @@ class PMRController:
             )
             raise error
 
+    def preview_pmr(self, pmr_request, appointment_request, pmr_metadata):
+        try:
+            pmr_request_dict = pmr_request.dict()
+            pmr_metadata_dict = pmr_metadata.dict()
+            appointment_request_dict = appointment_request.dict()
+            pmr_data = {
+                "pmr_request": pmr_request_dict,
+                "metadata": pmr_metadata_dict,
+                "appointment_request": appointment_request_dict,
+            }
+            bytes_io = io.BytesIO()
+            bytes_io = create_pdf(bytes_io, pmr_data)
+            pdf_bytes = bytes_io.getvalue()
+            if pmr_metadata_dict.get("document_id", None):
+                document_id = pmr_metadata_dict.get("document_id")
+                document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
+                # self.s3_client.put_object(
+                #     Bucket=self.cliniq_bucket, Key=document_key, Body=pdf_bytes
+                # )
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=pdf_bytes,
+                    file_name=document_key,
+                    content_type="application/pdf",
+                )
+                # s3_location = f"{self.cliniq_bucket}/{document_key}"
+                self.CRUDPatientMedicalDocuments.update(
+                    document_id=document_id, **{"document_location": s3_location}
+                )
+            else:
+                document_id = f"C360-DOCU-{str(uuid.uuid1().int)[:18]}"
+                document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
+                # self.s3_client.put_object(
+                #     Bucket=self.cliniq_bucket, Key=document_key, Body=pdf_bytes
+                # )
+                # s3_location = f"{self.cliniq_bucket}/{document_key}"
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=pdf_bytes,
+                    file_name=document_key,
+                    content_type="application/pdf",
+                )
+                self.CRUDPatientMedicalDocuments.create(
+                    **{
+                        "id": document_id,
+                        "pmr_id": pmr_request.pmr_id,
+                        "document_name": document_id,
+                        "document_mime_type": self.mime_type_mapping.get("pdf"),
+                        "document_type": "OPConsultation",
+                        "document_type_code": "OP Consultation",
+                        "document_location": s3_location,
+                    }
+                )
+            document_bytes = read_object(
+                bucket_name=self.cliniq_bucket,
+                prefix=document_key,
+            )
+            return {
+                "document_id": document_id,
+                "s3_location": s3_location,
+                "data": document_bytes,
+            }
+        except Exception as error:
+            logging.error(f"Error in PMRController.preview_pmr function: {error}")
+            raise error
+
     async def upload_document(self, pmr_id, files, document_type):
         try:
             logging.info("executing upload_document function")
@@ -1571,5 +1639,44 @@ class PMRController:
         except Exception as error:
             logging.error(
                 f"Error in PMRController.send_google_review_link function: {error}"
+            )
+            raise error
+
+    def send_appointment_list(self, request):
+        try:
+            logging.info("executing  PMRController.send_google_review_link function")
+            request = request.dict()
+            logging.info(f"{request=}")
+            channel = request.get("channel").value
+            logging.info(f"{channel=}")
+            destination_mobile_number = request.get("destination_mobile_number", None)
+            if channel == "whatsapp":
+                opt_in_response, opt_in_status_code = whatsappHelper().optin_user(
+                    mobile_number=destination_mobile_number
+                )
+                logging.info(f"{opt_in_response=} | {opt_in_status_code=}")
+                (
+                    send_msg_response,
+                    send_msg_status_code,
+                ) = whatsappHelper().send_appointment_list(
+                    mobile_number=request.get("mobile_number", None),
+                    patient_name=request.get("patient_name", None),
+                    doc_name=request.get("doc_name", None),
+                    app_date=request.get("app_date", None),
+                    destination_mobile_number=destination_mobile_number,
+                )
+                logging.info(f"{send_msg_response=} | {send_msg_status_code=}")
+            # elif channel == "sms":
+            #     encoded_url = quote(document_url)
+            #     double_encoded_url = quote(encoded_url)
+            #     sms_response, sms_response_code = smsHelper().send_prescription(
+            #         mobile_number=mobile_number,
+            #         hospital_name=hip_obj.get("name"),
+            #         document_url=double_encoded_url,
+            #     )
+            #     logging.info(f"{sms_response=} | {sms_response_code=}")
+        except Exception as error:
+            logging.error(
+                f"Error in PMRController.send_appointment_list function: {error}"
             )
             raise error

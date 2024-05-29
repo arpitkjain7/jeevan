@@ -200,3 +200,25 @@ class AppointmentsController:
                 f"Error in AppointmentsController.update_appointment function: {error}"
             )
             raise error
+
+    def get_appointment_metadata(self, hip_id: str):
+        total_appointments = self.CRUDAppointments.count_all_appointments(hip_id=hip_id)
+        appointment_status_counts = self.CRUDAppointments.count_appointments_status(
+            hip_id=hip_id
+        )
+        completed_appointments = appointment_status_counts.get("completed_count")
+        inprogress_appointments = appointment_status_counts.get("inprogress_count")
+        scheduled_appointments = appointment_status_counts.get("scheduled_count")
+        appointment_type_counts = self.CRUDAppointments.count_appointments_type(
+            hip_id=hip_id
+        )
+        first_visit_appointments = appointment_type_counts.get("first_visit_count")
+        follow_up_appointments = appointment_type_counts.get("follow_up_count")
+        return {
+            "total_appointments": total_appointments,
+            "completed_appointments": completed_appointments,
+            "inprogress_appointments": inprogress_appointments,
+            "scheduled_appointments": scheduled_appointments,
+            "first_visit_appointments": first_visit_appointments,
+            "follow_up_appointments": follow_up_appointments,
+        }

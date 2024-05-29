@@ -59,6 +59,7 @@ export const apis = {
   demographicsAuthInit: "v2/patient/auth/init",
   deepLink: "v1/deepLinkNotify",
   searchAbha: "v1/HID/searchAbha",
+  sentAppointmentList: "v1/PMR/sendAppointementList",
   googleReview: "v1/PMR/sendGoogleReviewLink",
   listAppointmentByDate: "v1/appointment/listByDate",
   fetchPatientDetails: "v1/patient",
