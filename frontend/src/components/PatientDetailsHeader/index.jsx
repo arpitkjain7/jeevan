@@ -37,13 +37,17 @@ import { convertDateFormat } from "../../utils/utils";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
-import imageCompression from 'browser-image-compression';
-import EditIcon from '@mui/icons-material/Edit';
+import imageCompression from "browser-image-compression";
+import EditIcon from "@mui/icons-material/Edit";
 import PatientRegistartionForm from "../PatientRegistrationForm";
 import { differenceInYears, format } from "date-fns";
 import CustomSnackbar from "../CustomSnackbar";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import patientDetailsReducer, {
+  getPatientDetails,
+} from "../../pages/PatientDetails/patientDetailsSlice";
 import { apis } from "../../utils/apis";
+import BackDropDash from "../BackDropDash";
 
 const rotateImage = {
   // -webkit-transform: "rotate(90deg)",
@@ -213,7 +217,7 @@ const PatientDetailsHeader = ({ documents }) => {
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
-  const scroll = 'paper';
+  const scroll = "paper";
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
   const [cleared, setCleared] = useState(false);
@@ -222,6 +226,7 @@ const PatientDetailsHeader = ({ documents }) => {
   const [isMobileError, setIsMobileError] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [patientDetails, setPatientdetails] = useState({});
+  const [newPatientDetails, setNewPatientDetails] = useState({});
 
   useEffect(() => {
     if (cleared) {
@@ -236,6 +241,7 @@ const PatientDetailsHeader = ({ documents }) => {
 
   useEffect(() => {
     const currentPatient = JSON.parse(patient);
+
     if (currentPatient) {
       if (Object.keys(currentPatient)?.length) {
         setPatientData(currentPatient);
@@ -269,13 +275,14 @@ const PatientDetailsHeader = ({ documents }) => {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
       useWebWorker: true,
-    }
+    };
     const files = Array.from(event.target.files);
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      const image = new Image(); image.src = compressedFile;
+      const image = new Image();
+      image.src = compressedFile;
 
-      const orientation = image.width > image.height ? 'landscape' : 'portrait'; 
+      const orientation = image.width > image.height ? "landscape" : "portrait";
       console.log(`Image orientation: ${orientation}`);
       // if(orientation === "landscape"){
       //   console.log('rotate(90deg)');
@@ -285,7 +292,7 @@ const PatientDetailsHeader = ({ documents }) => {
 
       if (event.target.files) {
         const fileArray = files.map((file) => URL.createObjectURL(file));
-      
+
         setSelectedImages((prevImages) => prevImages.concat(fileArray));
         Array.from(event.target.files).map((file) => {
           URL.revokeObjectURL(file);
@@ -327,8 +334,8 @@ const PatientDetailsHeader = ({ documents }) => {
   };
 
   const handleFollowUp = () => {
-    setOpenFollowUp(true)
-  }
+    setOpenFollowUp(true);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -392,15 +399,16 @@ const PatientDetailsHeader = ({ documents }) => {
       pmr_request,
       appointment_request,
     };
-    dispatch(postEMR(allData)).then((res) => {
-      setOpenFollowUp(false);
-      if (res?.payload) {
-        setNotifyModal(true);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    })
+    dispatch(postEMR(allData))
+      .then((res) => {
+        setOpenFollowUp(false);
+        if (res?.payload) {
+          setNotifyModal(true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   //Patient edit form
   const openPatientForm = () => {
@@ -409,16 +417,17 @@ const PatientDetailsHeader = ({ documents }) => {
 
   const handleFormClose = () => {
     setFormOpen(false);
-  }
-  
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setPatientdetails((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    if(name === "DOB"){  // && value !== "01-01-1900"
-      if(value){
+    if (name === "DOB") {
+      // && value !== "01-01-1900"
+      if (value) {
         const age = differenceInYears(new Date(), new Date(value));
         setPatientdetails((prevData) => ({
           ...prevData,
@@ -430,13 +439,13 @@ const PatientDetailsHeader = ({ documents }) => {
           age_in_years: "",
         }));
       }
-    } else if(name === "age_in_years"){
+    } else if (name === "age_in_years") {
       setPatientdetails((prevData) => ({
         ...prevData,
         age_in_years: value,
       }));
       console.log(patientDetails.DOB);
-      if(patientDetails.DOB){
+      if (patientDetails.DOB) {
         const birthDate = new Date(patientDetails.DOB);
         const dateToday = new Date();
         let year = dateToday.getFullYear();
@@ -447,10 +456,10 @@ const PatientDetailsHeader = ({ documents }) => {
         // const birthYear = birthDate.getFullYear();
         console.log(birthMonth, birthDay);
         const dateOfBirth = `${calculated_birth_year}-${birthMonth}-${birthDay}`;
-        console.log(convertDateFormat(dateOfBirth, 'yyyy-MM-dd'));
+        console.log(convertDateFormat(dateOfBirth, "yyyy-MM-dd"));
         setPatientdetails((prevData) => ({
           ...prevData,
-          DOB: convertDateFormat(dateOfBirth, 'yyyy-MM-dd'),
+          DOB: convertDateFormat(dateOfBirth, "yyyy-MM-dd"),
         }));
       }
     }
@@ -460,67 +469,102 @@ const PatientDetailsHeader = ({ documents }) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
 
+  useEffect(() => {
+    const patientObject = JSON.parse(patient);
+    if (patientObject) {
+      const payload = {
+        patient_id: patientObject.id,
+      };
+      console.log(patientObject.id);
+      dispatch(getPatientDetails({ payload })).then((res) => {
+        const detail = res?.payload;
+        sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
+        console.log(detail);
+        setNewPatientDetails(detail);
+      });
+    }
+  }, [patient, dispatch]);
   const handleFormSubmit = () => {
     setShowLoader(true);
     const url = apis?.registerUser;
+
     const payload = {
       id: patientDetails.id,
       name: patientDetails.name,
       gender: patientDetails.gender,
-      DOB: patientDetails.DOB ? convertDateFormat(patientDetails?.DOB, "dd-MM-yyyy") : "",
-      age: patientDetails.age_in_years ? (patientDetails.age_in_years ).toString() : "",
+      DOB: patientDetails.DOB
+        ? convertDateFormat(patientDetails?.DOB, "dd-MM-yyyy")
+        : "",
+      age: patientDetails.age_in_years
+        ? patientDetails.age_in_years.toString()
+        : "",
       email: patientDetails.email,
-      mobile_number: patientDetails.mobile_number
-    }
-    dispatch(registerPatient({payload, url: url})).then((res) => {
-      if(res?.payload){
-          setPatientData(patientDetails);
-          sessionStorage?.setItem("selectedPatient", JSON.stringify(patientDetails));
+      mobile_number: patientDetails.mobile_number,
+    };
+    dispatch(registerPatient({ payload, url: url })).then((res) => {
+      if (res?.payload) {
+        setPatientData(patientDetails);
+        sessionStorage?.setItem(
+          "selectedPatient",
+          JSON.stringify(patientDetails)
+        );
       } else {
         setErrorMessage("Error while updating details");
         setShowSnackbar(true);
-      }      
+      }
       setShowLoader(false);
       setFormOpen(false);
-    })
-  }
+    });
+  };
+  const [backDrop, setBackDrop] = useState(false);
+  const handleBackdrop = () => {
+    setBackDrop(!backDrop);
+  };
   return (
     <DetailsHeaderContainer>
-      <CustomLoader
-        open={showLoader}
-      />
+      <div>{backDrop && <BackDropDash />}</div>
+      <CustomLoader open={showLoader} />
       <div className="details-header">
-        <div className="details-avatar-container">
+        <div className="details-avatar-container" onClick={handleBackdrop}>
           <Avatar />
         </div>
         <div className="details-Patientdetails">
           <Typography className="details-patient-name">
-            {patientData?.patient_details?.name || patientData?.name}
+            {newPatientDetails?.name || patientData?.name}
           </Typography>
           <div className="details-subContainer">
             <Typography className="details-patient-id">
-              {patientData?.patientId || patientData?.patient_uid}
+              {newPatientDetails?.patient_uid || patientData?.patient_uid}
             </Typography>
             <Typography className="details-patient-id">
-              {(patientData?.patient_details?.age_in_years || patientData?.age_in_years) ? (patientData?.patient_details?.age_in_years || patientData?.age_in_years) + 'Y ' : ""}
-              {(patientData?.patient_details?.age_in_months || patientData?.age_in_months) ? (patientData?.patient_details?.age_in_months || patientData?.age_in_months) + 'M' : "" }
-              {!((patientData?.patient_details?.age_in_years || patientData?.age_in_years) || (patientData?.patient_details?.age_in_months || patientData?.age_in_months)) ? patientData?.DOB : ""}
+              {newPatientDetails?.age_in_years + "Y "}
             </Typography>
             <Typography className="details-patient-id">
-              {patientData?.patient_details?.gender || patientData?.gender}
+              {newPatientDetails?.gender}
             </Typography>
           </div>
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {patientData?.patient_details?.email || patientData?.email}
+            {newPatientDetails?.email || "Email - N/A"}
           </Typography>
           <Typography className="details-patient-email">
             {patientData?.mobileNumber || patientData?.mobile_number}
           </Typography>
         </div>
         <div className="details-emailContainer">
-          <Button onClick={openPatientForm} variant="outlined"> Edit</Button>
+          <Typography className="details-patient-email">
+            {newPatientDetails?.abha_address}
+          </Typography>
+          <Typography className="details-patient-email">
+            {patientData?.abha_number}
+          </Typography>
+        </div>
+        <div className="details-emailContainer">
+          <Button onClick={openPatientForm} variant="outlined">
+            {" "}
+            Edit
+          </Button>
         </div>
       </div>
       {documents && (
@@ -533,7 +577,7 @@ const PatientDetailsHeader = ({ documents }) => {
               aria-labelledby="scroll-dialog-title"
               aria-describedby="scroll-dialog-description"
             ></PatientDocuments>
-          
+
             <HealthDocUpload>
               <CustomizedDialogs
                 open={pmrDialogOpen}
@@ -591,7 +635,10 @@ const PatientDetailsHeader = ({ documents }) => {
                     >
                       Add Image
                     </PrimaryButton>
-                    <PrimaryButton  style={{ marginRight: "10px" }} onClick={handleFollowUp}>
+                    <PrimaryButton
+                      style={{ marginRight: "10px" }}
+                      onClick={handleFollowUp}
+                    >
                       Follow Up Date
                     </PrimaryButton>
                     <PrimaryButton onClick={SaveDocument}>
@@ -639,7 +686,7 @@ const PatientDetailsHeader = ({ documents }) => {
                           </DemoContainer>
                         </LocalizationProvider> */}
                         <TextField
-                          sx={{ width: "100%", marginBottom: "20px"  }}
+                          sx={{ width: "100%", marginBottom: "20px" }}
                           type="date"
                           inputProps={{
                             min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
@@ -647,7 +694,7 @@ const PatientDetailsHeader = ({ documents }) => {
                           value={followUp}
                           onChange={handleDateChange}
                         />
-                        <PrimaryButton onClick={handleFollowUpClose} >
+                        <PrimaryButton onClick={handleFollowUpClose}>
                           Submit
                         </PrimaryButton>
                       </Box>
@@ -657,7 +704,6 @@ const PatientDetailsHeader = ({ documents }) => {
               </Dialog>
             </HealthDocUpload>
           </div>
-
         </>
       )}
       <SendPMR
@@ -665,21 +711,17 @@ const PatientDetailsHeader = ({ documents }) => {
         handleNotifyModalClose={handleNotifyModalClose}
         documentId={documentId}
       />
-       <Dialog
+      <Dialog
         open={formOpen}
         onClose={handleFormClose}
         // scroll="paper"
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
-      >  
+      >
         <CustomLoader open={showLoader} />
         <AppBar sx={{ position: "relative" }}>
           <Toolbar>
-            <Typography
-              sx={{ ml: 2, flex: 1 }}
-              variant="h6"
-              component="div"
-            >
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               Update Patient Details
             </Typography>
             <IconButton
@@ -692,14 +734,14 @@ const PatientDetailsHeader = ({ documents }) => {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <DialogContent > 
+        <DialogContent>
           <CustomSnackbar
             message={errorMessage || "Something went wrong"}
             open={showSnackbar}
             status={"error"}
             onClose={onSnackbarClose}
           />
-          <form> 
+          <form>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -742,7 +784,11 @@ const PatientDetailsHeader = ({ documents }) => {
                     onChange={handleChange}
                   >
                     <Grid>
-                      <FormControlLabel value="M" control={<Radio />} label="Male" />
+                      <FormControlLabel
+                        value="M"
+                        control={<Radio />}
+                        label="Male"
+                      />
                       <FormControlLabel
                         value="F"
                         control={<Radio />}
@@ -772,8 +818,8 @@ const PatientDetailsHeader = ({ documents }) => {
                   // required
                   fullWidth
                 />
-                </Grid>
-                <Grid item xs={12} md={6}>
+              </Grid>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Age(in years)"
                   name="age_in_years"
@@ -814,12 +860,16 @@ const PatientDetailsHeader = ({ documents }) => {
             <span style={{ color: "red" }}>
               {isMobileError ? "Please enter valid number" : ""}
             </span>
-            <br/>
+            <br />
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFormClose} className='cancel_btn'>Discard</Button>
-          <Button onClick={handleFormSubmit} className='ok_btn'>Submit</Button>
+          <Button onClick={handleFormClose} className="cancel_btn">
+            Discard
+          </Button>
+          <Button onClick={handleFormSubmit} className="ok_btn">
+            Submit
+          </Button>
         </DialogActions>
       </Dialog>
     </DetailsHeaderContainer>

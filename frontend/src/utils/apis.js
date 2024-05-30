@@ -62,5 +62,6 @@ export const apis = {
   sentAppointmentList: "v1/PMR/sendAppointementList",
   googleReview: "v1/PMR/sendGoogleReviewLink",
   listAppointmentByDate: "v1/appointment/listByDate",
-  fetchPatientDetails: "v1/patient"
+  fetchPatientDetails: "v1/patient",
+  appointmentAnalytics: "v1/appointmentAnalytics",
 };
