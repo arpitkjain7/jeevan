@@ -478,6 +478,7 @@ const PatientDetailsHeader = ({ documents }) => {
       console.log(patientObject.id);
       dispatch(getPatientDetails({ payload })).then((res) => {
         const detail = res?.payload;
+        sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
         console.log(detail);
         setNewPatientDetails(detail);
       });
@@ -545,7 +546,7 @@ const PatientDetailsHeader = ({ documents }) => {
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {newPatientDetails?.email || "NOT AVAILABLE"}
+            {newPatientDetails?.email || "Email - N/A"}
           </Typography>
           <Typography className="details-patient-email">
             {patientData?.mobileNumber || patientData?.mobile_number}

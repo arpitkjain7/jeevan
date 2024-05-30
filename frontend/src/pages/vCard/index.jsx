@@ -249,7 +249,7 @@ const VirtualCard = () => {
             <Grid
               xs={12}
               md={12}
-              item={1}
+              item
               sx={{
                 display: "flex",
                 justifyContent: "center",
