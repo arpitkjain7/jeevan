@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useRef } from "react";
 import MyTable from "../../components/TableComponent";
 import ArrowRight from "../../assets/arrows/arrow-right.svg";
+import HealthReport from "../HealthData";
 
 const DocViewerContainer = styled("div")(({ theme }) => ({
-  backgroundColor: theme.palette.primaryWhite,
   padding: theme.spacing(0, 6),
 }));
 const Views = styled("div")(({ theme }) => ({
@@ -20,8 +20,8 @@ const ErrorContainer = styled("div")(({ theme }) => ({
   display: "block",
   alignSelf: "center",
   textAlign: "center",
-  color: 'red'
-}))
+  color: "red",
+}));
 const PdfContainer = styled("div")(({ theme }) => ({
   flex: "1",
   height: "100%",
@@ -86,7 +86,7 @@ const DocViewer = ({ docData }) => {
 
   const columns = [
     { key: "careContext", header: "Care Context" },
-    { key: "hipId", header: "HIP ID"},
+    { key: "hipId", header: "HIP ID" },
     { key: "date", header: "Created At" },
     {
       key: "actions",
@@ -97,56 +97,54 @@ const DocViewer = ({ docData }) => {
           type: "link",
           onClick: () => {
             setConsentError(true);
-            setTimeout(()=> {
+            setTimeout(() => {
               setConsentError(false);
             }, 5000);
           },
         },
       ],
     },
-  ]
+  ];
   return (
     <DocViewerContainer>
       <Views>
         <SideList>
-          {docData?.length && 
+          {docData?.length &&
             docData?.map(
               (item) =>
                 item?.patient_name && (
                   <DiagnosisDetails
                     // onClick={() => onDocClick(item)}
                     className={
-                      selectedDocument === item?.patient_name ? "selected-vital" : ""
+                      selectedDocument === item?.patient_name
+                        ? "selected-vital"
+                        : ""
                     }
                   >
                     <DocList>{item?.patient_name}</DocList>
                     {/* <img src={ArrowRight} alt={`select-${item.type}`} /> */}
                   </DiagnosisDetails>
-                ))}
-            {docData?.length &&  (
-             <div className="table-container">
-                <MyTable
-                  columns={columns}
-                  data={docData}
-                  tableClassName="table-class"
-                  searchClassName="search-class"
-                />
-              </div>
+                )
             )}
+          {docData?.length && (
+            <div className="table-container">
+              <MyTable
+                columns={columns}
+                data={docData}
+                tableClassName="table-class"
+                searchClassName="search-class"
+              />
+            </div>
+          )}
         </SideList>
         {consentError && (
-            <ErrorContainer>
-              <h3>Error retrieving health record</h3>
-            </ErrorContainer>
-          )}
-        {/* <PdfContainer>
-          <embed
-            src={pdfUrl}
-            type="application/pdf"
-            width="100%"
-            height="700px"
-          />
-        </PdfContainer> */}
+          <ErrorContainer>
+            <h3>Error retrieving health record</h3>
+          </ErrorContainer>
+        )}
+        <PdfContainer>
+          <HealthReport />
+        </PdfContainer>
       </Views>
     </DocViewerContainer>
   );

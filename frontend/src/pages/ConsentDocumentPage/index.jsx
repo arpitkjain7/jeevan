@@ -37,6 +37,7 @@ const ConsentValue = styled("div")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(2),
 }));
+
 const ConsentDocumentPage = (consentListData) => {
   const [documentData, setDocumentData] = useState([]);
   const selectedConsent = sessionStorage.getItem("consentSelected");
@@ -53,11 +54,15 @@ const ConsentDocumentPage = (consentListData) => {
     //     type: item?.attachment?.contentType,
     //     id: item?.attachment?.id,
     //   };
-    const pname = {patient_name: data?.patient};
-    doclist.push(pname)
+    const pname = { patient_name: data?.patient };
+    doclist.push(pname);
     const contexts = data?.care_contexts?.care_context;
-     contexts?.map((item) => {
-      const docObj = { careContext: item?.careContextReference, date: convertDateFormat(data?.created_at, "dd-MM-yyyy"), hipId: data?.hip_id};
+    contexts?.map((item) => {
+      const docObj = {
+        careContext: item?.careContextReference,
+        date: convertDateFormat(data?.created_at, "dd-MM-yyyy"),
+        hipId: data?.hip_id,
+      };
       doclist.push(docObj);
     });
     setDocumentData(doclist);
@@ -71,10 +76,12 @@ const ConsentDocumentPage = (consentListData) => {
         const formattedConsentList = {
           createdAt: convertDateFormat(consentData?.created_at, "dd-MM-yyyy"),
           expireAt: convertDateFormat(consentData?.expire_at, "dd-MM-yyyy"),
-          status: consentData.status
+          status: consentData.status,
         };
         setConsentDetails(formattedConsentList);
-        setConsentPatientId(consentData?.care_contexts?.care_context[0]?.patientRefernce);
+        setConsentPatientId(
+          consentData?.care_contexts?.care_context[0]?.patientRefernce
+        );
         // const documentReference = consentData?.patient_data_transformed[0]?.DocumentReference?.content;
         createDocumentData(consentData);
       });
@@ -101,10 +108,10 @@ const ConsentDocumentPage = (consentListData) => {
       <ConsentDetailsWrapper>
         {details?.map((item) => (
           <ConsentHeader>
-             <ConsentLabel>{item.label}</ConsentLabel>
+            <ConsentLabel>{item.label}</ConsentLabel>
             <ConsentValue>{item.value}</ConsentValue>
           </ConsentHeader>
-        ))} 
+        ))}
       </ConsentDetailsWrapper>
       <DocViewer docData={documentData} />
     </ConsentDocsContainer>
