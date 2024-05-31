@@ -6,7 +6,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import EmailIcon from "@mui/icons-material/Email";
 import WorkIcon from "@mui/icons-material/Work";
 import LanguageIcon from "@mui/icons-material/Language";
-import vCardJs from "vcards-js";
+
 const VirtualCard = () => {
   const sampleData = {
     name: "Dr. Prasad Gurjar",
@@ -22,18 +22,22 @@ const VirtualCard = () => {
   };
 
   const handleVcardFunc = () => {
-    const vCard = vCardJs();
+    const vCardString = `
+    BEGIN:VCARD
+    VERSION:3.0
+    FN:${sampleData.name}
+    ORG:${sampleData.workPlace}
+    PHOTO;TYPE=JPEG;VALUE=URI:${sampleData.userImg}
+    TEL;TYPE=WORK,VOICE:${sampleData.mobile_number}
+    TITLE:${sampleData.designation}
+    URL:${sampleData.website}
+    END:VCARD
+        `.trim();
 
-    // Set vCard properties
-    vCard.firstName = sampleData.name;
-    vCard.organization = sampleData.workPlace;
-    vCard.photo.attachFromUrl(sampleData.userImg, "JPEG");
-    vCard.workPhone = sampleData.mobile_number;
-    vCard.title = sampleData.designation;
-    vCard.url = sampleData.website;
-    const vCardString = vCard.getFormattedString();
-
+    // Create a Blob from the vCard string
     const blob = new Blob([vCardString], { type: "text/vcard" });
+
+    // Create a link to download the vCard
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -41,6 +45,8 @@ const VirtualCard = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
+    // Log the vCard string to the console
     console.log(vCardString);
   };
 
