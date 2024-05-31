@@ -1212,7 +1212,7 @@ class PMRController:
                     **{
                         "id": document_id,
                         "pmr_id": pmr_request.pmr_id,
-                        "document_name": document_id,
+                        "document_name": "Prescription_digital",
                         "document_mime_type": self.mime_type_mapping.get("pdf"),
                         "document_type": "OPConsultation",
                         "document_type_code": "OP Consultation",
