@@ -109,7 +109,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
                 {Array.apply(null, Array(numPages))
                   .map((x, i)=>i+1)
                   .map(page =>
-                    <Page wrap pageNumber={page} renderTextLayer={true} width={width} height="auto" />
+                    <Page wrap pageNumber={page} renderTextLayer={false} width={width} height="auto" />
                 )}
               </Document>
             </>

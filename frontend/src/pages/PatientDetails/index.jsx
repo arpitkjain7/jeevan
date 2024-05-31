@@ -38,7 +38,6 @@ const TabsContainer = styled("div")(({ theme }) => ({
 
 const PatientDetails = () => {
   const [tab, setTab] = useState(0);
-  const [completed, setCompleted] = useState(false);
 
   const handleTabChange = (newValue) => {
     setTab(newValue);

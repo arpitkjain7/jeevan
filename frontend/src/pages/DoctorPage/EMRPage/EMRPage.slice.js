@@ -70,6 +70,11 @@ export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
   return response;
 });
 
+export const previewPMR = createAsyncThunk("previewPMR", async (payload) => {
+  const response = await apiRequest("POST", apis?.previewPMR, payload);
+  return response;
+});
+
 // export const verifyDemographics = createAsyncThunk("verifyPatientDemographics", async (payload) => {
 //   const response = await apiRequest("POST", apis?.verifyDemographics, payload);
 //   return response;

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import StepperComponent from "../../components/CustomStepper";
 import LoginPage from "../../components/Login";
-import HospitalList from "../HospitalList";
 import { styled } from "@mui/material";
 import banner from "../../assets/sidebar-login.png";
 
@@ -63,7 +61,7 @@ const BannerInfo = styled("h1")(({ theme }) => ({
   },
 }));
 
-const StyledDiv = styled("div")``;
+// const StyledDiv = styled("div")``;
 
 function SignInPage() {
   const [index, setIndex] = useState(0);

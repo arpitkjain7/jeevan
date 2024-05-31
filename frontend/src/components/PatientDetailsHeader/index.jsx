@@ -126,7 +126,8 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".details-emailContainer": {
     padding: theme.spacing(0, 6),
     [theme.breakpoints.down("sm")]: {
-      display: "inline",
+      // display: "inline",
+      padding: "0",
       marginBottom: "10px",
     },
   },
@@ -519,9 +520,11 @@ const PatientDetailsHeader = ({ documents }) => {
             {patientData?.mobileNumber || patientData?.mobile_number}
           </Typography>
         </div>
+        {!documents && (
         <div className="details-emailContainer">
           <Button onClick={openPatientForm} variant="outlined"> Edit</Button>
         </div>
+        )}
       </div>
       {documents && (
         <>

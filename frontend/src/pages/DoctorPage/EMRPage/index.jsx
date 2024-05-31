@@ -19,24 +19,25 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getEMRId,
   postEMR,
+  previewPMR,
   searchVitalsDetails,
 } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
-import { PDFViewer, pdf } from "@react-pdf/renderer";
-import PMRPdf from "../../../components/PMRPdf";
 import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import { calculateBMI } from "../../../utils/utils";
 import CustomizedDialogs from "../../../components/Dialog";
 import { pdfjs } from 'react-pdf';
 import { Document, Page } from "react-pdf";
-import "react-pdf";
 import CustomLoader from "../../../components/CustomLoader";
 import { format } from "date-fns";
 import SendPMR from "../SendPMR";
 import CustomSnackbar from "../../../components/CustomSnackbar";
+import "react-pdf";
+// import "../node_modules/react-pdf/src/Page/AnnotationLayer.css";
+// import "react-pdf/src/Page/TextLayer.css";
 
-const isMobile = window.innerWidth < 1000;
+const isMobile = window.innerWidth < 600;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
   ({ theme }) => `
@@ -445,6 +446,7 @@ const PatientEMRDetails = (props) => {
   const navigate = useNavigate();
   const currentPatient = JSON.parse(patient);
   const [emrId, setEMRId] = useState("");
+  const [isFinishDisabled, setIsFinishDisabled] = useState(true);
   const [showLoader, setShowLoader] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [symptomOptions, setSymptomOptions] = useState("");
@@ -456,10 +458,11 @@ const PatientEMRDetails = (props) => {
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
   const [numPages, setNumPages] = useState(null);
-  // const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
+  const [documentBytes, setDocumentBytes] = useState("");
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -474,6 +477,7 @@ const PatientEMRDetails = (props) => {
   });
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
   // const [retryCount, setRetryCount] = useState(0);
   // const [functionCalled, setFunctionCalled] = useState(false); 
   // const [gatewayRequestId, setGatewayRequestId]= useState("");
@@ -530,9 +534,13 @@ const PatientEMRDetails = (props) => {
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
         setShowLoader(false);
-        setEMRId(res?.payload?.pmr_details.id);
+        setEMRId(res?.payload?.pmr_details?.id);
+        res?.payload?.document_details?.map(data => {
+          if(data.document_type === "OPConsultation")
+            setDocumentId(data?.document_id);
+        })
         sessionStorage.setItem("pmrID", res?.payload?.pmr_details.id);
-        const pmrDetails = res?.payload?.pmr_details.pmr_data;
+        const pmrDetails = res?.payload?.pmr_details?.pmr_data;
         setAdvices(res?.payload?.pmr_details?.advices);
         setPrescriptionComment(res?.payload?.pmr_details?.notes);       
         // { res.payload?.appointment_details?.followup_date !== null ? 
@@ -1613,21 +1621,20 @@ const PatientEMRDetails = (props) => {
     if (key === "vital") {
       payload[key] = valueArr;
     }
-
     setSubmitEMRPayload(payload);
   };
 
-  const createPdfBlob = async (patientDetails) => {
-    const pdfBlob = await pdf(
-      <PMRPdf patientData={patientDetails || patientData} />
-    ).toBlob();
+  // const createPdfBlob = async (patientDetails) => {
+  //   const pdfBlob = await pdf(
+  //     <PMRPdf patientData={patientDetails || patientData} />
+  //   ).toBlob();
 
-    const pdfFile = new File([pdfBlob], "patient_record.pdf", {
-      type: "application/pdf",
-    });
+  //   const pdfFile = new File([pdfBlob], "patient_record.pdf", {
+  //     type: "application/pdf",
+  //   });
 
-    return pdfFile;
-  };
+  //   return pdfFile;
+  // };
   const handleNotifyModalClose = () => {
     setNotifyModal(false);
   };
@@ -1661,28 +1668,27 @@ const PatientEMRDetails = (props) => {
       pmr_request,
       appointment_request,
     };
-    const blob = await createPdfBlob();
-    dispatch(submitPdf({ blob, pdfPayload }))
-      .then((pdfResponse) => {
+    // const blob = await createPdfBlob();
+    // dispatch(submitPdf({ blob, pdfPayload }))
+    //   .then((pdfResponse) => {
         dispatch(postEMR(allData))
           .then((res) => {
             setShowLoader(false);
             if (res?.meta?.requestStatus === "rejected") {
               setPmrDialogOpen(true);
             } else {
-              setDocumentId(pdfResponse?.payload?.data?.document_id);
-              setNotifyModal(true);
-              
+              // setDocumentId(pdfResponse?.payload?.data?.document_id);
+              setNotifyModal(true);        
             }
           })
           .catch((error) => {
             console.log(error);
           })
-        }
-      )
-      .catch((error) => {
-        console.log(error);
-      });
+      //   }
+      // )
+      // .catch((error) => {
+      //   console.log(error);
+      // });
     // const currentPatient = JSON.parse(
     //   sessionStorage.getItem("selectedPatient")
     // );
@@ -1708,7 +1714,7 @@ const PatientEMRDetails = (props) => {
     });
     return filteredvital;
   };
-  const [pdfUrl, setPdfUrl] = useState(null);
+ 
   const submitEMR = async () => {
     const symptomsEMR = symptomObj(symptomsSpecs);
     const diagnosisEMR = diagnosisObj(diagnosisSpecs);
@@ -1769,7 +1775,6 @@ const PatientEMRDetails = (props) => {
       createPayload(item?.key, item?.dataArr);
     });
     const hospital = sessionStorage?.getItem("selectedHospital");
-    // const patient = sessionStorage?.getItem("selectedPatient");
     let patientDetails = {};
     if (hospital) {
       const currentHospital = JSON.parse(hospital);
@@ -1790,6 +1795,7 @@ const PatientEMRDetails = (props) => {
         patientNumber:
           currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
+        patientUid: currentPatient?.patientUid || "-",
         patientAgeInYears: currentPatient?.patient_details?.age_in_years || currentPatient?.age_in_years,
         patientAgeInMonths: currentPatient?.patient_details?.age_in_months || currentPatient?.age_in_months
       };
@@ -1801,7 +1807,7 @@ const PatientEMRDetails = (props) => {
       pdfFormattedData["followup"] = followUp;
     }
     setPdfData(pdfFormattedData);
-    setPatientData(patientDetails);
+    setPatientData(true);
 
     sessionStorage.setItem("patientDetailsPdf", JSON.stringify(patientDetails));
     sessionStorage.setItem(
@@ -1810,17 +1816,99 @@ const PatientEMRDetails = (props) => {
     );
 
     setPmrFinished(true);
+    // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+    
     setStep("preview");
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
-    // console.log(pdfjs.version);
-    // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    //   'pdfjs-dist/build/pdf.worker.min.js',
-    //   import.meta.url,
-    // ).toString();
-    // pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-    let pdf_data = await createPdfBlob(patientDetails);
-    const pdfUrls = URL.createObjectURL(pdf_data);
-    setPdfUrl(pdfUrls);
+    // let pdf_data = await createPdfBlob(patientDetails);
+    // const pdfUrls = URL.createObjectURL(pdf_data);
+    // setPdfUrl(pdfUrls);
+    let appointment_request;
+    if (currentPatient?.followup_date) {
+      appointment_request = {
+        appointment_id: currentPatient?.id,
+        followup_date: currentPatient?.followup_date, //convertDateFormat(followUp, "yyyy-MM-dd"),
+        consultation_status: "Completed",
+      };
+    } else {
+      appointment_request = {
+        appointment_id: currentPatient?.id,
+        consultation_status: "Completed",
+      };
+    }
+    console.log(documentId);
+    const payload = {
+    pmr_metadata: {
+      doctor_name: patientDetails?.doctorName,
+      patient_name: patientDetails?.patientName,
+      hospital_name: patientDetails?.hospitalName,
+      patient_uid: patientDetails?.patientUid,
+      patient_gender: patientDetails?.patientGender,
+      document_id: documentId,
+      patient_age_years: (patientDetails?.patientAgeInYears)?.toString(),
+      patient_age_months: (patientDetails?.patientAgeInMonths)?.toString(),
+      patient_contact_number: patientDetails?.patientNumber,
+      patient_email: patientDetails?.patientEmail,
+    },
+    pmr_request: {
+      pmr_id: emrId,
+      vital: {
+        height: pdfFormattedData?.vital?.height,
+        weight: pdfFormattedData?.vital?.weight,
+        pulse: pdfFormattedData?.vital?.pulse,
+        body_temperature: pdfFormattedData?.vital?.body_temperature,
+        oxygen_saturation: pdfFormattedData?.vital?.oxygen_saturation,
+        respiratory_rate: pdfFormattedData?.vital?.respiratory_rate,
+        body_mass_index: pdfFormattedData?.vital?.body_mass_index,
+        systolic_blood_pressure: pdfFormattedData?.vital?.systolic_blood_pressure,
+        diastolic_blood_pressure: pdfFormattedData?.vital?.diastolic_blood_pressure
+      },
+      examination_findings: pdfFormattedData?.examination_findings,
+      diagnosis: pdfFormattedData?.diagnosis,
+      symptom: pdfFormattedData?.symptom,
+      medication: pdfFormattedData?.medication,
+      lab_investigation: pdfFormattedData?.lab_investigation,
+      medical_history: pdfFormattedData?.medical_history,
+      advice: pdfFormattedData?.advice,
+      notes: pdfFormattedData?.notes,
+    },    
+    appointment_request
+    }
+    console.log(payload);
+    dispatch(previewPMR(payload)).then(response => {
+      if(response?.payload){
+        setDocumentId(response?.payload?.document_id);
+        console.log(response?.payload?.document_id);
+        setDocumentBytes(response?.payload?.data);
+        pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+        if (response?.payload?.data) {
+          const decodedByteCode = atob(response?.payload?.data);
+          const byteNumbers = new Array(decodedByteCode.length);
+          for (let i = 0; i < decodedByteCode.length; i++) {
+            byteNumbers[i] = decodedByteCode.charCodeAt(i);
+          }
+          const blobData = new Blob([new Uint8Array(byteNumbers)], {
+            type: "application/pdf",
+          });
+          // const pdfUrls = URL.createObjectURL(blobData);
+          setPdfUrl(URL.createObjectURL(blobData));
+          return () => {
+            URL.revokeObjectURL(pdfUrl);
+          };
+        }
+      }else return;
+    });
+
+    
+
+    //     setIsFinishDisabled(false);
+    //     setOpen(true);
+    //   } else {
+    //     setIsFinishDisabled(true);
+    //     return;
+    //   }
+    // }).catch((error) => {
+    //     console.log(error);
+    //   })
   };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
@@ -3345,6 +3433,7 @@ const PatientEMRDetails = (props) => {
       )}
       {pmrFinished && step === "preview" && (
         <PdfDisplayWrapper>
+           
           {/* <PageTitle>Preview</PageTitle>
           <PageSubText>
             Closely Review the Details Before Confirming
@@ -3355,19 +3444,21 @@ const PatientEMRDetails = (props) => {
             documentId={documentId}
           />          
           {!isMobile && (
-            <div style={{ position: "absolute", width: "-webkit-fill-available"}}>
-              <PDFViewerWrapper>
-                <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
-                  <PMRPdf patientData={patientData} />
-                </PDFViewer>
-              </PDFViewerWrapper>
-              <PDFButtonWrapper>
-                <SecondaryButton onClick={editPMR} style={{ padding: "8px 16px" }}>Edit</SecondaryButton>
-                <PrimaryButton onClick={postPMR}>
-                  Finish Prescription
-                </PrimaryButton>
-              </PDFButtonWrapper>
-            </div>
+            <PDFViewerWrapper>             
+              <div style={{ width: "100%", height: "100%" }} zoom={1}>
+                {/* <PMRPdf 
+                  patientData={patientData} 
+                 setIsFinishDisabled={setIsFinishDisabled}
+                /> */}
+                <embed style={{ width: "100%", height: height }} src={`data:application/pdf;base64,${documentBytes}`}/>
+              </div>
+            <PDFButtonWrapper>
+              <SecondaryButton onClick={editPMR} style={{ padding: "8px 16px" }}>Edit</SecondaryButton>
+              <PrimaryButton onClick={postPMR}>
+                Finish Prescription
+              </PrimaryButton>
+            </PDFButtonWrapper>
+            </PDFViewerWrapper>
           )}
           {isMobile && (
             <>
@@ -3385,26 +3476,18 @@ const PatientEMRDetails = (props) => {
                 </PrimaryButton>
               </div>
               <PDFViewerWrapper>
-                <PDFViewer>
-                  <Document
-                    file={pdfUrl}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                  >
-                    {Array.apply(null, Array(numPages))
+                {/* <PDFViewer> */}
+                <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} >
+                  {Array.apply(null, Array(numPages))
                     .map((x, i)=>i+1)
-                    .map((page, index) =>
-                      <Page
-                        pageNumber={page}
-                        key={index}
-                        renderTextLayer={true}
-                        width={width - 15}
-                      />
-                    )}
-                  </Document>
-                </PDFViewer>
+                    .map(page =>
+                      <Page wrap pageNumber={page} renderTextLayer={false} width={width} height="auto" />
+                  )}
+                </Document>
+                {/* </PDFViewer> */}
               </PDFViewerWrapper>
             </>
-          )}
+          )} 
         </PdfDisplayWrapper>
       )}
     </PatientEMRWrapper>

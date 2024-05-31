@@ -79,8 +79,7 @@ export const convertTimeSlot = (timeSlot24hr) => {
 };
 
 export const validateAbhaAddress = (address) => {
-  const regex = /^[A-Za-z0-9]+([_.][A-Za-z0-9]+)*$/;
-  // console.log(address);
+  // const regex = /^[A-Za-z0-9]+([_.][A-Za-z0-9]+)*$/;
   return (
     // /^[\w!@#$%^&*-_./?]{8,18}$/.test(address)
     /^[a-zA-Z0-9](?=.*[a-zA-Z0-9!@#$%^&*._])([a-zA-Z0-9!@#$%^&*._]{6,18}[a-zA-Z0-9])$/.test(address)

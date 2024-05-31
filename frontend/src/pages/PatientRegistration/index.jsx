@@ -3,9 +3,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  TextField,
   IconButton,
   styled,
   RadioGroup,
@@ -18,11 +16,9 @@ import React, { useEffect, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  gatewayInteraction,
   getAbhaProfile,
   patientAuthInit,
   patientAuthVerifyOTP,
-  patientFetchModes,
   patientAuthResendOtp,
   registerAadhaarAbha,
   suggestAbhaAddress,
@@ -46,7 +42,6 @@ import CustomSnackbar from "../../components/CustomSnackbar";
 import CustomLoader from "../../components/CustomLoader";
 import AbhaModeSelection from "../../components/AbhaModeSelection";
 import AbhaVerification from "../../components/AbhaVerification";
-import { validateAbhaAddress } from "../../utils/utils";
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -121,9 +116,9 @@ const PatientRegistration = () => {
   const [sixDigitOTP, setSixDigitOTP] = useState("");
   const [number, setNumber] = useState();
   const dataState = useSelector((state) => state);
-  const aadhaarData = dataState?.PatientRegistartion?.registerAadhaar;
+  // const aadhaarData = dataState?.PatientRegistartion?.registerAadhaar;
   const [aadhaarDataTxn, setAadhaarDataTxn] = useState("");
-  const phoneData = dataState?.PatientRegistartion?.registerPhone;
+  // const phoneData = dataState?.PatientRegistartion?.registerPhone;
   const [phoneDataTxn, setPhoneDataTxn] = useState("");
   const [stepAbha, setStepAbha] = useState(false);
   const [stepOne, setStepOne] = useState(false);
@@ -256,7 +251,7 @@ const PatientRegistration = () => {
     setConsentCount(0);
   };
 
-  const abha_pattern = new RegExp(/^[0-9]{14}$/);
+  // const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
   const mobile_pattern = new RegExp(/^[789]\d{9}$/);
   const handleOptionChange = (event) => {
@@ -337,7 +332,7 @@ const PatientRegistration = () => {
   const handleNumberChange = (event) => {
     const inputValue = event.target.value;
     setNumber(inputValue);
-    let new_Number_length = inputValue.length;
+    // let new_Number_length = inputValue.length;
     const isMobileValid = mobile_pattern.test(inputValue);
     if (!isMobileValid) {
       //new_Number_length > 10 || new_Number_length < 10
@@ -891,19 +886,15 @@ const PatientRegistration = () => {
           <DialogContent dividers>
           {abhaAccounts.length > 0 && abhaAccounts.map((item, index) => {
             return(
-            <FormControl>
-              <span style={{ fontWeight: "600" }}>{item.name}</span>
-              <img src={item?.profilephoto} width="100" height="100" />
+            <FormControl key={index} style={{ padding: "0 25px 25px", margin: "0 10px"}}>
+              <embed style={{ width:"100px", height:"100px" }} src={`data:image/jpeg;base64,${item?.profilePhoto}`}/>
+              <span style={{ fontWeight: "600" }}>{item?.name}</span>
+              <span>{item?.preferredAbhaAddress}</span>
               <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
                 value={abhaNumber}
                 onChange={handleAbhaNumberChange}
-                style={{ marginTop: "10px" }}
               >
-                <FormControlLabel key={index} value={item.ABHANumber} control={<Radio size="small"/>} label={item.ABHANumber} />
-                <FormControlLabel key={index} value={item.abha_address} control={<Radio size="small"/>} label={item.abha_address} />
+                <FormControlLabel key={index} value={item?.ABHANumber} control={<Radio size="small"/>} label={item?.ABHANumber} />
               </RadioGroup>
             </FormControl>
            )

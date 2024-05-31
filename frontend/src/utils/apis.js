@@ -61,5 +61,6 @@ export const apis = {
   searchAbha: "v1/HID/searchAbha",
   googleReview: "v1/PMR/sendGoogleReviewLink",
   listAppointmentByDate: "v1/appointment/listByDate",
-  fetchPatientDetails: "v1/patient"
+  fetchPatientDetails: "v1/patient",
+  previewPMR: "v1/PMR/previewPMR",
 };

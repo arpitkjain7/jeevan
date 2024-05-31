@@ -93,7 +93,7 @@ const searchInputStyle = {
 const PatientPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
-  const [hospitalDetails, setHospitalDetails] = useState({});
+  // const [hospitalDetails, setHospitalDetails] = useState({});
   const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -335,7 +335,7 @@ const PatientPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      setHospitalDetails(currentHospital);
+      // setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
