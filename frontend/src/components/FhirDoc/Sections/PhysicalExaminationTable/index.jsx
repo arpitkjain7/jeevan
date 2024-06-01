@@ -64,7 +64,7 @@ function PhysicalExaminationTable({ data }) {
                       month: "2-digit",
                       day: "2-digit",
                     })} */}
-                    04/01/24
+                    Date?
                   </TableCell>
                   <TableCell align="right">{Values.code.text}</TableCell>
                   <TableCell align="right">

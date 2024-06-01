@@ -74,7 +74,7 @@ function FhirDoc() {
                 Date:
               </Typography>
               <Typography variant="body1" fontSize={14}>
-                Values?
+                {DocData.Composition[0].date}
               </Typography>
             </div>
             <div className="documentInfo">
@@ -94,8 +94,7 @@ function FhirDoc() {
                 fontSize={14}
                 sx={{ textTransform: "uppercase" }}
               >
-                {DocData.DocumentReference[0].status} or{" "}
-                {DocData.DocumentReference[0].docStatus}
+                {DocData.Composition[0].status}
               </Typography>
             </div>
           </div>
