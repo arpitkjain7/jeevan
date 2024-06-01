@@ -28,8 +28,8 @@ const ReportCardSection = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-function InvestigationAdviceTable({ data }) {
-  // console.log("physical:", data);
+function MedicationTable({ data }) {
+  // console.log("condition:", data);
   if (!Array.isArray(data)) {
     console.error('Invalid prop: "data" is not an array.');
     return null;
@@ -37,42 +37,42 @@ function InvestigationAdviceTable({ data }) {
   return (
     <>
       <Typography variant="h6" fontSize={18} fontWeight={600}>
-        #Physical Exam Section: Physical Examinations
+        #Medical Summary Document: Medications
       </Typography>
       <ReportCardSection>
         <TableTitle>
-          <Typography variant="h6">Observations:</Typography>
+          <Typography variant="h6">Medication:</Typography>
         </TableTitle>
         <TableContainer>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
             <TableHeader>
               <TableRow>
                 <TableCell>Date</TableCell>
-                <TableCell align="right">Observation</TableCell>
-                <TableCell align="right">Value</TableCell>
-                <TableCell align="right">Status And Interpretation</TableCell>
+                <TableCell align="right">Medication</TableCell>
+                <TableCell align="right">Dosing Instruction</TableCell>
+                <TableCell align="right">Aditional Info</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.map((Values) => (
+              {data?.map((Value) => (
                 <TableRow
-                  key={Values.id}
+                  key={Value.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    {/* {new Date(Value.Date).toLocaleDateString("en-GB", {
-                        year: "2-digit",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })} */}
-                    04/01/24
+                    {new Date(Value.authoredOn).toLocaleDateString("en-GB", {
+                      year: "2-digit",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
                   </TableCell>
-                  <TableCell align="right">{Values.code.text}</TableCell>
                   <TableCell align="right">
-                    {Values?.valueQuantity?.value &&
-                      `${Values.valueQuantity.value} ${Values.valueQuantity.unit}`}
+                    {Value.medicationCodeableConcept.text}
                   </TableCell>
-                  <TableCell align="right">{Values.status}</TableCell>
+                  <TableCell align="right">
+                    {Value.dosageInstruction[0].text}
+                  </TableCell>
+                  <TableCell align="right"></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -82,4 +82,4 @@ function InvestigationAdviceTable({ data }) {
     </>
   );
 }
-export default InvestigationAdviceTable;
+export default MedicationTable;

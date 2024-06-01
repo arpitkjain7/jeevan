@@ -1,10 +1,10 @@
 import { Typography, styled } from "@mui/material";
 import React from "react";
-import pdfData from "../../assets/jsonFile/HealthData.json";
-import ConditionTable from "./Sections/ConditionTable";
+import ComplaintTable from "./Sections/ComplaintTable";
 import MedicalHistoryTable from "./Sections/MedicalHistoryTable";
 import MedicationTable from "./Sections/MedicationTable";
 import PhysicalExaminationTable from "./Sections/PhysicalExaminationTable";
+import AttachmentSection from "./Sections/Attachments";
 
 const HealthReportBodyContainer = styled("div")(({ theme }) => ({
   width: "800px",
@@ -45,8 +45,10 @@ const ReportSections = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(5),
 }));
 
-function HealthReport() {
-  const DocData = pdfData[0];
+function FhirDoc() {
+  const FhirDocDetails = JSON.parse(sessionStorage?.getItem("FhirDocDetails"));
+  const DocData = FhirDocDetails?.patient_data_transformed[0];
+  console.log("DocData", DocData);
   return (
     <HealthReportBodyContainer>
       <HealthReportHeader>
@@ -55,7 +57,7 @@ function HealthReport() {
           fontSize={25}
           sx={{ textTransform: "uppercase", mb: 2 }}
         >
-          Hospital Name
+          {FhirDocDetails.hip_name}
         </Typography>
         <div className="ReportInfo">
           <div className="documentInfo">
@@ -72,7 +74,7 @@ function HealthReport() {
                 Date:
               </Typography>
               <Typography variant="body1" fontSize={14}>
-                Values
+                Values?
               </Typography>
             </div>
             <div className="documentInfo">
@@ -85,13 +87,14 @@ function HealthReport() {
             </div>
             <div className="documentInfo">
               <Typography variant="body1" fontSize={14} fontWeight={600}>
-                Final:
+                Status:
               </Typography>
               <Typography
                 variant="body1"
                 fontSize={14}
                 sx={{ textTransform: "uppercase" }}
               >
+                {DocData.DocumentReference[0].status} or{" "}
                 {DocData.DocumentReference[0].docStatus}
               </Typography>
             </div>
@@ -104,13 +107,11 @@ function HealthReport() {
             Encounter:
           </Typography>
           <ul style={{ listStyle: "circle black" }}>
-            {DocData.Encounter.map((encounter) => (
-              <li key={`${encounter.id}`}>
-                <Typography variant="body1" fontSize={14}>
-                  {`${encounter.class.display},${encounter.status}`}
-                </Typography>
-              </li>
-            ))}
+            <li>
+              <Typography variant="body1" fontSize={14}>
+                {`${DocData.Encounter[0].class.display},${DocData.Encounter[0].status}`}
+              </Typography>
+            </li>
           </ul>
         </div>
         <ReportSections>
@@ -118,7 +119,7 @@ function HealthReport() {
             <MedicationTable data={DocData.MedicationRequest} />
           </ReportSections>
           <ReportSections>
-            <ConditionTable data={DocData.Condition} />
+            <ComplaintTable data={DocData.Condition} />
           </ReportSections>
           <ReportSections>
             <MedicalHistoryTable data={DocData.Condition} />
@@ -126,10 +127,13 @@ function HealthReport() {
           <ReportSections>
             <PhysicalExaminationTable data={DocData.Observation} />
           </ReportSections>
+          <ReportSections>
+            <AttachmentSection data={DocData.DocumentReference} />
+          </ReportSections>
         </ReportSections>
       </HealthReportBody>
     </HealthReportBodyContainer>
   );
 }
 
-export default HealthReport;
+export default FhirDoc;

@@ -25,6 +25,7 @@ export const apis = {
   uploadPmrPdf: "v1/PMR/uploadPrescription",
   getVitalDetail: "v1/patient/getVitals",
   listConsent: "v1/HIU/listConsent",
+  getConsentDetails: "v1/HIU/getConsentDetails",
   consentDetails: "v1/HIU/getCareContext",
   getPmrList: "v1/PMR/list",
   getPmrDocs: "v1/PMR/listDocuments",
@@ -62,5 +63,5 @@ export const apis = {
   sentAppointmentList: "v1/PMR/sendAppointementList",
   googleReview: "v1/PMR/sendGoogleReviewLink",
   listAppointmentByDate: "v1/appointment/listByDate",
-  fetchPatientDetails: "v1/patient"
+  fetchPatientDetails: "v1/patient",
 };

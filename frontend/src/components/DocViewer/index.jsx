@@ -4,8 +4,10 @@ import { List, ListItem, styled } from "@mui/material";
 import { useState } from "react";
 import { useRef } from "react";
 import MyTable from "../../components/TableComponent";
-import ArrowRight from "../../assets/arrows/arrow-right.svg";
-import HealthReport from "../HealthData";
+import RightArrow from "../../assets/arrows/arrow-right.svg";
+import { fetchFhirDocDetails } from "../FhirDoc/fhirDoc.slice";
+import { useDispatch } from "react-redux";
+import FhirDoc from "../FhirDoc";
 
 const DocViewerContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 6),
@@ -50,6 +52,7 @@ const DocList = styled("p")(({ theme }) => ({
 }));
 
 const DocViewer = ({ docData }) => {
+  const dispatch = useDispatch();
   const [byteCode, setByteCode] = useState("");
   const [selectedDocument, setSelectedDocument] = useState("");
   const pdfViewerRef = useRef(null);
@@ -59,6 +62,10 @@ const DocViewer = ({ docData }) => {
   };
   const [pdfUrl, setPdfUrl] = useState(null);
   const [consentError, setConsentError] = useState(false);
+  const [showHealthReport, setShowHealthReport] = useState(false);
+  const selectedConsent = sessionStorage.getItem("consentSelected");
+  const currentConsent = JSON.parse(selectedConsent);
+  const consentId = currentConsent?.id;
   const convertToDoc = () => {};
 
   useEffect(() => {
@@ -93,13 +100,21 @@ const DocViewer = ({ docData }) => {
       header: "",
       actions: [
         {
-          link: <img src={ArrowRight} />,
-          type: "link",
+          type: "icon",
+          icon: <img src={RightArrow} alt="details" />,
           onClick: () => {
-            setConsentError(true);
-            setTimeout(() => {
-              setConsentError(false);
-            }, 5000);
+            dispatch(fetchFhirDocDetails(consentId)).then((res) => {
+              console.log("res", res);
+              if (res?.payload) {
+                sessionStorage?.setItem(
+                  "FhirDocDetails",
+                  JSON.stringify(res.payload)
+                );
+                setShowHealthReport(true);
+              } else {
+                setConsentError(true);
+              }
+            });
           },
         },
       ],
@@ -137,14 +152,17 @@ const DocViewer = ({ docData }) => {
             </div>
           )}
         </SideList>
-        {consentError && (
+        {consentError ? (
           <ErrorContainer>
             <h3>Error retrieving health record</h3>
           </ErrorContainer>
+        ) : (
+          showHealthReport && (
+            <PdfContainer>
+              <FhirDoc />
+            </PdfContainer>
+          )
         )}
-        <PdfContainer>
-          <HealthReport />
-        </PdfContainer>
       </Views>
     </DocViewerContainer>
   );

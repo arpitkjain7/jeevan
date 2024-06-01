@@ -28,7 +28,7 @@ const ReportCardSection = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-function ConditionTable({ data }) {
+function MedicalHistoryTable({ data }) {
   // console.log("condition:", data);
   if (!Array.isArray(data)) {
     console.error('Invalid prop: "data" is not an array.');
@@ -37,11 +37,11 @@ function ConditionTable({ data }) {
   return (
     <>
       <Typography variant="h6" fontSize={18} fontWeight={600}>
-        #Chief Complaint Section: Cheif Complaints
+        #History And Physical Report: Medical History
       </Typography>
       <ReportCardSection>
         <TableTitle>
-          <Typography variant="h6">Conditions:</Typography>
+          <Typography variant="h6">Condition:</Typography>
         </TableTitle>
         <TableContainer>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
@@ -54,25 +54,30 @@ function ConditionTable({ data }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.map((Value) => (
-                <TableRow
-                  key={Value.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {new Date(Value.recordedDate).toLocaleDateString("en-GB", {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
-                  </TableCell>
-                  <TableCell align="right">{Value.code.text}</TableCell>
-                  <TableCell align="right">
-                    {Value.clinicalStatus.text}
-                  </TableCell>
-                  <TableCell align="right">Empty</TableCell>
-                </TableRow>
-              ))}
+              {data
+                ?.filter((Value) => Value.clinicalStatus.text === "HISTORY")
+                .map((Value) => (
+                  <TableRow
+                    key={Value.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {new Date(Value.recordedDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          year: "2-digit",
+                          month: "2-digit",
+                          day: "2-digit",
+                        }
+                      )}
+                    </TableCell>
+                    <TableCell align="right">{Value.code.text}</TableCell>
+                    <TableCell align="right">
+                      {Value.clinicalStatus.text}
+                    </TableCell>
+                    <TableCell align="right"></TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -80,4 +85,4 @@ function ConditionTable({ data }) {
     </>
   );
 }
-export default ConditionTable;
+export default MedicalHistoryTable;
