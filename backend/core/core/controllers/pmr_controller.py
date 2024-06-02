@@ -198,9 +198,21 @@ class PMRController:
             appointment_details = self.CRUDAppointments.read(
                 request_dict.get("appointment_id")
             )
+            document_obj_list = self.CRUDPatientMedicalDocuments.read_by_pmr_id(
+                pmr_id=pmr_id
+            )
+            document_details = []
+            for document_obj in document_obj_list:
+                document_details.append(
+                    {
+                        "document_id": document_obj.get("id"),
+                        "document_type": document_obj.get("document_type"),
+                    }
+                )
             return {
                 "pmr_details": pmr_details,
                 "appointment_details": appointment_details,
+                "document_details": document_details,
             }
         except Exception as error:
             logging.error(f"Error in PMRController.create_pmr_v2 function: {error}")
@@ -1200,7 +1212,7 @@ class PMRController:
                     **{
                         "id": document_id,
                         "pmr_id": pmr_request.pmr_id,
-                        "document_name": document_id,
+                        "document_name": "Prescription_digital",
                         "document_mime_type": self.mime_type_mapping.get("pdf"),
                         "document_type": "OPConsultation",
                         "document_type_code": "OP Consultation",

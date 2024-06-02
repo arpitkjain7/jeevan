@@ -2088,7 +2088,8 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 ],
             )
             composition = Composition.construct(
-                id=str(uuid.uuid4()),
+                # id=str(uuid.uuid4()),
+                id = pmr_obj.get('id'),
                 title="Consultation Report",
                 date=slot_obj["date"],
                 status="final",  # final | amended | entered-in-error | preliminary,

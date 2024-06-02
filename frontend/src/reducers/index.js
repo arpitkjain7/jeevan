@@ -7,7 +7,7 @@ import AppointmentFormReducer from "../components/AppointmentForm/AppointmentFor
 import ApppointmentSlotsReducer from "../components/ScheduleAppointment/scheduleAppointment.slice";
 import appointmentListReducer from "../pages/AppointmentPage/AppointmentPage.slice";
 import EMRPageSlice from "../pages/DoctorPage/EMRPage/EMRPage.slice";
-
+import patientDetailsReducer from "../pages/PatientDetails/patientDetailsSlice";
 const rootReducer = combineReducers({
   auth: authReducer,
   hospitalList: listReducer,
@@ -16,7 +16,8 @@ const rootReducer = combineReducers({
   PatientRegistartion: PatientRegistrationReducer,
   appointmentForm: AppointmentFormReducer,
   appointmentSlots: ApppointmentSlotsReducer,
-  SearchedEMRVitals: EMRPageSlice
+  SearchedEMRVitals: EMRPageSlice,
+  getPatientDetails: patientDetailsReducer,
 });
 
 export default rootReducer;
