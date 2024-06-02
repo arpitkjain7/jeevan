@@ -427,6 +427,7 @@ class CRUDAppointments:
                         "patient_contact_number": patient_obj_dict.get("mobile_number"),
                         "doctor_name": doctor_obj_dict.get("doc_name"),
                         "hip_name": hip_obj_dict.get("name"),
+                        "hip_id": hip_obj_dict.get("hip_id"),
                         "hip_contact_number": hip_obj_dict.get("hip_contact_number"),
                     }
                     joined_result.append(details_obj)
