@@ -3,6 +3,7 @@ from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core import logger
 from datetime import datetime, timezone, timedelta
+from commons.auth import encodePayload
 import os
 from dateutil import parser
 
@@ -104,6 +105,24 @@ class AppointmentsController:
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_all_appointments_by_date function: {error}"
+            )
+            raise error
+
+    def get_all_followups_by_date(self, appointment_date):
+        try:
+            logging.info("executing  get_all_followups_by_date function")
+            logging.info(f"{appointment_date=}")
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+            follow_up_obj = self.CRUDAppointments.read_all_followups_by_date(
+                followup_date=appointment_date
+            )
+            logging.info(f"{follow_up_obj=}")
+            logging.info("Encrypting the payload")
+            encrypted_payload = encodePayload(payload={"data": follow_up_obj})
+            return {"follow_up": encrypted_payload}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_followups_by_date function: {error}"
             )
             raise error
 

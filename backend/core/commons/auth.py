@@ -22,6 +22,10 @@ def signJWT(username: str, user_role: str, department: str, hip_id: str):
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
+def encodePayload(payload):
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
 def decodeJWT(token: str):
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
