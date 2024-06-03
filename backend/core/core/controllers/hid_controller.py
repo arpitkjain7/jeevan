@@ -1482,21 +1482,21 @@ class HIDController:
                 + str(current_time.microsecond)[:3]
                 + "Z"
             )
-
+            request_id = f"{str(uuid.uuid1())}"
             resp, resp_code = APIInterface().post(
                 route=generate_otp_url,
                 data=json.dumps(payload),
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
-                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "REQUEST-ID": request_id,
                     "TIMESTAMP": timestamp,
                 },
             )
             if resp_code <= 250:
                 txn_id = resp.get("txnId")
                 gateway_request = {
-                    "request_id": f"{str(uuid.uuid1())}",
+                    "request_id": request_id,
                     "request_type": "PROFILE_UPDATE_OTP_GENERATION",
                     "request_status": "INIT",
                     "transaction_id": txn_id,
@@ -1506,7 +1506,7 @@ class HIDController:
                 return gateway_request
             else:
                 gateway_request = {
-                    "request_id": f"{str(uuid.uuid1())}",
+                    "request_id": request_id,
                     "transaction_id": request_dict.get("txnId"),
                     "request_type": "PROFILE_UPDATE_OTP_GENERATION",
                     "request_status": "FAILED",
@@ -1555,34 +1555,36 @@ class HIDController:
                 },
                 "consent": {"code": "abha-enrollment", "version": "1.4"},
             }
+            request_id = f"{str(uuid.uuid1())}"
             resp, resp_code = APIInterface().post(
                 route=abha_detail_otp_update_url,
                 data=json.dumps(payload),
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {gateway_access_token}",
-                    "REQUEST-ID": f"{str(uuid.uuid1())}",
+                    "REQUEST-ID": request_id,
                     "TIMESTAMP": timestamp,
                 },
             )
             if resp_code <= 250:
                 gateway_request = {
-                    "request_id": request.txnId,  # why this?
+                    "request_id": request_id,  # why this?
                     "request_type": "PROFILE_UPDATE_OTP_VERIFICATION",
                     "request_status": "COMPLETED",
                     "transaction_id": request.txnId,
                 }
-                self.CRUDGatewayInteraction.update(**gateway_request)
-                return resp
+                self.CRUDGatewayInteraction.create(**gateway_request)
+                return gateway_request
             else:
                 gateway_request = {
-                    "request_id": request.txnId,
+                    "request_id": request_id,
                     "request_type": "PROFILE_UPDATE_OTP_VERIFICATION",
                     "request_status": "FAILED",
                     "error_message": resp["message"],
                     "error_code": resp["code"],
+                    "transaction_id": request.txnId,
                 }
-                self.CRUDGatewayInteraction.update(**gateway_request)
+                self.CRUDGatewayInteraction.create(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
