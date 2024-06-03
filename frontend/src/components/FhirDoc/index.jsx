@@ -48,7 +48,7 @@ const ReportSections = styled("div")(({ theme }) => ({
 function FhirDoc() {
   const FhirDocDetails = JSON.parse(sessionStorage?.getItem("FhirDocDetails"));
   const DocData = FhirDocDetails?.patient_data_transformed[0];
-  console.log("DocData", DocData);
+  const DocDate = DocData.Composition[0].date;
   return (
     <HealthReportBodyContainer>
       <HealthReportHeader>
@@ -74,7 +74,7 @@ function FhirDoc() {
                 Date:
               </Typography>
               <Typography variant="body1" fontSize={14}>
-                {DocData.Composition[0].date}
+                {DocDate}
               </Typography>
             </div>
             <div className="documentInfo">
@@ -124,7 +124,10 @@ function FhirDoc() {
             <MedicalHistoryTable data={DocData.Condition} />
           </ReportSections>
           <ReportSections>
-            <PhysicalExaminationTable data={DocData.Observation} />
+            <PhysicalExaminationTable
+              data={DocData.Observation}
+              date={DocDate}
+            />
           </ReportSections>
           <ReportSections>
             <AttachmentSection data={DocData.DocumentReference} />

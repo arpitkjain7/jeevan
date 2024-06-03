@@ -1,6 +1,6 @@
 import { Button, Card, Typography, styled } from "@mui/material";
-import React from "react";
-import base64js from "base64-js";
+import React, { useState } from "react";
+import PdfFromDocumentBytes from "../../../PdfFromDocumentBytes";
 
 const TableTitle = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primaryGrey,
@@ -15,11 +15,19 @@ const ReportCardSection = styled(Card)(({ theme }) => ({
 }));
 
 function AttachmentSection({ data }) {
-  function getDataSize(base64String) {
-    const byteArray = base64js.toByteArray(base64String);
-    const size = byteArray.length / 1024;
-    return size.toFixed(2);
-  }
+  const [base64data, setBase64data] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [documentType, setDocumentType] = useState(null);
+
+  const handlePdfViewer = (base64Data, docType) => () => {
+    setBase64data(base64Data);
+    setDocumentType(docType);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   if (!Array.isArray(data)) {
     console.error('Invalid prop: "data" is not an array.');
@@ -47,15 +55,10 @@ function AttachmentSection({ data }) {
                 variant="text"
                 color="inherit"
                 key={index}
-                onClick={async (event) => {
-                  event.preventDefault();
-                  try {
-                    const size = getDataSize(contentItem.attachment.data);
-                    alert(`Size of the file: ${size} KB`);
-                  } catch (error) {
-                    console.error("Error calculating size:", error);
-                  }
-                }}
+                onClick={handlePdfViewer(
+                  contentItem.attachment.data,
+                  contentItem.attachment.contentType
+                )}
               >
                 <li>{contentItem.attachment.title}</li>
               </Button>
@@ -63,6 +66,14 @@ function AttachmentSection({ data }) {
           )}
         </ul>
       </ReportCardSection>
+      {base64data && (
+        <PdfFromDocumentBytes
+          open={open}
+          handleClose={handleClose}
+          documentType={documentType}
+          docBytes={base64data}
+        />
+      )}
     </>
   );
 }

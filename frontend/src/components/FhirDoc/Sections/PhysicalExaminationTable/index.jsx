@@ -27,7 +27,7 @@ const ReportCardSection = styled(Card)(({ theme }) => ({
   flexDirection: "column",
 }));
 
-function PhysicalExaminationTable({ data }) {
+function PhysicalExaminationTable({ data, date }) {
   //   console.log("physical:", data);
   if (!Array.isArray(data)) {
     console.error('Invalid prop: "data" is not an array.');
@@ -64,7 +64,7 @@ function PhysicalExaminationTable({ data }) {
                       month: "2-digit",
                       day: "2-digit",
                     })} */}
-                    Date?
+                    {date}
                   </TableCell>
                   <TableCell align="right">{Values.code.text}</TableCell>
                   <TableCell align="right">
