@@ -1545,6 +1545,7 @@ class HIDController:
             elif request_dict.get("mode").value == "email":
                 scope = ["abha-enrol", "email-verify"]
             payload = {
+                "scope": scope,
                 "authData": {
                     "authMethods": ["otp"],
                     "otp": {
@@ -1594,6 +1595,7 @@ class HIDController:
             logging.error(
                 f"Error in HIDController.abha_details_update_verifyOTP function: {error}"
             )
+            raise error
 
     def retrieve_abha(self, request):
         try:
@@ -1747,6 +1749,7 @@ class HIDController:
             logging.error(
                 f"Error in HIDController.retrieve_abha_verifyOTP function: {error}"
             )
+            raise error
 
     def retrieve_abha_verifyUser(self, request):
         try:
@@ -1807,6 +1810,7 @@ class HIDController:
             logging.error(
                 f"Error in HIDController.retrieve_abha_verifyUser function: {error}"
             )
+            raise error
 
     def retrieve_abha_getProfile(self, create_record: bool, txn_id: str, hip_id: str):
         try:
