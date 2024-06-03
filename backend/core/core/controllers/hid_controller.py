@@ -1496,20 +1496,24 @@ class HIDController:
             if resp_code <= 250:
                 txn_id = resp.get("txnId")
                 gateway_request = {
-                    "request_id": txn_id,
+                    "request_id": f"{str(uuid.uuid1())}",
                     "request_type": "PROFILE_UPDATE_OTP_GENERATION",
                     "request_status": "INIT",
+                    "transaction_id": txn_id,
                 }
                 self.CRUDGatewayInteraction.create(**gateway_request)
                 gateway_request.update({"txn_id": txn_id})
                 return gateway_request
             else:
                 gateway_request = {
+                    "request_id": f"{str(uuid.uuid1())}",
+                    "transaction_id": request_dict.get("txnId"),
                     "request_type": "PROFILE_UPDATE_OTP_GENERATION",
                     "request_status": "FAILED",
                     "error_message": resp.get("details")[0].get("message"),
                     "error_code": resp.get("details")[0].get("code"),
                 }
+                self.CRUDGatewayInteraction.create(**gateway_request)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=gateway_request,
@@ -1995,7 +1999,7 @@ class HIDController:
                     "X-Token": f"Bearer {token}",
                 },
             )
-            #logging.debug(f"{byte_data=}")
+            # logging.debug(f"{byte_data=}")
             logging.debug(f"{resp_code=}")
             if resp_code <= 250:
                 # upload_to_s3(
