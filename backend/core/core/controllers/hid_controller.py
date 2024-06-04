@@ -281,8 +281,8 @@ class HIDController:
                 }
                 self.CRUDGatewayInteraction.update(**gateway_request)
                 raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=gateway_request,
+                    status_code=resp["code"],
+                    detail=resp["message"],
                     headers={"WWW-Authenticate": "Bearer"},
                 )
         except Exception as error:
