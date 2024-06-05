@@ -758,11 +758,12 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "notification": {
-                        "patient": {"id": patient_obj["abha_address"]},
+                        "patient": {"id": patient_id},
                         "careContext": {
-                            "patientReference": patient_obj["abha_address"],
+                            "patientReference": patient_id,
                             "careContextReference": pmr_id,
                         },
+                        "hiTypes": ["OPConsultation"],
                         "date": date_of_consultation,
                         "hip": {"id": hip_id},
                     },
