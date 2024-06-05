@@ -758,7 +758,7 @@ class PMRController:
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "notification": {
-                        "patient": {"id": patient_id},
+                        "patient": {"id": patient_obj["abha_address"]},
                         "careContext": {
                             "patientReference": patient_id,
                             "careContextReference": pmr_id,
