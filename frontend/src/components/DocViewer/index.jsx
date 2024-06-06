@@ -5,8 +5,6 @@ import { useState } from "react";
 import { useRef } from "react";
 import MyTable from "../../components/TableComponent";
 import RightArrow from "../../assets/arrows/arrow-right.svg";
-import { fetchFhirDocDetails } from "../FhirDoc/fhirDoc.slice";
-import { useDispatch } from "react-redux";
 import FhirDoc from "../FhirDoc";
 
 const DocViewerContainer = styled("div")(({ theme }) => ({
@@ -52,7 +50,6 @@ const DocList = styled("p")(({ theme }) => ({
 }));
 
 const DocViewer = ({ docData }) => {
-  const dispatch = useDispatch();
   const [byteCode, setByteCode] = useState("");
   const [selectedDocument, setSelectedDocument] = useState("");
   const pdfViewerRef = useRef(null);
@@ -63,10 +60,10 @@ const DocViewer = ({ docData }) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [consentError, setConsentError] = useState(false);
   const [showHealthReport, setShowHealthReport] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const selectedConsent = sessionStorage.getItem("consentSelected");
   const currentConsent = JSON.parse(selectedConsent);
   const consentId = currentConsent?.id;
-  const convertToDoc = () => {};
 
   useEffect(() => {
     setByteCode(docData[0]?.documentContent);
@@ -102,19 +99,13 @@ const DocViewer = ({ docData }) => {
         {
           type: "icon",
           icon: <img src={RightArrow} alt="details" />,
-          onClick: () => {
-            dispatch(fetchFhirDocDetails(consentId)).then((res) => {
-              console.log("res", res);
-              if (res?.payload) {
-                sessionStorage?.setItem(
-                  "FhirDocDetails",
-                  JSON.stringify(res.payload)
-                );
-                setShowHealthReport(true);
-              } else {
-                setConsentError(true);
-              }
-            });
+          onClick: (item) => {
+            if (item.careContext) {
+              setSelectedDoc(item.careContext);
+              setShowHealthReport(true);
+            } else {
+              setConsentError(true);
+            }
           },
         },
       ],
@@ -124,24 +115,25 @@ const DocViewer = ({ docData }) => {
     <DocViewerContainer>
       <Views>
         <SideList>
-          {docData?.length &&
-            docData?.map(
-              (item) =>
-                item?.patient_name && (
-                  <DiagnosisDetails
-                    // onClick={() => onDocClick(item)}
-                    className={
-                      selectedDocument === item?.patient_name
-                        ? "selected-vital"
-                        : ""
-                    }
-                  >
-                    <DocList>{item?.patient_name}</DocList>
-                    {/* <img src={ArrowRight} alt={`select-${item.type}`} /> */}
-                  </DiagnosisDetails>
-                )
-            )}
-          {docData?.length && (
+          {docData?.length
+            ? docData?.map(
+                (item) =>
+                  item?.patient_name && (
+                    <DiagnosisDetails
+                      // onClick={() => onDocClick(item)}
+                      className={
+                        selectedDocument === item?.patient_name
+                          ? "selected-vital"
+                          : ""
+                      }
+                    >
+                      <DocList>{item?.patient_name}</DocList>
+                      {/* <img src={ArrowRight} alt={`select-${item.type}`} /> */}
+                    </DiagnosisDetails>
+                  )
+              )
+            : ""}
+          {docData?.length ? (
             <div className="table-container">
               <MyTable
                 columns={columns}
@@ -150,16 +142,20 @@ const DocViewer = ({ docData }) => {
                 searchClassName="search-class"
               />
             </div>
+          ) : (
+            <ErrorContainer>
+              <h3>No documents available</h3>
+            </ErrorContainer>
           )}
         </SideList>
-        {consentError ? (
+        {docData?.length && consentError ? (
           <ErrorContainer>
             <h3>Error retrieving health record</h3>
           </ErrorContainer>
         ) : (
           showHealthReport && (
             <PdfContainer>
-              <FhirDoc />
+              <FhirDoc selectedDoc={selectedDoc} />
             </PdfContainer>
           )
         )}

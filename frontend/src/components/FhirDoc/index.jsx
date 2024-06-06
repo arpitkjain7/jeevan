@@ -45,9 +45,12 @@ const ReportSections = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(5),
 }));
 
-function FhirDoc() {
+function FhirDoc({ selectedDoc }) {
   const FhirDocDetails = JSON.parse(sessionStorage?.getItem("FhirDocDetails"));
-  const DocData = FhirDocDetails?.patient_data_transformed[0];
+  const consentSelected = JSON.parse(
+    sessionStorage?.getItem("consentSelected")
+  );
+  const DocData = FhirDocDetails?.[selectedDoc];
   const DocDate = DocData.Composition[0].date;
   return (
     <HealthReportBodyContainer>
@@ -57,7 +60,7 @@ function FhirDoc() {
           fontSize={25}
           sx={{ textTransform: "uppercase", mb: 2 }}
         >
-          {FhirDocDetails.hip_name}
+          {DocData.Organization[0].name}
         </Typography>
         <div className="ReportInfo">
           <div className="documentInfo">
@@ -65,7 +68,7 @@ function FhirDoc() {
               Document:
             </Typography>
             <Typography variant="h6" fontSize={18} fontWeight={600}>
-              {DocData.DocumentReference[0].type.text}
+              {DocData.Composition[0].title}
             </Typography>
           </div>
           <div className="ReportDate">
@@ -115,22 +118,22 @@ function FhirDoc() {
         </div>
         <ReportSections>
           <ReportSections>
-            <MedicationTable data={DocData.MedicationRequest} />
+            <MedicationTable data={DocData?.MedicationRequest} />
           </ReportSections>
           <ReportSections>
-            <ComplaintTable data={DocData.Condition} />
+            <ComplaintTable data={DocData?.Condition} />
           </ReportSections>
           <ReportSections>
-            <MedicalHistoryTable data={DocData.Condition} />
+            <MedicalHistoryTable data={DocData?.Condition} />
           </ReportSections>
           <ReportSections>
             <PhysicalExaminationTable
-              data={DocData.Observation}
+              data={DocData?.Observation}
               date={DocDate}
             />
           </ReportSections>
           <ReportSections>
-            <AttachmentSection data={DocData.DocumentReference} />
+            <AttachmentSection data={DocData?.DocumentReference} />
           </ReportSections>
         </ReportSections>
       </HealthReportBody>

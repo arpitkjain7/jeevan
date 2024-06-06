@@ -28,7 +28,6 @@ const ReportCardSection = styled(Card)(({ theme }) => ({
 }));
 
 function PhysicalExaminationTable({ data, date }) {
-  //   console.log("physical:", data);
   if (!Array.isArray(data)) {
     console.error('Invalid prop: "data" is not an array.');
     return null;
