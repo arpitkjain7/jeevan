@@ -109,7 +109,6 @@ class DataTransferController:
                 }
             elif request_type == "decrypt":
                 patient_data_list = []
-                resources_dict = {}
                 patient_data_transformed = []
                 consent_id = data_obj.get("consent_id")
                 print(f"{consent_id=}")
@@ -120,6 +119,7 @@ class DataTransferController:
                 requesterPrivateKey = data_obj.get("requesterPrivateKey")
                 senderPublicKey = data_obj.get("senderPublicKey")
                 for entry in patient_data:
+                    resources_dict = {}
                     encrypted_data = entry.get("content")
                     decrypted_data = decryptData(
                         decryptParams={
