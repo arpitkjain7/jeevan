@@ -749,12 +749,13 @@ class PMRController:
                 access_token_validity, "%m/%d/%Y, %H:%M:%S"
             )
             request_id = str(uuid.uuid1())
+            kolkata_tz = pytz_timezone.timezone("Asia/Kolkata")
             if pmr_obj["abdm_linked"]:
                 logging.info("PMR already linked")
                 care_context_url = f"{self.gateway_url}/v0.5/links/context/notify"
                 payload = {
                     "requestId": request_id,
-                    "timestamp": datetime.now(timezone.utc).strftime(
+                    "timestamp": datetime.now(kolkata_tz).strftime(
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "notification": {
@@ -773,7 +774,7 @@ class PMRController:
                 care_context_url = f"{self.gateway_url}/v0.5/links/link/add-contexts"
                 payload = {
                     "requestId": request_id,
-                    "timestamp": datetime.now(timezone.utc).strftime(
+                    "timestamp": datetime.now(kolkata_tz).strftime(
                         "%Y-%m-%dT%H:%M:%S.%f"
                     ),
                     "link": {
