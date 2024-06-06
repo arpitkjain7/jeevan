@@ -37,5 +37,5 @@ class ConsentDetails(BaseModel):
 
 class PatientDataDetails(BaseModel):
     hip_id: str = None
-    created_at: str
+    created_at: datetime
     patient_data_transformed: dict
