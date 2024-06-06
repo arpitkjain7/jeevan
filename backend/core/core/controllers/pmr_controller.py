@@ -32,7 +32,7 @@ import base64
 from datetime import datetime, timezone
 from urllib.parse import quote
 import uuid, os, json, io
-from pytz import timezone as pytz_timezone
+import pytz
 
 logging = logger(__name__)
 
@@ -749,7 +749,7 @@ class PMRController:
                 access_token_validity, "%m/%d/%Y, %H:%M:%S"
             )
             request_id = str(uuid.uuid1())
-            kolkata_tz = pytz_timezone.timezone("Asia/Kolkata")
+            kolkata_tz = pytz.timezone("Asia/Kolkata")
             if pmr_obj["abdm_linked"]:
                 logging.info("PMR already linked")
                 care_context_url = f"{self.gateway_url}/v0.5/links/context/notify"
