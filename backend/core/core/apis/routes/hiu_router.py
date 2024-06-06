@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.hiu_request import RaiseConsent, FindPatient
-from core.apis.schemas.responses.hiu_response import Consent, ConsentDetails
+from core.apis.schemas.responses.hiu_response import (
+    Consent,
+    ConsentDetails,
+    PatientDataDetails,
+)
 from core.controllers.hiu_controller import HIUController
 from core import logger
 from commons.auth import decodeJWT
@@ -104,7 +108,9 @@ def get_consent_details(consent_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@hiu_router.get("/v1/HIU/getCareContext/{consent_id}")
+@hiu_router.get(
+    "/v1/HIU/getCareContext/{consent_id}", response_model=PatientDataDetails
+)
 def get_care_context(consent_id: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/HIU/getCareContext/{consent_id} endpoint")
