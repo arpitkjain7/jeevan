@@ -14,10 +14,12 @@ from core.apis.schemas.requests.patient_request import (
     PatientAuthResendOTP,
     PatientAuthVerifyOTP,
 )
+from core.apis.schemas.responses.patient_response import PatientList
 from core.apis.schemas.requests.vital_request import Read, VitalType
 from core.controllers.patient_controller import PatientController
 from core import logger
 from commons.auth import decodeJWT
+from typing import List
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -525,7 +527,7 @@ def updatePatient(update_patient: UpdatePatient, token: str = Depends(oauth2_sch
         )
 
 
-@patient_router.get("/v1/patient/listAll")
+@patient_router.get("/v1/patient/listAll", response_model=List[PatientList])
 def list_all_patients(hip_id: str, token: str = Depends(oauth2_scheme)):
     """[API router to list all patient into the system]
     Raises:

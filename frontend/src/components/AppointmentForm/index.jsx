@@ -126,6 +126,7 @@ function AppointmentForm(props) {
   ];
 
   const handleDoctorNameChange = (event) => {
+    console.log(event);
     sessionStorage.setItem("doctorName", event?.target?.value);
     setDoctorName(event.target.value);
   };

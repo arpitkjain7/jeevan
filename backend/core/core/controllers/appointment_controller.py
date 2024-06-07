@@ -3,6 +3,7 @@ from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core import logger
 from datetime import datetime, timezone, timedelta
+from commons.auth import encodePayload
 import os
 from dateutil import parser
 
@@ -107,6 +108,24 @@ class AppointmentsController:
             )
             raise error
 
+    def get_all_followups_by_date(self, appointment_date):
+        try:
+            logging.info("executing  get_all_followups_by_date function")
+            logging.info(f"{appointment_date=}")
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+            follow_up_obj = self.CRUDAppointments.read_all_followups_by_date(
+                followup_date=appointment_date
+            )
+            logging.info(f"{follow_up_obj=}")
+            logging.info("Encrypting the payload")
+            encrypted_payload = encodePayload(payload={"data": follow_up_obj})
+            return {"follow_up": encrypted_payload}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_followups_by_date function: {error}"
+            )
+            raise error
+
     def get_appointment_by_doc_id(self, doc_id, hip_id):
         try:
             logging.info("executing  get_appointment_by_doc_id function")
@@ -200,3 +219,25 @@ class AppointmentsController:
                 f"Error in AppointmentsController.update_appointment function: {error}"
             )
             raise error
+
+    def get_appointment_metadata(self, hip_id: str):
+        total_appointments = self.CRUDAppointments.count_all_appointments(hip_id=hip_id)
+        appointment_status_counts = self.CRUDAppointments.count_appointments_status(
+            hip_id=hip_id
+        )
+        completed_appointments = appointment_status_counts.get("completed_count")
+        inprogress_appointments = appointment_status_counts.get("inprogress_count")
+        scheduled_appointments = appointment_status_counts.get("scheduled_count")
+        appointment_type_counts = self.CRUDAppointments.count_appointments_type(
+            hip_id=hip_id
+        )
+        first_visit_appointments = appointment_type_counts.get("first_visit_count")
+        follow_up_appointments = appointment_type_counts.get("follow_up_count")
+        return {
+            "total_appointments": total_appointments,
+            "completed_appointments": completed_appointments,
+            "inprogress_appointments": inprogress_appointments,
+            "scheduled_appointments": scheduled_appointments,
+            "first_visit_appointments": first_visit_appointments,
+            "follow_up_appointments": follow_up_appointments,
+        }

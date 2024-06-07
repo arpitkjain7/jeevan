@@ -1486,6 +1486,7 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
         # time_str = datetime.now(timezone).isoformat()
         logging.info(f"Getting PMR Object")
         pmr_obj = CRUDPatientMedicalRecord().read(pmr_id=pmr_id)
+        section_refs = []
         if pmr_obj:
             logging.info(f"Getting Doctor record")
             doc_rec = CRUDDocDetails().read_by_docId(doc_id=pmr_obj["doc_id"])
@@ -2088,7 +2089,8 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
                 ],
             )
             composition = Composition.construct(
-                id=str(uuid.uuid4()),
+                # id=str(uuid.uuid4()),
+                id=pmr_obj.get("id"),
                 title="Consultation Report",
                 date=slot_obj["date"],
                 status="final",  # final | amended | entered-in-error | preliminary,

@@ -428,19 +428,21 @@ const BookingSlots = () => {
         ),
       };
       dispatch(createAppointment(payload)).then((res) => {
+        console.log(res);
+        console.log(doctorDetails);
         sessionStorage.removeItem("doctorName");
         sessionStorage.removeItem("encounterTypeValue");
         sessionStorage.removeItem("appointmentTypeValue");
         sessionStorage.removeItem("visitTypeValue");
         sessionStorage.removeItem("billingTypeValue");
-        if (res.payload?.appointment_id) {
+        if (res?.payload?.appointment_id) {
           const AllPatientData = Object.assign(
             selectedPatient,
             { patientId: selectedPatient?.id },
             { doc_id: appointmentDetails?.doctorId }, 
             { doc_name: doctorDetails?.doc_name }, 
-            { appointment_id: res.payload?.appointment_id },
-            { id: res.payload?.appointment_id }
+            { appointment_id: res?.payload?.appointment_id },
+            { id: res?.payload?.appointment_id }
           )
           sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
           setAppointmentCompleted(true);

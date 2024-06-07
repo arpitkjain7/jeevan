@@ -1,12 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import {
-  styled,
-  Box,
-  CssBaseline,
-  Toolbar,
-  Drawer,
-} from "@mui/material";
+import { styled, Box, CssBaseline, Toolbar, Drawer } from "@mui/material";
 import Header from "../components/Header";
 import "./global.scss";
 import SignInPage from "../pages/SignIn";
@@ -27,7 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ForgotPasswordPage from "../pages/ForgotPassword";
 import DoctorProfilePage from "../pages/DoctorProfilePage";
-
+import VirtualCard from "../pages/vCard";
 const drawerWidth = 235;
 
 const openedMixin = (theme) => ({
@@ -204,6 +198,7 @@ function App() {
               {/* <div style={{ flex: 1, padding: "46px 32px" }}> */}
               <Routes>
                 <Route path="/login" element={<SignInPage />} />
+                <Route path="/virtual-card" element={<VirtualCard />} />
                 {isAuthenticated ? (
                   <>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -241,8 +236,14 @@ function App() {
                   <Route path="*" element={<SignInPage />} />
                 )}
                 {/* <Route path="/view-profile" element={<DoctorProfilePage />} /> */}
-                <Route path="/view-profile/dr-prasad" element={<DoctorProfilePage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route
+                  path="/view-profile/dr-prasad"
+                  element={<DoctorProfilePage />}
+                />
+                <Route
+                  path="/forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
                 <Route path="/" element={<SignInPage />} />
               </Routes>
               {/* </div> */}
@@ -337,8 +338,14 @@ function App() {
                 ) : (
                   <Route path="*" element={<SignInPage />} />
                 )}
-                <Route path="/view-profile/dr-prasad" element={<DoctorProfilePage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route
+                  path="/view-profile/dr-prasad"
+                  element={<DoctorProfilePage />}
+                />
+                <Route
+                  path="/forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
                 <Route path="/" element={<SignInPage />} />
               </Routes>
             </Box>

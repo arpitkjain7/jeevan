@@ -1,0 +1,11 @@
+{
+  "Variables": {
+    "callback_base_url": "https://engine.doc.cliniq360.com",
+    "service_user": "8552012549",
+    "service_password": "P@ssw0rd",
+    "gupshup_base_url": "https://api.gupshup.io",
+    "gupshup_api_key": "vc8uewrkkhypnohee2pobe1qmfay6ouh",
+    "gupshup_followup_notification_template": "faf0df85-9e54-4864-99c7-195f9675e1c5",
+    "secret": "b9c8e5acc65e88f817ec58d94b9664cba1385a77a1a63c1e8fa8cd5e5c5852c2"
+  }
+}

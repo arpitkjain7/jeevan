@@ -3,9 +3,12 @@ from core.orm_models.hims_appointments import Appointments
 from core.orm_models.hims_slots import Slots
 from core.orm_models.hims_docDetails import DocDetails
 from core.orm_models.hims_patientDetails import PatientDetails
+from core.orm_models.hims_hipDetails import HIPDetail
 from datetime import datetime
 from pytz import timezone
 from core.utils.custom.patient_helper import calculate_age
+from sqlalchemy import func, case
+from datetime import datetime
 
 logging = logger(__name__)
 
@@ -144,6 +147,98 @@ class CRUDAppointments:
                     return None
         except Exception as error:
             logging.error(f"Error in CRUDAppointments read function : {error}")
+            raise error
+
+    def count_all_appointments(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments count_all_appointments request")
+            with session() as transaction_session:
+                count = (
+                    transaction_session.query(Appointments)
+                    .filter(Appointments.hip_id == hip_id)
+                    .count()
+                )
+            return count
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments count_all_appointments function : {error}"
+            )
+            raise error
+
+    def count_appointments_status(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments count_appointments_status request")
+            with session() as transaction_session:
+                counts = (
+                    transaction_session.query(
+                        func.count(
+                            case(
+                                (Appointments.consultation_status == "Completed", 1),
+                                else_=None,
+                            )
+                        ).label("completed_count"),
+                        func.count(
+                            case(
+                                (Appointments.consultation_status == "InProgress", 1),
+                                else_=None,
+                            )
+                        ).label("inprogress_count"),
+                        func.count(
+                            case(
+                                (Appointments.consultation_status == "Scheduled", 1),
+                                else_=None,
+                            )
+                        ).label("scheduled_count"),
+                    )
+                    .filter(Appointments.hip_id == hip_id)
+                    .first()
+                )
+
+            return {
+                "completed_count": counts.completed_count,
+                "inprogress_count": counts.inprogress_count,
+                "scheduled_count": counts.scheduled_count,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments count_appointments_status function : {error}"
+            )
+            raise error
+
+    def count_appointments_type(self, hip_id: str):
+        try:
+            logging.info("CRUDAppointments count_appointments_type request")
+            with session() as transaction_session:
+                counts = (
+                    transaction_session.query(
+                        func.count(
+                            case(
+                                (Appointments.appointment_type == "first visit", 1),
+                                else_=None,
+                            )
+                        ).label("first_visit_count"),
+                        func.count(
+                            case(
+                                (
+                                    Appointments.appointment_type == "follow-up visit",
+                                    1,
+                                ),
+                                else_=None,
+                            )
+                        ).label("follow_up_count"),
+                    )
+                    .filter(Appointments.hip_id == hip_id)
+                    .first()
+                )
+
+            return {
+                "first_visit_count": counts.first_visit_count,
+                "follow_up_count": counts.follow_up_count,
+            }
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments count_appointments_type function : {error}"
+            )
             raise error
 
     def read_all(self, hip_id: str):
@@ -296,18 +391,52 @@ class CRUDAppointments:
             if joined_result is not None:
                 return joined_result
             return []
-            #     obj: Appointments = (
-            #         transaction_session.query(Appointments)
-            #         .filter(Appointments.hip_id == hip_id)
-            #         .filter(Appointments.followup_date == followup_date)
-            #         .all()
-            #     )
-            # if obj is not None:
-            #     return [row.__dict__ for row in obj]
-            # return []
         except Exception as error:
             logging.error(
                 f"Error in CRUDAppointments read_followups_by_date function : {error}"
+            )
+            raise error
+
+    def read_all_followups_by_date(self, followup_date: str):
+        try:
+            logging.info("CRUDAppointments read_all_followups_by_date request")
+            with session() as transaction_session:
+                joined_result = []
+                for appointment_obj, patient_obj, doctor_obj, hip_obj in (
+                    transaction_session.query(
+                        Appointments, PatientDetails, DocDetails, HIPDetail
+                    )
+                    .filter(Appointments.followup_date == followup_date)
+                    .filter(PatientDetails.id == Appointments.patient_id)
+                    .filter(DocDetails.id == Appointments.doc_id)
+                    .filter(HIPDetail.hip_id == Appointments.hip_id)
+                    .all()
+                ):
+                    patient_obj_dict = patient_obj.__dict__
+                    appointment_obj_dict = appointment_obj.__dict__
+                    doctor_obj_dict = doctor_obj.__dict__
+                    hip_obj_dict = hip_obj.__dict__
+                    details_obj = {
+                        "appointment_date": appointment_obj_dict.get(
+                            "appointment_date"
+                        ).strftime("%Y-%m-%d"),
+                        "followup_date": appointment_obj_dict.get(
+                            "followup_date"
+                        ).strftime("%Y-%m-%d"),
+                        "patient_name": patient_obj_dict.get("name"),
+                        "patient_contact_number": patient_obj_dict.get("mobile_number"),
+                        "doctor_name": doctor_obj_dict.get("doc_name"),
+                        "hip_name": hip_obj_dict.get("name"),
+                        "hip_id": hip_obj_dict.get("hip_id"),
+                        "hip_contact_number": hip_obj_dict.get("hip_contact_number"),
+                    }
+                    joined_result.append(details_obj)
+            if joined_result is not None:
+                return joined_result
+            return []
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDAppointments read_all_followups_by_date function : {error}"
             )
             raise error
 
