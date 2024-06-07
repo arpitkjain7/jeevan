@@ -1,12 +1,12 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import { Button, Grid, Link, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import InfoIcon from "@mui/icons-material/Info";
 import EmailIcon from "@mui/icons-material/Email";
 import WorkIcon from "@mui/icons-material/Work";
 import LanguageIcon from "@mui/icons-material/Language";
-
+import { Link } from "react-router-dom";
 const VirtualCard = () => {
   const sampleData = {
     name: "Dr. Prasad Gurjar",
@@ -45,11 +45,10 @@ const VirtualCard = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-
-    // Log the vCard string to the console
-    console.log(vCardString);
   };
-
+  const onHandleClick = () => {
+    window.open(sampleData.website, "website");
+  };
   return (
     <>
       <Box
@@ -234,9 +233,10 @@ const VirtualCard = () => {
             </Box>
             <Box>
               <Typography
+                onClick={onHandleClick}
                 sx={{ fontSize: "1rem", marginLeft: "10px", cursor: "pointer" }}
               >
-                <Link>{sampleData.website}</Link>
+                {sampleData.website}
               </Typography>
               <Typography sx={{ fontSize: "0.7rem", marginLeft: "10px" }}>
                 Website
