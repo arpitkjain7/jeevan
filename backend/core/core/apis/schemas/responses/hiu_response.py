@@ -32,4 +32,10 @@ class ConsentDetails(BaseModel):
     date_range: dict
     hi_type: dict = None
     expire_at: str
-    patient_data_transformed: list
+    patient_data_transformed: dict
+
+
+class PatientDataDetails(BaseModel):
+    hip_id: str = None
+    created_at: datetime
+    patient_data_transformed: dict

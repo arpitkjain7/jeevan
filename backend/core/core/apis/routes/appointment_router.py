@@ -112,6 +112,33 @@ def get_appointment_by_date(
         )
 
 
+@appointment_router.get("/v1/appointment/listFollowUpByDate")
+def get_followups_by_date(appointment_date: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/appointment/listFollowUpByDate")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return AppointmentsController().get_all_followups_by_date(
+                appointment_date=appointment_date
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/appointment/listFollowUpByDate: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/appointment/listFollowUpByDate: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @appointment_router.get("/v1/appointment/{doc_id}")
 def get_appointment_by_docId(
     doc_id: str, hip_id: str, token: str = Depends(oauth2_scheme)

@@ -2,7 +2,6 @@ import time
 import jwt
 import os
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -24,6 +23,13 @@ def signJWT(username: str, user_role: str, department: str, hip_id: str):
 
 def encodePayload(payload):
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def decodePayload(encrypted_payload: str):
+    decoded_payload = jwt.decode(
+        encrypted_payload, JWT_SECRET, algorithms=[JWT_ALGORITHM]
+    )
+    return decoded_payload
 
 
 def decodeJWT(token: str):

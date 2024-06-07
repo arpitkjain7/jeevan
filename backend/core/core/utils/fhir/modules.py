@@ -1061,7 +1061,7 @@ def get_medication_request_construct(
                     "display": medicine_name,
                 }
             ],
-            "text": "Warfarin 5 MG Oral Tablet",
+            "text": medicine_name,
         },
         "requester": {"reference": f"Practitioner/{practitioner_ref}"},
     }
