@@ -175,6 +175,7 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
+            console.log(row);
             if(row.is_verified){
               let currentHospital = {};
               if (hospital) {
@@ -340,6 +341,7 @@ const PatientPage = () => {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
+        console.log(res);
         setShowLoader(false);
         const patientList = res?.payload;
         const formattedPatientList = patientList?.map((item) => {
