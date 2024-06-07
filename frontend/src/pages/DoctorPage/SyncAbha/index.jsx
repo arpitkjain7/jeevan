@@ -14,9 +14,9 @@ import {
   DialogContent, // Added Typography
   DialogActions,
   TextField,
-  Grid
+  Grid,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -88,10 +88,14 @@ const SyncAbha = ({
 
   useEffect(() => {
     if (
-      (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== "" &&
-      (currentPatient?.patient_details?.auth_methods || currentPatient?.auth_methods)
+      (currentPatient?.patient_details?.abha_number ||
+        currentPatient?.abha_number) !== "" &&
+      (currentPatient?.patient_details?.auth_methods ||
+        currentPatient?.auth_methods)
     ) {
-      const methods = currentPatient?.patient_details?.auth_methods || currentPatient?.auth_methods;
+      const methods =
+        currentPatient?.patient_details?.auth_methods ||
+        currentPatient?.auth_methods;
       setOptions(methods?.authMethods);
     }
   }, []);
@@ -100,19 +104,17 @@ const SyncAbha = ({
     setShowLoader(true);
     setSelectedAuthOption(event.target.value);
     const payload = {
-      patient_id: currentPatient?.patient_details?.patient_id || currentPatient?.patient_id || currentPatient?.patientId || currentPatient?.patient_details?.patientId,
+      patient_id: currentPatient?.id,
       purpose: "KYC_AND_LINK",
       auth_mode: event.target.value,
     };
     dispatch(getPatientAuth(payload)).then((res) => {
       setShowLoader(false);
       setTxnId(res.payload?.txn_id);
-      if(event.target.value === "DEMOGRAPHICS"){
+      if (event.target.value === "DEMOGRAPHICS") {
         setTxnId("");
         setDemographics(true);
-      }
-      else 
-        setDemographics(false);
+      } else setDemographics(false);
     });
   };
 
@@ -138,7 +140,7 @@ const SyncAbha = ({
       pmr_id: sessionStorage.getItem("pmrID"),
     };
     dispatch(syncPMR(payload)).then((res) => {
-      if(res?.payload?.status === "success"){
+      if (res?.payload?.status === "success") {
         setMessage("PMR Synced Successfully");
         // handleModalClose();
         // sessionStorage.removeItem("pmrId");
@@ -151,31 +153,29 @@ const SyncAbha = ({
   };
   const handleCloseConfirmationDialog = () => {
     setOpenConfirmationDialog(false);
-  }
+  };
   const handleDialogAction = () => {
     handleModalClose();
     sessionStorage.removeItem("pmrId");
     navigate("/appointment-list");
-  }
+  };
   return (
     <>
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <Dialog
         open={showSync}
         onClose={handleModalClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         fullWidth={true}
-        maxWidth={'sm'}
+        maxWidth={"sm"}
       >
         <DialogTitle>Sync ABHA</DialogTitle>
         <IconButton
           aria-label="close"
           onClick={handleModalClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],
@@ -184,7 +184,6 @@ const SyncAbha = ({
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-        
           <FormControl component="fieldset">
             <PageSubText>Select an authentication method</PageSubText>
             <RadioGroup
@@ -200,35 +199,42 @@ const SyncAbha = ({
                   value={option}
                   control={<Radio />}
                   label={option?.replace("_", " ")}
-                
                 />
               ))}
             </RadioGroup>
           </FormControl>
           {!demographics && (
             <>
-            <OTPWrapper>
-              {txnId !== "" && (<OtpInput verifyOTP={verifyOTP} isSync={true} />)}
-            </OTPWrapper><br/>
-          </>
+              <OTPWrapper>
+                {txnId !== "" && (
+                  <OtpInput verifyOTP={verifyOTP} isSync={true} />
+                )}
+              </OTPWrapper>
+              <br />
+            </>
           )}
           {/* {demographics && ( */}
-            <Grid container spacing={2} style={{ marginTop: "5px" }}>
+          <Grid container spacing={2} style={{ marginTop: "5px" }}>
             <Grid item xs={6}>
               <TextField
-              label="Name"
-              name="name"
-              value={currentPatient?.patient_details?.name || currentPatient?.name}
-              disabled
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
+                label="Name"
+                name="name"
+                value={
+                  currentPatient?.patient_details?.name || currentPatient?.name
+                }
+                disabled
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+              />
             </Grid>
             <Grid item xs={6}>
               <TextField
                 label="ABHA number"
                 name="abhaNumber"
-                value={currentPatient?.patient_details?.abha_number || currentPatient?.abha_number}
+                value={
+                  currentPatient?.patient_details?.abha_number ||
+                  currentPatient?.abha_number
+                }
                 disabled
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -238,7 +244,10 @@ const SyncAbha = ({
               <TextField
                 label="ABHA Address"
                 name="abhaNumber"
-                value={currentPatient?.patient_details?.abha_address || currentPatient?.abha_address}
+                value={
+                  currentPatient?.patient_details?.abha_address ||
+                  currentPatient?.abha_address
+                }
                 disabled
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -248,7 +257,10 @@ const SyncAbha = ({
               <TextField
                 label="Mobile"
                 name="mobile"
-                value={currentPatient?.patient_details?.mobile_number || currentPatient?.mobile_number}
+                value={
+                  currentPatient?.patient_details?.mobile_number ||
+                  currentPatient?.mobile_number
+                }
                 disabled
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -258,7 +270,9 @@ const SyncAbha = ({
               <TextField
                 label="DOB"
                 name="dob"
-                value={currentPatient?.patient_details?.DOB || currentPatient?.DOB}
+                value={
+                  currentPatient?.patient_details?.DOB || currentPatient?.DOB
+                }
                 disabled
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -268,7 +282,10 @@ const SyncAbha = ({
               <TextField
                 label="Gender"
                 name="gender"
-                value={currentPatient?.patient_details?.gender || currentPatient?.gender}
+                value={
+                  currentPatient?.patient_details?.gender ||
+                  currentPatient?.gender
+                }
                 disabled
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -286,36 +303,34 @@ const SyncAbha = ({
         onClose={handleCloseConfirmationDialog}
         open={openConfirmationDialog}
         fullWidth={true}
-        maxWidth={'sm'}
+        maxWidth={"sm"}
       >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        Sync PMR
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={handleCloseConfirmationDialog}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent dividers>
-        <Typography gutterBottom>
-          {message}
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCloseConfirmationDialog}>Cancel</Button>
-        <Button autoFocus onClick={handleDialogAction}>
-          OK
-        </Button>
-      </DialogActions>
-    </Dialog>
-   </>
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          Sync PMR
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseConfirmationDialog}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
+          <Typography gutterBottom>{message}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmationDialog}>Cancel</Button>
+          <Button autoFocus onClick={handleDialogAction}>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

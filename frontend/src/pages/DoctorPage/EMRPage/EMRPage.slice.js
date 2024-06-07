@@ -56,10 +56,13 @@ export const sendNotification = createAsyncThunk(
   }
 );
 
-export const googleReview = createAsyncThunk("googleReview", async (payload) => {
-  const response = await apiRequest("POST", apis?.googleReview, payload);
-  return response;
-});
+export const googleReview = createAsyncThunk(
+  "googleReview",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.googleReview, payload);
+    return response;
+  }
+);
 
 export const syncPMR = createAsyncThunk(
   "patient/verifySyncOtp",
@@ -196,6 +199,7 @@ const EMRSlice = createSlice({
     loading: false,
     searchedData: [],
     pmrIdData: {},
+    patientDetails: {},
     pmr: {},
   },
   reducers: {
@@ -233,6 +237,16 @@ const EMRSlice = createSlice({
         state.pmr = action.payload;
       })
       .addCase(postEMR.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(getPatientDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPatientDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pmr = action.payload;
+      })
+      .addCase(getPatientDetails.rejected, (state, action) => {
         state.loading = false;
       });
   },
