@@ -37,31 +37,30 @@ const ConsentValue = styled("div")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(2),
 }));
+
 const ConsentDocumentPage = (consentListData) => {
+  const consentSelected = JSON.parse(sessionStorage.getItem("consentSelected"));
+  const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const [documentData, setDocumentData] = useState([]);
   const selectedConsent = sessionStorage.getItem("consentSelected");
-  const [consentDetails, setConsentDetails] = useState([]);
-  const [consentPatientId, setConsentPatientId] = useState("");
   const dispatch = useDispatch();
 
   const createDocumentData = (data) => {
     const doclist = [];
-    // data?.map((item) => {
-    //   console.log(item, "item");
-    //   const docObj = {
-    //     documentContent: item?.attachment?.data,
-    //     type: item?.attachment?.contentType,
-    //     id: item?.attachment?.id,
-    //   };
-    const pname = {patient_name: data?.patient};
-    doclist.push(pname)
-    const contexts = data?.care_contexts?.care_context;
-     contexts?.map((item) => {
-      const docObj = { careContext: item?.careContextReference, date: convertDateFormat(data?.created_at, "dd-MM-yyyy"), hipId: data?.hip_id};
+    const pname = { patient_name: selectedPatient?.p_name };
+    doclist.push(pname);
+    const contexts = data?.patientDataTransformed;
+    Object.entries(contexts).forEach(([key]) => {
+      const docObj = {
+        careContext: key,
+        date: data?.createdAt,
+        hipId: data?.hipId,
+      };
       doclist.push(docObj);
     });
     setDocumentData(doclist);
   };
+
   useEffect(() => {
     const currentConsent = JSON.parse(selectedConsent);
     if (currentConsent && Object.keys(currentConsent)?.length) {
@@ -70,13 +69,16 @@ const ConsentDocumentPage = (consentListData) => {
         const consentData = response?.payload;
         const formattedConsentList = {
           createdAt: convertDateFormat(consentData?.created_at, "dd-MM-yyyy"),
-          expireAt: convertDateFormat(consentData?.expire_at, "dd-MM-yyyy"),
-          status: consentData.status
+          hipId: consentData?.hip_id,
+          patientDataTransformed: consentData?.patient_data_transformed,
         };
-        setConsentDetails(formattedConsentList);
-        setConsentPatientId(consentData?.care_contexts?.care_context[0]?.patientRefernce);
         // const documentReference = consentData?.patient_data_transformed[0]?.DocumentReference?.content;
-        createDocumentData(consentData);
+        createDocumentData(formattedConsentList);
+        console.log("consentData", formattedConsentList);
+        sessionStorage.setItem(
+          "FhirDocDetails",
+          JSON.stringify(consentData?.patient_data_transformed)
+        );
       });
     }
   }, []);
@@ -84,15 +86,15 @@ const ConsentDocumentPage = (consentListData) => {
   const details = [
     {
       label: "Request Status",
-      value: consentDetails.status,
+      value: consentSelected?.status,
     },
     {
       label: "Consent Created On",
-      value: consentDetails.createdAt,
+      value: convertDateFormat(consentSelected?.created_at, "dd-MM-yyyy"),
     },
     {
       label: "Consent Expiry On",
-      value: consentDetails.expireAt,
+      value: convertDateFormat(consentSelected?.expire_at, "dd-MM-yyyy"),
     },
   ];
 
@@ -101,10 +103,10 @@ const ConsentDocumentPage = (consentListData) => {
       <ConsentDetailsWrapper>
         {details?.map((item) => (
           <ConsentHeader>
-             <ConsentLabel>{item.label}</ConsentLabel>
+            <ConsentLabel>{item.label}</ConsentLabel>
             <ConsentValue>{item.value}</ConsentValue>
           </ConsentHeader>
-        ))} 
+        ))}
       </ConsentDetailsWrapper>
       <DocViewer docData={documentData} />
     </ConsentDocsContainer>
