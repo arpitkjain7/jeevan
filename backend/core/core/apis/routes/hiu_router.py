@@ -118,7 +118,7 @@ def get_care_context(consent_id: str, token: str = Depends(oauth2_scheme)):
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             consent_details = HIUController().get_consent_details(consent_id=consent_id)
-            return consent_details
+            return PatientDataDetails(**consent_details)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
