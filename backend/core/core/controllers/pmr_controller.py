@@ -9,6 +9,7 @@ from core.crud.hims_medicalHistory_crud import CRUDMedicalHistory
 from core.crud.hims_medicalTestReports_crud import CRUDMedicalTestReports
 from core.crud.hims_patientDetails_crud import CRUDPatientDetails
 from core.crud.hims_current_medicines_crud import CRUDCurrentMedicines
+from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core.utils.custom.external_call import APIInterface
 from core.crud.hrp_gatewayInteraction_crud import CRUDGatewayInteraction
 from core.crud.hims_symptoms_crud import CRUDSymptoms
@@ -46,6 +47,7 @@ class PMRController:
         self.CRUDAppointments = CRUDAppointments()
         self.CRUDLabInvestigation = CRUDLabInvestigation()
         self.CRUDMedicines = CRUDMedicines()
+        self.CRUDDocDetails = CRUDDocDetails()
         self.CRUDPatientMedicalRecord = CRUDPatientMedicalRecord()
         self.CRUDPatientDetails = CRUDPatientDetails()
         self.CRUDGatewayInteraction = CRUDGatewayInteraction()
@@ -209,9 +211,13 @@ class PMRController:
                         "document_type": document_obj.get("document_type"),
                     }
                 )
+            doctor_details = self.CRUDDocDetails.read_by_docId(
+                doc_id=request_dict.get("doc_id")
+            )
             return {
                 "pmr_details": pmr_details,
                 "appointment_details": appointment_details,
+                "doctor_details": doctor_details,
                 "document_details": document_details,
             }
         except Exception as error:
