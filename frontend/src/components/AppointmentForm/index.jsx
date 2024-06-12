@@ -30,9 +30,9 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".doctorName-dd": {
     "& > .MuiFormControl-root": {
       width: "250px",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "100%",
-        marginBottom: "15px"
+        marginBottom: "15px",
       },
     },
   },
@@ -46,10 +46,10 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
     "&.MuiTypography-root": theme.typography.body2,
   },
   ".btn-wrapper": {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "flex",
       justifyContent: "center",
-    }
+    },
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -59,9 +59,9 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
     float: "right",
     marginTop: theme.spacing(8),
     marginBottom: "10px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       marginTop: theme.spacing(5),
-    }
+    },
   },
 }));
 
@@ -74,22 +74,22 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   rowGap: "32px",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     display: "block",
   },
 }));
 
-const RadioFormControl = styled("div")(({ theme }) =>({
+const RadioFormControl = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  [theme.breakpoints.down('sm')]: {
-    marginBottom: "15px"
+  [theme.breakpoints.down("sm")]: {
+    marginBottom: "15px",
   },
   ".MuiFormGroup-root": {
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "space-between"
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: "space-between",
     },
-  }
+  },
 }));
 
 function AppointmentForm(props) {
@@ -102,6 +102,7 @@ function AppointmentForm(props) {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
   const [showLoader, setShowLoader] = useState(false);
+  // const [docInfo, setDocInfo] = useState([]);
   // const dataState = useSelector((state) => state);
   const selectedPatient = JSON.parse(
     sessionStorage?.getItem("selectedPatient")
@@ -125,11 +126,9 @@ function AppointmentForm(props) {
     },
   ];
 
-  const handleDoctorChange = (event, data) => {
-    console.log(event, data);
-    sessionStorage.setItem("doctorId", event?.target?.value);
-    sessionStorage.setItem("doctorName", data?.props?.children);
-    setDoctorId(event?.target?.value);
+  const handleDoctorNameChange = (event) => {
+    sessionStorage.setItem("doctorName", event?.target?.value);
+    setDoctorName(event.target.value);
   };
 
   useEffect(() => {
@@ -145,6 +144,8 @@ function AppointmentForm(props) {
       dispatch(fetchDoctorList(payload)).then((res) => {
         setShowLoader(false);
         const doctorData = res.payload;
+        // setDocInfo((prev) => [...prev, ...doctorData]);
+
         let drList = [];
         doctorData?.map((item) => {
           const data = {
@@ -197,9 +198,7 @@ function AppointmentForm(props) {
 
   return (
     <AppointmentFormWrapper>
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <StyledCard>
         <CardContent>
           <Grid container>
@@ -273,7 +272,7 @@ function AppointmentForm(props) {
             <Typography className="field-title">Visit Type</Typography>
             <FormControl>
               <RadioFormControl component="fieldset">
-                <RadioGroup 
+                <RadioGroup
                   row
                   value={visitTypeValue}
                   onChange={handleVisitTypeChange}
