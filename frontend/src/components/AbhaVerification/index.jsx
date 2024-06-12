@@ -8,6 +8,7 @@ import {
     Typography,
     styled,
     Radio,
+    InputLabel,
   } from "@mui/material";
   import React from "react";
   import OtpInput from "../OTPValidation";
@@ -72,82 +73,87 @@ import {
     abhaAuthModeOptions,
     abhaAuthModeValue,
     handleAbhaGenerateOTP,
-    handleAbhaResetOTP
+    handleAbhaResetOTP,
+    isInputValid
   }) => {
     const dataState = useSelector((state) => state);
     const fetchingAbhaOtp = dataState?.PatientRegistartion?.loading;
   
     return (
       <AbhaVerificationWrapper>
-        <div className="validate-abha-form">
-          <TextField
-            // type="password"
-            value={abha}
-            onChange={handleAbhaChange}
-            error={isAbhaError}
-            className="abha-text"
-          />
-           {/* <Button
-              onClick={() => handleSubmit("abha")}
-              variant="contained"
-              className="verification-btn"
-            >
-                Submit
-            </Button> */}
-        </div>
-        <div>
-          <span style={{ color: "red" }}>
-            {isAbhaError ? "Please enter correct Abha Number" : ""}
-          </span>
-        </div>
+        {!isInputValid && (
+          <>
+            <InputLabel>Enter ABHA Number/Address</InputLabel>
+            <div className="validate-abha-form">
+              <TextField
+                // type="password"
+                value={abha}
+                onChange={handleAbhaChange}
+                error={isAbhaError}
+                className="abha-text"
+                disabled={isInputValid}
+              />
+              {/* <Button
+                  onClick={() => handleSubmit("abha")}
+                  variant="contained"
+                  className="verification-btn"
+                >
+                    Submit
+                </Button> */}
+            </div>
+            <div>
+              <span style={{ color: "red" }}>
+                {isAbhaError ? "Please enter correct Abha Number" : ""}
+              </span>
+            </div>
 
-        {isAbhaAuthMode && (
-            <div style={{ paddingBottom: "1px" }}>
+            {isAbhaAuthMode && (
+              <div style={{ paddingBottom: "1px" }}>
                 <Typography className="otp-title">Select Mode</Typography>
                 <FormControl>
-                    <div component="fieldset">
-                        <RadioGroup
-                            row
-                            value={abhaAuthModeValue}
-                            onChange={handleAbhaAuthModeChange}
-                            style= {{ marginBottom: "10px" }}
-                            >
-                            {abhaAuthModeOptions?.map((option) => (
-                                <FormControlLabel
-                                    key={option.value}
-                                    value={option.value}
-                                    control={<Radio />}
-                                    label={option.label}
-                                />
-                            ))}
-                        </RadioGroup>
-                        {seconds === -1 ? ( //> 0 || seconds < 0
-                            <Button
-                                disabled={isAbhaValid}
-                                onClick={() => handleAbhaGenerateOTP()}
-                                variant="contained"
-                                className="verification-btn"
-                            >
-                            {fetchingAbhaOtp ? <CircularProgress size={24} /> : " Get OTP"}
-                            </Button>
+                  <div component="fieldset">
+                    <RadioGroup
+                      row
+                      value={abhaAuthModeValue}
+                      onChange={handleAbhaAuthModeChange}
+                      style= {{ marginBottom: "10px" }}
+                    >
+                      {abhaAuthModeOptions?.map((option) => (
+                        <FormControlLabel
+                          key={option.value}
+                          value={option.value}
+                          control={<Radio />}
+                          label={option.label}
+                        />
+                      ))}
+                    </RadioGroup>
+                    {seconds === -1 ? ( //> 0 || seconds < 0
+                      <Button
+                        disabled={isAbhaValid}
+                        onClick={() => handleAbhaGenerateOTP()}
+                        variant="contained"
+                        className="verification-btn"
+                      >
+                        {fetchingAbhaOtp ? <CircularProgress size={24} /> : " Get OTP"}
+                      </Button>
+                    ) : (
+                      <Button
+                        disabled={!isAbhaValid}
+                        style={{
+                            color: seconds > 0 ? "#DFE3E8" : "#FFF",
+                        }}
+                        onClick={() => handleAbhaResetOTP()}
+                        variant="contained"
+                        className="verification-btn"
+                      >
+                        {fetchingAbhaOtp ? (
+                            <CircularProgress size={24} />
                         ) : (
-                            <Button
-                            disabled={!isAbhaValid}
-                            style={{
-                                color: seconds > 0 ? "#DFE3E8" : "#FFF",
-                            }}
-                            onClick={() => handleAbhaResetOTP()}
-                            variant="contained"
-                            className="verification-btn"
-                            >
-                            {fetchingAbhaOtp ? (
-                                <CircularProgress size={24} />
-                            ) : (
-                                " Resend OTP"
-                            )}
-                            </Button>
+                            " Resend OTP"
                         )}
-                    </div>
+                      </Button>
+                    )}
+                  </div>
                 </FormControl>
                 {seconds < 0 ? null : (
                     <h4>
@@ -155,18 +161,20 @@ import {
                         {seconds < 10 ? `0${seconds}` : seconds}
                     </h4>
                 )}
-            </div>
-        )}
+              </div>
+            )}
 
-        {abhaOTP && (
-          <div>
-            <Typography className="otp-title">Enter OTP</Typography>
-            <OtpInput
-              setSixDigitOTP={setSixDigitOTP}
-              verifyOTP={verifyOTP}
-              type="abha"
-            />
-          </div>
+            {abhaOTP && (
+              <div>
+                <Typography className="otp-title">Enter OTP</Typography>
+                <OtpInput
+                  setSixDigitOTP={setSixDigitOTP}
+                  verifyOTP={verifyOTP}
+                  type="abha"
+                />
+              </div>
+            )}
+          </>
         )}
       </AbhaVerificationWrapper>
     );

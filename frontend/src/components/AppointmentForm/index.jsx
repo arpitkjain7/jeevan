@@ -93,11 +93,11 @@ const RadioFormControl = styled("div")(({ theme }) =>({
 }));
 
 function AppointmentForm(props) {
-  const [doctorName, setDoctorName] = useState("" || sessionStorage.getItem("doctorName"));
-  const [encounterTypeValue, setEncounterTypeValue] = useState("" || sessionStorage.getItem("encounterTypeValue"));
-  const [appointmentTypeValue, setAppointmentTypeValue] = useState("" || sessionStorage.getItem("appointmentTypeValue"));
-  const [visitTypeValue, setVisitTypeValue] = useState("" || sessionStorage.getItem("visitTypeValue"));
-  const [billingTypeValue, setBillingTypeValue] = useState("" || sessionStorage.getItem("billingTypeValue"));
+  const [doctorId, setDoctorId] = useState("" || sessionStorage.getItem("doctorId"));
+  const [encounterTypeValue, setEncounterTypeValue] = useState("home health" || sessionStorage.getItem("encounterTypeValue"));
+  const [appointmentTypeValue, setAppointmentTypeValue] = useState("first visit" || sessionStorage.getItem("appointmentTypeValue"));
+  const [visitTypeValue, setVisitTypeValue] = useState("consultation" || sessionStorage.getItem("visitTypeValue"));
+  const [billingTypeValue, setBillingTypeValue] = useState("cash" || sessionStorage.getItem("billingTypeValue"));
   const dispatch = useDispatch();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
@@ -125,10 +125,11 @@ function AppointmentForm(props) {
     },
   ];
 
-  const handleDoctorNameChange = (event) => {
-    console.log(event);
-    sessionStorage.setItem("doctorName", event?.target?.value);
-    setDoctorName(event.target.value);
+  const handleDoctorChange = (event, data) => {
+    console.log(event, data);
+    sessionStorage.setItem("doctorId", event?.target?.value);
+    sessionStorage.setItem("doctorName", data?.props?.children);
+    setDoctorId(event?.target?.value);
   };
 
   useEffect(() => {
@@ -180,9 +181,9 @@ function AppointmentForm(props) {
 
   const handleSubmit = () => {
     setShowLoader(true);
-    sessionStorage.setItem("appointment_doctor_id", doctorName);
+    sessionStorage.setItem("appointment_doctor_id", doctorId);
     const data = {
-      doctorId: doctorName,
+      doctorId: doctorId,
       appointmentType: appointmentTypeValue,
       encounterType: encounterTypeValue,
       visitType: visitTypeValue,
@@ -203,7 +204,7 @@ function AppointmentForm(props) {
         <CardContent>
           <Grid container>
             {userDetails?.map((pair, index) => (
-              <Grid item xs={6} md={3}>
+              <Grid item xs={6} md={3} key={index}>
                 <Typography className="appointmentForm-details-key">
                   {pair.label}
                 </Typography>
@@ -222,12 +223,12 @@ function AppointmentForm(props) {
             <Typography className="field-title">Doctor Name</Typography>
             <FormControl>
               <Select
-                value={doctorName}
-                onChange={handleDoctorNameChange}
+                value={doctorId}
+                onChange={handleDoctorChange}
                 placeholder="Doctor Name"
               >
-                {doctorList?.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {doctorList?.map((option, index) => (
+                  <MenuItem key={index} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}

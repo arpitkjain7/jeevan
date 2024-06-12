@@ -162,7 +162,7 @@ const PatientPage = () => {
           onClick: (item) => {
             if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
@@ -300,7 +300,7 @@ const PatientPage = () => {
           onClick: (item) => {
             if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");

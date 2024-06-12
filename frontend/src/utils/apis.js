@@ -47,6 +47,8 @@ export const apis = {
   verifyAadhaarAbha: "v3/HID/registration/aadhaar/verifyOTP",
   suggestAbhaAddress: "v3/HID/registration/aadhaar/suggestAbha",
   createAbhaAddress: "v3/HID/registration/aadhaar/createAbhaAddress",
+  aadhaarMobileGenerateOTP: "v3/HID/registration/updateProfileDetails/generateOTP",
+  addhaarMobileVerifyOTP: "v3/HID/registration/updateProfileDetails/verifyOTP",
   registerAbhaPatient: "v3/patient/register",
   verifyAbhaUser: "v3/HID/retrieveAbha/verifyUser",
   getAbhaProfile: "v3/HID/retrieveAbha/getProfile",

@@ -82,6 +82,8 @@ const AadhaarVerification = ({
   handleNumberChange,
   isMobileError,
   number,
+  newMobileOTP,
+  isInputValid
 }) => {
   const dispatch = useDispatch();
   const dataState = useSelector((state) => state);
@@ -142,71 +144,79 @@ const AadhaarVerification = ({
 
   
   const handleVerifyOTP = () => {
-    verifyOTP(OTPValue, "aadhaar");
+    if(number)
+      verifyOTP(OTPValue, "aadhaar", number);
+    else
+      verifyOTP(OTPValue, "aadhaar");
   };
 
   return (
     <AadhaarVerificationWrapper>
-      <div className="validate-aadhaar-form">
-        <TextField
-          type="password"
-          value={aadhaar}
-          onChange={handleAadhaarChange}
-          error={isAadhaarError}
-          className="aadhaar-text"
-        />
-        {openConsent ? 
-          <Button
-            disabled={!isAadhaarValid}
-            onClick={handleOpen}
-            variant="contained"
-            className="verification-btn"
-          >
-              Submit
-          </Button>
-        : 
-        (
-          seconds === -1 ? ( //> 0 || seconds < 0
-            <Button
-              disabled={!isAadhaarValid}
-              onClick={() => handleSubmit("aadhaar")}
-              variant="contained"
-              className="verification-btn"
-            >
-            {fetchingAadhaarOtp ? <CircularProgress size={24} /> : " Get OTP"}
-            </Button>
-          ) : (
-            <Button
-              disabled={!isAadhaarValid}
-              style={{
-                color: seconds > 0 ? "#DFE3E8" : "#FFF",
-              }}
-              onClick={() => handleSubmit("aadhaar")}
-              variant="contained"
-              className="verification-btn"
-            >
-              {fetchingAadhaarOtp ? (
-                <CircularProgress size={24} />
+      {!newMobileOTP && !isInputValid && (
+        <>
+         <InputLabel>Enter AADHAAR Number</InputLabel>
+          <div className="validate-aadhaar-form">
+            <TextField
+              type="password"
+              value={aadhaar}
+              onChange={handleAadhaarChange}
+              error={isAadhaarError}
+              className="aadhaar-text"
+              disabled={isInputValid}
+            />
+            {openConsent ? 
+              <Button
+                disabled={!isAadhaarValid}
+                onClick={handleOpen}
+                variant="contained"
+                className="verification-btn"
+              >
+                Submit
+              </Button>
+            : 
+            (
+              seconds === -1 ? ( //> 0 || seconds < 0
+                <Button
+                  disabled={!isAadhaarValid}
+                  onClick={() => handleSubmit("aadhaar")}
+                  variant="contained"
+                  className="verification-btn"
+                >
+                {fetchingAadhaarOtp ? <CircularProgress size={24} /> : " Get OTP"}
+                </Button>
               ) : (
-                " Resend OTP"
-              )}
-            </Button>
-          
-        )
-        )}
-      </div>
-      <div>
-        <span style={{ color: "red" }}>
-          {isAadhaarError ? "Please enter correct Aadhaar Number" : ""}
-        </span>
-      </div>
-      {seconds < 0 ? null : (
-        <h4>
-          Resend OTP in: 00:
-          {seconds < 10 ? `0${seconds}` : seconds}
-        </h4>
+                <Button
+                  disabled={!isAadhaarValid}
+                  style={{
+                    color: seconds > 0 ? "#DFE3E8" : "#FFF",
+                  }}
+                  onClick={() => handleSubmit("aadhaar")}
+                  variant="contained"
+                  className="verification-btn"
+                >
+                  {fetchingAadhaarOtp ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    " Resend OTP"
+                  )}
+                </Button>
+              
+            )
+            )}
+          </div>
+          <div>
+            <span style={{ color: "red" }}>
+              {isAadhaarError ? "Please enter correct Aadhaar Number" : ""}
+            </span>
+          </div>
+          {seconds < 0 ? null : (
+            <h4>
+              Resend OTP in: 00:
+              {seconds < 10 ? `0${seconds}` : seconds}
+            </h4>
+          )}
+        </>
       )}
- 
       {!create_abha && aadhaarOTP && (
         <div>
           <Typography className="otp-title">Enter OTP</Typography>
@@ -252,6 +262,35 @@ const AadhaarVerification = ({
             className="phone-text"
           />
            <br/>
+          <Button
+            onClick={handleVerifyOTP}
+            variant="contained"
+            className="verification-btn"
+          > 
+            Verify
+          </Button>
+        </>
+      )}
+
+      {newMobileOTP && (
+        <>
+          <Typography className="otp-title">Enter OTP</Typography>
+          <OtpInputWrapperWrapper>
+            {otp?.map((value, index) => (
+              <TextField
+                key={index}
+                type="text"
+                value={value}
+                onChange={(event) => handleInputChange(event, index)}
+                onKeyUp={(event) => handleKeyChange(event, index)}
+                onPaste={handleInputPaste}
+                inputRef={(el) => (inputRefs.current[index] = el)}
+                inputProps={{ maxLength: 1 }}
+                className="otp-textfield"
+              />
+            ))}
+          </OtpInputWrapperWrapper> 
+          <br/>
           <Button
             onClick={handleVerifyOTP}
             variant="contained"

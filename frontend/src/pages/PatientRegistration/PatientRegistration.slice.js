@@ -91,6 +91,30 @@ export const registerAadhaarAbha = createAsyncThunk(
   }
 );
 
+export const aadhaarMobileGenerateOTP = createAsyncThunk(
+  "registration/aadhaarMobileGenerateOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.aadhaarMobileGenerateOTP,
+      payload
+    );
+    return response;
+  }
+);
+
+export const addhaarMobileVerifyOTP = createAsyncThunk(
+  "registration/addhaarMobileVerifyOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.addhaarMobileVerifyOTP,
+      payload
+    );
+    return response;
+  }
+);
+
 export const verifyAadhaarAbhaOTP = createAsyncThunk(
   "registration/verifyAadhaarAbhaOTP",
   async (payload) => {

@@ -21,35 +21,6 @@ const ConsentTableContainer = styled("div")(({ theme }) => ({
   border: "1px solid rgba(224, 224, 224, 1)",
 }));
 
-const TabsContainer = styled("div")(({ theme }) => ({
-  "&": {
-    backgroundColor: theme.palette.primaryWhite,
-    borderRadius: theme.spacing(2),
-    marginTop: theme.spacing(8),
-    "& .MuiTabs-root": {
-      width: "50%",
-    },
-    "& .MuiTabs-root > .MuiTabs-scroller .MuiButtonBase-root": {
-      border: 0,
-    },
-  },
-  ".table-class": {
-    "&.MuiPaper-root": {
-      borderRadius: "0",
-      boxShadow: "none",
-    },
-    "& .MuiTableHead-root": {
-      "& > tr >th": theme.typography.h3,
-      [theme.breakpoints.down('md')]: {
-        "&": theme.typography.body2
-      },
-    },
-    "& .MuiTableBody-root": {
-      "& > tr >td": theme.typography.body1,
-      textTransform: "none"
-    },
-  },
-}));
 const ButtonWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 6),
   display: "flex",
@@ -85,28 +56,30 @@ const ConsentList = () => {
       dispatch(fetchConsentList(patientId)).then((response) => {
         setShowLoader(false);
         const consentData = response?.payload;
-        const formattedConsentList = consentData?.map((item) => {
-          const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const updatedAt = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const fromDate = convertDateFormat(item?.date_range?.from, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const toDate = convertDateFormat(item?.date_range?.to, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const requested_Hi = item?.hi_type?.requested_hi_types ? item?.hi_type?.requested_hi_types.join(", ") : "";
-          const granted_Hi = item?.hi_type?.granted_hi_types ? item?.hi_type?.granted_hi_types.join(", ") : "";
-          const consentStatus = item?.status;
-          return {
-            consentStatus: consentStatus,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            expireAt: expireAt,
-            fromDate: fromDate,
-            toDate: toDate,
-            requested_Hi: requested_Hi,
-            granted_Hi: granted_Hi,
-            ...item,
-          };
-        });
-        setTableData(formattedConsentList);
+        if(consentData){
+          const formattedConsentList = consentData?.map((item) => {
+            const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+            const updatedAt = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+            const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy hh:mm aaaaa'm'");
+            const fromDate = convertDateFormat(item?.date_range?.from, "dd-MM-yyyy hh:mm aaaaa'm'");
+            const toDate = convertDateFormat(item?.date_range?.to, "dd-MM-yyyy hh:mm aaaaa'm'");
+            const requested_Hi = item?.hi_type?.requested_hi_types ? item?.hi_type?.requested_hi_types.join(", ") : "";
+            const granted_Hi = item?.hi_type?.granted_hi_types ? item?.hi_type?.granted_hi_types.join(", ") : "";
+            const consentStatus = item?.status;
+            return {
+              consentStatus: consentStatus,
+              createdAt: createdAt,
+              updatedAt: updatedAt,
+              expireAt: expireAt,
+              fromDate: fromDate,
+              toDate: toDate,
+              requested_Hi: requested_Hi,
+              granted_Hi: granted_Hi,
+              ...item,
+            };
+          });
+          setTableData(formattedConsentList);
+        } else return;
       });
     }
   }, []);
