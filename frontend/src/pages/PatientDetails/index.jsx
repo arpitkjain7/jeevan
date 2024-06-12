@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PatientDetailsHeader from "../../components/PatientDetailsHeader";
 import CustomTabs from "../../components/Tabs";
 import PastVisits from "../../components/PastVisits";
@@ -7,10 +7,10 @@ import VitalsDetails from "../../components/VitalsDetails";
 import ConsentList from "../../components/ConsentList";
 
 const PatientDetailsWrapper = styled("div")(({ theme }) => ({
-    padding: "45px 10px 10px",
-  [theme.breakpoints.down('sm')]: {
+  padding: "45px 10px 10px",
+  [theme.breakpoints.down("sm")]: {
     padding: "22px 10px 10px",
-  }
+  },
 }));
 
 const TabsContainer = styled("div")(({ theme }) => ({
@@ -18,17 +18,17 @@ const TabsContainer = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.primaryWhite,
     borderRadius: theme.spacing(2),
     marginTop: theme.spacing(8),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       marginTop: theme.spacing(5),
     },
     "& .MuiTabs-root": {
       width: "50%",
-      [theme.breakpoints.only('sm')]: {
-        width: "55%"
+      [theme.breakpoints.only("sm")]: {
+        width: "55%",
       },
-      [theme.breakpoints.down('sm')]: {
-        width: "100%"
-      }
+      [theme.breakpoints.down("sm")]: {
+        width: "100%",
+      },
     },
     "& .MuiTabs-root > .MuiTabs-scroller .MuiButtonBase-root": {
       border: 0,
@@ -37,7 +37,14 @@ const TabsContainer = styled("div")(({ theme }) => ({
 }));
 
 const PatientDetails = () => {
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(() => {
+    const patientDetailsTab = sessionStorage.getItem("Tabs");
+    return patientDetailsTab !== null ? Number(patientDetailsTab) : 0;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("Tabs", tab);
+  }, [tab]);
 
   const handleTabChange = (newValue) => {
     setTab(newValue);

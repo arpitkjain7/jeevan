@@ -45,11 +45,8 @@ const ReportSections = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(5),
 }));
 
-function FhirDoc({ selectedDoc }) {
+const FhirDoc = React.forwardRef(({ selectedDoc }, ref) => {
   const FhirDocDetails = JSON.parse(sessionStorage?.getItem("FhirDocDetails"));
-  const consentSelected = JSON.parse(
-    sessionStorage?.getItem("consentSelected")
-  );
   const DocData = FhirDocDetails?.[selectedDoc];
   const DocDate = DocData.Composition[0].date;
   return (
@@ -139,6 +136,6 @@ function FhirDoc({ selectedDoc }) {
       </HealthReportBody>
     </HealthReportBodyContainer>
   );
-}
+});
 
 export default FhirDoc;

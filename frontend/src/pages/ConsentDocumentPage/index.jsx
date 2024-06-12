@@ -47,17 +47,19 @@ const ConsentDocumentPage = (consentListData) => {
 
   const createDocumentData = (data) => {
     const doclist = [];
-    const pname = { patient_name: selectedPatient?.p_name };
+    const pname = { patient_name: selectedPatient?.name };
     doclist.push(pname);
     const contexts = data?.patientDataTransformed;
-    Object.entries(contexts).forEach(([key]) => {
-      const docObj = {
-        careContext: key,
-        date: data?.createdAt,
-        hipId: data?.hipId,
-      };
-      doclist.push(docObj);
-    });
+    if (contexts && typeof contexts === "object") {
+      Object.entries(contexts).forEach(([key]) => {
+        const docObj = {
+          careContext: key,
+          date: data?.patientDataTransformed?.[key]?.Composition[0]?.date,
+          hipId: data?.hipId,
+        };
+        doclist.push(docObj);
+      });
+    }
     setDocumentData(doclist);
   };
 
@@ -68,31 +70,33 @@ const ConsentDocumentPage = (consentListData) => {
       dispatch(fetchConsentDetails(consentId)).then((response) => {
         const consentData = response?.payload;
         const formattedConsentList = {
-          createdAt: convertDateFormat(consentData?.created_at, "dd-MM-yyyy"),
+          consultationDate: consentData?.patient_data_transformed,
           hipId: consentData?.hip_id,
           patientDataTransformed: consentData?.patient_data_transformed,
         };
-        // const documentReference = consentData?.patient_data_transformed[0]?.DocumentReference?.content;
         createDocumentData(formattedConsentList);
-        console.log("consentData", formattedConsentList);
+        // console.log("consentData", formattedConsentList);
         sessionStorage.setItem(
           "FhirDocDetails",
           JSON.stringify(consentData?.patient_data_transformed)
         );
       });
     }
-  }, []);
+  }, [dispatch]);
 
   const details = [
     {
+      key: "consentStatus",
       label: "Request Status",
       value: consentSelected?.status,
     },
     {
+      key: "consentCreatedOn",
       label: "Consent Created On",
       value: convertDateFormat(consentSelected?.created_at, "dd-MM-yyyy"),
     },
     {
+      key: "consentExpiryOn",
       label: "Consent Expiry On",
       value: convertDateFormat(consentSelected?.expire_at, "dd-MM-yyyy"),
     },
@@ -102,7 +106,7 @@ const ConsentDocumentPage = (consentListData) => {
     <ConsentDocsContainer>
       <ConsentDetailsWrapper>
         {details?.map((item) => (
-          <ConsentHeader>
+          <ConsentHeader key={item.key}>
             <ConsentLabel>{item.label}</ConsentLabel>
             <ConsentValue>{item.value}</ConsentValue>
           </ConsentHeader>

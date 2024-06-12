@@ -38,15 +38,15 @@ const TableComponentWrapper = styled("div")(({ theme }) => ({
   ".search-wrap": {
     padding: theme.spacing(4),
     alignItems: "center",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "block",
     },
     "& .MuiFormControl-root": {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up("sm")]: {
         marginRight: "10px",
         width: "200px",
       },
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginBottom: "8px",
         width: "100%",
       },
@@ -157,7 +157,8 @@ const MyTable = ({
   showFilter,
   handleDateChange,
   filterDateValue,
-  followUpData
+  followUpData,
+  highlightRowOnHover,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -174,7 +175,7 @@ const MyTable = ({
       let formattedDate;
       if (filterDateValue === "") formattedDate = "";
       else formattedDate = convertDateFormat(filterDateValue, "dd/MM/yyyy");
-      
+
       return columns.some(
         (column) =>
           (item["patientId"]
@@ -188,16 +189,18 @@ const MyTable = ({
             item["mobileNumber"]
               ?.toString()
               ?.toLowerCase()
-              ?.includes(lowerCaseSearchTerm)) 
-            && (
-            ((filterSearch === "followup") ? 
-              item["type"]?.toString()?.toLowerCase()?.includes(filterSearch)
+              ?.includes(lowerCaseSearchTerm)) &&
+          ((filterSearch === "followup"
+            ? item["type"]?.toString()?.toLowerCase()?.includes(filterSearch)
             : "") ||
-            ((filterSearch !== "followup") ?
-            item["status"]?.toString()?.toLowerCase()?.includes(filterSearch) : "")
-              // item["type"]?.toString()?.toLowerCase()?.includes(filterSearch))
-            )
-          // && item["slotDate"]?.toString()?.includes(formattedDate)
+            (filterSearch !== "followup"
+              ? item["status"]
+                  ?.toString()
+                  ?.toLowerCase()
+                  ?.includes(filterSearch)
+              : ""))
+        // item["type"]?.toString()?.toLowerCase()?.includes(filterSearch))
+        // && item["slotDate"]?.toString()?.includes(formattedDate)
       );
     } else {
       return columns.some((column) =>
@@ -281,7 +284,7 @@ const MyTable = ({
       )}
       <Paper sx={{ overflow: "hidden" }}>
         <TableContainer
-          // style={tableStyle}
+          style={tableStyle}
           className={tableClassName}
           sx={{ maxHeight: 540 }}
         >
@@ -310,6 +313,7 @@ const MyTable = ({
                 ).map((item) => (
                   <TableRow
                     key={item.id}
+                    hover={highlightRowOnHover}
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns?.map((column) => {
@@ -329,7 +333,11 @@ const MyTable = ({
                           </TableCell>
                         );
                       }
-                      if (column.key !== "actions" && column.key !== "p_name" && column.key !== "start_visit") {
+                      if (
+                        column.key !== "actions" &&
+                        column.key !== "p_name" &&
+                        column.key !== "start_visit"
+                      ) {
                         return (
                           <TableCell key={`${item?.id}-${column?.key}`}>
                             {column?.render
@@ -367,7 +375,9 @@ const MyTable = ({
                                       {item[column?.key]}
                                     </Typography>
                                   );
-                                } else if (column.header === "Create Appointment") {
+                                } else if (
+                                  column.header === "Create Appointment"
+                                ) {
                                   return (
                                     <Typography
                                       key={index}
@@ -375,13 +385,17 @@ const MyTable = ({
                                       onClick={() => action.onClick(item)}
                                       className="linkTypography"
                                     >
-                                      {item.is_verified ? "Create Appointment" : "Verify"}
+                                      {item.is_verified
+                                        ? "Create Appointment"
+                                        : "Verify"}
                                       {/* {action?.key
                                         ? item[action?.key]
                                         : action?.link} */}
                                     </Typography>
                                   );
-                                } else if (column.header === "Start Appointment") {
+                                } else if (
+                                  column.header === "Start Appointment"
+                                ) {
                                   return (
                                     <Typography
                                       key={index}
@@ -389,7 +403,9 @@ const MyTable = ({
                                       onClick={() => action.onClick(item)}
                                       className="linkTypography"
                                     >
-                                      {item.is_verified ? "Start Visit" : "Verify"}
+                                      {item.is_verified
+                                        ? "Start Visit"
+                                        : "Verify"}
                                     </Typography>
                                   );
                                 } else {
@@ -413,14 +429,17 @@ const MyTable = ({
                       }
                     })}
                   </TableRow>
-                ))) 
-                : 
-                  <TableRow>
-                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
-                     <h3>No data found</h3>
-                    </TableCell>
-                  </TableRow>
-                }
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
+                    <h3>No data found</h3>
+                  </TableCell>
+                </TableRow>
+              )}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan="auto" />
@@ -432,7 +451,7 @@ const MyTable = ({
             </TableFooter>
           </Table>
         </TableContainer>
-        {filteredData &&
+        {filteredData && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
             component="div"
@@ -450,7 +469,7 @@ const MyTable = ({
             onRowsPerPageChange={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
           />
-        }
+        )}
       </Paper>
     </TableComponentWrapper>
   );
