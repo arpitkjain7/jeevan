@@ -4,8 +4,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   AppBar,
   Slide,
   Toolbar,
@@ -24,11 +22,8 @@ import {
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import PatientDocuments from "../../components/PatientDocuments";
-import { pdf } from "@react-pdf/renderer";
-import PMRPdf from "../../components/PMRPdf";
 import { postEMR } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import { submitHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { useNavigate } from "react-router-dom";
 import Modal from "@mui/material/Modal";
 import { forwardRef } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -38,8 +33,6 @@ import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
 import imageCompression from "browser-image-compression";
-import EditIcon from "@mui/icons-material/Edit";
-import PatientRegistartionForm from "../PatientRegistrationForm";
 import { differenceInYears, format } from "date-fns";
 import CustomSnackbar from "../CustomSnackbar";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
@@ -187,11 +180,6 @@ const PreviewImageWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const SectionHeader = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.sectionBody,
-  marginBottom: theme.spacing(4),
-}));
-
 const PrimaryButton = styled("button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
 }));
@@ -201,8 +189,6 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const PatientDetailsHeader = ({ documents }) => {
-  const navigate = useNavigate();
-  const patient = sessionStorage?.getItem("selectedPatient");
   const [patientData, setPatientData] = useState({});
   const [open, setOpen] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
@@ -216,7 +202,6 @@ const PatientDetailsHeader = ({ documents }) => {
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
-  const scroll = "paper";
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
   const [cleared, setCleared] = useState(false);
@@ -224,10 +209,8 @@ const PatientDetailsHeader = ({ documents }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isMobileError, setIsMobileError] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const [patientDetails, setPatientdetails] = useState({});
-  const [newPatientDetails, setNewPatientDetails] = useState({});
   const encounterDetail = JSON.parse(sessionStorage.getItem("encounterDetail"));
-  const currentPatient = JSON.parse(patient);
+  const currentPatient = JSON.parse(sessionStorage?.getItem("selectedPatient"));
   useEffect(() => {
     if (cleared) {
       const timeout = setTimeout(() => {
@@ -480,21 +463,6 @@ const PatientDetailsHeader = ({ documents }) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
 
-  // useEffect(() => {
-  //   const patientObject = JSON.parse(patient);
-  //   if (patientObject) {
-  //     const payload = {
-  //       patient_id: patientObject.id,
-  //     };
-  //     console.log(patientObject.id);
-  //     dispatch(getPatientDetails({ payload })).then((res) => {
-  //       const detail = res?.payload;
-  //       sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
-  //       console.log(detail);
-  //       setNewPatientDetails(detail);
-  //     });
-  //   }
-  // }, [patient, dispatch]);
   const handleFormSubmit = () => {
     setShowLoader(true);
     const url = apis?.registerUser;

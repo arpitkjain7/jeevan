@@ -19,10 +19,8 @@ import {
   getPatientDetails,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import {
-  downloadAbha,
   getAbhaCard,
 } from "../../pages/PatientRegistration/PatientRegistration.slice";
-import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import CustomLoader from "../CustomLoader";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
@@ -253,7 +251,7 @@ const RegisterationConfirmation = ({
     // });
   };
   const doctor_details = sessionStorage.getItem("DoctorDetails");
-  // const docName = sessionStorage.getItem("DoctorName");
+  // const docName = sessionStorage.getItem("doctorId");
   const navigateStartVisit = () => {
     setShowLoader(true);
     let currentHospital = {};
@@ -266,7 +264,7 @@ const RegisterationConfirmation = ({
           hip_id: currentHospital?.hip_id,
         };
         dispatch(fetchDoctorList(payload)).then((res) => {
-          const doctorData = res.payload;
+          const doctorData = res?.payload;
           if (doctorData.length > 1) {
             let drList = [];
             doctorData?.map((item) => {

@@ -99,7 +99,7 @@ const PatientPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 600;
-
+  const [docName, setDocName] = useState("");
   const currentDateAndTime = () => {
     const currentDatetime = new Date();
     const year = currentDatetime.getFullYear();
@@ -123,6 +123,12 @@ const PatientPage = () => {
     return formattedDatetime;
   };
 
+  useEffect(() => {
+    if (docName) {
+      console.log(docName);
+      sessionStorage.setItem("docName", docName);
+    }
+  }, [docName]);
   const columns = [
     {
       key: "p_name",
@@ -162,7 +168,7 @@ const PatientPage = () => {
           onClick: (item) => {
             if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
@@ -202,6 +208,16 @@ const PatientPage = () => {
 
                 dispatch(fetchDoctorList(doctorListpayload)).then(
                   (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+                    console.log(
+                      "The response comming from docList  " + response
+                    );
+                    console.log(
+                      "The response comming from docList's array   " +
+                        response[0].doc_name
+                    );
+                    setDocName(response[0].doc_name);
+
                     const payload = {
                       doc_id: doctorListResponse?.payload[0]?.id,
                       patient_id: row?.patient_id || row?.id,
@@ -300,7 +316,7 @@ const PatientPage = () => {
           onClick: (item) => {
             if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
@@ -333,6 +349,9 @@ const PatientPage = () => {
 
                 dispatch(fetchDoctorList(doctorListpayload)).then(
                   (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+
+                    setDocName(response[0].doc_name);
                     const payload = {
                       doc_id: doctorListResponse?.payload[0]?.id,
                       patient_id: row?.id,

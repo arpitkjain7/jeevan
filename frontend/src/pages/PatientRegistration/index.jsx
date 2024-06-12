@@ -9,10 +9,12 @@ import {
   RadioGroup,
   Radio,
   FormControlLabel,
-  FormControl
+  FormControl,
+  Grid,
+  TextField
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ExpandableCard from "../../components/ExpandableCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -30,6 +32,8 @@ import {
   verifyAbhaOTP,
   verifyAbhaUser,
   verifyPhoneOTP,
+  aadhaarMobileGenerateOTP,
+  addhaarMobileVerifyOTP,
 } from "./PatientRegistration.slice";
 import PatientRegistartionForm from "../../components/PatientRegistrationForm";
 import VerificationSelection from "../../components/VerificationSelection";
@@ -42,6 +46,7 @@ import CustomSnackbar from "../../components/CustomSnackbar";
 import CustomLoader from "../../components/CustomLoader";
 import AbhaModeSelection from "../../components/AbhaModeSelection";
 import AbhaVerification from "../../components/AbhaVerification";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const PatientRegisterWrapper = styled("div")(({ theme }) => ({
   "&": {
@@ -54,7 +59,36 @@ const PatientRegisterWrapper = styled("div")(({ theme }) => ({
       padding: "10px 5px",
     },
   },
-
+".heading": { 
+    margin: "50px",
+    fontSize: "30px",
+    textAlign: "center",
+    color: "green",
+},
+"canvas": { 
+    border: "1px solid #1976d294",
+    borderRadius: "20px",
+},
+// "button#reload-button": { 
+//     fontSize: "20px",
+//     padding: "8 16px",
+//     backgroundColor: "green",
+//     cursor: "pointer",
+//     border: "none",
+//     borderRadius: "0.4em",
+//     color: "#ffffff",
+// },
+// "button#reload-button:hover": { 
+//     backgroundColor: "rgb(46, 153, 46)",
+// },
+// "input[type='text']": { 
+//     fontFamily: 'Roboto Mono, monospace',
+//     fontSize: "1rem",
+//     width: "100%",
+//     padding: "16px",
+//     border: "2px solid crimson",
+//     borderRadius: "20px",
+// },
   ".validate-aadhaar-form": {
     display: "flex",
     alignItems: "center",
@@ -125,6 +159,7 @@ const PatientRegistration = () => {
   const [stepTwo, setStepTwo] = useState(false);
   const [stepThree, setStepThree] = useState(false);
   const [stepFour, setStepFour] = useState(false);
+  const [stepFive, setStepFive] = useState(false);
   const [aadhaar, setAadhaar] = useState("");
   const [abha, setAbha] = useState("");
   const dispatch = useDispatch();
@@ -163,6 +198,11 @@ const PatientRegistration = () => {
   const userRole = sessionStorage?.getItem("userRole");
   const currentHospital = JSON.parse(sessionStorage?.getItem("selectedHospital"));
   const scroll = 'paper';
+  const [captchaText, setCaptchaText] = useState(''); 
+  const [userInput, setUserInput] = useState(''); 
+  const canvasRef = useRef(null); 
+  const [newMobileOTP, setNewMobileOTP] = useState(false);
+  const [isInputValid, setIsInputValid] = useState(true);
   
   const adminModes = [
     {
@@ -226,6 +266,7 @@ const PatientRegistration = () => {
     setStepTwo(false);
     setStepThree(false);
     setStepFour(false);
+    setStepFive(false);
     setStepAbha(false);
     setPhoneNumberUsed(true);
     setNumber("");
@@ -249,6 +290,8 @@ const PatientRegistration = () => {
     setAbhaOTPSeconds(-1);
     setOpenConsent(true);
     setConsentCount(0);
+    setNewMobileOTP(false);
+    setIsInputValid(true);
   };
 
   // const abha_pattern = new RegExp(/^[0-9]{14}$/);
@@ -271,6 +314,8 @@ const PatientRegistration = () => {
       setStepTwo(false);
       setStepThree(false);
       setStepFour(false);
+      setStepFive(false);
+      setIsInputValid(true);
       setAadhaar("");
       setAbha("");
       setSixDigitOTP("");
@@ -427,7 +472,8 @@ const PatientRegistration = () => {
             dispatch(verifyAbhaNumber({url, payload})).then((res) => {
               setShowLoader(false);
               if (res?.error && Object.keys(res?.error)?.length > 0) {
-                setErrorMessage("Aadhaar Number is not linked to any mobile number");
+                setErrorMessage("Something went wrong");
+                //Aadhaar Number is not linked to any mobile number
                 setShowSnackbar(true);
                 return;
               }
@@ -496,7 +542,7 @@ const PatientRegistration = () => {
             // setStepTwo(true);
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
-            setPhoneNumberUsed(false);
+            // setPhoneNumberUsed(false);
             // setPhoneDisabled(true);
           } else if(!resData?.txn_id && selectedOption === "abha"){
             // setErrorMessage("The phone number entered does not match with any of the records");
@@ -506,7 +552,7 @@ const PatientRegistration = () => {
           } else if(selectedOption === "phone_number"){
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
-            setPhoneNumberUsed(false);
+            // setPhoneNumberUsed(false);
             // setPhoneDisabled(false);
           }
         });
@@ -551,7 +597,7 @@ const PatientRegistration = () => {
     }
   };
 
-  const verifyOTP = (otp, type) => {
+  const verifyOTP = (otp, type, mobile_number) => {
     if (selectedOption === "abha" && type === "aadhaar") {
       if(selectedAbhaModeOption === "link_abha"){
         const payload = {
@@ -585,29 +631,66 @@ const PatientRegistration = () => {
           }
         });
       } else if(selectedAbhaModeOption === "create_abha"){
-        const payload = {
-          otp: otp,
-          mobileNumber: number,
-          txnId: aadhaarDataTxn,
-          hipId: currentHospital?.hip_id,
-        };
-        dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
-          if (res?.error && Object.keys(res?.error)?.length > 0) {
-            setErrorMessage("Invalid OTP");
-            setShowSnackbar(true);
-            setStepThree(false);
-            return;
-          }
-          if(res?.payload?.ABHAProfile) {
-            dispatch(suggestAbhaAddress(res?.payload?.txnId)).then((result) => {
+        if(newMobileOTP){
+          dispatch(addhaarMobileVerifyOTP(
+            {
+              txnId: aadhaarDataTxn,
+              mode: 'mobile',
+              otp: otp
+            })).then(addhaarMobileVerifyOTPResponse => {
+              console.log(addhaarMobileVerifyOTPResponse);
+              if(addhaarMobileVerifyOTPResponse?.payload?.request_status === "COMPLETED"){
+                dispatch(suggestAbhaAddress(addhaarMobileVerifyOTPResponse?.payload?.txnId)).then((result) => {
+                  setAbhaSuggestionList(result?.payload?.abhaAddressList);
+                  setAbhaSuggestionTxnId(result?.payload?.transaction_id);
+                  setStepThree(true);
+                });
+              } else { 
+                setErrorMessage("Something went wrong");
+                return;
+              }
+            })
+        } else {
+          const payload = {
+            otp: otp,
+            mobileNumber: number,
+            txnId: aadhaarDataTxn,
+            hipId: currentHospital?.hip_id,
+          };
+          dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
+            if (res?.error && Object.keys(res?.error)?.length > 0) {
+              setErrorMessage("Invalid OTP");
+              setShowSnackbar(true);
+              setStepThree(false);
+              return;
+            }
+            if(res?.payload?.ABHAProfile?.mobile !== mobile_number){
               setPatientAbhaData(res?.payload?.ABHAProfile);
               setPatientAbhaToken(res?.payload?.tokens?.token);
-              setAbhaSuggestionList(result?.payload?.abhaAddressList);
-              setAbhaSuggestionTxnId(result?.payload?.txnId);
-              setStepThree(true);
-            })
-          }
-        });
+              dispatch(aadhaarMobileGenerateOTP(
+                {
+                  txnId: aadhaarDataTxn,
+                  mode: 'mobile',
+                  mobile: mobile_number
+                })).then(aadhaarMobileOTPResponse => {
+                  if(aadhaarMobileOTPResponse?.payload){
+                    setStepFive(true);
+                    setNewMobileOTP(true);
+                  }
+                  else return;
+                })
+            } else if (res?.payload?.ABHAProfile?.mobile === null){
+            } else {
+              dispatch(suggestAbhaAddress(res?.payload?.txnId)).then((result) => {
+                setPatientAbhaData(res?.payload?.ABHAProfile);
+                setPatientAbhaToken(res?.payload?.tokens?.token);
+                setAbhaSuggestionList(result?.payload?.abhaAddressList);
+                setAbhaSuggestionTxnId(result?.payload?.txnId);
+                setStepThree(true);
+              })
+            }
+          });
+        }
       }
     } else if (selectedOption === "phone_number" && type === "phone_number") {
       const payload = {
@@ -672,11 +755,72 @@ const PatientRegistration = () => {
     }
   };
 
+const generateRandomChar = (min, max) => 
+    String.fromCharCode(Math.floor 
+  (Math.random() * (max - min + 1) + min)); 
+
+const generateCaptchaText = () => { 
+    let captcha = ''; 
+    for (let i = 0; i < 3; i++) { 
+        captcha += generateRandomChar(65, 90); 
+        captcha += generateRandomChar(97, 122); 
+        captcha += generateRandomChar(48, 57); 
+    } 
+    return captcha.split('').sort( 
+        () => Math.random() - 0.5).join(''); 
+}; 
+
+const drawCaptchaOnCanvas = (ctx, captcha) => { 
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); 
+    const textColors = ['rgb(0,0,0)', 'rgb(130,130,130)']; 
+    const letterSpace = 150 / captcha.length; 
+    for (let i = 0; i < captcha.length; i++) { 
+        const xInitialSpace = 25; 
+        ctx.font = '20px Roboto Mono'; 
+        ctx.fillStyle = textColors[Math.floor( 
+            Math.random() * 2)]; 
+        ctx.fillText( 
+            captcha[i], 
+            xInitialSpace + i * letterSpace, 
+              
+            // Randomize Y position slightly 
+            Math.floor(Math.random() * 16 + 25), 
+            100 
+        ); 
+    } 
+}; 
+
+const initializeCaptcha = (ctx) => { 
+    setUserInput(''); 
+    const newCaptcha = generateCaptchaText(); 
+    setCaptchaText(newCaptcha); 
+    drawCaptchaOnCanvas(ctx, newCaptcha); 
+}; 
+
+const handleUserInputChange = (e) => { 
+    setUserInput(e.target.value); 
+}; 
+
+const handleCaptchaSubmit = () => { 
+    if (userInput === captchaText) { 
+        // alert('Success'); 
+        setIsInputValid(false);
+    } else { 
+        // alert('Incorrect'); 
+        const canvas = canvasRef.current; 
+        const ctx = canvas.getContext('2d'); 
+        initializeCaptcha(ctx); 
+        setIsInputValid(true);
+    } 
+}; 
   useEffect(() => {
     if(stepAbha){
       setRegistration(false);
     }
     if (stepOne) {
+      const canvas = canvasRef.current; 
+      const ctx = canvas.getContext('2d'); 
+      initializeCaptcha(ctx); 
       setRegistration(false);
       if (selectedOption === "abha") {
         setAbhaRegistration(false);
@@ -692,6 +836,9 @@ const PatientRegistration = () => {
 
     if (stepTwo) {
       setUserDeatilsForm(false);
+      const canvas = canvasRef.current; 
+      const ctx = canvas.getContext('2d'); 
+      initializeCaptcha(ctx); 
       if (selectedOption === "abha") {
         setRegistration(false);
         setAbhaRegistration(false);
@@ -706,12 +853,20 @@ const PatientRegistration = () => {
     }
 
     if (stepThree) {
+      // const canvas = canvasRef.current; 
+      // const ctx = canvas.getContext('2d'); 
+      // initializeCaptcha(ctx); 
       setRegistration(false);
       setAbhaRegistration(false);
       setVerifyAadhaar(false);
       setVerifyNumber(false);
       setVerifyAbha(false);
       setUserDeatilsForm(true);
+    }
+    if(stepFour){
+      const canvas = canvasRef.current; 
+      const ctx = canvas.getContext('2d'); 
+      initializeCaptcha(ctx); 
     }
   }, [stepOne, stepTwo, stepThree, stepFour, selectedOption]);
 
@@ -738,7 +893,8 @@ const PatientRegistration = () => {
       }
   
       if (aadhaarOTPseconds === 0) {
-        clearInterval(interval);       
+        clearInterval(interval);
+        setIsAadhaarValid(true);   
       }
     }, 1000);
     return () => {
@@ -753,7 +909,8 @@ const PatientRegistration = () => {
       }
   
       if (abhaOTPseconds === 0) {
-        clearInterval(interval);       
+        clearInterval(interval);
+        setIsAbhaValid(true);
       }
     }, 1000);
     return () => {
@@ -960,18 +1117,37 @@ const PatientRegistration = () => {
           completed={(selectedOption === "abha" && stepThree)}
         >
           <p style={{ marginTop: 0 }}>If the patient has an ABHA, kindly provide the linked mobile number. Otherwise, it is preferable to enter their Aadhaar-linked mobile number for easy registration</p>
-         <PhoneVerification
-           number={number}
-           handleNumberChange={handleNumberChange}
-           isMobileError={isMobileError}
-           handleSubmit={handleSubmit}
-           PhoneDisabled={PhoneDisabled}
-           setSixDigitOTP={setSixDigitOTP}
-           verifyOTP={verifyOTP}
-           seconds={seconds}
-           phoneNumberUsed={phoneNumberUsed}
-           selectedAbhaModeOption={selectedAbhaModeOption}
-         /> 
+          <div style={{display: "inline-flex", margin: "20px 0 40px"}}> 
+            <canvas ref={canvasRef} 
+                width="200"
+                height="60">
+            </canvas> 
+            <RefreshIcon style={{ alignSelf: "center", margin: "0 20px 0 2px" }} fontSize="large" variant="contained" color="primary" 
+              onClick={() => initializeCaptcha(canvasRef.current.getContext('2d'))}> 
+            </RefreshIcon>
+              <TextField 
+                type="text"
+                placeholder="Enter the text in the image"
+                value={userInput} 
+                onChange={handleUserInputChange}
+                style={{ alignSelf: "center" }}
+              /> &nbsp;
+                <Button variant="contained" color="primary" onClick={handleCaptchaSubmit} 
+                  style={{ alignSelf: "center", marginLeft: "6px", padding: "8px 25px", height: "40px"}}> Submit </Button>
+            </div>
+            <PhoneVerification
+              number={number}
+              handleNumberChange={handleNumberChange}
+              isMobileError={isMobileError}
+              handleSubmit={handleSubmit}
+              PhoneDisabled={PhoneDisabled}
+              setSixDigitOTP={setSixDigitOTP}
+              verifyOTP={verifyOTP}
+              seconds={seconds}
+              phoneNumberUsed={phoneNumberUsed}
+              selectedAbhaModeOption={selectedAbhaModeOption}
+              isInputValid={isInputValid}
+            /> 
        </ExpandableCard>
       )}
       {selectedOption === "abha" && stepTwo && !checkedOption && (
@@ -979,9 +1155,27 @@ const PatientRegistration = () => {
           title="AADHAAR number"
           expanded={verifyAadhaar}
           setExpanded={setVerifyAadhaar}
-          completed={(selectedOption === "abha" && stepThree)}
+          completed={(selectedOption === "abha" && stepThree) || (selectedOption === "abha" && stepFive)}
         >
           <p style={{ marginTop: 0 }}>No ABHA linked to the given mobile number. To proceed with registration, kindly enter the patient's Aadhaar number</p>
+          <div style={{display: "inline-flex", margin: "20px 0 40px"}}> 
+            <canvas ref={canvasRef} 
+                width="200"
+                height="60">
+            </canvas> 
+            <RefreshIcon style={{ alignSelf: "center", margin: "0 20px 0 2px" }} fontSize="large" variant="contained" color="primary" 
+              onClick={() => initializeCaptcha(canvasRef.current.getContext('2d'))}> 
+            </RefreshIcon>
+              <TextField 
+                type="text"
+                placeholder="Enter the text in the image"
+                value={userInput} 
+                onChange={handleUserInputChange}
+                style={{ alignSelf: "center" }}
+              /> &nbsp;
+                <Button variant="contained" color="primary" onClick={handleCaptchaSubmit} 
+                  style={{ alignSelf: "center", marginLeft: "6px", padding: "8px 25px", height: "40px"}}> Submit </Button>
+            </div>
           <AadhaarVerification
             aadhaar={aadhaar}
             handleAadhaarChange={handleAadhaarChange}
@@ -998,7 +1192,9 @@ const PatientRegistration = () => {
             handleNumberChange={handleNumberChange}
             isMobileError={isMobileError}
             number={number}
+            isInputValid={isInputValid}
           /> 
+        
         </ExpandableCard>
       )}
       {selectedOption === "abha" && stepFour && !checkedOption && (
@@ -1008,6 +1204,24 @@ const PatientRegistration = () => {
           setExpanded={setVerifyAbha}
           completed={(selectedOption === "abha" && stepThree)}
         >
+           <div style={{display: "inline-flex", margin: "20px 0 40px"}}> 
+            <canvas ref={canvasRef} 
+                width="200"
+                height="60">
+            </canvas> 
+            <RefreshIcon style={{ alignSelf: "center", margin: "0 20px 0 2px" }} fontSize="large" variant="contained" color="primary" 
+              onClick={() => initializeCaptcha(canvasRef.current.getContext('2d'))}> 
+            </RefreshIcon>
+              <TextField 
+                type="text"
+                placeholder="Enter the text in the image"
+                value={userInput} 
+                onChange={handleUserInputChange}
+                style={{ alignSelf: "center" }}
+              /> &nbsp;
+                <Button variant="contained" color="primary" onClick={handleCaptchaSubmit} 
+                  style={{ alignSelf: "center", marginLeft: "6px", padding: "8px 25px", height: "40px"}}> Submit </Button>
+            </div>
           <AbhaVerification
             abha={abha}
             handleAbhaChange={handleAbhaChange}
@@ -1024,7 +1238,9 @@ const PatientRegistration = () => {
             abhaAuthModeValue={abhaAuthModeValue}
             handleAbhaGenerateOTP={handleAbhaGenerateOTP}
             handleAbhaResetOTP={handleAbhaResetOTP}
+            isInputValid={isInputValid}
           /> 
+          
         </ExpandableCard>
       )}
       {(selectedOption === "phone_number" && stepOne && checkedOption &&
@@ -1047,7 +1263,28 @@ const PatientRegistration = () => {
           /> 
         </ExpandableCard>
       )}
-
+       {selectedOption === "abha" && stepFive && (
+        <ExpandableCard
+          title="New Mobile"
+          expanded={verifyAadhaar}
+          setExpanded={setVerifyAadhaar}
+          completed={(selectedOption === "abha" && stepThree)}
+        >
+          <p style={{ marginTop: 0 }}>Provided mobile number does not match with Aadhaar linked mobiled number. Please verify OTP to get details linked with provided aadhaar number</p>
+          <AadhaarVerification
+            setSixDigitOTP={setSixDigitOTP}
+            verifyOTP={verifyOTP}
+            aadhaarOTP={false}
+            newMobileOTP={newMobileOTP}
+            handleOpen={handleOpen}
+            // create_abha={selectedAbhaModeOption === "create_abha"}
+            // handleNumberChange={handleNumberChange}
+            // isMobileError={isMobileError}
+            number={number}
+          /> 
+        
+        </ExpandableCard>
+      )}
       {(selectedOption === "phone_number" && checkedOption && stepTwo) ||
       (selectedOption === "abha" && stepThree && !checkedOption) ||
       (!checkedOption && stepOne && selectedOption === "phone_number") ? (
