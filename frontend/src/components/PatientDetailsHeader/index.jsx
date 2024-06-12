@@ -43,9 +43,7 @@ import PatientRegistartionForm from "../PatientRegistrationForm";
 import { differenceInYears, format } from "date-fns";
 import CustomSnackbar from "../CustomSnackbar";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
-import patientDetailsReducer, {
-  getPatientDetails,
-} from "../../pages/PatientDetails/patientDetailsSlice";
+
 import { apis } from "../../utils/apis";
 import BackDropDash from "../BackDropDash";
 
@@ -227,7 +225,8 @@ const PatientDetailsHeader = ({ documents }) => {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [patientDetails, setPatientdetails] = useState({});
   const [newPatientDetails, setNewPatientDetails] = useState({});
-
+  const encounterDetail = JSON.parse(sessionStorage.getItem("encounterDetail"));
+  const currentPatient = JSON.parse(patient);
   useEffect(() => {
     if (cleared) {
       const timeout = setTimeout(() => {
@@ -239,19 +238,29 @@ const PatientDetailsHeader = ({ documents }) => {
     return () => {};
   }, [cleared]);
 
-  useEffect(() => {
-    const currentPatient = JSON.parse(patient);
+  // useEffect(() => {
+  //   if (currentPatient) {
+  //     if (Object.keys(currentPatient)?.length) {
+  //       setPatientData(currentPatient);
+  //     } else {
+  //       setPatientData({});
+  //     }
+  //   }
+  // }, []);
 
+  useEffect(() => {
     if (currentPatient) {
       if (Object.keys(currentPatient)?.length) {
-        setPatientData(currentPatient);
-        setPatientdetails(currentPatient);
-      } else {
-        setPatientData({});
+        setPatientData(currentPatient || currentPatient?.patient_details);
       }
+    } else {
+      setPatientData({});
     }
   }, []);
 
+  useEffect(() => {
+    console.log("Patient Data:", patientData); // Log current state
+  }, [patientData]);
   const onSnackbarClose = () => {
     setShowSnackbar(false);
   };
@@ -383,7 +392,7 @@ const PatientDetailsHeader = ({ documents }) => {
     let appointment_request;
     if (followUp) {
       appointment_request = {
-        appointment_id: patientData?.id,
+        appointment_id: encounterDetail?.id || currentPatient?.id,
         followup_date: followUp
           ? convertDateFormat(followUp, "yyyy-MM-dd")
           : "",
@@ -391,7 +400,7 @@ const PatientDetailsHeader = ({ documents }) => {
       };
     } else {
       appointment_request = {
-        appointment_id: patientData?.id,
+        appointment_id: encounterDetail?.id || currentPatient?.id,
         consultation_status: "Completed",
       };
     }
@@ -421,7 +430,8 @@ const PatientDetailsHeader = ({ documents }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setPatientdetails((prevData) => ({
+    console.log(name + " " + value);
+    setPatientData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -429,24 +439,24 @@ const PatientDetailsHeader = ({ documents }) => {
       // && value !== "01-01-1900"
       if (value) {
         const age = differenceInYears(new Date(), new Date(value));
-        setPatientdetails((prevData) => ({
+        setPatientData((prevData) => ({
           ...prevData,
           age_in_years: age,
         }));
       } else {
-        setPatientdetails((prevData) => ({
+        setPatientData((prevData) => ({
           ...prevData,
           age_in_years: "",
         }));
       }
     } else if (name === "age_in_years") {
-      setPatientdetails((prevData) => ({
+      setPatientData((prevData) => ({
         ...prevData,
         age_in_years: value,
       }));
-      console.log(patientDetails.DOB);
-      if (patientDetails.DOB) {
-        const birthDate = new Date(patientDetails.DOB);
+      console.log(patientData.DOB);
+      if (patientData.DOB) {
+        const birthDate = new Date(patientData.DOB);
         const dateToday = new Date();
         let year = dateToday.getFullYear();
         const calculated_birth_year = year - value;
@@ -457,7 +467,7 @@ const PatientDetailsHeader = ({ documents }) => {
         console.log(birthMonth, birthDay);
         const dateOfBirth = `${calculated_birth_year}-${birthMonth}-${birthDay}`;
         console.log(convertDateFormat(dateOfBirth, "yyyy-MM-dd"));
-        setPatientdetails((prevData) => ({
+        setPatientData((prevData) => ({
           ...prevData,
           DOB: convertDateFormat(dateOfBirth, "yyyy-MM-dd"),
         }));
@@ -469,45 +479,40 @@ const PatientDetailsHeader = ({ documents }) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
 
-  useEffect(() => {
-    const patientObject = JSON.parse(patient);
-    if (patientObject) {
-      const payload = {
-        patient_id: patientObject.id,
-      };
-      console.log(patientObject.id);
-      dispatch(getPatientDetails({ payload })).then((res) => {
-        const detail = res?.payload;
-        sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
-        console.log(detail);
-        setNewPatientDetails(detail);
-      });
-    }
-  }, [patient, dispatch]);
+  // useEffect(() => {
+  //   const patientObject = JSON.parse(patient);
+  //   if (patientObject) {
+  //     const payload = {
+  //       patient_id: patientObject.id,
+  //     };
+  //     console.log(patientObject.id);
+  //     dispatch(getPatientDetails({ payload })).then((res) => {
+  //       const detail = res?.payload;
+  //       sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
+  //       console.log(detail);
+  //       setNewPatientDetails(detail);
+  //     });
+  //   }
+  // }, [patient, dispatch]);
   const handleFormSubmit = () => {
     setShowLoader(true);
     const url = apis?.registerUser;
 
     const payload = {
-      id: patientDetails.id,
-      name: patientDetails.name,
-      gender: patientDetails.gender,
-      DOB: patientDetails.DOB
-        ? convertDateFormat(patientDetails?.DOB, "dd-MM-yyyy")
+      id: patientData.id,
+      name: patientData.name,
+      gender: patientData.gender,
+      DOB: patientData.DOB
+        ? convertDateFormat(patientData?.DOB, "dd-MM-yyyy")
         : "",
-      age: patientDetails.age_in_years
-        ? patientDetails.age_in_years.toString()
-        : "",
-      email: patientDetails.email,
-      mobile_number: patientDetails.mobile_number,
+      age: patientData.age_in_years ? patientData.age_in_years.toString() : "",
+      email: patientData.email,
+      mobile_number: patientData.mobile_number,
     };
     dispatch(registerPatient({ payload, url: url })).then((res) => {
       if (res?.payload) {
-        setPatientData(patientDetails);
-        sessionStorage?.setItem(
-          "selectedPatient",
-          JSON.stringify(patientDetails)
-        );
+        setPatientData(patientData);
+        sessionStorage?.setItem("selectedPatient", JSON.stringify(patientData));
       } else {
         setErrorMessage("Error while updating details");
         setShowSnackbar(true);
@@ -519,7 +524,9 @@ const PatientDetailsHeader = ({ documents }) => {
   const [backDrop, setBackDrop] = useState(false);
   const handleBackdrop = () => {
     setBackDrop(!backDrop);
+    console.log(backDrop);
   };
+
   return (
     <DetailsHeaderContainer>
       <div>{backDrop && <BackDropDash />}</div>
@@ -530,34 +537,45 @@ const PatientDetailsHeader = ({ documents }) => {
         </div>
         <div className="details-Patientdetails">
           <Typography className="details-patient-name">
-            {newPatientDetails?.name || patientData?.name}
+            {currentPatient?.name || currentPatient?.patient_details?.name}
           </Typography>
           <div className="details-subContainer">
             <Typography className="details-patient-id">
-              {newPatientDetails?.patient_uid || patientData?.patient_uid}
+              {currentPatient?.patient_uid ||
+                currentPatient?.patient_details?.patient_uid}
             </Typography>
             <Typography className="details-patient-id">
-              {newPatientDetails?.age_in_years + "Y "}
+              {currentPatient?.patient_details?.age_in_years !== undefined
+                ? currentPatient.patient_details.age_in_years + "Y"
+                : currentPatient?.age_in_years !== undefined
+                ? currentPatient.age_in_years + "Y"
+                : "N/A"}
             </Typography>
             <Typography className="details-patient-id">
-              {newPatientDetails?.gender}
+              {currentPatient?.gender ||
+                currentPatient?.patient_details?.gender}
             </Typography>
           </div>
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {newPatientDetails?.email || "Email - N/A"}
+            {currentPatient?.email ||
+              currentPatient?.patient_details?.email ||
+              "Email - N/A"}
           </Typography>
           <Typography className="details-patient-email">
-            {patientData?.mobileNumber || patientData?.mobile_number}
+            {currentPatient?.mobileNumber ||
+              currentPatient?.patient_details?.mobile_number}
           </Typography>
         </div>
         <div className="details-emailContainer">
           <Typography className="details-patient-email">
-            {newPatientDetails?.abha_address}
+            {currentPatient?.abha_address ||
+              currentPatient?.patient_details?.abha_address}
           </Typography>
           <Typography className="details-patient-email">
-            {patientData?.abha_number}
+            {currentPatient?.abha_number ||
+              currentPatient?.patient_details?.abha_number}
           </Typography>
         </div>
         <div className="details-emailContainer">
@@ -747,7 +765,9 @@ const PatientDetailsHeader = ({ documents }) => {
                 <TextField
                   label="First Name"
                   name="name"
-                  value={patientDetails?.name}
+                  value={
+                    patientData?.name || currentPatient?.patient_details?.name
+                  }
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
                   required
@@ -780,7 +800,10 @@ const PatientDetailsHeader = ({ documents }) => {
                   <RadioGroup
                     aria-label="gender"
                     name="gender"
-                    value={patientDetails?.gender}
+                    value={
+                      patientData?.gender ||
+                      currentPatient?.patient_details?.gender
+                    }
                     onChange={handleChange}
                   >
                     <Grid>
@@ -807,7 +830,9 @@ const PatientDetailsHeader = ({ documents }) => {
                 <TextField
                   label="DOB"
                   name="DOB"
-                  value={patientDetails?.DOB}
+                  value={
+                    patientData?.DOB || currentPatient?.patient_details?.DOB
+                  }
                   onChange={handleChange}
                   type="date"
                   inputProps={{
@@ -823,11 +848,14 @@ const PatientDetailsHeader = ({ documents }) => {
                 <TextField
                   label="Age(in years)"
                   name="age_in_years"
-                  value={patientDetails?.age_in_years}
+                  value={
+                    patientData?.age_in_years ||
+                    currentPatient?.patient_details?.age_in_years
+                  }
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
-                  // style={{ width: "50%" }}
-                  // required
+                  style={{ width: "50%" }}
+                  required
                   fullWidth
                 />
               </Grid>
@@ -835,7 +863,9 @@ const PatientDetailsHeader = ({ documents }) => {
                 <TextField
                   label="Email Address"
                   name="email"
-                  value={patientDetails?.email}
+                  value={
+                    patientData?.email || currentPatient?.patient_details?.email
+                  }
                   onChange={handleChange}
                   type="email"
                   InputLabelProps={{ shrink: true }}
@@ -848,7 +878,10 @@ const PatientDetailsHeader = ({ documents }) => {
                   name="mobile_number"
                   label="Mobile Number"
                   type="number"
-                  value={patientDetails?.mobile_number}
+                  value={
+                    patientData?.mobile_number ||
+                    currentPatient?.patient_details?.mobile_number
+                  }
                   error={isMobileError}
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}

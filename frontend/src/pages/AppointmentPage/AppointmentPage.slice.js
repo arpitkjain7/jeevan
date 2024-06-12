@@ -43,10 +43,11 @@ export const listAppointmentByDate = createAsyncThunk(
 
 export const fetchPatientDetails = createAsyncThunk(
   "fetchPatientDetails",
-  async (payload) => {
+  async (id) => {
     const response = await apiRequest(
       "GET",
-      `${apis?.fetchPatientDetails}/${payload.pId}`
+      apis?.fetchPatientDetails + "/" + id,
+      null
     );
     return response;
   }

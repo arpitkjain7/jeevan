@@ -16,11 +16,7 @@ import { Delete, Assignment } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getEMRId,
-  postEMR,
-  searchVitalsDetails,
-} from "./EMRPage.slice";
+import { getEMRId, postEMR, searchVitalsDetails } from "./EMRPage.slice";
 import CustomAutoComplete from "../../../components/CustomAutoComplete";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import PMRPdf from "../../../components/PMRPdf";
@@ -28,14 +24,14 @@ import { submitPdf } from "../../../components/PMRPdf/pmrPdf.slice";
 import { useNavigate } from "react-router-dom";
 import { calculateBMI } from "../../../utils/utils";
 import CustomizedDialogs from "../../../components/Dialog";
-import { pdfjs } from 'react-pdf';
+import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
 import "react-pdf";
 import CustomLoader from "../../../components/CustomLoader";
 import { format } from "date-fns";
 import SendPMR from "../SendPMR";
 import CustomSnackbar from "../../../components/CustomSnackbar";
-
+import { getPatientDetails } from "./EMRPage.slice";
 const isMobile = window.innerWidth < 1000;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
@@ -83,8 +79,8 @@ const EMRFormWrapper = styled("div")(({ theme }) => ({
   },
 }));
 const EMRFormInnerWrapper = styled("div")(({ theme }) => ({
-    // height: "500px",
-    // overflow: "scroll",
+  // height: "500px",
+  // overflow: "scroll",
 }));
 
 const VitalsContainer = styled("div")(({ theme }) => ({
@@ -106,10 +102,10 @@ const VitalsContainer = styled("div")(({ theme }) => ({
     },
   },
   "& .textareaAutoSizeStyle": {
-    height: "165px", 
-    minHeight: "165px", 
-    maxHeight: "165px", 
-    width: "100%", 
+    height: "165px",
+    minHeight: "165px",
+    maxHeight: "165px",
+    width: "100%",
     minWidth: "100%",
     maxWidth: "100%",
     [theme.breakpoints.down("sm")]: {
@@ -198,11 +194,11 @@ const PDFViewerWrapper = styled("div")(({ theme }) => ({
 }));
 
 const PDFButtonWrapper = styled("div")(({ theme }) => ({
-  display: "flex", 
+  display: "flex",
   justifyContent: "center",
-  gap: "16px", 
-  position: "sticky", 
-  bottom: 0,  
+  gap: "16px",
+  position: "sticky",
+  bottom: 0,
   border: `1px solid ${theme.palette.primaryBlue}`,
   backgroundColor: "#b2d6f0",
   padding: theme.spacing(2, 2),
@@ -430,7 +426,9 @@ const PatientEMRDetails = (props) => {
   const [labInvestigationSpecs, setLabInvestigationSpecs] = useState({});
   const [bodyMassIndex, setBodyMassIndex] = useState("");
   const medicalHistoryRef = useRef();
-  const patient = sessionStorage?.getItem("selectedPatient");
+  const encounterDetail = JSON.parse(
+    sessionStorage?.getItem("encounterDetail")
+  );
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
   const [submitEMRPayload, setSubmitEMRPayload] = useState({});
@@ -443,14 +441,15 @@ const PatientEMRDetails = (props) => {
   const [dose, setDose] = useState("");
   const [documents, setDocuments] = useState(true);
   const navigate = useNavigate();
-  const currentPatient = JSON.parse(patient);
+  const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const [emrId, setEMRId] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [symptomOptions, setSymptomOptions] = useState("");
   const [medicalHistoryOptions, setMedicalHistoryOptions] = useState("");
   const [diagnosisOptions, setDiagnosisOptions] = useState("");
-  const [examinationFindingOptions, setExaminationFindingOptions] = useState("");
+  const [examinationFindingOptions, setExaminationFindingOptions] =
+    useState("");
   const [medicationOptions, setMedicationOptions] = useState("");
   const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
   const [notifyModal, setNotifyModal] = useState(false);
@@ -475,9 +474,8 @@ const PatientEMRDetails = (props) => {
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   // const [retryCount, setRetryCount] = useState(0);
-  // const [functionCalled, setFunctionCalled] = useState(false); 
+  // const [functionCalled, setFunctionCalled] = useState(false);
   // const [gatewayRequestId, setGatewayRequestId]= useState("");
-  
 
   useEffect(() => {
     if (cleared) {
@@ -519,23 +517,30 @@ const PatientEMRDetails = (props) => {
     // });
 
     // if (!sessionStorage.getItem("pmrID")) {
-    const currentPatient = JSON.parse(patient);
-    if (Object.keys(currentPatient)?.length) {
+
+    if (
+      (encounterDetail && Object.keys(encounterDetail).length) ||
+      (currentPatient && Object.keys(currentPatient).length)
+    ) {
       const emrPayload = {
-        patient_id: currentPatient?.patientId,
-        doc_id: currentPatient?.doc_id,
-        appointment_id: currentPatient?.id,
-        hip_id: currentPatient?.hip_id,
+        patient_id: encounterDetail?.patientId || currentPatient.patientId,
+        doc_id: encounterDetail?.doc_id || currentPatient.doc_id,
+        appointment_id: encounterDetail?.id || currentPatient.id,
+        hip_id: encounterDetail?.hip_id || currentPatient.hip_id,
         consultation_status: "InProgress",
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
         setShowLoader(false);
         setEMRId(res?.payload?.pmr_details.id);
         sessionStorage.setItem("pmrID", res?.payload?.pmr_details.id);
+        sessionStorage.setItem(
+          "ID",
+          res?.payload?.appointment_details?.patient_id
+        );
         const pmrDetails = res?.payload?.pmr_details.pmr_data;
         setAdvices(res?.payload?.pmr_details?.advices);
-        setPrescriptionComment(res?.payload?.pmr_details?.notes);       
-        // { res.payload?.appointment_details?.followup_date !== null ? 
+        setPrescriptionComment(res?.payload?.pmr_details?.notes);
+        // { res.payload?.appointment_details?.followup_date !== null ?
         //   setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
         // }
         setFollowUp(res.payload?.appointment_details?.followup_date);
@@ -681,7 +686,7 @@ const PatientEMRDetails = (props) => {
                   timing: medicationData?.time_of_day,
                   dose: medicationData?.dosage,
                   since: medicationData?.duration,
-                  notes: medicationData?.notes
+                  notes: medicationData?.notes,
                 },
               }));
             });
@@ -691,7 +696,7 @@ const PatientEMRDetails = (props) => {
     }
     // }
   }, []);
-  
+
   useEffect(() => {
     if (symptomOptions.length >= 2) {
       // Call your API here and fetch data based on the inputValue
@@ -707,7 +712,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -732,7 +737,7 @@ const PatientEMRDetails = (props) => {
     } else {
       setSymptomsOpts([]);
     }
-  }, [symptomOptions])
+  }, [symptomOptions]);
 
   useEffect(() => {
     if (medicalHistoryOptions.length >= 2) {
@@ -746,7 +751,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -771,7 +776,7 @@ const PatientEMRDetails = (props) => {
     } else {
       setMedicalHistoryOpts([]);
     }
-  }, [medicalHistoryOptions])
+  }, [medicalHistoryOptions]);
 
   useEffect(() => {
     if (examinationFindingOptions.length >= 2) {
@@ -787,7 +792,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -812,7 +817,7 @@ const PatientEMRDetails = (props) => {
     } else {
       setExamFindingsOpts([]);
     }
-  }, [examinationFindingOptions])
+  }, [examinationFindingOptions]);
 
   useEffect(() => {
     if (diagnosisOptions.length >= 2) {
@@ -828,7 +833,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -853,7 +858,7 @@ const PatientEMRDetails = (props) => {
     } else {
       setDiagnosisOpts([]);
     }
-  }, [diagnosisOptions])
+  }, [diagnosisOptions]);
 
   useEffect(() => {
     if (labInvestigationOptions.length >= 2) {
@@ -869,7 +874,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -894,7 +899,7 @@ const PatientEMRDetails = (props) => {
     } else {
       setLabInvestigationsOpts([]);
     }
-  }, [labInvestigationOptions])
+  }, [labInvestigationOptions]);
 
   useEffect(() => {
     if (medicationOptions.length >= 2) {
@@ -910,7 +915,7 @@ const PatientEMRDetails = (props) => {
       dispatch(searchVitalsDetails(queryParams)).then((res) => {
         const customData = [];
         const resData = res.payload?.data;
-        if(resData?.length > 0){
+        if (resData?.length > 0) {
           resData?.map((item) => {
             const customItem = {
               label: item?.term,
@@ -935,11 +940,11 @@ const PatientEMRDetails = (props) => {
     } else {
       setMedicationsOpts([]);
     }
-  }, [medicationOptions])
+  }, [medicationOptions]);
 
   const handleMeidcalHistoryChange = async (event) => {
     setTimeout(() => {
-      setMedicalHistoryOptions(event.target.value); 
+      setMedicalHistoryOptions(event.target.value);
     }, 1000);
   };
   const handleExistingConditionsChange = async (event) => {
@@ -976,32 +981,32 @@ const PatientEMRDetails = (props) => {
   const handleSymptompsChange = async (event) => {
     setTimeout(() => {
       setSymptomOptions(event.target.value);
-    }, 1000)
+    }, 1000);
   };
   const handleExamFindingsChange = async (event) => {
     setTimeout(() => {
       setExaminationFindingOptions(event.target.value);
-    }, 1000)
+    }, 1000);
   };
   const handleDiagnosisChange = async (event) => {
     setTimeout(() => {
       setDiagnosisOptions(event.target.value);
-    }, 1000)
+    }, 1000);
   };
   const handleMedicationsChange = async (event) => {
     setTimeout(() => {
       setMedicationOptions(event.target.value);
-    }, 1000)
+    }, 1000);
   };
   const handleLabInvestigationsChange = async (event) => {
     setTimeout(() => {
       setLabInvestigationOptions(event.target.value);
-    }, 1000)
+    }, 1000);
   };
 
   const clearMedicalHistoryOptions = (event) => {
     setMedicalHistoryOpts([]);
-  }
+  };
   const handleMedicalHistoryValue = (event, value) => {
     if (value) {
       // setShowMedicalHistory(true);
@@ -1015,15 +1020,18 @@ const PatientEMRDetails = (props) => {
           notes: "",
         },
       });
-      if(value?.label){
+      if (value?.label) {
         setMedicalHistory([...medicalHistory, fieldValue]);
       } else {
-        setMedicalHistory((medicalHistory) => [...medicalHistory, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setMedicalHistory((medicalHistory) => [
+          ...medicalHistory,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       setMedicalHistoryOpts([]);
     }
@@ -1040,7 +1048,7 @@ const PatientEMRDetails = (props) => {
   };
   const clearSymptomsOptions = (event) => {
     setSymptomsOpts([]);
-  }
+  };
   const handleSymptoms = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1048,15 +1056,18 @@ const PatientEMRDetails = (props) => {
         ...symptomsSpecs,
         [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      if(value?.label){
+      if (value?.label) {
         setSymptoms([...symptoms, fieldValue]);
       } else {
-        setSymptoms((symptoms) => [...symptoms, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setSymptoms((symptoms) => [
+          ...symptoms,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       setSymptomsOpts([]);
     }
@@ -1073,7 +1084,7 @@ const PatientEMRDetails = (props) => {
   // };
   const clearExaminationFindingOptions = (event) => {
     setExamFindingsOpts([]);
-  }
+  };
   const handleExaminationFindings = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1082,15 +1093,18 @@ const PatientEMRDetails = (props) => {
         [value?.label || value]: { notes: "" },
       });
 
-      if(value?.label){
+      if (value?.label) {
         setExamFinding([...examFindings, fieldValue]);
       } else {
-        setExamFinding((examFindings) => [...examFindings, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setExamFinding((examFindings) => [
+          ...examFindings,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       // handleExaminationTextChange(value, "notes", "");
       setExamFindingsOpts([]);
@@ -1098,7 +1112,7 @@ const PatientEMRDetails = (props) => {
   };
   const clearDiagnosisOptions = (event) => {
     setDiagnosisOpts([]);
-  }
+  };
   const handleDiagnosis = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1107,22 +1121,25 @@ const PatientEMRDetails = (props) => {
         [value?.label || value]: { since: "", severity: "", notes: "" },
       });
 
-      if(value?.label){
+      if (value?.label) {
         setDiagnosis([...diagnosis, fieldValue]);
       } else {
-        setDiagnosis((diagnosis) => [...diagnosis, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setDiagnosis((diagnosis) => [
+          ...diagnosis,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       setDiagnosisOpts([]);
     }
   };
   const clearMedicationOptions = (event) => {
     setMedicationsOpts([]);
-  }
+  };
   const handleMedications = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1130,23 +1147,26 @@ const PatientEMRDetails = (props) => {
         ...medicationsSpecs,
         [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-     
-      if(value?.label){
+
+      if (value?.label) {
         setMedications([...medications, fieldValue]);
       } else {
-        setMedications((medications) => [...medications, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setMedications((medications) => [
+          ...medications,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       setMedicationsOpts([]);
     }
   };
   const clearLabInvestigationOptions = (event) => {
     setLabInvestigationsOpts([]);
-  }
+  };
   const handleLabInvestigations = (event, value) => {
     if (value) {
       const fieldValue = value;
@@ -1154,16 +1174,19 @@ const PatientEMRDetails = (props) => {
         ...labInvestigationSpecs,
         [value?.label || value]: { since: "", severity: "", notes: "" },
       });
-      
-      if(value?.label){
-        setLabInvestigation([...labInvestigation, fieldValue]); 
+
+      if (value?.label) {
+        setLabInvestigation([...labInvestigation, fieldValue]);
       } else {
-        setLabInvestigation((labInvestigation) => [...labInvestigation, {
-          label: fieldValue,
-          value: fieldValue,
-          snowmed_code: "",
-          snowmed_display: "",
-        }]);
+        setLabInvestigation((labInvestigation) => [
+          ...labInvestigation,
+          {
+            label: fieldValue,
+            value: fieldValue,
+            snowmed_code: "",
+            snowmed_display: "",
+          },
+        ]);
       }
       // handleLabTextChange(value, "notes", "");
       setLabInvestigationsOpts([]);
@@ -1287,13 +1310,13 @@ const PatientEMRDetails = (props) => {
   };
   const handleMedicationsTextChange = (option, textField, newValue) => {
     let inputValue;
-    if(textField === "severity"){
+    if (textField === "severity") {
       const severityValue = newValue.trim().replace(/[^0-9]/g, "");
       if (severityValue.length < 3) {
         inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
       } else if (severityValue.length < 6) {
         inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
-      } else inputValue = ""
+      } else inputValue = "";
     } else inputValue = newValue;
     setMedicationsSpecs({
       ...medicationsSpecs,
@@ -1643,20 +1666,23 @@ const PatientEMRDetails = (props) => {
       mode: "digital",
       pmr_id: emrId,
     };
-    const current_patient = JSON.parse(patient);
+
     let appointment_request;
     if (followUp) {
       appointment_request = {
-        appointment_id: current_patient?.id,
+        appointment_id: currentPatient?.id || encounterDetail?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed",
       };
     } else {
       appointment_request = {
-        appointment_id: current_patient?.id,
+        appointment_id: currentPatient?.id || encounterDetail?.id,
         consultation_status: "Completed",
       };
     }
+    console.log("currentPatient:", currentPatient);
+    console.log("encounterDetail:", encounterDetail);
+    console.log("appointment_request:", appointment_request);
     const allData = {
       pmr_request,
       appointment_request,
@@ -1672,14 +1698,12 @@ const PatientEMRDetails = (props) => {
             } else {
               setDocumentId(pdfResponse?.payload?.data?.document_id);
               setNotifyModal(true);
-              
             }
           })
           .catch((error) => {
             console.log(error);
-          })
-        }
-      )
+          });
+      })
       .catch((error) => {
         console.log(error);
       });
@@ -1790,14 +1814,18 @@ const PatientEMRDetails = (props) => {
         patientNumber:
           currentPatient?.mobileNumber || currentPatient?.mobile_number || "-",
         patientId: currentPatient?.patientId || "-",
-        patientAgeInYears: currentPatient?.patient_details?.age_in_years || currentPatient?.age_in_years,
-        patientAgeInMonths: currentPatient?.patient_details?.age_in_months || currentPatient?.age_in_months
+        patientAgeInYears:
+          currentPatient?.patient_details?.age_in_years ||
+          currentPatient?.age_in_years,
+        patientAgeInMonths:
+          currentPatient?.patient_details?.age_in_months ||
+          currentPatient?.age_in_months,
       };
     }
     const pdfFormattedData = submitEMRPayload;
     pdfFormattedData["advice"] = advices;
     pdfFormattedData["notes"] = prescriptionComment;
-    if(followUp){
+    if (followUp) {
       pdfFormattedData["followup"] = followUp;
     }
     setPdfData(pdfFormattedData);
@@ -1811,7 +1839,7 @@ const PatientEMRDetails = (props) => {
 
     setPmrFinished(true);
     setStep("preview");
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     // console.log(pdfjs.version);
     // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     //   'pdfjs-dist/build/pdf.worker.min.js',
@@ -1912,16 +1940,16 @@ const PatientEMRDetails = (props) => {
     pmr_request["notes"] = prescriptionComment;
 
     let appointment_request;
-    const current_patient = JSON.parse(patient);
+
     if (followUp) {
       appointment_request = {
-        appointment_id: current_patient?.id,
+        appointment_id: encounterDetail?.id,
         followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "InProgress",
       };
     } else {
       appointment_request = {
-        appointment_id: current_patient?.id,
+        appointment_id: encounterDetail?.id,
         consultation_status: "InProgress",
       };
     }
@@ -1937,8 +1965,8 @@ const PatientEMRDetails = (props) => {
       //     currentPatient?.patient_details?.abha_number !== ""
       //   )
       // ) {
-        navigate("/appointment-list");
-        sessionStorage.removeItem("pmrID");
+      navigate("/appointment-list");
+      sessionStorage.removeItem("pmrID");
       // }
     });
   };
@@ -2127,9 +2155,7 @@ const PatientEMRDetails = (props) => {
         status={"error"}
         onClose={onSnackbarClose}
       />
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <CustomizedDialogs
         open={pmrDialogOpen}
         handleClose={handlePmrDialogClose}
@@ -2184,11 +2210,13 @@ const PatientEMRDetails = (props) => {
                       </TextFieldWrapper>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
-                      <Typography variant="subtitle1">Blood Pressure</Typography>
+                      <Typography variant="subtitle1">
+                        Blood Pressure
+                      </Typography>
                       <BPTextFieldWrapper>
                         <Grid item xs={8}>
                           <BPWrapper>
-                          <SystolicTextField
+                            <SystolicTextField
                               fullWidth
                               type="number"
                               variant="outlined"
@@ -2206,7 +2234,7 @@ const PatientEMRDetails = (props) => {
                               value={formValues.diastolicaBP}
                               onChange={handleInputChange}
                               className="emr-input-field"
-                            />                           
+                            />
                           </BPWrapper>
                         </Grid>
                         <Grid item xs={4}>
@@ -2295,7 +2323,9 @@ const PatientEMRDetails = (props) => {
                       </TextFieldWrapper>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
-                      <Typography variant="subtitle1">Body mass index</Typography>
+                      <Typography variant="subtitle1">
+                        Body mass index
+                      </Typography>
                       <TextFieldWrapper>
                         <Grid item xs={8}>
                           <BPWrapper>
@@ -2340,7 +2370,9 @@ const PatientEMRDetails = (props) => {
                                     symptomNumber,
                                     item
                                   )}
-                                  value={symptomsSpecs[item?.label]?.since || ""}
+                                  value={
+                                    symptomsSpecs[item?.label]?.since || ""
+                                  }
                                   onChange={(e, newValue) =>
                                     generateSymptomsOptionChange(
                                       item,
@@ -2353,12 +2385,12 @@ const PatientEMRDetails = (props) => {
                                     handleSymptomNumberOptions(item, newValue)
                                   }
                                   renderInput={(params) => (
-                                      <TextField
-                                        {...params}
-                                        type="tel"
-                                        label="Since"
-                                        variant="outlined"
-                                      />
+                                    <TextField
+                                      {...params}
+                                      type="tel"
+                                      label="Since"
+                                      variant="outlined"
+                                    />
                                   )}
                                 />
                               </TextBoxLayout>
@@ -2445,7 +2477,9 @@ const PatientEMRDetails = (props) => {
                                 </Modal>
 
                                 <DeleteField
-                                  onClick={handleSymptomsSpecsDelete(item?.label)}
+                                  onClick={handleSymptomsSpecsDelete(
+                                    item?.label
+                                  )}
                                 >
                                   Delete
                                 </DeleteField>
@@ -2510,8 +2544,8 @@ const PatientEMRDetails = (props) => {
                                 <Autocomplete
                                   options={relationshipOptions}
                                   value={
-                                    optionTextValues[item?.label]?.relationship ||
-                                    ""
+                                    optionTextValues[item?.label]
+                                      ?.relationship || ""
                                   }
                                   onChange={(e, newValue) =>
                                     handleRelationshipChange(item, newValue)
@@ -2762,7 +2796,9 @@ const PatientEMRDetails = (props) => {
                               <TextBoxLayout className="addMinWidth">
                                 <Autocomplete
                                   options={diagnosisStatusOpts}
-                                  value={diagnosisSpecs[item?.label]?.since || ""}
+                                  value={
+                                    diagnosisSpecs[item?.label]?.since || ""
+                                  }
                                   onChange={(e, newValue) =>
                                     handleDiganosisOptionChange(
                                       item,
@@ -2863,8 +2899,8 @@ const PatientEMRDetails = (props) => {
                                           className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
-                                            diagnosisSpecs[item?.label]?.notes ||
-                                            ""
+                                            diagnosisSpecs[item?.label]
+                                              ?.notes || ""
                                           }
                                           onChange={(e) =>
                                             handleDiagnosisTextChange(
@@ -2924,8 +2960,8 @@ const PatientEMRDetails = (props) => {
                                   <RecordTextField
                                     placeholder="Notes"
                                     value={
-                                      labInvestigationSpecs[item?.label]?.notes ||
-                                      ""
+                                      labInvestigationSpecs[item?.label]
+                                        ?.notes || ""
                                     }
                                     onChange={(e) =>
                                       handleLabTextChange(
@@ -3036,11 +3072,15 @@ const PatientEMRDetails = (props) => {
                                   {item?.label || item}
                                 </SelectedRecord>
                               </RecordLayout>
-                              <TextBoxLayout className="desktopTextBoxLayout" style={{ minWidth: "90px" }}>
+                              <TextBoxLayout
+                                className="desktopTextBoxLayout"
+                                style={{ minWidth: "90px" }}
+                              >
                                 <RecordTextField
                                   placeholder="Frequency"
                                   value={
-                                    medicationsSpecs[item?.label]?.severity || ""
+                                    medicationsSpecs[item?.label]?.severity ||
+                                    ""
                                   }
                                   onChange={(e) =>
                                     handleMedicationsTextChange(
@@ -3048,9 +3088,9 @@ const PatientEMRDetails = (props) => {
                                       "severity",
                                       e.target.value
                                     )
-                                  }                                  
+                                  }
                                   type="tel"
-                                  inputProps={{ maxLength: 5}}
+                                  inputProps={{ maxLength: 5 }}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3058,9 +3098,7 @@ const PatientEMRDetails = (props) => {
                               <TextBoxLayout className="desktopTextBoxLayout">
                                 <Autocomplete
                                   options={timingOptions} // Replace with your actual timing options
-                                  value={
-                                    medicationsSpecs[item?.label]?.timing 
-                                  }
+                                  value={medicationsSpecs[item?.label]?.timing}
                                   onChange={(event, newValue) =>
                                     handleMedicationsTextChange(
                                       item,
@@ -3136,7 +3174,8 @@ const PatientEMRDetails = (props) => {
                                   placeholder="Frequency"
                                   type="tel"
                                   value={
-                                    medicationsSpecs[item?.label]?.severity || ""
+                                    medicationsSpecs[item?.label]?.severity ||
+                                    ""
                                   }
                                   onChange={(e) =>
                                     handleMedicationsTextChange(
@@ -3145,7 +3184,7 @@ const PatientEMRDetails = (props) => {
                                       e.target.value
                                     )
                                   }
-                                  inputProps={{ maxLength: 5}}
+                                  inputProps={{ maxLength: 5 }}
                                   label="Frequency"
                                   variant="outlined"
                                 />
@@ -3192,7 +3231,7 @@ const PatientEMRDetails = (props) => {
                                 </TextBoxLayout>
                               </NotesWrapper>
                               <DeleteWrapper>
-                              <p
+                                <p
                                   onClick={handleOpenMedicationNotes}
                                   className="mobile"
                                 >
@@ -3234,7 +3273,8 @@ const PatientEMRDetails = (props) => {
                                           className="textareaAutoSizeStyle"
                                           placeholder="Notes"
                                           value={
-                                            medicationsSpecs[item?.label]?.notes || ""
+                                            medicationsSpecs[item?.label]
+                                              ?.notes || ""
                                           }
                                           onChange={(e) =>
                                             handleMedicationsTextChange(
@@ -3280,7 +3320,7 @@ const PatientEMRDetails = (props) => {
                       }}
                       value={followUp}
                       onChange={handleDateChange}
-                      />
+                    />
                     {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
                         <MobileDatePicker
@@ -3353,16 +3393,23 @@ const PatientEMRDetails = (props) => {
             notifyModal={notifyModal}
             handleNotifyModalClose={handleNotifyModalClose}
             documentId={documentId}
-          />          
+          />
           {!isMobile && (
-            <div style={{ position: "absolute", width: "-webkit-fill-available"}}>
+            <div
+              style={{ position: "absolute", width: "-webkit-fill-available" }}
+            >
               <PDFViewerWrapper>
                 <PDFViewer style={{ width: "100%", height: "100%" }} zoom={1}>
                   <PMRPdf patientData={patientData} />
                 </PDFViewer>
               </PDFViewerWrapper>
               <PDFButtonWrapper>
-                <SecondaryButton onClick={editPMR} style={{ padding: "8px 16px" }}>Edit</SecondaryButton>
+                <SecondaryButton
+                  onClick={editPMR}
+                  style={{ padding: "8px 16px" }}
+                >
+                  Edit
+                </SecondaryButton>
                 <PrimaryButton onClick={postPMR}>
                   Finish Prescription
                 </PrimaryButton>
@@ -3386,20 +3433,17 @@ const PatientEMRDetails = (props) => {
               </div>
               <PDFViewerWrapper>
                 <PDFViewer>
-                  <Document
-                    file={pdfUrl}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                  >
+                  <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
                     {Array.apply(null, Array(numPages))
-                    .map((x, i)=>i+1)
-                    .map((page, index) =>
-                      <Page
-                        pageNumber={page}
-                        key={index}
-                        renderTextLayer={true}
-                        width={width - 15}
-                      />
-                    )}
+                      .map((x, i) => i + 1)
+                      .map((page, index) => (
+                        <Page
+                          pageNumber={page}
+                          key={index}
+                          renderTextLayer={true}
+                          width={width - 15}
+                        />
+                      ))}
                   </Document>
                 </PDFViewer>
               </PDFViewerWrapper>

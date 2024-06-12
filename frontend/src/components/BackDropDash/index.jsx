@@ -24,34 +24,22 @@ export default function BackDropDash() {
       setIsMobileError(value.length !== 10);
     }
   };
+  const patient = JSON.parse(sessionStorage.getItem("selectedPatient"));
+  console.log(patient);
 
-  const Data = useSelector((state) => state.getPatientDetails.patientDetail);
-
-  const onhandleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      setLoading(true);
-      setError(false);
-
-      // Simulate API call
-      // await someAPICall(formData);
-
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-      setError(true);
-    }
-  };
-
-  const date = Data?.created_at
-    ? Data.created_at.slice(0, 10)
+  const date = patient?.created_at
+    ? patient.created_at.slice(0, 10)
     : "Not Available";
 
   return (
     <Backdrop
-      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{
+        color: "#fff",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
       open={open}
       onClick={handleClose}
     >
@@ -59,151 +47,215 @@ export default function BackDropDash() {
         <CircularProgress color="inherit" />
       ) : (
         <Box
-          height={500}
-          width={500}
-          my={4}
-          display="flex"
-          flexDirection="column"
-          margin={"10px 10px"}
-          gap={2}
-          p={2}
           sx={{
-            border: "2px solid grey",
-            backgroundColor: "white",
-            borderRadius: "2%",
+            width: "80%",
+            maxWidth: 600,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            borderRadius: 2,
+            p: 4,
             overflowY: "auto",
             position: "relative",
+            maxHeight: "80vh",
           }}
         >
           <Button
             onClick={handleClose}
-            sx={{ position: "absolute", top: 8, right: 8, color: red[500] }}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              color: red[500],
+            }}
           >
             <CloseIcon />
           </Button>
-          <Grid container spacing={2} marginBottom={"15px"}>
-            <Grid
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              item
-              xs={12}
-            >
-              <Typography sx={{ fontWeight: 600 }} variant="h1">
-                Patient Details
+          <Typography variant="h5" fontWeight={600} gutterBottom>
+            Patient Details
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>DOB:</strong>{" "}
+                {patient?.DOB ||
+                  patient?.patient_details?.DOB ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>DOB : {Data?.DOB || "Not Available"}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Aadhaar Number : {Data?.aadhar_number || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Aadhaar Number:</strong>{" "}
+                {patient?.aadhar_number ||
+                  patient?.patient_details?.aadhar_number ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Abha Address : {Data?.abha_address || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Abha Address:</strong>{" "}
+                {patient?.abha_address ||
+                  patient?.patient_details?.abha_address ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Abha Number : {Data?.abha_number || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Abha Number:</strong>{" "}
+                {patient?.abha_number ||
+                  patient?.patient_details?.abha_number ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Abha S3 Location : {Data?.abha_s3_location || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Abha S3 Location:</strong>{" "}
+                {patient?.abha_s3_location ||
+                  patient?.patient_details?.abha_s3_location ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Abha Status : {Data?.abha_status || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Abha Status:</strong>{" "}
+                {patient?.abha_status ||
+                  patient?.patient_details?.abha_status ||
+                  "Not Available"}
               </Typography>
             </Grid>
-
-            <Grid item xs={6}>
-              <Typography>
-                Address : {Data?.address || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Address:</strong>{" "}
+                {patient?.address ||
+                  patient?.patient_details?.address ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Age in Month : {Data?.age_in_months || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Age in Month:</strong>{" "}
+                {patient?.age_in_months ||
+                  patient?.patient_details?.age_in_months ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Age in Year : {Data?.age_in_years || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Age in Year:</strong>{" "}
+                {patient?.age_in_years ||
+                  patient?.patient_details?.age_in_years ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>Created At : {date}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                District : {Data?.district || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Created At:</strong>{" "}
+                {patient?.patient_details?.created_at ||
+                  patient?.created_at ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                District Code : {Data?.district_code || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>District:</strong>{" "}
+                {patient?.district ||
+                  patient?.patient_details?.district ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                HIP ID : {Data?.hip_id || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>District Code:</strong>{" "}
+                {patient?.district_code ||
+                  patient?.patient_details?.district_code ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Patient UID : {Data?.patient_uid || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>HIP ID:</strong>{" "}
+                {patient?.hip_id ||
+                  patient?.patient_details?.hip_id ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Pincode : {Data?.pincode || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Patient UID:</strong>{" "}
+                {patient?.patient_uid ||
+                  patient?.patient_details?.patient_uid ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Primary Abha Address :{" "}
-                {Data?.primary_abha_address || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Pincode:</strong>{" "}
+                {patient?.pincode ||
+                  patient?.patient_details?.pincode ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                State Code : {Data?.state_code || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Primary Abha Address:</strong>{" "}
+                {patient?.primary_abha_address ||
+                  patient?.patient_details?.primary_abha_address ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                State Name : {Data?.state_name || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>State Code:</strong>{" "}
+                {patient?.state_code ||
+                  patient?.patient_details?.state_code ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Status Code : {Data?.state_code || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>State Name:</strong>{" "}
+                {patient?.state_name ||
+                  patient?.patient_details?.state_name ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>Town : {Data?.town || "Not Available"}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Village: {Data?.village || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Status Code:</strong>{" "}
+                {patient?.status_code ||
+                  patient?.patient_details?.status_code ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Village Code : {Data?.village_code || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Town:</strong>{" "}
+                {patient?.town ||
+                  patient?.patient_details?.town ||
+                  "Not Available"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>
-                Year of Birth: {Data?.year_of_birth || "Not Available"}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Village:</strong>{" "}
+                {patient?.village ||
+                  patient?.patient_details?.village ||
+                  "Not Available"}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Village Code:</strong>{" "}
+                {patient?.village_code ||
+                  patient?.patient_details?.village_code ||
+                  "Not Available"}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" color="textPrimary">
+                <strong>Year of Birth:</strong>{" "}
+                {patient?.year_of_birth ||
+                  patient?.patient_details?.year_of_birth ||
+                  "Not Available"}
               </Typography>
             </Grid>
           </Grid>
