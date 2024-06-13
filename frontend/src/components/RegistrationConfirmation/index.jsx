@@ -341,7 +341,6 @@ const RegisterationConfirmation = ({
   };
 
   const handleDrSubmit = (doctor_id, doctor_name) => {
-    console.log(doctor_id, doctor_name);
     if (doctor_id) {
       sessionStorage.setItem("doctorId", doctor_id);
     } else sessionStorage.setItem("doctorId", doctorID);
@@ -369,8 +368,8 @@ const RegisterationConfirmation = ({
 
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
-            dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              sessionStorage.setItem("selectedPatient", JSON.stringify(res?.payload));
+            dispatch(getPatientDetails(patientData?.id)).then((patientDataResponse) => {
+              sessionStorage.setItem("selectedPatient", JSON.stringify(patientDataResponse?.payload));
               const patientPayload = res?.payload || {}; // Ensure res?.payload is an object
 
               const allPatientData = {

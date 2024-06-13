@@ -151,7 +151,7 @@ const AadhaarPatientRegForm = ({
             setShowSnackbar(true);
             return;
           }
-          sessionStorage.setItem("selectedPatient", res?.payload);
+          sessionStorage.setItem("selectedPatient", JSON.stringify(res?.payload));
           let userDetails;
           if(patientAbhaToken){
             userDetails = ({
