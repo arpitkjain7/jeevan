@@ -145,6 +145,7 @@ const PatientRegistration = () => {
   const [abhaRegistration, setAbhaRegistration] = useState(true);
   const [registration, setRegistration] = useState(true);
   const [verifyAadhaar, setVerifyAadhaar] = useState(true);
+  const [verifyUpdateAbhaMobile, setVerifyUpdateAbhaMobile] = useState(true);
   const [verifyNumber, setVerifyNumber] = useState(true);
   const [userDetailsForm, setUserDeatilsForm] = useState(true);
   const [sixDigitOTP, setSixDigitOTP] = useState("");
@@ -201,6 +202,7 @@ const PatientRegistration = () => {
   const [captchaText, setCaptchaText] = useState(''); 
   const [userInput, setUserInput] = useState(''); 
   const canvasRef = useRef(null); 
+  const [abhaNewMobile, setAbhaNewMobile] = useState("");
   const [newMobileOTP, setNewMobileOTP] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
   
@@ -277,6 +279,7 @@ const PatientRegistration = () => {
     setAbhaAuthModeValue("");
     setVerifyNumber(true);
     setVerifyAadhaar(true);
+    setVerifyUpdateAbhaMobile(true);
     setVerifyAbha(true);
     setAbhaRegistration(true);
     setRegistration(true);
@@ -293,7 +296,13 @@ const PatientRegistration = () => {
     setNewMobileOTP(false);
     setIsInputValid(true);
   };
-
+  useEffect(() => {
+    const canvas = canvasRef.current; 
+    if (canvas){
+      const ctx = canvas.getContext('2d'); 
+    }
+    // initializeCaptcha(ctx); 
+  }, []);
   // const abha_pattern = new RegExp(/^[0-9]{14}$/);
   const aadhaar_regex = new RegExp('^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$');
   const mobile_pattern = new RegExp(/^[789]\d{9}$/);
@@ -631,6 +640,7 @@ const PatientRegistration = () => {
           }
         });
       } else if(selectedAbhaModeOption === "create_abha"){
+        setShowLoader(true);
         if(newMobileOTP){
           dispatch(addhaarMobileVerifyOTP(
             {
@@ -638,15 +648,17 @@ const PatientRegistration = () => {
               mode: 'mobile',
               otp: otp
             })).then(addhaarMobileVerifyOTPResponse => {
-              console.log(addhaarMobileVerifyOTPResponse);
               if(addhaarMobileVerifyOTPResponse?.payload?.request_status === "COMPLETED"){
                 dispatch(suggestAbhaAddress(addhaarMobileVerifyOTPResponse?.payload?.transaction_id)).then((result) => {
                   setAbhaSuggestionList(result?.payload?.abhaAddressList);
                   setAbhaSuggestionTxnId(addhaarMobileVerifyOTPResponse?.payload?.transaction_id);
+                  setShowLoader(false);
                   setStepThree(true);
                 });
               } else { 
-                setErrorMessage("Something went wrong");
+                setErrorMessage("Invalid OTP");
+                setShowLoader(false);
+                setShowSnackbar(true);
                 return;
               }
             })
@@ -660,6 +672,7 @@ const PatientRegistration = () => {
           dispatch(verifyAadhaarAbhaOTP(payload)).then((res) => {
             if (res?.error && Object.keys(res?.error)?.length > 0) {
               setErrorMessage("Invalid OTP");
+              setShowLoader(false);
               setShowSnackbar(true);
               setStepThree(false);
               return;
@@ -674,9 +687,12 @@ const PatientRegistration = () => {
                   mobile: mobile_number
                 })).then(aadhaarMobileOTPResponse => {
                   if(aadhaarMobileOTPResponse?.payload){
-                    setStepFive(true);
                     setVerifyAadhaar(false);
                     setNewMobileOTP(true);
+                    setAbhaNewMobile(mobile_number);
+                    setShowLoader(false);
+                    setStepFive(true);
+                   
                   }
                   else return;
                 })
@@ -860,6 +876,7 @@ const handleCaptchaSubmit = () => {
       setRegistration(false);
       setAbhaRegistration(false);
       setVerifyAadhaar(false);
+      setVerifyUpdateAbhaMobile(false);
       setVerifyNumber(false);
       setVerifyAbha(false);
       setUserDeatilsForm(true);
@@ -1267,11 +1284,11 @@ const handleCaptchaSubmit = () => {
        {selectedOption === "abha" && stepFive && (
         <ExpandableCard
           title="Update Mobile"
-          expanded={verifyAadhaar}
-          setExpanded={setVerifyAadhaar}
+          expanded={verifyUpdateAbhaMobile}
+          setExpanded={setVerifyUpdateAbhaMobile}
           completed={(selectedOption === "abha" && stepThree)}
         >
-          <p style={{ marginTop: 0 }}>Provided mobile number does not match with Aadhaar linked mobiled number. Please verify OTP to get details linked with provided aadhaar number</p>
+          <p style={{ marginTop: 0 }}>Provided mobile number does not match with Aadhaar linked mobiled number. Please verify OTP to update mobile number</p>
           <AadhaarVerification
             setSixDigitOTP={setSixDigitOTP}
             verifyOTP={verifyOTP}
@@ -1305,6 +1322,7 @@ const handleCaptchaSubmit = () => {
                 abhaSuggestionList={abhaSuggestionList}
                 abhaSuggestionTxnId={abhaSuggestionTxnId}
                 selectedAbhaModeOption={selectedAbhaModeOption}
+                abhaNewMobile={abhaNewMobile}
               />
             ) : (
               <PatientRegistartionForm

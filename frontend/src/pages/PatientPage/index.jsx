@@ -145,7 +145,7 @@ const PatientPage = () => {
               );
             });
             dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
             setTimeout(() => {
               navigate("/patient-details");
             }, 200);
@@ -167,19 +167,19 @@ const PatientPage = () => {
           type: "link",
           onClick: (item) => {
             if (item.is_verified) {
-              sessionStorage.setItem("selectedPatient", JSON.stringify(item));
               sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
               sessionStorage.removeItem("billingTypeValue");
-              dispatch(AppointmentPageActions.setSelectedPatientData(item));
+              
               dispatch(getPatientDetails(item?.patient_id)).then((res) => {
                 const patientDetail = res?.payload;
                 sessionStorage.setItem(
                   "selectedPatient",
                   JSON.stringify(patientDetail)
                 );
+                dispatch(AppointmentPageActions.setSelectedPatientData(patientDetail));
               });
               navigate("/create-appointment");
             } else {
@@ -240,7 +240,6 @@ const PatientPage = () => {
                           { hip_id: currentHospital?.hip_id },
                           { id: res.payload?.appointment_id }
                         );
-                        console.log(AllPatientData);
                         sessionStorage.setItem(
                           "encounterDetail",
                           JSON.stringify(AllPatientData)
@@ -374,7 +373,6 @@ const PatientPage = () => {
                           { hip_id: currentHospital?.hip_id },
                           { id: res.payload?.appointment_id }
                         );
-                        console.log(AllPatientData);
                         sessionStorage.setItem(
                           "encounterDetail",
                           JSON.stringify(AllPatientData)

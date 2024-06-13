@@ -45,6 +45,10 @@ const SendPMR= ({
     setChecked(event.target.checked);
   };
 
+  const handleSkip = () => {
+    setShowAbha(true);
+  }
+
   const onSubmit = () => {
     const payload = {
       document_id: documentId,
@@ -159,7 +163,7 @@ const SendPMR= ({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => navigate("/appointment-list")}>Skip</Button>
+          <Button onClick={handleSkip}>Skip</Button>
           <Button onClick={handleNotifyModalClose}>Cancel</Button>
           <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>

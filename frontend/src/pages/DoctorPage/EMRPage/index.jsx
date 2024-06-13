@@ -1692,9 +1692,6 @@ const PatientEMRDetails = (props) => {
         consultation_status: "Completed",
       };
     }
-    console.log("currentPatient:", currentPatient);
-    console.log("encounterDetail:", encounterDetail);
-    console.log("appointment_request:", appointment_request);
     const allData = {
       pmr_request,
       appointment_request,
@@ -1816,7 +1813,7 @@ const PatientEMRDetails = (props) => {
         hospitalName: currentHospital?.name || "-",
         patientName:
           currentPatient?.patient_details?.name || currentPatient?.name || "-",
-        doctorName: docName || currentPatient?.doc_name || "-",
+        doctorName: docName || encounterDetail?.doc_name || currentPatient?.doc_name || "-",
         patientEmail:
           currentPatient?.patient_details?.email ||
           currentPatient?.email ||
@@ -1872,10 +1869,9 @@ const PatientEMRDetails = (props) => {
         consultation_status: "Completed",
       };
     }
-    console.log(documentId);
     const payload = {
       pmr_metadata: {
-        doctor_name: patientDetails?.doctorName,
+        doctor_name: encounterDetail?.doc_name || patientDetails?.doctorName,
         patient_name: patientDetails?.patientName,
         hospital_name: patientDetails?.hospitalName,
         patient_uid: patientDetails?.patientUid,

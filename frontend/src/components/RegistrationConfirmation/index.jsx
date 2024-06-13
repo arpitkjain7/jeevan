@@ -206,7 +206,6 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    console.log(patientData, "patientData");
     if (patientData?.abhaBytes) {
       setIsAbhaPresent(true);
       setAbhaCardBytes(patientData?.abhaBytes);
@@ -342,6 +341,7 @@ const RegisterationConfirmation = ({
   };
 
   const handleDrSubmit = (doctor_id, doctor_name) => {
+    console.log(doctor_id, doctor_name);
     if (doctor_id) {
       sessionStorage.setItem("doctorId", doctor_id);
     } else sessionStorage.setItem("doctorId", doctorID);
@@ -370,13 +370,14 @@ const RegisterationConfirmation = ({
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
             dispatch(getPatientDetails(patientData?.id)).then((res) => {
+              sessionStorage.setItem("selectedPatient", JSON.stringify(res?.payload));
               const patientPayload = res?.payload || {}; // Ensure res?.payload is an object
 
               const allPatientData = {
                 ...patientPayload, // Spread existing properties if any
                 patientId: response.payload?.pmr_details?.patient_id,
                 doc_id: response.payload?.pmr_details?.doc_id,
-                doc_name: doctor_name || doctorName,
+                doc_name: sessionStorage.getItem("doctorName") || doctor_name || doctorName,
                 hip_id: response.payload?.pmr_details?.hip_id,
                 id: response.payload?.appointment_details?.id,
                 age_in_years: patientPayload.age_in_years,
@@ -384,7 +385,7 @@ const RegisterationConfirmation = ({
               };
 
               sessionStorage.setItem(
-                "selectedPatient",
+                "encounterDetail",
                 JSON.stringify(allPatientData)
               );
             });

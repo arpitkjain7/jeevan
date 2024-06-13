@@ -324,7 +324,9 @@ const SyncAbha = ({
           <Typography gutterBottom>{message}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmationDialog}>Cancel</Button>
+          {message !== "PMR Synced Successfully" && (
+            <Button onClick={handleCloseConfirmationDialog}>Cancel</Button>
+          )}
           <Button autoFocus onClick={handleDialogAction}>
             OK
           </Button>

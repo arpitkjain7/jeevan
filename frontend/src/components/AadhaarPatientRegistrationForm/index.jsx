@@ -15,9 +15,9 @@ const AadhaarPatientRegForm = ({
   abhaSuggestionList, 
   abhaSuggestionTxnId,
   selectedAbhaModeOption,
-  patientAbhaToken
+  patientAbhaToken,
+  abhaNewMobile
  }) => {
-  console.log(abhaSuggestionTxnId);
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -141,7 +141,6 @@ const AadhaarPatientRegForm = ({
         abhaAddress: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || formData?.abhaAddress,
         txnId: abhaSuggestionTxnId
       }
-      console.log("abhaAddressPayload", abhaAddressPayload);
       if(isNewAbha){
         dispatch(createAbhaAddress(abhaAddressPayload)).then(result => {
           console.log("createAbhaAddress", result);
@@ -239,7 +238,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Mobile Number"
               name="mobile"
-              value={patientAbhaData?.mobile || patientAbhaData?.mobile_number} //  || patientAbhaData?.identifiers[0]?.value
+              value={abhaNewMobile || patientAbhaData?.mobile || patientAbhaData?.mobile_number} //  || patientAbhaData?.identifiers[0]?.value
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               disabled
