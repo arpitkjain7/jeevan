@@ -123,7 +123,7 @@ const AadhaarPatientRegForm = ({
         const payload = {
           name: patientAbhaData?.name || patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
           email: patientAbhaData?.email,
-          mobile_number: patientAbhaData?.mobile || patientAbhaData?.mobile_number || patientAbhaData?.identifiers[0].value,
+          mobile_number: abhaNewMobile || patientAbhaData?.mobile || patientAbhaData?.mobile_number || patientAbhaData?.identifiers[0].value,
           abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
           primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
           DOB: patientAbhaData?.DOB ? format(new Date(patientAbhaData?.DOB), "dd-MM-yyyy") : ""  || patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
@@ -151,6 +151,7 @@ const AadhaarPatientRegForm = ({
             setShowSnackbar(true);
             return;
           }
+          sessionStorage.setItem("selectedPatient", res?.payload);
           let userDetails;
           if(patientAbhaToken){
             userDetails = ({

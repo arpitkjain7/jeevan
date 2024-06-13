@@ -694,7 +694,10 @@ const PatientRegistration = () => {
                     setStepFive(true);
                    
                   }
-                  else return;
+                  else {
+                    setShowLoader(false);
+                    return;
+                  }
                 })
             } else if (res?.payload?.ABHAProfile?.mobile === null){
             } else {
@@ -836,8 +839,10 @@ const handleCaptchaSubmit = () => {
     }
     if (stepOne) {
       const canvas = canvasRef.current; 
-      const ctx = canvas.getContext('2d'); 
-      initializeCaptcha(ctx); 
+      if(canvas){
+        const ctx = canvas.getContext('2d'); 
+        initializeCaptcha(ctx); 
+      }
       setRegistration(false);
       if (selectedOption === "abha") {
         setAbhaRegistration(false);
@@ -854,8 +859,10 @@ const handleCaptchaSubmit = () => {
     if (stepTwo) {
       setUserDeatilsForm(false);
       const canvas = canvasRef.current; 
-      const ctx = canvas.getContext('2d'); 
-      initializeCaptcha(ctx); 
+      if(canvas){
+        const ctx = canvas.getContext('2d'); 
+        initializeCaptcha(ctx); 
+      }
       if (selectedOption === "abha") {
         setRegistration(false);
         setAbhaRegistration(false);
@@ -883,8 +890,10 @@ const handleCaptchaSubmit = () => {
     }
     if(stepFour){
       const canvas = canvasRef.current; 
-      const ctx = canvas.getContext('2d'); 
-      initializeCaptcha(ctx); 
+      if(canvas){
+        const ctx = canvas.getContext('2d'); 
+        initializeCaptcha(ctx); 
+      }
     }
   }, [stepOne, stepTwo, stepThree, stepFour, selectedOption]);
 
