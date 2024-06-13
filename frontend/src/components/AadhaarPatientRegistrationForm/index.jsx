@@ -17,6 +17,7 @@ const AadhaarPatientRegForm = ({
   selectedAbhaModeOption,
   patientAbhaToken
  }) => {
+  console.log(abhaSuggestionTxnId);
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -71,12 +72,25 @@ const AadhaarPatientRegForm = ({
 
   const abhaAddressInputChange = (event, newInputValue) => {
     setAbhaAddressInputValue(newInputValue);
+    console.log(newInputValue, event);
     if(!validateAbhaAddress(newInputValue)) {
       setAbhaAddressError(true);
     } else {
       setAbhaAddressError(false);
       setAbhaAddressValue(newInputValue);
     }
+  }
+
+  const handleExsistingAbha = (event, newValue) => {
+    console.log(newValue);
+    if(validateAbhaAddress(newValue))
+      setAbhaAddressValue(newValue);
+  }
+
+  const handleExsistingAbhaInput = (event, newValue) => {
+    console.log(newValue);
+    if(validateAbhaAddress(newValue))
+      setAbhaAddressValue(newValue);
   }
 
   const formatDob = (date) => {
@@ -294,13 +308,13 @@ const AadhaarPatientRegForm = ({
           {!isNewAbha && selectedAbhaModeOption === "create_abha" && 
             <Grid item xs={12} md={5}>
               <Autocomplete
+                freeSolo
                 name="abhaAddress"
                 id="abhaAddress"
                 value={abhaAddressValue}
                 options={abhaSuggestions}
-                onChange={(event, newValue) => {
-                  setAbhaAddressValue(newValue);
-                }}
+                onChange={handleExsistingAbha}
+                onInputChange={handleExsistingAbhaInput}
                 fullWidth
                 renderInput={(params) => <TextField {...params} label="Abha address"
                 />}

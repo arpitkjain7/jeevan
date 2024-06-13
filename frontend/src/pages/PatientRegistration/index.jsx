@@ -640,9 +640,9 @@ const PatientRegistration = () => {
             })).then(addhaarMobileVerifyOTPResponse => {
               console.log(addhaarMobileVerifyOTPResponse);
               if(addhaarMobileVerifyOTPResponse?.payload?.request_status === "COMPLETED"){
-                dispatch(suggestAbhaAddress(addhaarMobileVerifyOTPResponse?.payload?.txnId)).then((result) => {
+                dispatch(suggestAbhaAddress(addhaarMobileVerifyOTPResponse?.payload?.transaction_id)).then((result) => {
                   setAbhaSuggestionList(result?.payload?.abhaAddressList);
-                  setAbhaSuggestionTxnId(result?.payload?.transaction_id);
+                  setAbhaSuggestionTxnId(addhaarMobileVerifyOTPResponse?.payload?.transaction_id);
                   setStepThree(true);
                 });
               } else { 
@@ -675,6 +675,7 @@ const PatientRegistration = () => {
                 })).then(aadhaarMobileOTPResponse => {
                   if(aadhaarMobileOTPResponse?.payload){
                     setStepFive(true);
+                    setVerifyAadhaar(false);
                     setNewMobileOTP(true);
                   }
                   else return;
@@ -761,7 +762,7 @@ const generateRandomChar = (min, max) =>
 
 const generateCaptchaText = () => { 
     let captcha = ''; 
-    for (let i = 0; i < 3; i++) { 
+    for (let i = 0; i < 2; i++) { 
         captcha += generateRandomChar(65, 90); 
         captcha += generateRandomChar(97, 122); 
         captcha += generateRandomChar(48, 57); 
@@ -1265,7 +1266,7 @@ const handleCaptchaSubmit = () => {
       )}
        {selectedOption === "abha" && stepFive && (
         <ExpandableCard
-          title="New Mobile"
+          title="Update Mobile"
           expanded={verifyAadhaar}
           setExpanded={setVerifyAadhaar}
           completed={(selectedOption === "abha" && stepThree)}

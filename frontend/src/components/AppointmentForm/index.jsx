@@ -126,9 +126,9 @@ function AppointmentForm(props) {
     },
   ];
 
-  const handleDoctorNameChange = (event) => {
-    sessionStorage.setItem("doctorName", event?.target?.value);
-    setDoctorName(event.target.value);
+  const handleDoctorChange = (event) => {
+    sessionStorage.setItem("doctorId", event?.target?.value);
+    setDoctorId(event.target.value);
   };
 
   useEffect(() => {

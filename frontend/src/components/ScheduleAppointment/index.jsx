@@ -440,12 +440,12 @@ const BookingSlots = () => {
             selectedPatient,
             { patientId: selectedPatient?.id },
             { doc_id: appointmentDetails?.doctorId }, 
-            { doc_name: sessionStorage.getItem("doctorName") }, 
+            { doc_name: sessionStorage.getItem("doctorId") }, 
             { appointment_id: res?.payload?.appointment_id },
             { id: res?.payload?.appointment_id }
           )
           sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-          sessionStorage.removeItem("doctorName");
+          sessionStorage.removeItem("doctorId");
           setAppointmentCompleted(true);
         }
       });
