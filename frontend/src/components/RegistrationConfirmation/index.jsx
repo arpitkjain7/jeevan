@@ -297,7 +297,7 @@ const RegisterationConfirmation = ({
       navigate("/appointment-list");
     } else {
       navigate("/create-appointment");
-      sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
+      // sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
     }
   };
 

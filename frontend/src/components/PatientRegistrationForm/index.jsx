@@ -140,8 +140,9 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           }
           setUserCreated(true);
           dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
+          setTimeout(()=> { navigate("/registered-patient"); }, 2000);
         });
-        setTimeout(()=> { navigate("/registered-patient"); }, 2000);
+        
       } else {
         console.log("DOB or Age required");
         setShowSnackbar(true);
