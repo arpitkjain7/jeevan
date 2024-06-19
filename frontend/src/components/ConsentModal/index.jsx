@@ -184,9 +184,9 @@ const ConsentModal = ({
         }
         setRequestId(res?.payload?.request_id);
         setHiTypes([]);
-      });
+     
       const checkConsentStatus = () => {
-        dispatch(gatewayInteraction(requestId)).then((res) => {
+        dispatch(gatewayInteraction(res?.payload?.request_id)).then((res) => {
           const consentStatus = res?.payload?.callback_response?.status;
           console.log("consentStatus", consentStatus);
           handleClose();
@@ -205,8 +205,9 @@ const ConsentModal = ({
           }
         });
       };
-
       setTimeout(checkConsentStatus, 3000);
+    });
+     
     }
   };
 

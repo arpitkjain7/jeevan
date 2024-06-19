@@ -429,7 +429,7 @@ const BookingSlots = () => {
       };
       dispatch(createAppointment(payload)).then((res) => {
         console.log(res);
-        console.log(doctorDetails);
+        console.log(doctorDetails, sessionStorage.getItem("doctorName") );
        
         if (res?.payload?.appointment_id) {
           const AllPatientData = Object.assign(

@@ -46,7 +46,9 @@ const SendPMR= ({
   };
 
   const handleSkip = () => {
+    handleNotifyModalClose();
     setShowAbha(true);
+    setShowSync(true);
   }
 
   const onSubmit = () => {
