@@ -158,7 +158,6 @@ const RegisterationConfirmation = ({
   const [doctorList, setDoctorList] = useState([]);
   useEffect(() => {
     setShowLoader(true);
-    console.log(patientData);
     if (patientData?.id) {
       let pageData = [
         { key: "Patient Name", value: patientData?.name || "-" },

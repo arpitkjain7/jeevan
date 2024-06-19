@@ -47,8 +47,18 @@ const SendPMR= ({
 
   const handleSkip = () => {
     handleNotifyModalClose();
-    setShowAbha(true);
-    setShowSync(true);
+    if (
+      (
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
+      )
+    ) {
+      setShowAbha(true);
+      setShowSync(true);
+    } else {
+      sessionStorage.removeItem("pmrID");
+      navigate("/appointment-list");
+    }
   }
 
   const onSubmit = () => {
