@@ -147,6 +147,7 @@ const RegisterationConfirmation = ({
     Object.keys(selectedPatient)?.length > 0 // && isAppointment
       ? selectedPatient
       : registeredPatient;
+  console.log(patientData);
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
@@ -157,6 +158,7 @@ const RegisterationConfirmation = ({
   const [doctorList, setDoctorList] = useState([]);
   useEffect(() => {
     setShowLoader(true);
+    console.log(patientData);
     if (patientData?.id) {
       let pageData = [
         { key: "Patient Name", value: patientData?.name || "-" },

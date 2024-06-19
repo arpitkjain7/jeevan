@@ -551,12 +551,13 @@ const PatientRegistration = () => {
             // setStepTwo(true);
             setPhoneDataTxn(resData?.txn_id);
             setSeconds(60);
-            // setPhoneNumberUsed(false);
+            setPhoneNumberUsed(false);
             // setPhoneDisabled(true);
           } else if(!resData?.txn_id && selectedOption === "abha"){
             // setErrorMessage("The phone number entered does not match with any of the records");
             setErrorMessage("We did not find any ABHA number linked to this mobile number");
             setShowSnackbar(true);
+            setPhoneNumberUsed(true);
             setStepTwo(true);
           } else if(selectedOption === "phone_number"){
             setPhoneDataTxn(resData?.txn_id);
@@ -649,15 +650,14 @@ const PatientRegistration = () => {
               otp: otp
             })).then(addhaarMobileVerifyOTPResponse => {
               if(addhaarMobileVerifyOTPResponse?.payload?.request_status === "COMPLETED"){
+                setShowLoader(false);
                 dispatch(suggestAbhaAddress(addhaarMobileVerifyOTPResponse?.payload?.transaction_id)).then((result) => {
                   setAbhaSuggestionList(result?.payload?.abhaAddressList);
                   setAbhaSuggestionTxnId(addhaarMobileVerifyOTPResponse?.payload?.transaction_id);
-                  setShowLoader(false);
                   setStepThree(true);
                 });
               } else { 
                 setErrorMessage("Invalid OTP");
-                setShowLoader(false);
                 setShowSnackbar(true);
                 return;
               }
@@ -692,7 +692,6 @@ const PatientRegistration = () => {
                     setAbhaNewMobile(mobile_number);
                     setShowLoader(false);
                     setStepFive(true);
-                   
                   }
                   else {
                     setShowLoader(false);
