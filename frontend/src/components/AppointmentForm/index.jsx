@@ -93,7 +93,7 @@ const RadioFormControl = styled("div")(({ theme }) => ({
 }));
 
 function AppointmentForm(props) {
-  const [doctorId, setDoctorId] = useState(sessionStorage.getItem("doctorId") || "");
+  const [doctorId, setDoctorId] = useState("");
   const [encounterTypeValue, setEncounterTypeValue] = useState("home health" || sessionStorage.getItem("encounterTypeValue"));
   const [appointmentTypeValue, setAppointmentTypeValue] = useState("first visit" || sessionStorage.getItem("appointmentTypeValue"));
   const [visitTypeValue, setVisitTypeValue] = useState("consultation" || sessionStorage.getItem("visitTypeValue"));
@@ -127,7 +127,6 @@ function AppointmentForm(props) {
   ];
 
   const handleDoctorChange = (event, name) => {
-    console.log(event, name);
     setDoctorId(event.target.value);
     sessionStorage.setItem("doctorId", event?.target?.value);
     sessionStorage.setItem("doctorName", name.props.children);

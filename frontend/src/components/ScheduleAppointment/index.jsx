@@ -427,10 +427,7 @@ const BookingSlots = () => {
           parseDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
         ),
       };
-      dispatch(createAppointment(payload)).then((res) => {
-        console.log(res);
-        console.log(doctorDetails, sessionStorage.getItem("doctorName") );
-       
+      dispatch(createAppointment(payload)).then((res) => {       
         if (res?.payload?.appointment_id) {
           const AllPatientData = Object.assign(
             selectedPatient,
