@@ -137,6 +137,7 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
+            console.log(row);
             dispatch(getPatientDetails(row?.patient_id)).then((res) => {
               const patient_detail = res?.payload;
               sessionStorage.setItem(
@@ -148,7 +149,7 @@ const PatientPage = () => {
             // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
             setTimeout(() => {
               navigate("/patient-details");
-            }, 200);
+            }, 500);
           },
         },
       ],
@@ -291,16 +292,20 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            // dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            console.log(row);
             dispatch(getPatientDetails(row?.patient_id)).then((res) => {
               const patient_detail = res?.payload;
               sessionStorage.setItem(
                 "selectedPatient",
                 JSON.stringify(patient_detail)
               );
+              dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
             });
-            navigate("/patient-details");
+            
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            setTimeout(() => {
+              navigate("/patient-details");
+            }, 500);
           },
         },
       ],

@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf';
-// import 'react-pdf/src/Page/AnnotationLayer.css';
+// import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 // import 'react-pdf/src/Page/TextLayer.css';
 import { useState, useEffect } from 'react';
 
@@ -45,7 +45,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-
+console.log(documentType);
   useEffect(() => {
     if(docType === "application/pdf" && isMobile){
       // setIsPDF(true);
@@ -109,7 +109,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
                 {Array.apply(null, Array(numPages))
                   .map((x, i)=>i+1)
                   .map(page =>
-                    <Page wrap pageNumber={page} renderTextLayer={false} width={width} height="auto" />
+                    <Page wrap pageNumber={page} renderAnnotationLayer={false} renderTextLayer={false} width={width} height="auto" />
                 )}
               </Document>
             </>

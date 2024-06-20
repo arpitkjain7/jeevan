@@ -233,18 +233,16 @@ const PatientDetailsHeader = ({ documents }) => {
   // }, []);
 
   useEffect(() => {
+    console.log(currentPatient);
     if (currentPatient) {
-      if (Object.keys(currentPatient)?.length) {
+      // if (Object.keys(currentPatient)?.length) {
         setPatientData(currentPatient || currentPatient?.patient_details);
-      }
+      // }
     } else {
       setPatientData({});
     }
   }, []);
 
-  useEffect(() => {
-    console.log("Patient Data:", patientData); // Log current state
-  }, [patientData]);
   const onSnackbarClose = () => {
     setShowSnackbar(false);
   };
@@ -438,7 +436,7 @@ const PatientDetailsHeader = ({ documents }) => {
         ...prevData,
         age_in_years: value,
       }));
-      console.log(patientData.DOB);
+      
       if (patientData.DOB) {
         const birthDate = new Date(patientData.DOB);
         const dateToday = new Date();
@@ -828,7 +826,7 @@ const PatientDetailsHeader = ({ documents }) => {
                   }
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
-                  style={{ width: "50%" }}
+                  // style={{ width: "50%" }}
                   required
                   fullWidth
                 />
