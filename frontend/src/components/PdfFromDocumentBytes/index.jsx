@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf';
-// import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+// import 'react-pdf/src/Page/AnnotationLayer.css';
 // import 'react-pdf/src/Page/TextLayer.css';
 import { useState, useEffect } from 'react';
 

@@ -137,7 +137,6 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            console.log(row);
             dispatch(getPatientDetails(row?.patient_id)).then((res) => {
               const patient_detail = res?.payload;
               sessionStorage.setItem(
