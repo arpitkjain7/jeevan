@@ -15,7 +15,8 @@ const AadhaarPatientRegForm = ({
   abhaSuggestionList, 
   abhaSuggestionTxnId,
   selectedAbhaModeOption,
-  patientAbhaToken
+  patientAbhaToken,
+  abhaNewMobile
  }) => {
   const [formData, setFormData] = useState({
     firstname: "",
@@ -71,12 +72,25 @@ const AadhaarPatientRegForm = ({
 
   const abhaAddressInputChange = (event, newInputValue) => {
     setAbhaAddressInputValue(newInputValue);
+    console.log(newInputValue, event);
     if(!validateAbhaAddress(newInputValue)) {
       setAbhaAddressError(true);
     } else {
       setAbhaAddressError(false);
       setAbhaAddressValue(newInputValue);
     }
+  }
+
+  const handleExsistingAbha = (event, newValue) => {
+    console.log(newValue);
+    if(validateAbhaAddress(newValue))
+      setAbhaAddressValue(newValue);
+  }
+
+  const handleExsistingAbhaInput = (event, newValue) => {
+    console.log(newValue);
+    if(validateAbhaAddress(newValue))
+      setAbhaAddressValue(newValue);
   }
 
   const formatDob = (date) => {
@@ -109,9 +123,9 @@ const AadhaarPatientRegForm = ({
         const payload = {
           name: patientAbhaData?.name || patientAbhaData?.firstName + " " + patientAbhaData?.middleName + " " + patientAbhaData?.lastName,
           email: patientAbhaData?.email,
-          mobile_number: patientAbhaData?.mobile || patientAbhaData?.mobile_number || patientAbhaData?.identifiers[0].value,
-          abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
-          primary_abha_address: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || patientAbhaData?.id,
+          mobile_number: abhaNewMobile || patientAbhaData?.mobile || patientAbhaData?.mobile_number || patientAbhaData?.identifiers[0].value,
+          abha_address: patientAbhaData?.preferredAbhaAddress || patientAbhaData?.abha_address || abhaAddressValue, // || patientAbhaData?.id,
+          primary_abha_address: patientAbhaData?.preferredAbhaAddress || patientAbhaData?.abha_address || abhaAddressValue, //|| patientAbhaData?.id,
           DOB: patientAbhaData?.DOB ? format(new Date(patientAbhaData?.DOB), "dd-MM-yyyy") : ""  || patientAbhaData?.dob || `${patientAbhaData?.dayOfBirth}-${patientAbhaData?.monthOfBirth}-${patientAbhaData?.yearOfBirth}`,
           gender: patientAbhaData?.gender,
           abha_number: patientAbhaData?.ABHANumber || patientAbhaData?.abha_number || patientAbhaData?.identifiers[1].value,
@@ -127,7 +141,6 @@ const AadhaarPatientRegForm = ({
         abhaAddress: patientAbhaData?.preferredAbhaAddress || abhaAddressValue || formData?.abhaAddress,
         txnId: abhaSuggestionTxnId
       }
-      console.log("abhaAddressPayload", abhaAddressPayload);
       if(isNewAbha){
         dispatch(createAbhaAddress(abhaAddressPayload)).then(result => {
           console.log("createAbhaAddress", result);
@@ -138,19 +151,23 @@ const AadhaarPatientRegForm = ({
             setShowSnackbar(true);
             return;
           }
+          const patientData = res?.payload;
+          sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
           let userDetails;
           if(patientAbhaToken){
-            userDetails = ({
-              ...payload, 
+            userDetails = {
+              ...patientData, 
+              ...{
               id: res?.payload?.id, 
               token: patientAbhaToken
-            })
+            }}
           } else {
-            userDetails = ({
-              ...payload, 
+            userDetails = {
+              ...patientData, 
+              ...{
               id: res?.payload?.id, 
               abhaBytes: patientAbhaData?.abha_card_bytes
-            })
+            }}
           }
           setUserCreated(true);
           dispatch(AppointmentPageActions.setSelectedPatientData(userDetails));
@@ -225,7 +242,7 @@ const AadhaarPatientRegForm = ({
             <TextField
               label="Mobile Number"
               name="mobile"
-              value={patientAbhaData?.mobile || patientAbhaData?.mobile_number} //  || patientAbhaData?.identifiers[0]?.value
+              value={abhaNewMobile || patientAbhaData?.mobile || patientAbhaData?.mobile_number} //  || patientAbhaData?.identifiers[0]?.value
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               disabled
@@ -294,13 +311,13 @@ const AadhaarPatientRegForm = ({
           {!isNewAbha && selectedAbhaModeOption === "create_abha" && 
             <Grid item xs={12} md={5}>
               <Autocomplete
+                freeSolo
                 name="abhaAddress"
                 id="abhaAddress"
                 value={abhaAddressValue}
                 options={abhaSuggestions}
-                onChange={(event, newValue) => {
-                  setAbhaAddressValue(newValue);
-                }}
+                onChange={handleExsistingAbha}
+                onInputChange={handleExsistingAbhaInput}
                 fullWidth
                 renderInput={(params) => <TextField {...params} label="Abha address"
                 />}

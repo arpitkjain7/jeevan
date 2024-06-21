@@ -45,7 +45,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-
+console.log(documentType);
   useEffect(() => {
     if(docType === "application/pdf" && isMobile){
       // setIsPDF(true);
@@ -109,7 +109,7 @@ const PdfFromDocumentBytes = ({open, handleClose, documentType, docBytes}) => {
                 {Array.apply(null, Array(numPages))
                   .map((x, i)=>i+1)
                   .map(page =>
-                    <Page wrap pageNumber={page} renderTextLayer={true} width={width} height="auto" />
+                    <Page wrap pageNumber={page} renderAnnotationLayer={false} renderTextLayer={false} width={width} height="auto" />
                 )}
               </Document>
             </>

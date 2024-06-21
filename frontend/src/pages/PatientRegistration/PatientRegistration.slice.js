@@ -3,7 +3,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
-import React, { useState } from "react";
 
 export const registerAADHAAR = createAsyncThunk(
   "registration/aadhaarregisterAADHAAR",
@@ -86,6 +85,30 @@ export const registerAadhaarAbha = createAsyncThunk(
     const response = await apiRequest(
       "POST",
       apis?.abhaRegistrationViaAadhaar,
+      payload
+    );
+    return response;
+  }
+);
+
+export const aadhaarMobileGenerateOTP = createAsyncThunk(
+  "registration/aadhaarMobileGenerateOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.aadhaarMobileGenerateOTP,
+      payload
+    );
+    return response;
+  }
+);
+
+export const addhaarMobileVerifyOTP = createAsyncThunk(
+  "registration/addhaarMobileVerifyOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.addhaarMobileVerifyOTP,
       payload
     );
     return response;

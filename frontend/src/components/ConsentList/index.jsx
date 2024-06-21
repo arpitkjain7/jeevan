@@ -40,13 +40,13 @@ const TabsContainer = styled("div")(({ theme }) => ({
     },
     "& .MuiTableHead-root": {
       "& > tr >th": theme.typography.h3,
-      [theme.breakpoints.down('md')]: {
-        "&": theme.typography.body2
+      [theme.breakpoints.down("md")]: {
+        "&": theme.typography.body2,
       },
     },
     "& .MuiTableBody-root": {
       "& > tr >td": theme.typography.body1,
-      textTransform: "none"
+      textTransform: "none",
     },
   },
 }));
@@ -65,7 +65,7 @@ const consentTableStyle = {
   // maxWidth: '600px'
   ".linkTypography": {
     textTransform: "none !important",
-  }
+  },
 };
 
 const ConsentList = () => {
@@ -75,6 +75,7 @@ const ConsentList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showLoader, setShowLoader] = useState(false);
+  const [render, setRender] = useState(false);
 
   useEffect(() => {
     sessionStorage.removeItem("consentSelected");
@@ -86,13 +87,32 @@ const ConsentList = () => {
         setShowLoader(false);
         const consentData = response?.payload;
         const formattedConsentList = consentData?.map((item) => {
-          const createdAt = convertDateFormat(item?.created_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const updatedAt = convertDateFormat(item?.updated_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const expireAt = convertDateFormat(item?.expire_at, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const fromDate = convertDateFormat(item?.date_range?.from, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const toDate = convertDateFormat(item?.date_range?.to, "dd-MM-yyyy hh:mm aaaaa'm'");
-          const requested_Hi = item?.hi_type?.requested_hi_types ? item?.hi_type?.requested_hi_types.join(", ") : "";
-          const granted_Hi = item?.hi_type?.granted_hi_types ? item?.hi_type?.granted_hi_types.join(", ") : "";
+          const createdAt = convertDateFormat(
+            item?.created_at,
+            "dd-MM-yyyy hh:mm aaaaa'm'"
+          );
+          const updatedAt = convertDateFormat(
+            item?.updated_at,
+            "dd-MM-yyyy hh:mm aaaaa'm'"
+          );
+          const expireAt = convertDateFormat(
+            item?.expire_at,
+            "dd-MM-yyyy hh:mm aaaaa'm'"
+          );
+          const fromDate = convertDateFormat(
+            item?.date_range?.from,
+            "dd-MM-yyyy hh:mm aaaaa'm'"
+          );
+          const toDate = convertDateFormat(
+            item?.date_range?.to,
+            "dd-MM-yyyy hh:mm aaaaa'm'"
+          );
+          const requested_Hi = item?.hi_type?.requested_hi_types
+            ? item?.hi_type?.requested_hi_types.join(", ")
+            : "";
+          const granted_Hi = item?.hi_type?.granted_hi_types
+            ? item?.hi_type?.granted_hi_types.join(", ")
+            : "";
           const consentStatus = item?.status;
           return {
             consentStatus: consentStatus,
@@ -109,32 +129,18 @@ const ConsentList = () => {
         setTableData(formattedConsentList);
       });
     }
-  }, []);
+  }, [dispatch, patient, render]);
 
   const columns = [
-    { key: "abha_address", header: "ABHA Address"},
-    { key: "createdAt", header: "Consent Created On"},
-    { key: "consentStatus", header: "Consent Status"},
-    { key: "updatedAt", header: "Consent Updated On"},
-    { key: "fromDate", header: "Consent from Date"},
-    { key: "toDate", header: "Consent to Date"},
-    { key: "requested_Hi", header: "Requested HI Types"},
-    { key: "granted_Hi", header: "Granted HI Types"},
+    { key: "abha_address", header: "ABHA Address" },
+    { key: "createdAt", header: "Consent Created On" },
+    { key: "consentStatus", header: "Consent Status" },
+    { key: "updatedAt", header: "Consent Updated On" },
+    { key: "fromDate", header: "Consent from Date" },
+    { key: "toDate", header: "Consent to Date" },
+    { key: "requested_Hi", header: "Requested HI Types" },
+    { key: "granted_Hi", header: "Granted HI Types" },
     { key: "expireAt", header: "Consent Expiry On" },
-    {
-      key: "actions",
-      header: "",
-      actions: [
-        {
-          type: "icon",
-          icon: <img src={RightArrow} alt="details" />,
-          onClick: (item) => {
-            sessionStorage.setItem("consentSelected", JSON.stringify(item));
-            navigate("/consent-detail");
-          },
-        },
-      ],
-    },
   ];
 
   const handleModalOpen = () => {
@@ -157,25 +163,26 @@ const ConsentList = () => {
     { label: "Self Requested", value: "Self Requested" },
   ];
 
-  const infoTypeOptions = ["Prescription", "Diagnostic Report", "OP Consultation", "Discharge Summary", "Immunization Record", "Record artifact", "Wellness Record"];
-  // [
-  //   { label: "Select All", value: "selectAll" }, //[},
-  //   { label: "Prescription", value: "Prescription" },
-  //   { label: "Diagnostic Report", value: "Diagnostic Report" },
-  //   { label: "OP Consultation", value: "OP Consultation" },
-  //   { label: "Discharge Summary", value: "Discharge Summary" },
-  //   { label: "Immunization Record", value: "Immunization Record" },
-  //   { label: "Record artifact", value: "Record artifact" },
-  //   { label: "Wellness Record", value: "Wellness Record" },
-  // ];
+  const infoTypeOptions = [
+    "Prescription",
+    "Diagnostic Report",
+    "OP Consultation",
+    "Discharge Summary",
+    "Immunization Record",
+    "Record artifact",
+    "Wellness Record",
+  ];
 
   return (
     <ConsentListContainer>
-      <CustomLoader
-        open={showLoader}
-      />
-       <ButtonWrapper>
-        <CustomButton onClick={handleModalOpen}>Request Consent</CustomButton>
+      <CustomLoader open={showLoader} />
+      <ButtonWrapper>
+        <CustomButton
+          onClick={handleModalOpen}
+          sx={{ marginTop: { xs: " 20px", sm: "0px" } }}
+        >
+          Request Consent
+        </CustomButton>
       </ButtonWrapper>
       <ConsentDataWrapper>
         <ConsentModal
@@ -183,6 +190,8 @@ const ConsentList = () => {
           handleClose={handleModalClose}
           purposeOptions={purposeOptions}
           infoTypeOptions={infoTypeOptions}
+          render={render}
+          setRender={setRender}
         />
         <ConsentTableContainer>
           {tableData?.length && (
@@ -192,11 +201,16 @@ const ConsentList = () => {
               consentTableStyle={consentTableStyle}
               tableClassName="table-class"
               showSearch={false}
+              tableStyle={{ cursor: "pointer" }}
+              highlightRowOnHover={true}
+              onRowClick={(item) => {
+                sessionStorage.setItem("consentSelected", JSON.stringify(item));
+                navigate("/consent-detail");
+              }}
             />
           )}
         </ConsentTableContainer>
       </ConsentDataWrapper>
-     
     </ConsentListContainer>
   );
 };

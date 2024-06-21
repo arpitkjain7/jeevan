@@ -25,6 +25,7 @@ export const apis = {
   uploadPmrPdf: "v1/PMR/uploadPrescription",
   getVitalDetail: "v1/patient/getVitals",
   listConsent: "v1/HIU/listConsent",
+  getConsentDetails: "v1/HIU/getConsentDetails",
   consentDetails: "v1/HIU/getCareContext",
   getPmrList: "v1/PMR/list",
   getPmrDocs: "v1/PMR/listDocuments",
@@ -46,6 +47,8 @@ export const apis = {
   verifyAadhaarAbha: "v3/HID/registration/aadhaar/verifyOTP",
   suggestAbhaAddress: "v3/HID/registration/aadhaar/suggestAbha",
   createAbhaAddress: "v3/HID/registration/aadhaar/createAbhaAddress",
+  aadhaarMobileGenerateOTP: "v3/HID/registration/updateProfileDetails/generateOTP",
+  addhaarMobileVerifyOTP: "v3/HID/registration/updateProfileDetails/verifyOTP",
   registerAbhaPatient: "v3/patient/register",
   verifyAbhaUser: "v3/HID/retrieveAbha/verifyUser",
   getAbhaProfile: "v3/HID/retrieveAbha/getProfile",
@@ -64,4 +67,5 @@ export const apis = {
   listAppointmentByDate: "v1/appointment/listByDate",
   fetchPatientDetails: "v1/patient",
   appointmentAnalytics: "v1/appointmentAnalytics",
+  previewPMR: "v1/PMR/previewPMR",
 };

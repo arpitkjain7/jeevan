@@ -45,6 +45,22 @@ const SendPMR= ({
     setChecked(event.target.checked);
   };
 
+  const handleSkip = () => {
+    handleNotifyModalClose();
+    if (
+      (
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
+      )
+    ) {
+      setShowAbha(true);
+      setShowSync(true);
+    } else {
+      sessionStorage.removeItem("pmrID");
+      navigate("/appointment-list");
+    }
+  }
+
   const onSubmit = () => {
     const payload = {
       document_id: documentId,
@@ -159,7 +175,7 @@ const SendPMR= ({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => navigate("/appointment-list")}>Skip</Button>
+          <Button onClick={handleSkip}>Skip</Button>
           <Button onClick={handleNotifyModalClose}>Cancel</Button>
           <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>

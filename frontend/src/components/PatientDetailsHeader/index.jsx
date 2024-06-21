@@ -4,8 +4,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   AppBar,
   Slide,
   Toolbar,
@@ -24,11 +22,8 @@ import {
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import PatientDocuments from "../../components/PatientDocuments";
-import { pdf } from "@react-pdf/renderer";
-import PMRPdf from "../../components/PMRPdf";
 import { postEMR } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import { submitHealthDocument } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { useNavigate } from "react-router-dom";
 import Modal from "@mui/material/Modal";
 import { forwardRef } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -38,8 +33,6 @@ import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
 import imageCompression from "browser-image-compression";
-import EditIcon from "@mui/icons-material/Edit";
-import PatientRegistartionForm from "../PatientRegistrationForm";
 import { differenceInYears, format } from "date-fns";
 import CustomSnackbar from "../CustomSnackbar";
 import { registerPatient } from "../../pages/PatientRegistration/PatientRegistration.slice";
@@ -128,7 +121,8 @@ const DetailsHeaderContainer = styled("div")(({ theme }) => ({
   ".details-emailContainer": {
     padding: theme.spacing(0, 6),
     [theme.breakpoints.down("sm")]: {
-      display: "inline",
+      // display: "inline",
+      padding: "0",
       marginBottom: "10px",
     },
   },
@@ -186,11 +180,6 @@ const PreviewImageWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-const SectionHeader = styled(Typography)(({ theme }) => ({
-  "&": theme.typography.sectionBody,
-  marginBottom: theme.spacing(4),
-}));
-
 const PrimaryButton = styled("button")(({ theme }) => ({
   "&": theme.typography.primaryButton,
 }));
@@ -200,8 +189,6 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const PatientDetailsHeader = ({ documents }) => {
-  const navigate = useNavigate();
-  const patient = sessionStorage?.getItem("selectedPatient");
   const [patientData, setPatientData] = useState({});
   const [open, setOpen] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
@@ -215,7 +202,6 @@ const PatientDetailsHeader = ({ documents }) => {
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [notifyModal, setNotifyModal] = useState(false);
   const [documentId, setDocumentId] = useState("");
-  const scroll = "paper";
   const handleFileInput = useRef(null);
   const dispatch = useDispatch();
   const [cleared, setCleared] = useState(false);
@@ -223,10 +209,8 @@ const PatientDetailsHeader = ({ documents }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isMobileError, setIsMobileError] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const [patientDetails, setPatientdetails] = useState({});
-  const [newPatientDetails, setNewPatientDetails] = useState({});
   const encounterDetail = JSON.parse(sessionStorage.getItem("encounterDetail"));
-  const currentPatient = JSON.parse(patient);
+  const currentPatient = JSON.parse(sessionStorage?.getItem("selectedPatient"));
   useEffect(() => {
     if (cleared) {
       const timeout = setTimeout(() => {
@@ -249,18 +233,16 @@ const PatientDetailsHeader = ({ documents }) => {
   // }, []);
 
   useEffect(() => {
+    console.log(currentPatient);
     if (currentPatient) {
-      if (Object.keys(currentPatient)?.length) {
+      // if (Object.keys(currentPatient)?.length) {
         setPatientData(currentPatient || currentPatient?.patient_details);
-      }
+      // }
     } else {
       setPatientData({});
     }
   }, []);
 
-  useEffect(() => {
-    console.log("Patient Data:", patientData); // Log current state
-  }, [patientData]);
   const onSnackbarClose = () => {
     setShowSnackbar(false);
   };
@@ -454,7 +436,7 @@ const PatientDetailsHeader = ({ documents }) => {
         ...prevData,
         age_in_years: value,
       }));
-      console.log(patientData.DOB);
+      
       if (patientData.DOB) {
         const birthDate = new Date(patientData.DOB);
         const dateToday = new Date();
@@ -479,21 +461,6 @@ const PatientDetailsHeader = ({ documents }) => {
     return format(new Date(date), "yyyy-MM-dd");
   };
 
-  // useEffect(() => {
-  //   const patientObject = JSON.parse(patient);
-  //   if (patientObject) {
-  //     const payload = {
-  //       patient_id: patientObject.id,
-  //     };
-  //     console.log(patientObject.id);
-  //     dispatch(getPatientDetails({ payload })).then((res) => {
-  //       const detail = res?.payload;
-  //       sessionStorage.setItem("selectedPatient", JSON.stringify(detail));
-  //       console.log(detail);
-  //       setNewPatientDetails(detail);
-  //     });
-  //   }
-  // }, [patient, dispatch]);
   const handleFormSubmit = () => {
     setShowLoader(true);
     const url = apis?.registerUser;
@@ -565,25 +532,30 @@ const PatientDetailsHeader = ({ documents }) => {
           </Typography>
           <Typography className="details-patient-email">
             {currentPatient?.mobileNumber ||
-              currentPatient?.patient_details?.mobile_number}
+              currentPatient?.patient_details?.mobile_number || currentPatient?.mobile_number}
           </Typography>
         </div>
-        <div className="details-emailContainer">
-          <Typography className="details-patient-email">
-            {currentPatient?.abha_address ||
-              currentPatient?.patient_details?.abha_address}
-          </Typography>
-          <Typography className="details-patient-email">
-            {currentPatient?.abha_number ||
-              currentPatient?.patient_details?.abha_number}
-          </Typography>
-        </div>
-        <div className="details-emailContainer">
-          <Button onClick={openPatientForm} variant="outlined">
-            {" "}
-            Edit
-          </Button>
-        </div>
+        {!documents && (
+          <>
+          <div className="details-emailContainer">
+            <Typography className="details-patient-email">
+              {currentPatient?.abha_address ||
+                currentPatient?.patient_details?.abha_address}
+            </Typography>
+            <Typography className="details-patient-email">
+              {currentPatient?.abha_number ||
+                currentPatient?.patient_details?.abha_number}
+            </Typography>
+          </div>
+          <div className="details-emailContainer">
+            <Button onClick={openPatientForm} variant="outlined">
+              {" "}
+              Edit
+            </Button>
+          </div>
+          </>
+        )}
+      
       </div>
       {documents && (
         <>
@@ -854,7 +826,7 @@ const PatientDetailsHeader = ({ documents }) => {
                   }
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
-                  style={{ width: "50%" }}
+                  // style={{ width: "50%" }}
                   required
                   fullWidth
                 />
@@ -880,7 +852,7 @@ const PatientDetailsHeader = ({ documents }) => {
                   type="number"
                   value={
                     patientData?.mobile_number ||
-                    currentPatient?.patient_details?.mobile_number
+                    currentPatient?.patient_details?.mobile_number || currentPatient?.mobile_number 
                   }
                   error={isMobileError}
                   onChange={handleChange}

@@ -19,10 +19,8 @@ import {
   getPatientDetails,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import {
-  downloadAbha,
   getAbhaCard,
 } from "../../pages/PatientRegistration/PatientRegistration.slice";
-import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
 import CustomLoader from "../CustomLoader";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
@@ -149,6 +147,7 @@ const RegisterationConfirmation = ({
     Object.keys(selectedPatient)?.length > 0 // && isAppointment
       ? selectedPatient
       : registeredPatient;
+  console.log(patientData);
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
@@ -208,7 +207,6 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    console.log(patientData, "patientData");
     if (patientData?.abhaBytes) {
       setIsAbhaPresent(true);
       setAbhaCardBytes(patientData?.abhaBytes);
@@ -253,7 +251,7 @@ const RegisterationConfirmation = ({
     // });
   };
   const doctor_details = sessionStorage.getItem("DoctorDetails");
-  // const docName = sessionStorage.getItem("DoctorName");
+  // const docName = sessionStorage.getItem("doctorId");
   const navigateStartVisit = () => {
     setShowLoader(true);
     let currentHospital = {};
@@ -266,7 +264,7 @@ const RegisterationConfirmation = ({
           hip_id: currentHospital?.hip_id,
         };
         dispatch(fetchDoctorList(payload)).then((res) => {
-          const doctorData = res.payload;
+          const doctorData = res?.payload;
           if (doctorData.length > 1) {
             let drList = [];
             doctorData?.map((item) => {
@@ -300,7 +298,7 @@ const RegisterationConfirmation = ({
       navigate("/appointment-list");
     } else {
       navigate("/create-appointment");
-      sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
+      // sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
     }
   };
 
@@ -371,14 +369,15 @@ const RegisterationConfirmation = ({
 
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
-            dispatch(getPatientDetails(patientData?.id)).then((res) => {
+            dispatch(getPatientDetails(patientData?.id)).then((patientDataResponse) => {
+              sessionStorage.setItem("selectedPatient", JSON.stringify(patientDataResponse?.payload));
               const patientPayload = res?.payload || {}; // Ensure res?.payload is an object
 
               const allPatientData = {
                 ...patientPayload, // Spread existing properties if any
                 patientId: response.payload?.pmr_details?.patient_id,
                 doc_id: response.payload?.pmr_details?.doc_id,
-                doc_name: doctor_name || doctorName,
+                doc_name: sessionStorage.getItem("doctorName") || doctor_name || doctorName,
                 hip_id: response.payload?.pmr_details?.hip_id,
                 id: response.payload?.appointment_details?.id,
                 age_in_years: patientPayload.age_in_years,
@@ -386,7 +385,7 @@ const RegisterationConfirmation = ({
               };
 
               sessionStorage.setItem(
-                "selectedPatient",
+                "encounterDetail",
                 JSON.stringify(allPatientData)
               );
             });

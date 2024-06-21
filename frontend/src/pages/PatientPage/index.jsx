@@ -94,12 +94,12 @@ const searchInputStyle = {
 const PatientPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
-  const [hospitalDetails, setHospitalDetails] = useState({});
+  // const [hospitalDetails, setHospitalDetails] = useState({});
   const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 600;
-
+  const [docName, setDocName] = useState("");
   const currentDateAndTime = () => {
     const currentDatetime = new Date();
     const year = currentDatetime.getFullYear();
@@ -123,6 +123,12 @@ const PatientPage = () => {
     return formattedDatetime;
   };
 
+  useEffect(() => {
+    if (docName) {
+      console.log(docName);
+      sessionStorage.setItem("docName", docName);
+    }
+  }, [docName]);
   const columns = [
     {
       key: "p_name",
@@ -139,10 +145,10 @@ const PatientPage = () => {
               );
             });
             dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
             setTimeout(() => {
               navigate("/patient-details");
-            }, 200);
+            }, 500);
           },
         },
       ],
@@ -161,19 +167,19 @@ const PatientPage = () => {
           type: "link",
           onClick: (item) => {
             if (item.is_verified) {
-              sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
               sessionStorage.removeItem("billingTypeValue");
-              dispatch(AppointmentPageActions.setSelectedPatientData(item));
+              
               dispatch(getPatientDetails(item?.patient_id)).then((res) => {
                 const patientDetail = res?.payload;
                 sessionStorage.setItem(
                   "selectedPatient",
                   JSON.stringify(patientDetail)
                 );
+                dispatch(AppointmentPageActions.setSelectedPatientData(patientDetail));
               });
               navigate("/create-appointment");
             } else {
@@ -202,6 +208,16 @@ const PatientPage = () => {
 
                 dispatch(fetchDoctorList(doctorListpayload)).then(
                   (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+                    console.log(
+                      "The response comming from docList  " + response
+                    );
+                    console.log(
+                      "The response comming from docList's array   " +
+                        response[0].doc_name
+                    );
+                    setDocName(response[0].doc_name);
+
                     const payload = {
                       doc_id: doctorListResponse?.payload[0]?.id,
                       patient_id: row?.patient_id || row?.id,
@@ -224,7 +240,6 @@ const PatientPage = () => {
                           { hip_id: currentHospital?.hip_id },
                           { id: res.payload?.appointment_id }
                         );
-                        console.log(AllPatientData);
                         sessionStorage.setItem(
                           "encounterDetail",
                           JSON.stringify(AllPatientData)
@@ -276,16 +291,20 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            // dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            console.log(row);
             dispatch(getPatientDetails(row?.patient_id)).then((res) => {
               const patient_detail = res?.payload;
               sessionStorage.setItem(
                 "selectedPatient",
                 JSON.stringify(patient_detail)
               );
+              dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
             });
-            navigate("/patient-details");
+            
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            setTimeout(() => {
+              navigate("/patient-details");
+            }, 500);
           },
         },
       ],
@@ -300,7 +319,7 @@ const PatientPage = () => {
           onClick: (item) => {
             if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
@@ -333,6 +352,9 @@ const PatientPage = () => {
 
                 dispatch(fetchDoctorList(doctorListpayload)).then(
                   (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+
+                    setDocName(response[0].doc_name);
                     const payload = {
                       doc_id: doctorListResponse?.payload[0]?.id,
                       patient_id: row?.id,
@@ -355,7 +377,6 @@ const PatientPage = () => {
                           { hip_id: currentHospital?.hip_id },
                           { id: res.payload?.appointment_id }
                         );
-                        console.log(AllPatientData);
                         sessionStorage.setItem(
                           "encounterDetail",
                           JSON.stringify(AllPatientData)
@@ -397,11 +418,12 @@ const PatientPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      setHospitalDetails(currentHospital);
+      // setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
+        console.log(res);
         setShowLoader(false);
         const patientList = res?.payload;
         const formattedPatientList = patientList?.map((item) => {

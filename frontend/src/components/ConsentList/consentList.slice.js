@@ -48,6 +48,17 @@ export const searchAbha = createAsyncThunk(
   }
 );
 
+export const gatewayInteraction = createAsyncThunk(
+  "registration/gatewayInteraction",
+  async (requestId) => {
+    const response = await apiRequest(
+      "GET",
+      apis?.gatewayInteraction + "/" + requestId
+    );
+    return response;
+  }
+);
+
 // Create the slice
 const ConsentListSlice = createSlice({
   name: "list",

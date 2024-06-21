@@ -30,9 +30,9 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
   ".doctorName-dd": {
     "& > .MuiFormControl-root": {
       width: "250px",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "100%",
-        marginBottom: "15px"
+        marginBottom: "15px",
       },
     },
   },
@@ -46,10 +46,10 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
     "&.MuiTypography-root": theme.typography.body2,
   },
   ".btn-wrapper": {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "flex",
       justifyContent: "center",
-    }
+    },
   },
   ".submit-btn": {
     "&": theme.typography.primaryButton,
@@ -59,9 +59,9 @@ const AppointmentFormWrapper = styled("div")(({ theme }) => ({
     float: "right",
     marginTop: theme.spacing(8),
     marginBottom: "10px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       marginTop: theme.spacing(5),
-    }
+    },
   },
 }));
 
@@ -74,34 +74,35 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   rowGap: "32px",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     display: "block",
   },
 }));
 
-const RadioFormControl = styled("div")(({ theme }) =>({
+const RadioFormControl = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  [theme.breakpoints.down('sm')]: {
-    marginBottom: "15px"
+  [theme.breakpoints.down("sm")]: {
+    marginBottom: "15px",
   },
   ".MuiFormGroup-root": {
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "space-between"
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: "space-between",
     },
-  }
+  },
 }));
 
 function AppointmentForm(props) {
-  const [doctorName, setDoctorName] = useState("" || sessionStorage.getItem("doctorName"));
-  const [encounterTypeValue, setEncounterTypeValue] = useState("" || sessionStorage.getItem("encounterTypeValue"));
-  const [appointmentTypeValue, setAppointmentTypeValue] = useState("" || sessionStorage.getItem("appointmentTypeValue"));
-  const [visitTypeValue, setVisitTypeValue] = useState("" || sessionStorage.getItem("visitTypeValue"));
-  const [billingTypeValue, setBillingTypeValue] = useState("" || sessionStorage.getItem("billingTypeValue"));
+  const [doctorId, setDoctorId] = useState("");
+  const [encounterTypeValue, setEncounterTypeValue] = useState("home health" || sessionStorage.getItem("encounterTypeValue"));
+  const [appointmentTypeValue, setAppointmentTypeValue] = useState("first visit" || sessionStorage.getItem("appointmentTypeValue"));
+  const [visitTypeValue, setVisitTypeValue] = useState("consultation" || sessionStorage.getItem("visitTypeValue"));
+  const [billingTypeValue, setBillingTypeValue] = useState("cash" || sessionStorage.getItem("billingTypeValue"));
   const dispatch = useDispatch();
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [doctorList, setDoctorList] = useState([]);
   const [showLoader, setShowLoader] = useState(false);
+  // const [docInfo, setDocInfo] = useState([]);
   // const dataState = useSelector((state) => state);
   const selectedPatient = JSON.parse(
     sessionStorage?.getItem("selectedPatient")
@@ -125,9 +126,10 @@ function AppointmentForm(props) {
     },
   ];
 
-  const handleDoctorNameChange = (event) => {
-    sessionStorage.setItem("doctorName", event?.target?.value);
-    setDoctorName(event.target.value);
+  const handleDoctorChange = (event, name) => {
+    setDoctorId(event.target.value);
+    sessionStorage.setItem("doctorId", event?.target?.value);
+    sessionStorage.setItem("doctorName", name.props.children);
   };
 
   useEffect(() => {
@@ -143,6 +145,8 @@ function AppointmentForm(props) {
       dispatch(fetchDoctorList(payload)).then((res) => {
         setShowLoader(false);
         const doctorData = res.payload;
+        // setDocInfo((prev) => [...prev, ...doctorData]);
+
         let drList = [];
         doctorData?.map((item) => {
           const data = {
@@ -179,9 +183,9 @@ function AppointmentForm(props) {
 
   const handleSubmit = () => {
     setShowLoader(true);
-    sessionStorage.setItem("appointment_doctor_id", doctorName);
+    sessionStorage.setItem("appointment_doctor_id", doctorId);
     const data = {
-      doctorId: doctorName,
+      doctorId: doctorId,
       appointmentType: appointmentTypeValue,
       encounterType: encounterTypeValue,
       visitType: visitTypeValue,
@@ -195,14 +199,12 @@ function AppointmentForm(props) {
 
   return (
     <AppointmentFormWrapper>
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <StyledCard>
         <CardContent>
           <Grid container>
             {userDetails?.map((pair, index) => (
-              <Grid item xs={6} md={3}>
+              <Grid item xs={6} md={3} key={index}>
                 <Typography className="appointmentForm-details-key">
                   {pair.label}
                 </Typography>
@@ -221,12 +223,12 @@ function AppointmentForm(props) {
             <Typography className="field-title">Doctor Name</Typography>
             <FormControl>
               <Select
-                value={doctorName}
-                onChange={handleDoctorNameChange}
+                value={doctorId}
+                onChange={handleDoctorChange}
                 placeholder="Doctor Name"
               >
-                {doctorList?.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {doctorList?.map((option, index) => (
+                  <MenuItem key={index} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -271,7 +273,7 @@ function AppointmentForm(props) {
             <Typography className="field-title">Visit Type</Typography>
             <FormControl>
               <RadioFormControl component="fieldset">
-                <RadioGroup 
+                <RadioGroup
                   row
                   value={visitTypeValue}
                   onChange={handleVisitTypeChange}

@@ -149,8 +149,7 @@ export default function BackDropDash() {
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" color="textPrimary">
                 <strong>Created At:</strong>{" "}
-                {patient?.patient_details?.created_at ||
-                  patient?.created_at ||
+                {date ||
                   "Not Available"}
               </Typography>
             </Grid>

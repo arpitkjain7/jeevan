@@ -1,7 +1,6 @@
 // PatientPageSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
 
