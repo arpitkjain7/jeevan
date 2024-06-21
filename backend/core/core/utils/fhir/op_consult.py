@@ -1721,175 +1721,187 @@ def opConsultStructured(bundle_identifier: str, pmr_id: str):
             logging.info(f"Creating Vitals Entry")
             vital_obj = CRUDVital().read_by_pmrId(pmr_id=pmr_id)
             if vital_obj:
-                logging.info(f"Creating Temp Entry")
-                physical_examination_temp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Temperature",
-                    observation_unit="F",
-                    observation_value=vital_obj["body_temperature"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_temp_bundle
-                )
-                ref_data.append(physical_examination_temp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_temp_bundle.id}",
-                        resource=physical_examination_temp_bundle,
+                if vital_obj.get("body_temperature", None):
+                    logging.info(f"Creating Temp Entry")
+                    physical_examination_temp_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Temperature",
+                        observation_unit="F",
+                        observation_value=vital_obj["body_temperature"],
                     )
-                )
-                logging.info(f"Creating SBP Entry")
-                physical_examination_sbp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Systolic Blood pressure",
-                    observation_unit="mmHg",
-                    observation_value=vital_obj["systolic_blood_pressure"],
-                )
-                physical_examination_bundle_list.append(physical_examination_sbp_bundle)
-                ref_data.append(physical_examination_sbp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_sbp_bundle.id}",
-                        resource=physical_examination_sbp_bundle,
+                    physical_examination_bundle_list.append(
+                        physical_examination_temp_bundle
                     )
-                )
+                    ref_data.append(physical_examination_temp_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_temp_bundle.id}",
+                            resource=physical_examination_temp_bundle,
+                        )
+                    )
+                if vital_obj.get("systolic_blood_pressure", None):
+                    logging.info(f"Creating SBP Entry")
+                    physical_examination_sbp_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Systolic Blood pressure",
+                        observation_unit="mmHg",
+                        observation_value=vital_obj["systolic_blood_pressure"],
+                    )
+                    physical_examination_bundle_list.append(
+                        physical_examination_sbp_bundle
+                    )
+                    ref_data.append(physical_examination_sbp_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_sbp_bundle.id}",
+                            resource=physical_examination_sbp_bundle,
+                        )
+                    )
+                if vital_obj.get("diastolic_blood_pressure", None):
+                    logging.info(f"Creating DBP Entry")
+                    physical_examination_dbp_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Diastolic Blood pressure",
+                        observation_unit="mmHg",
+                        observation_value=vital_obj["diastolic_blood_pressure"],
+                    )
+                    physical_examination_bundle_list.append(
+                        physical_examination_dbp_bundle
+                    )
+                    ref_data.append(physical_examination_dbp_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
+                            resource=physical_examination_dbp_bundle,
+                        )
+                    )
+                if vital_obj.get("height", None):
+                    logging.info(f"Creating Height Entry")
+                    physical_examination_height_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Height",
+                        observation_unit="cm",
+                        observation_value=vital_obj["height"],
+                    )
+                    physical_examination_bundle_list.append(
+                        physical_examination_height_bundle
+                    )
+                    ref_data.append(physical_examination_height_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_height_bundle.id}",
+                            resource=physical_examination_height_bundle,
+                        )
+                    )
+                if vital_obj.get("weight", None):
+                    logging.info(f"Creating Weight Entry")
+                    physical_examination_weight_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Weight",
+                        observation_unit="kg",
+                        observation_value=vital_obj["weight"],
+                    )
+                    physical_examination_bundle_list.append(
+                        physical_examination_weight_bundle
+                    )
+                    ref_data.append(physical_examination_weight_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_weight_bundle.id}",
+                            resource=physical_examination_weight_bundle,
+                        )
+                    )
+                if vital_obj.get("pulse", None):
+                    logging.info(f"Creating Pulse Entry")
+                    physical_examination_pulse_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Pulse",
+                        observation_unit="BPM",
+                        observation_value=vital_obj["pulse"],
+                    )
+                    physical_examination_bundle_list.append(
+                        physical_examination_pulse_bundle
+                    )
+                    ref_data.append(physical_examination_pulse_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_pulse_bundle.id}",
+                            resource=physical_examination_pulse_bundle,
+                        )
+                    )
 
-                logging.info(f"Creating DBP Entry")
-                physical_examination_dbp_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Diastolic Blood pressure",
-                    observation_unit="mmHg",
-                    observation_value=vital_obj["diastolic_blood_pressure"],
-                )
-                physical_examination_bundle_list.append(physical_examination_dbp_bundle)
-                ref_data.append(physical_examination_dbp_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_dbp_bundle.id}",
-                        resource=physical_examination_dbp_bundle,
+                if vital_obj.get("oxygen_saturation", None):
+                    logging.info(f"Creating SPO2 Entry")
+                    physical_examination_spo2_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="SPO2",
+                        observation_unit="%",
+                        observation_value=vital_obj["oxygen_saturation"],
                     )
-                )
-
-                logging.info(f"Creating Height Entry")
-                physical_examination_height_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Height",
-                    observation_unit="cm",
-                    observation_value=vital_obj["height"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_height_bundle
-                )
-                ref_data.append(physical_examination_height_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_height_bundle.id}",
-                        resource=physical_examination_height_bundle,
+                    physical_examination_bundle_list.append(
+                        physical_examination_spo2_bundle
                     )
-                )
-
-                logging.info(f"Creating Weight Entry")
-                physical_examination_weight_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Height",
-                    observation_unit="kg",
-                    observation_value=vital_obj["weight"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_weight_bundle
-                )
-                ref_data.append(physical_examination_weight_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_weight_bundle.id}",
-                        resource=physical_examination_weight_bundle,
+                    ref_data.append(physical_examination_spo2_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_spo2_bundle.id}",
+                            resource=physical_examination_spo2_bundle,
+                        )
                     )
-                )
-
-                logging.info(f"Creating Pulse Entry")
-                physical_examination_pulse_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Pulse",
-                    observation_unit="BPM",
-                    observation_value=vital_obj["pulse"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_pulse_bundle
-                )
-                ref_data.append(physical_examination_pulse_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_pulse_bundle.id}",
-                        resource=physical_examination_pulse_bundle,
+                if vital_obj.get("body_mass_index", None):
+                    logging.info(f"Creating BMI Entry")
+                    physical_examination_bmi_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="BMI",
+                        observation_unit="kg/m2",
+                        observation_value=vital_obj["body_mass_index"],
                     )
-                )
-
-                logging.info(f"Creating SPO2 Entry")
-                physical_examination_spo2_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="SPO2",
-                    observation_unit="%",
-                    observation_value=vital_obj["oxygen_saturation"],
-                )
-                physical_examination_bundle_list.append(
-                    physical_examination_spo2_bundle
-                )
-                ref_data.append(physical_examination_spo2_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_spo2_bundle.id}",
-                        resource=physical_examination_spo2_bundle,
+                    physical_examination_bundle_list.append(
+                        physical_examination_bmi_bundle
                     )
-                )
-                logging.info(f"Creating BMI Entry")
-                physical_examination_bmi_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="BMI",
-                    observation_unit="kg/m2",
-                    observation_value=vital_obj["body_mass_index"],
-                )
-                physical_examination_bundle_list.append(physical_examination_bmi_bundle)
-                ref_data.append(physical_examination_bmi_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_bmi_bundle.id}",
-                        resource=physical_examination_bmi_bundle,
+                    ref_data.append(physical_examination_bmi_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_bmi_bundle.id}",
+                            resource=physical_examination_bmi_bundle,
+                        )
                     )
-                )
-
-                logging.info(f"Creating RR Entry")
-                physical_examination_rr_bundle = get_observation_construct(
-                    observation_id=str(uuid.uuid4()),
-                    patient_ref=patient_obj["id"],
-                    encounter_ref=appointment_obj["id"],
-                    observation_type="Respiratory Rate",
-                    observation_unit="RPM",
-                    observation_value=vital_obj["respiratory_rate"],
-                )
-                physical_examination_bundle_list.append(physical_examination_rr_bundle)
-                ref_data.append(physical_examination_rr_bundle)
-                bundle_entry_list.append(
-                    BundleEntry.construct(
-                        fullUrl=f"Observation/{physical_examination_rr_bundle.id}",
-                        resource=physical_examination_rr_bundle,
+                if vital_obj.get("respiratory_rate", None):
+                    logging.info(f"Creating RR Entry")
+                    physical_examination_rr_bundle = get_observation_construct(
+                        observation_id=str(uuid.uuid4()),
+                        patient_ref=patient_obj["id"],
+                        encounter_ref=appointment_obj["id"],
+                        observation_type="Respiratory Rate",
+                        observation_unit="RPM",
+                        observation_value=vital_obj["respiratory_rate"],
                     )
-                )
+                    physical_examination_bundle_list.append(
+                        physical_examination_rr_bundle
+                    )
+                    ref_data.append(physical_examination_rr_bundle)
+                    bundle_entry_list.append(
+                        BundleEntry.construct(
+                            fullUrl=f"Observation/{physical_examination_rr_bundle.id}",
+                            resource=physical_examination_rr_bundle,
+                        )
+                    )
             physical_examinations_list = CRUDExaminationFindings().read_by_pmrId(
                 pmr_id=pmr_id
             )
