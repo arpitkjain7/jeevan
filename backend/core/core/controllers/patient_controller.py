@@ -554,6 +554,7 @@ class PatientController:
                             "pincode": resp_json.get("pincode"),
                             "hip_id": hip_id,
                             "auth_methods": {"": resp_json.get("authMethods")},
+                            "year_of_birth": yob,
                             "is_verified": True,
                         }
                         self.CRUDPatientDetails.create(**patient_payload)
