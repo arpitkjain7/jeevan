@@ -13,7 +13,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-
       # - name: setup git config
       #   run: |
       #     git config user.name "GitHub Actions Bot"
@@ -37,7 +36,6 @@ jobs:
 
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-
       # - name: Build Docker image
       #   run: docker build . --file Dockerfile --tag ziermann/tut:${{steps.version.outputs.tag}}
 
@@ -46,6 +44,7 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push cliniq360/lobster-ui:1.19
+
 # name: CI/CD counter app
 
 # on:
@@ -72,6 +71,7 @@ jobs:
 
 #     steps:
 #       - uses: actions/checkout@v2
+
 #       - name: Deploy in EC2
 #         env:
 #             PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
