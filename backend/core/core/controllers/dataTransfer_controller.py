@@ -27,15 +27,15 @@ class DataTransferController:
 
     def hip_notify(self, request):
         try:
-            logging.info("executing  hip_notify function")
-            logging.info("Creating gateway record")
+            request_id = request.get("requestId")
+            logging.info(f"Request ID : {request_id} : executing  hip_notify function")
+            logging.info(f"Request ID : {request_id} : Creating gateway record")
             notification_obj = request.get("notification")
             consent_status = notification_obj.get("status")
             consent_id = notification_obj.get("consentId")
             consent_details = notification_obj.get("consentDetail")
-            request_id = request.get("requestId")
             if consent_status == "GRANTED":
-                logging.info("Consent granted")
+                logging.info(f"Request ID : {request_id} : Consent granted")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_GRANT",
@@ -44,7 +44,9 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {
                     "id": consent_id,
                     "status": consent_status,
@@ -69,7 +71,7 @@ class DataTransferController:
                 }
                 self.CRUDConsents.create(**consent_crud_request)
             elif consent_status == "EXPIRED" or consent_status == "REVOKED":
-                logging.info("Consent expired or revoked")
+                logging.info(f"Request ID : {request_id} : Consent expired or revoked")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_EXPIRE",
@@ -78,11 +80,13 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {"id": consent_id, "status": consent_status}
                 self.CRUDConsents.update(**consent_crud_request)
             elif consent_status == "DENIED":
-                logging.info("Consent denied")
+                logging.info(f"Request ID : {request_id} : Consent denied")
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "CONSENT_NOTIFY_DENIED",
@@ -91,10 +95,12 @@ class DataTransferController:
                     "callback_response": consent_details,
                 }
                 self.CRUDGatewayInteraction.create(**crud_request)
-                logging.info("Creating consent table record")
+                logging.info(
+                    f"Request ID : {request_id} : Creating consent table record"
+                )
                 consent_crud_request = {"id": consent_id, "status": consent_status}
                 self.CRUDConsents.update(**consent_crud_request)
-            logging.info("Getting session access Token")
+            logging.info(f"Request ID : {request_id} : Getting session access Token")
             gateway_access_token = get_session_token(
                 session_parameter="gateway_token"
             ).get("accessToken")
@@ -119,9 +125,10 @@ class DataTransferController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
-            logging.debug(f"{resp_code=}")
+            logging.debug(f"Request ID : {request_id} : {resp_code=}")
             gateway_request = {"request_id": request_id}
             if resp_code <= 250:
                 gateway_request.update({"request_status": "SUCCESS"})
@@ -131,7 +138,7 @@ class DataTransferController:
             return gateway_request
         except Exception as error:
             logging.error(
-                f"Error in DataTransferController.hip_notify function: {error}"
+                f"Request ID : {request_id} : Error in DataTransferController.hip_notify function: {error}"
             )
             raise error
 
@@ -154,11 +161,14 @@ class DataTransferController:
             logging.info(f"{expire_datetime_object=}")
             utc_timezone = pytz_timezone("UTC")
             logging.info(f"{utc_timezone=}")
-            expire_time_utc = utc_timezone.localize(expire_datetime_object)
-            logging.info(f"{expire_time_utc=}")
+            # expire_time_utc = utc_timezone.localize(expire_datetime_object)
+            # logging.info(f"{expire_time_utc=}")
             expire_time = expire_datetime_object.strftime("%Y-%m-%dT%H:%M:%S")
             logging.info(f"{expire_time=}")
-            if time_now < expire_time_utc and consent_obj.get("status") == "GRANTED":
+            if (
+                time_now < expire_datetime_object
+                and consent_obj.get("status") == "GRANTED"
+            ):
                 crud_request = {
                     "request_id": request_id,
                     "request_type": "DATA_REQUEST",
@@ -166,14 +176,11 @@ class DataTransferController:
                     "transaction_id": transaction_id,
                     "callback_response": hi_request_obj,
                 }
-                CRUDGatewayInteraction().create(**crud_request)
+                CRUDGatewayInteraction().update(**crud_request)
                 logging.info("Getting session access Token")
                 gateway_access_token = get_session_token(
                     session_parameter="gateway_token"
                 ).get("accessToken")
-                consent_on_notify_url = (
-                    f"{gateway_url}/v0.5/health-information/hip/on-request"
-                )
                 notify_request_id = str(uuid.uuid1())
                 time_now = datetime.now(timezone.utc)
                 time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S")
@@ -193,6 +200,7 @@ class DataTransferController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.debug("Request acknowledged")
@@ -256,11 +264,11 @@ class DataTransferController:
 
     def send_data_transfer_ack(self, request):
         try:
-            consent_id = request.consent_id
-            transaction_id = request.transaction_id
-            hip_id = request.hip_id
-            care_context_ack = request.care_context_ack
-            request_id = request.request_id
+            consent_id = request["consent_id"]
+            transaction_id = request["transaction_id"]
+            hip_id = request["hip_id"]
+            care_context_ack = request["care_context_ack"]
+            request_id = request["request_id"]
             ack_request_id = str(uuid.uuid1())
             time_now = datetime.now(timezone.utc)
             time_now = time_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -269,30 +277,29 @@ class DataTransferController:
             ).get("accessToken")
             gateway_url = os.environ["gateway_url"]
             data_transfer_success_url = f"{gateway_url}/v0.5/health-information/notify"
-            request = json.dumps(
-                {
-                    "requestId": ack_request_id,
-                    "timestamp": time_now,
-                    "notification": {
-                        "consentId": consent_id,
-                        "transactionId": transaction_id,
-                        "doneAt": time_now,
-                        "notifier": {"type": "HIP", "id": hip_id},
-                        "statusNotification": {
-                            "sessionStatus": "TRANSFERRED",
-                            "hipId": hip_id,
-                            "statusResponses": care_context_ack,
-                        },
+            ack_request = {
+                "requestId": ack_request_id,
+                "timestamp": time_now,
+                "notification": {
+                    "consentId": consent_id,
+                    "transactionId": transaction_id,
+                    "doneAt": time_now,
+                    "notifier": {"type": "HIP", "id": hip_id},
+                    "statusNotification": {
+                        "sessionStatus": "TRANSFERRED",
+                        "hipId": hip_id,
+                        "statusResponses": care_context_ack,
                     },
-                }
-            )
+                },
+            }
             headers = {
                 "X-CM-ID": os.environ["X-CM-ID"],
                 "Authorization": f"Bearer {gateway_access_token}",
+                "Content-Type": "application/json",
             }
             _, ack_resp_code = APIInterface().post(
                 route=data_transfer_success_url,
-                data=json.dumps(request),
+                data=json.dumps(ack_request),
                 headers=headers,
             )
             print(f"ack sent {ack_resp_code=}")

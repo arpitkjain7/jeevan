@@ -17,6 +17,9 @@ from core.apis.schemas.requests.pmr_request import (
     SendNotification,
     PrescriptionMode,
     SendNotificationByDocumentId,
+    SendGoogleReview,
+    SendAppointmentList,
+    PMRMetadata,
 )
 from core.controllers.pmr_controller import PMRController
 from core.controllers.appointment_controller import AppointmentsController
@@ -112,6 +115,41 @@ def submitPMR(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/pmr/submitPMR endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/previewPMR")
+def previewPMR(
+    pmr_metadata: PMRMetadata,
+    pmr_request: PMR = None,
+    appointment_request: FollowUp_ConsultationStatus = None,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/pmr/previewPMR endpoint")
+        logging.debug(f"Request: {pmr_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().preview_pmr(
+                pmr_request=pmr_request,
+                appointment_request=appointment_request,
+                pmr_metadata=pmr_metadata,
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/pmr/previewPMR endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/pmr/previewPMR endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -958,7 +996,7 @@ async def uploadPrescription(
             for file in files:
                 file_bytes.append(await file.read())
             return PMRController().upload_prescription(
-                pmr_id=pmr_id, mode=mode.value, files =file_bytes
+                pmr_id=pmr_id, mode=mode.value, files=file_bytes
             )
         else:
             raise HTTPException(
@@ -1140,12 +1178,12 @@ async def uploadHealthDocuments(
 
 
 @pmr_router.post("/v1/PMR/getFHIR/{pmr_id}")
-def getFHIR(pmr_id: str, token: str = Depends(oauth2_scheme)):
+def getFHIR(pmr_id: str, mode: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/PMR/getFHIR/{pmr_id} endpoint")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().get_fhir(pmr_id=pmr_id)
+            return PMRController().get_fhir(pmr_id=pmr_id, mode=mode)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -1234,6 +1272,59 @@ def pmr_send_notification(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/PMR/sendDocument endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/sendGoogleReviewLink")
+def pmr_send_notification(
+    send_google_link_request: SendGoogleReview,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/PMR/sendGoogleReviewLink endpoint")
+        logging.debug(f"Request: {send_google_link_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PMRController().send_google_review_link(
+                request=send_google_link_request
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@pmr_router.post("/v1/PMR/sendAppointementList")
+def pmr_send_notification(
+    send_appointment_list_request: SendAppointmentList,
+):
+    try:
+        logging.info("Calling /v1/PMR/sendGoogleReviewLink endpoint")
+        logging.debug(f"Request: {send_appointment_list_request}")
+        return PMRController().send_appointment_list(
+            request=send_appointment_list_request
+        )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/PMR/sendGoogleReviewLink endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

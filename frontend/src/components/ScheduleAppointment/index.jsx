@@ -427,22 +427,23 @@ const BookingSlots = () => {
           parseDateFormat(selectedDate, "yyyy-MM-dd") + " " + endTime24hour
         ),
       };
-      dispatch(createAppointment(payload)).then((res) => {
-        sessionStorage.removeItem("doctorName");
-        sessionStorage.removeItem("encounterTypeValue");
-        sessionStorage.removeItem("appointmentTypeValue");
-        sessionStorage.removeItem("visitTypeValue");
-        sessionStorage.removeItem("billingTypeValue");
-        if (res.payload?.appointment_id) {
+      dispatch(createAppointment(payload)).then((res) => {       
+        if (res?.payload?.appointment_id) {
           const AllPatientData = Object.assign(
             selectedPatient,
             { patientId: selectedPatient?.id },
             { doc_id: appointmentDetails?.doctorId }, 
-            { doc_name: doctorDetails?.doc_name }, 
-            { appointment_id: res.payload?.appointment_id },
-            { id: res.payload?.appointment_id }
+            { doc_name: sessionStorage.getItem("doctorName") }, 
+            { appointment_id: res?.payload?.appointment_id },
+            { id: res?.payload?.appointment_id }
           )
-          sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+          sessionStorage.setItem("encounterDetail", JSON.stringify(AllPatientData));
+          sessionStorage.removeItem("doctorId");
+          sessionStorage.removeItem("doctorName");
+          sessionStorage.removeItem("encounterTypeValue");
+          sessionStorage.removeItem("appointmentTypeValue");
+          sessionStorage.removeItem("visitTypeValue");
+          sessionStorage.removeItem("billingTypeValue");
           setAppointmentCompleted(true);
         }
       });

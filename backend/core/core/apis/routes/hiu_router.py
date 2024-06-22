@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from core.apis.schemas.requests.hiu_request import RaiseConsent, FindPatient
-from core.apis.schemas.responses.hiu_response import Consent, ConsentDetails
+from core.apis.schemas.responses.hiu_response import (
+    Consent,
+    ConsentDetails,
+    PatientDataDetails,
+)
 from core.controllers.hiu_controller import HIUController
 from core import logger
 from commons.auth import decodeJWT
@@ -104,7 +108,9 @@ def get_consent_details(consent_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@hiu_router.get("/v1/HIU/getCareContext/{consent_id}")
+@hiu_router.get(
+    "/v1/HIU/getCareContext/{consent_id}", response_model=PatientDataDetails
+)
 def get_care_context(consent_id: str, token: str = Depends(oauth2_scheme)):
     try:
         logging.info("Calling /v1/HIU/getCareContext/{consent_id} endpoint")
@@ -112,7 +118,7 @@ def get_care_context(consent_id: str, token: str = Depends(oauth2_scheme)):
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             consent_details = HIUController().get_consent_details(consent_id=consent_id)
-            return consent_details
+            return PatientDataDetails(**consent_details)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -193,6 +199,26 @@ def consentNotifyHIU(consent_notify: dict):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v0.5/consents/hiu/notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@hiu_router.post("/api/v3/hiu/consent/request/notify")
+def consentNotifyHIU(consent_notify: dict):
+    try:
+        logging.info("Calling /api/v3/hiu/consent/request/notify endpoint")
+        logging.info(f"Notify Request: {consent_notify=}")
+        return HIUController().hiu_notify(request=consent_notify)
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /api/v3/hiu/consent/request/notify endpoint: {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /api/v3/hiu/consent/request/notify endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

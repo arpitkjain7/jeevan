@@ -18,8 +18,9 @@ import {
   getEMRId,
   getPatientDetails,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { downloadAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
-import { displayAbha } from "../../pages/PatientRegistration/PatientRegistration.slice";
+import {
+  getAbhaCard,
+} from "../../pages/PatientRegistration/PatientRegistration.slice";
 import CustomLoader from "../CustomLoader";
 
 const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
@@ -57,7 +58,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       float: "right",
       justifyContent: "center",
       alignItems: "center",
-      marginRight:"10px",
+      marginRight: "10px",
       padding: "8px 32px",
       height: "40px",
       marginTop: theme.spacing(8),
@@ -78,7 +79,7 @@ const RegisterationConfirmationWrapper = styled("div")(({ theme }) => ({
       alignItems: "center",
       padding: "8px 32px",
       height: "40px",
-      marginRight:"10px",
+      marginRight: "10px",
       marginTop: theme.spacing(8),
       textTransform: "capitalize",
       "&": theme.typography.tertiaryButton,
@@ -146,6 +147,7 @@ const RegisterationConfirmation = ({
     Object.keys(selectedPatient)?.length > 0 // && isAppointment
       ? selectedPatient
       : registeredPatient;
+  console.log(patientData);
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const currentPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
@@ -156,7 +158,7 @@ const RegisterationConfirmation = ({
   const [doctorList, setDoctorList] = useState([]);
   useEffect(() => {
     setShowLoader(true);
-    if(patientData?.id){
+    if (patientData?.id) {
       let pageData = [
         { key: "Patient Name", value: patientData?.name || "-" },
         {
@@ -172,14 +174,22 @@ const RegisterationConfirmation = ({
           value: patientData?.DOB || "-",
         },
         { key: "Email Address", value: patientData?.email || "-" },
+        { key: "Mobile Number", value: patientData?.mobile_number || "-" },
         {
           key: "ABHA Address",
           value: patientData?.abha_address || "-",
         },
+        {
+          key: "ABHA Number",
+          value: patientData?.abha_number || "-",
+        },
       ];
       if (isAppointment) {
         const appointmentData = [
-          { key: "Appointment Type", value: appointmentDetails?.appointmentType },
+          {
+            key: "Appointment Type",
+            value: appointmentDetails?.appointmentType,
+          },
           { key: "Encounter Type", value: appointmentDetails?.encounterType },
           { key: " Visit Type", value: appointmentDetails?.visitType },
           {
@@ -197,14 +207,22 @@ const RegisterationConfirmation = ({
   }, [patientData]);
 
   useEffect(() => {
-    if(patientData?.abha_address || currentPatient?.abha_address){
+    if (patientData?.abhaBytes) {
+      setIsAbhaPresent(true);
+      setAbhaCardBytes(patientData?.abhaBytes);
+    }
+    // else if(patientData?.abha_address || currentPatient?.abha_address){
     // if (!isAppointment) {
-      dispatch(displayAbha({ patientId: patientData.id })).then((res) => {
+    else if (patientData?.token) {
+      const abhaCardPayload = {
+        access_token: patientData?.token,
+      };
+      dispatch(getAbhaCard(abhaCardPayload)).then((res) => {
         if (res?.error) {
           return;
         } else {
           setIsAbhaPresent(true);
-          setAbhaCardBytes(res.payload?.abha_bytes);
+          setAbhaCardBytes(res?.payload?.abha_card_bytes);
         }
       });
     }
@@ -212,20 +230,28 @@ const RegisterationConfirmation = ({
 
   const downloadAbhaCard = () => {
     console.log("Downloading ABHA");
-    setIsAbhaDisabled(true);
-    dispatch(downloadAbha({ patientId: patientData.id })).then((res) => {
-      setIsAbhaDisabled(false);
-      if (res?.error && Object.keys(res?.error)?.length > 0) {
-        console.log("Download ABHA failed");
-        return;
-      } else {
-        const abha_url = res?.payload.abha_url;
-        window.location.replace(abha_url);
-      }
-    });
+    const blob = bytesToBlob(abhaCardBytes);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "image.jpg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    // setIsAbhaDisabled(true);
+    // dispatch(downloadAbha({ patientId: patientData.id })).then((res) => {
+    //   setIsAbhaDisabled(false);
+    //   if (res?.error && Object.keys(res?.error)?.length > 0) {
+    //     console.log("Download ABHA failed");
+    //     return;
+    //   } else {
+    //     const abha_url = res?.payload.abha_url;
+    //     window.location.replace(abha_url);
+    //   }
+    // });
   };
   const doctor_details = sessionStorage.getItem("DoctorDetails");
-  // const docName = sessionStorage.getItem("DoctorName");
+  // const docName = sessionStorage.getItem("doctorId");
   const navigateStartVisit = () => {
     setShowLoader(true);
     let currentHospital = {};
@@ -237,32 +263,30 @@ const RegisterationConfirmation = ({
         const payload = {
           hip_id: currentHospital?.hip_id,
         };
-          dispatch(fetchDoctorList(payload)).then((res) => {
-            const doctorData = res.payload;
-            if(doctorData.length > 1){
-              let drList = [];
-              doctorData?.map((item) => {
-                const data = {
-                  label: item?.doc_name,
-                  name: item?.doc_name,
-                  value: item?.id,
-                };
+        dispatch(fetchDoctorList(payload)).then((res) => {
+          const doctorData = res?.payload;
+          if (doctorData.length > 1) {
+            let drList = [];
+            doctorData?.map((item) => {
+              const data = {
+                label: item?.doc_name,
+                name: item?.doc_name,
+                value: item?.id,
+              };
 
-                drList?.push(data);
-              });
-              setDoctorList(drList);
-              setDrListPopup(true);
-            } 
-            else if(doctorData.length === 1){
-              setDoctorID(doctorData[0]?.id);
-              setDoctorName(doctorData[0]?.doc_name);
-              handleDrSubmit(doctorData[0]?.id, doctorData[0]?.doc_name);
-            } 
-            else {
-              console.log("Empty doctor list");
-              return;
-            }
-          });
+              drList?.push(data);
+            });
+            setDoctorList(drList);
+            setDrListPopup(true);
+          } else if (doctorData.length === 1) {
+            setDoctorID(doctorData[0]?.id);
+            setDoctorName(doctorData[0]?.doc_name);
+            handleDrSubmit(doctorData[0]?.id, doctorData[0]?.doc_name);
+          } else {
+            console.log("Empty doctor list");
+            return;
+          }
+        });
         // }
       }
       setShowLoader(false);
@@ -274,10 +298,7 @@ const RegisterationConfirmation = ({
       navigate("/appointment-list");
     } else {
       navigate("/create-appointment");
-      sessionStorage.setItem(
-        "selectedPatient",
-        JSON.stringify(patientData)
-      );
+      // sessionStorage.setItem("selectedPatient", JSON.stringify(patientData));
     }
   };
 
@@ -321,7 +342,7 @@ const RegisterationConfirmation = ({
   };
 
   const handleDrSubmit = (doctor_id, doctor_name) => {
-    if(doctor_id){
+    if (doctor_id) {
       sessionStorage.setItem("doctorId", doctor_id);
     } else sessionStorage.setItem("doctorId", doctorID);
     let currentHospital = {};
@@ -345,21 +366,28 @@ const RegisterationConfirmation = ({
             hip_id: currentHospital?.hip_id,
             consultation_status: "InProgress",
           };
-        
+
           dispatch(getEMRId(emrPayload)).then((response) => {
             sessionStorage.setItem("pmrID", response.payload?.pmr_details?.id);
-            dispatch(getPatientDetails(patientData?.id)).then((res) => {
-              const AllPatientData = Object.assign(
-                res?.payload,
-                { patientId: response.payload?.pmr_details?.patient_id },
-                { doc_id: response.payload?.pmr_details?.doc_id },
-                { doc_name: doctor_name || doctorName },
-                { hip_id: response.payload?.pmr_details?.hip_id }, 
-                { id: response.payload?.appointment_details?.id },
-                { age_in_years: res.payload?.age_in_years },
-                { age_in_months: res.payload?.age_in_months }
-              )
-              sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
+            dispatch(getPatientDetails(patientData?.id)).then((patientDataResponse) => {
+              sessionStorage.setItem("selectedPatient", JSON.stringify(patientDataResponse?.payload));
+              const patientPayload = res?.payload || {}; // Ensure res?.payload is an object
+
+              const allPatientData = {
+                ...patientPayload, // Spread existing properties if any
+                patientId: response.payload?.pmr_details?.patient_id,
+                doc_id: response.payload?.pmr_details?.doc_id,
+                doc_name: sessionStorage.getItem("doctorName") || doctor_name || doctorName,
+                hip_id: response.payload?.pmr_details?.hip_id,
+                id: response.payload?.appointment_details?.id,
+                age_in_years: patientPayload.age_in_years,
+                age_in_months: patientPayload.age_in_months,
+              };
+
+              sessionStorage.setItem(
+                "encounterDetail",
+                JSON.stringify(allPatientData)
+              );
             });
             setTimeout(() => navigate("/patient-emr"), 2000);
           });
@@ -369,11 +397,25 @@ const RegisterationConfirmation = ({
 
     handleCloseDrPopup();
   };
+
+  const bytesToBlob = (bytesArray) => {
+    // const byteArray = new Uint8Array(bytesArray);
+    // return new Blob([byteArray], { type: 'image/jpeg' });
+    const decodedByteCode = atob(bytesArray);
+    const byteNumbers = new Array(decodedByteCode.length);
+    for (let i = 0; i < decodedByteCode.length; i++) {
+      byteNumbers[i] = decodedByteCode.charCodeAt(i);
+    }
+    const blobData = new Blob([new Uint8Array(byteNumbers)], {
+      type: "image/jpeg",
+    });
+    // const pdfUrls = URL.createObjectURL(blobData);
+    return blobData;
+  };
+
   return (
     <RegisterationConfirmationWrapper>
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <Modal
         open={drListPopup}
         onClose={handleCloseDrPopup}
@@ -459,7 +501,7 @@ const RegisterationConfirmation = ({
         <Button className="submit-btn" onClick={navigateToNext}>
           {isAppointment ? "Go to appointment list" : "Create Appointment"}
         </Button>
-      
+
         {isAbhaPresent && !isAppointment && (
           <Button
             disabled={isAbhaDisabled}
@@ -477,6 +519,7 @@ const RegisterationConfirmation = ({
         <embed
           style={{ width: "-webkit-fill-available" }}
           src={`data:image/jpeg;base64,${abhaCardBytes}`}
+          download
         />
       )}
     </RegisterationConfirmationWrapper>

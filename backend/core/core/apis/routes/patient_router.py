@@ -10,11 +10,16 @@ from core.apis.schemas.requests.patient_request import (
     RegisterPatientV3,
     VerifyPatient,
     AuthInitV2,
+    PatientAuth,
+    PatientAuthResendOTP,
+    PatientAuthVerifyOTP,
 )
+from core.apis.schemas.responses.patient_response import PatientList
 from core.apis.schemas.requests.vital_request import Read, VitalType
 from core.controllers.patient_controller import PatientController
 from core import logger
 from commons.auth import decodeJWT
+from typing import List
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -192,6 +197,91 @@ def auth_init(request: AuthInitV2, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v2/patient/auth/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/init")
+def v3_auth_init(request: PatientAuth, token: str = Depends(oauth2_scheme)):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/init endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_init_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/init endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/init endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/resendOtp")
+def v3_auth_resendOtp(
+    request: PatientAuthResendOTP, token: str = Depends(oauth2_scheme)
+):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/resendOtp endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_resendOTP_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/resendOtp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/resendOtp endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.post("/v3/patient/auth/verifyOtp")
+def v3_auth_verifyOtp(
+    request: PatientAuthVerifyOTP, token: str = Depends(oauth2_scheme)
+):
+    pass
+    try:
+        logging.info("Calling /v3/patient/auth/verifyOtp endpoint")
+        logging.debug(f"Request: {request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().auth_verifyOTP_v3(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v3/patient/auth/verifyOtp endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v3/patient/auth/verifyOtp endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -437,7 +527,7 @@ def updatePatient(update_patient: UpdatePatient, token: str = Depends(oauth2_sch
         )
 
 
-@patient_router.get("/v1/patient/listAll")
+@patient_router.get("/v1/patient/listAll", response_model=List[PatientList])
 def list_all_patients(hip_id: str, token: str = Depends(oauth2_scheme)):
     """[API router to list all patient into the system]
     Raises:
@@ -508,10 +598,40 @@ def get_patient_details(patient_id: str, token: str = Depends(oauth2_scheme)):
         if authenticated_user_details:
             return PatientController().get_patient_details(patient_id=patient_id)
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/patient/listAll endpoint: {httperror}")
+        logging.error(f"Error in /v1/patient/{patient_id} endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/patient/listAll endpoint: {error}")
+        logging.error(f"Error in /v1/patient/{patient_id} endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@patient_router.get("/v1/patientByPID")
+def get_patient_by_puid(
+    patient_uid: str, hip_id: str, token: str = Depends(oauth2_scheme)
+):
+    """[API router to list all patient into the system]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info("Calling /v1/patient/byPID endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return PatientController().get_patient_by_puid(
+                patient_uid=patient_uid, hip_id=hip_id
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/patient/byPID endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/patient/byPID endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

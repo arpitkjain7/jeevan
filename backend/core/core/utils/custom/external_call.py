@@ -12,7 +12,7 @@ class APIInterface:
         try:
             url = route
             logging.info("POST request sent")
-            logging.debug(f"url = {url}, data = {data}, headers={headers}")
+            logging.debug(f"url = {url}, data = {data}")
             response = requests.post(url, data=data, json=json, headers=headers)
             # if response.status_code >= 400:
             #     raise Exception(

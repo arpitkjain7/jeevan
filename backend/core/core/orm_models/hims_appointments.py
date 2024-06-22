@@ -16,6 +16,7 @@ class Appointments(Base):
     encounter_type = Column(String)
     token_number = Column(Integer)
     consultation_status = Column(String)
+    appointment_date = Column(Date)
     followup_date = Column(Date)
     notes = Column(Text)
     created_at = Column(DateTime)

@@ -44,10 +44,25 @@ export const getPatientDetails = createAsyncThunk(
   }
 );
 
-export const sendNotification = createAsyncThunk("notifyPMR", async (payload) => {
-  const response = await apiRequest("POST", apis?.pmrSendNotification, payload);
-  return response;
-});
+export const sendNotification = createAsyncThunk(
+  "notifyPMR",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.pmrSendNotification,
+      payload
+    );
+    return response;
+  }
+);
+
+export const googleReview = createAsyncThunk(
+  "googleReview",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.googleReview, payload);
+    return response;
+  }
+);
 
 export const syncPMR = createAsyncThunk(
   "patient/verifySyncOtp",
@@ -62,6 +77,32 @@ export const syncPMR = createAsyncThunk(
 );
 export const postEMR = createAsyncThunk("submitPMR/PMR", async (payload) => {
   const response = await apiRequest("POST", apis?.submitEMR, payload);
+  return response;
+});
+
+export const previewPMR = createAsyncThunk("previewPMR", async (payload) => {
+  const response = await apiRequest("POST", apis?.previewPMR, payload);
+  return response;
+});
+
+// export const verifyDemographics = createAsyncThunk("verifyPatientDemographics", async (payload) => {
+//   const response = await apiRequest("POST", apis?.verifyDemographics, payload);
+//   return response;
+// });
+export const verifyDemographics = createAsyncThunk(
+  "verifyPatientDemographics",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.demographicsAuthInit,
+      payload
+    );
+    return response;
+  }
+);
+
+export const deepLink = createAsyncThunk("sendLink", async (payload) => {
+  const response = await apiRequest("POST", apis?.deepLink, payload);
   return response;
 });
 
@@ -101,37 +142,37 @@ export const uploadPmrPdf = createAsyncThunk(
 
 export const submitHealthDocument = createAsyncThunk(
   "PMR/uploadDocument",
-  async ({params, docPayload}) => {
+  async ({ params, docPayload }) => {
     const apiUrl = apis.uploadPmrPdf;
     const access_token = sessionStorage.getItem("accesstoken");
     const formData = new FormData();
     const files = docPayload.files;
     files.map((image) => {
-      // const canvas = document.createElement('canvas'); 
-      //   const ctx = canvas.getContext('2d'); 
-      //   const MAX_WIDTH = 800; const MAX_HEIGHT = 800; 
-      //   // Rotate image if width is greater than height 
-      //   if (image.width > image.height) { 
-      //     canvas.width = MAX_HEIGHT; 
-      //     canvas.height = MAX_WIDTH; 
-      //     ctx.translate(MAX_HEIGHT / 2, MAX_WIDTH / 2); 
-      //     ctx.rotate(Math.PI / 2); 
+      // const canvas = document.createElement('canvas');
+      //   const ctx = canvas.getContext('2d');
+      //   const MAX_WIDTH = 800; const MAX_HEIGHT = 800;
+      //   // Rotate image if width is greater than height
+      //   if (image.width > image.height) {
+      //     canvas.width = MAX_HEIGHT;
+      //     canvas.height = MAX_WIDTH;
+      //     ctx.translate(MAX_HEIGHT / 2, MAX_WIDTH / 2);
+      //     ctx.rotate(Math.PI / 2);
       //     ctx.drawImage(image, -image.width / 2, -image.height / 2);
-      //   } else { 
-      //     canvas.width = MAX_WIDTH; 
-      //     canvas.height = MAX_HEIGHT; 
-      //     ctx.drawImage(image, 0, 0, MAX_WIDTH, MAX_HEIGHT); 
-      //   } 
-        // canvas.toBlob((blob) => { 
-        //   const rotatedFile = new File([blob], file.name, { 
-        //     type: file.type, lastModified: new Date().getTime(), 
-        //   }); 
-        //   // const newFormData = new FormData(); 
-        //   // newFormData.append('image', rotatedFile); 
-        
-        // });
-        formData.append("files", image);
-    })
+      //   } else {
+      //     canvas.width = MAX_WIDTH;
+      //     canvas.height = MAX_HEIGHT;
+      //     ctx.drawImage(image, 0, 0, MAX_WIDTH, MAX_HEIGHT);
+      //   }
+      // canvas.toBlob((blob) => {
+      //   const rotatedFile = new File([blob], file.name, {
+      //     type: file.type, lastModified: new Date().getTime(),
+      //   });
+      //   // const newFormData = new FormData();
+      //   // newFormData.append('image', rotatedFile);
+
+      // });
+      formData.append("files", image);
+    });
     try {
       const response = await axios.post(BASE_URL + "/" + apiUrl, formData, {
         params: {
@@ -163,6 +204,7 @@ const EMRSlice = createSlice({
     loading: false,
     searchedData: [],
     pmrIdData: {},
+    patientDetails: {},
     pmr: {},
   },
   reducers: {
@@ -200,6 +242,16 @@ const EMRSlice = createSlice({
         state.pmr = action.payload;
       })
       .addCase(postEMR.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(getPatientDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPatientDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pmr = action.payload;
+      })
+      .addCase(getPatientDetails.rejected, (state, action) => {
         state.loading = false;
       });
   },

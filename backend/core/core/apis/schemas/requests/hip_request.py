@@ -11,3 +11,9 @@ class CreateHIP(BaseModel):
     hip_email_address: str
     hfr_reg_number: str
     hfr_status: str = "ACTIVE"
+
+
+class DeepLinkNotify(BaseModel):
+    mobile_no: str
+    hip_id: str
+    hip_name: str

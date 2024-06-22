@@ -6,6 +6,7 @@ class PatientDetails(Base):
     __tablename__ = "patientDetails"
     __table_args__ = {"extend_existing": True}
     id = Column(String, primary_key=True)
+    patient_uid = Column(String)
     abha_number = Column(String)
     primary_abha_address = Column(String)
     abha_address = Column(String)

@@ -1,18 +1,21 @@
 from fhir.resources.appointment import Appointment, AppointmentParticipant
 from fhir.resources.encounter import Encounter
+from fhir.resources.condition import Condition
 from fhir.resources.documentreference import DocumentReference, DocumentReferenceContent
 from fhir.resources.attachment import Attachment
 from fhir.resources.period import Period
 from fhir.resources.allergyintolerance import AllergyIntolerance
 from fhir.resources.condition import Condition, ConditionStage
 from fhir.resources.medicationstatement import MedicationStatement
+from fhir.resources.servicerequest import ServiceRequest
 from fhir.resources.medicationrequest import MedicationRequest
+from fhir.resources.medication import Medication
 from fhir.resources.organization import Organization
 from fhir.resources.patient import Patient
 from fhir.resources.practitioner import Practitioner
 from fhir.resources.practitionerrole import PractitionerRole
 from fhir.resources.procedure import Procedure
-from fhir.resources.servicerequest import ServiceRequest
+from fhir.resources.observation import Observation
 from fhir.resources.composition import Composition, CompositionSection
 from fhir.resources.humanname import HumanName
 from fhir.resources.identifier import Identifier
@@ -23,8 +26,9 @@ from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.codeablereference import CodeableReference
 from fhir.resources.reference import Reference
 from fhir.resources.meta import Meta
-from datetime import datetime
-import pytz
+from fhir.resources.coding import Coding
+from datetime import datetime, timezone
+import pytz, uuid
 
 timezone = pytz.timezone("Asia/Kolkata")
 
@@ -705,3 +709,427 @@ def medication_request(
     medication_request_json = medication_request.json()
     print(medication_request_json)
     return medication_request_json
+
+
+def create_section(ref_id: str, title: str, code: str, display: str, text: str):
+    section = CompositionSection.construct(
+        id=ref_id,
+        title=title,
+        code=CodeableConcept.construct(
+            text=display,
+            coding=Coding.construct(
+                system="http://snomed.info/sct", code=code, display=display
+            ),
+        ),
+        text=text,
+    )
+    return section
+
+
+def get_patient_construct(patient_info):
+    name = patient_info["name"]
+    gender = patient_info["gender"]
+    patient_id = patient_info["patient_id"]
+    abha_no = patient_info.get("abha_no")
+    telephone_number = patient_info.get("telephone_number")
+
+    identifier = [
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "MR",
+                        "display": "Medical record number",
+                    }
+                ]
+            },
+            "system": "https://healthid.ndhm.gov.in",
+            "value": patient_id,
+        }
+    ]
+
+    if abha_no:
+        identifier.append(
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "AN",
+                            "display": "Account number",
+                        }
+                    ]
+                },
+                "system": "https://healthid.ndhm.gov.in",
+                "value": abha_no,
+            }
+        )
+    extra_args = {}
+    if telephone_number:
+        extra_args["telecom"] = ContactPoint.construct(
+            system="phone", value=telephone_number, use="mobile"
+        )
+
+    patient_ref_id = patient_info["patient_id"]
+    patient_construct = Patient.construct(
+        id=patient_ref_id,
+        name=[{"text": name}],
+        gender=gender,
+        meta={"profile": ["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"]},
+        identifier=identifier,
+        **extra_args,
+    )
+    return patient_construct
+
+
+def get_practitioner_construct(practitioner_info: dict):
+    """
+    :param practitioner_info:
+    :return:
+    """
+    name = practitioner_info["name"]
+    practitioner_id = practitioner_info["practitioner_id"]
+    telephone_number = practitioner_info.get("telephone_number")
+
+    extra_args = {}
+    if telephone_number:
+        extra_args["telecom"] = ContactPoint.construct(
+            system="phone", value=telephone_number, use="mobile"
+        )
+
+    practitioner_ref_id = practitioner_info.get("practitioner_ref_id")
+    practitioner_construct = Practitioner.construct(
+        id=practitioner_ref_id,
+        name=[{"text": name}],
+        meta={
+            "lastUpdated": practitioner_info.get("time_str"),
+            "profile": [
+                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"
+            ],
+        },
+        identifier=[
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "MD",
+                            "display": "Medical License number",
+                        }
+                    ]
+                },
+                "system": "https://doctor.ndhm.gov.in",
+                "value": practitioner_id,
+            }
+        ],
+    )
+    return practitioner_construct
+
+
+def get_condition_construct(
+    condition_id: str,
+    clinical_display: str,
+    patient_ref: str,
+    encounter_ref: str,
+    condition_type: str,
+    recorded_date: str,
+):
+    print("Inside condition")
+    clinicalStatus_codeable_obj = CodeableConcept()
+    clinicalStatus_codeable_obj.coding = [
+        {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "code": "active",
+            "display": "active",
+        }
+    ]
+    clinicalStatus_codeable_obj.text = condition_type
+    condition_obj = Condition(
+        resource_type="Condition",
+        id=condition_id,
+        recordedDate=recorded_date,
+        clinicalStatus=clinicalStatus_codeable_obj,
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": clinical_code,
+    #         "display": clinical_display,
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    condition_obj.meta = meta
+    condition_obj.code = {"text": clinical_display}
+    condition_obj.encounter = encounter
+    # Convert the Patient resource to JSON
+    condition_json = condition_obj.json()
+    print(condition_json)
+    return condition_obj
+
+
+def get_observation_construct(
+    observation_id: str,
+    patient_ref: str,
+    encounter_ref: str,
+    observation_type: str,
+    observation_unit: str,
+    observation_value: str,
+):
+    print("Inside observation")
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": "425044008",
+    #         "display": "Physical exam section",
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
+    observation_obj = Observation(
+        resource_type="Observation",
+        id=observation_id,
+        status="final",
+        code={"text": observation_type},
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
+    observation_obj.valueQuantity = {
+        "unit": observation_unit,
+        "value": observation_value,
+    }
+    # observation_obj.valueString = clinical_display
+    # Convert the Patient resource to JSON
+    observation_json = observation_obj.json()
+    print(observation_json)
+    return observation_obj
+
+
+def get_physical_examination_construct(
+    observation_id: str,
+    patient_ref: str,
+    encounter_ref: str,
+    observation_str: str,
+    observation_type: str,
+):
+    print("Inside observation")
+    # codeable_obj = CodeableConcept()
+    # codeable_obj.coding = [
+    #     {
+    #         "system": "http://snomed.info/sct",
+    #         "code": "425044008",
+    #         "display": "Physical exam section",
+    #     }
+    # ]
+    # codeable_obj.text = clinical_display
+    observation_obj = Observation(
+        resource_type="Observation",
+        id=observation_id,
+        status="final",
+        code={"text": observation_type},
+        valueString=observation_str,
+        subject={"reference": f"Patient/{patient_ref}"},
+    )
+
+    encounter = {"reference": f"Encounter/{encounter_ref}"}
+    meta = Meta(
+        profile=["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Condition"],
+    )
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
+    observation_json = observation_obj.json()
+    print(observation_json)
+    return observation_obj
+
+
+def get_organization_construct(organization_info: dict):
+    try:
+
+        organization_id = organization_info.get("organization_id")
+        organization_construct = Organization.construct(
+            id=organization_id,
+            name=organization_info.get("name", "No Name"),
+            meta={
+                "profile": [
+                    "https://nrces.in/ndhm/fhir/r4/StructureDefinition/Organization"
+                ]
+            },
+            identifier=[
+                {
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "PRN",
+                                "display": "Provider number",
+                            }
+                        ]
+                    },
+                    "system": "https://facility.ndhm.gov.in",
+                    "value": organization_info.get("organization_id", "1234567890"),
+                }
+            ],
+        )
+        return organization_construct
+    except Exception as error:
+        print(f"Error in get_organization_construct : {error}")
+
+
+def get_medical_statement_construct(
+    patient_ref: str,
+    medication_obj_code: str,
+    medication_obj_display: str,
+    medication_statement_id: str,
+):
+    print("Inside Medical Statement")
+    subject = {"reference": f"Patient/{patient_ref}"}
+    medication_obj = CodeableConcept()
+    medication_obj.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": medication_obj_code,
+            "display": medication_obj_display,
+        }
+    ]
+    medication = CodeableReference()  # this CODE part need to be checked furhter
+    medication.concept = medication_obj
+    meta = Meta(
+        profile=[
+            "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationStatement"
+        ],
+    )
+    medication_statement = MedicationStatement(
+        resource_type="MedicationStatement",
+        subject=subject,
+        status="completed",
+        # medication=medication,
+        id=medication_statement_id,
+        dateAsserted=datetime.now(timezone).isoformat(),
+        meta=meta,
+        medication=medication_obj,
+    )
+
+    # medication_statement.meta = meta
+    # medication_statement.id = medication_statement_id
+    # medication_statement.subject = subject
+    # medication_statement.medicationCodeableConcept = medication_obj
+
+    medication_statement_json = medication_statement.json()
+    print(medication_statement_json)
+    return medication_statement
+
+
+def get_medication_request_construct(
+    medication_request_id: str,
+    dosage: str,
+    patient_ref: str,
+    practitioner_ref: str,
+    medicine_name: str,
+    medicine_code: str,
+):
+    print("Inside get_medication_request_construct Request")
+    medication_request = {
+        "meta": {
+            "profile": [
+                "https://nrces.in/ndhm/fhir/r4/StructureDefinition/MedicationRequest"
+            ],
+        },
+        "id": medication_request_id,
+        "resourceType": "MedicationRequest",
+        "subject": {"reference": f"Patient/{patient_ref}"},
+        "status": "active",
+        "intent": "order",
+        "authoredOn": datetime.now(timezone).isoformat(),
+        "dosageInstruction": [{"text": dosage}],
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": medicine_code,
+                    "display": medicine_name,
+                }
+            ],
+            "text": medicine_name,
+        },
+        "requester": {"reference": f"Practitioner/{practitioner_ref}"},
+    }
+    print(f"{medication_request=}")
+    return medication_request
+
+
+def get_lab_investigation_construct(
+    investigation_id: str,
+    patient_ref: str,
+    practitioner_ref: str,
+    investigation_name: str,
+):
+    print("Inside Lab Investigation")
+    category = CodeableConcept()
+    category.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "108252007",
+            "display": "Laboratory procedure",
+        }
+    ]
+    investigation = ServiceRequest(
+        resource_type="ServiceRequest",
+        id=investigation_id,
+        requester={"reference": f"Practitioner/{practitioner_ref}"},
+        subject={"reference": f"Patient/{patient_ref}"},
+        category=[category],
+        intent="order",
+        status="active",
+    )
+    # observation_obj.meta = meta
+    # observation_obj.encounter = encounter
+    investigation_json = investigation.json()
+    print(investigation_json)
+    return investigation
+
+
+def get_document_construct(
+    document_id: str,
+    patient_ref: str,
+    document_bytes: str,
+    document_mime_type: str = "application/pdf",
+):
+    document_type = CodeableConcept()
+    document_type.coding = [
+        {
+            "system": "http://snomed.info/sct",
+            "code": "371530004",
+            "display": "Clinical consultation report",
+        }
+    ]
+    document_type.text = "Clinical consultation report"
+    attachment_obj = Attachment(
+        contentType=document_mime_type,
+        language="en-IN",
+        data=document_bytes,
+        title="Clinical consultation report",
+    )
+    document_ref_obj = DocumentReferenceContent(attachment=attachment_obj)
+    document = DocumentReference(
+        resource_type="DocumentReference",
+        id=document_id,
+        status="current",
+        docStatus="final",
+        type=document_type,
+        subject={"reference": f"Patient/{patient_ref}"},
+        content=[document_ref_obj],
+    )
+    document_json = document.json()
+    return document

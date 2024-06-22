@@ -32,6 +32,8 @@ share/python-wheels/
 *.egg
 MANIFEST
 settings.json
+lambda/send_followup_v1/package/*
+*.zip
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

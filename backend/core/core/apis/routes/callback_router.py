@@ -94,6 +94,24 @@ async def on_add_context(auth_confirm_request: Request):
         )
 
 
+@callback_router.post("/v0.5/patients/status/on-notify")
+async def on_status_notify(auth_confirm_request: Request):
+    try:
+        logging.info("Calling /v0.5/patients/status/on-notify endpoint")
+        request_dict = await auth_confirm_request.json()
+        logging.debug(f"Request: {request_dict}")
+        # hip_id = auth_confirm_request.headers.get("X-HIP-ID")
+        # logging.debug(f"hip_id: {hip_id}")
+        # return CallbackController().on_add_context(request=request_dict, hip_id=hip_id)
+    except Exception as error:
+        logging.error(f"Error in /v0.5/patients/status/on-notify endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @callback_router.get("/v0.5/heartbeat")
 def heartbeat():
     try:

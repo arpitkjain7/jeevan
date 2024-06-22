@@ -3,7 +3,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiRequest } from "../../utils/request";
 import { apis } from "../../utils/apis";
-import React, {useState} from 'react';
 
 export const registerAADHAAR = createAsyncThunk(
   "registration/aadhaarregisterAADHAAR",
@@ -46,7 +45,7 @@ export const verifyAadhaarPhoneOTP = createAsyncThunk(
 
 export const verifyAbhaNumber = createAsyncThunk(
   "registration/verifyAbha",
-  async ({url, payload}) => {
+  async ({ url, payload }) => {
     const response = await apiRequest("POST", url, payload);
     return response;
   }
@@ -71,7 +70,11 @@ export const registerPatient = createAsyncThunk(
 export const registerAbhaPatient = createAsyncThunk(
   "registration/registerPatient",
   async (payload) => {
-    const response = await apiRequest("POST", apis?.registerAbhaPatient, payload);
+    const response = await apiRequest(
+      "POST",
+      apis?.registerAbhaPatient,
+      payload
+    );
     return response;
   }
 );
@@ -79,7 +82,35 @@ export const registerAbhaPatient = createAsyncThunk(
 export const registerAadhaarAbha = createAsyncThunk(
   "registration/registerAbhaPatient",
   async (payload) => {
-    const response = await apiRequest("POST", apis?.abhaRegistrationViaAadhaar, payload);
+    const response = await apiRequest(
+      "POST",
+      apis?.abhaRegistrationViaAadhaar,
+      payload
+    );
+    return response;
+  }
+);
+
+export const aadhaarMobileGenerateOTP = createAsyncThunk(
+  "registration/aadhaarMobileGenerateOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.aadhaarMobileGenerateOTP,
+      payload
+    );
+    return response;
+  }
+);
+
+export const addhaarMobileVerifyOTP = createAsyncThunk(
+  "registration/addhaarMobileVerifyOTP",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.addhaarMobileVerifyOTP,
+      payload
+    );
     return response;
   }
 );
@@ -95,7 +126,10 @@ export const verifyAadhaarAbhaOTP = createAsyncThunk(
 export const suggestAbhaAddress = createAsyncThunk(
   "registration/suggestAbhaAddress",
   async (transactionId) => {
-    const response = await apiRequest("GET", apis?.suggestAbhaAddress+ '?' + `transaction_id=${transactionId}`);
+    const response = await apiRequest(
+      "GET",
+      apis?.suggestAbhaAddress + "?" + `transaction_id=${transactionId}`
+    );
     return response;
   }
 );
@@ -119,7 +153,11 @@ export const verifyAbhaUser = createAsyncThunk(
 export const getAbhaProfile = createAsyncThunk(
   "registration/getAbhaProfile",
   async (parameters) => {
-    const response = await apiRequest("POST", apis?.getAbhaProfile + `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`);
+    const response = await apiRequest(
+      "POST",
+      apis?.getAbhaProfile +
+        `?txnId=${parameters.transactionId}&createRecord=false&hip_id=${parameters.hipId}`
+    );
     return response;
   }
 );
@@ -127,7 +165,11 @@ export const getAbhaProfile = createAsyncThunk(
 export const downloadAbha = createAsyncThunk(
   "registration/downloadAbha",
   async (patient_Id) => {
-    const response = await apiRequest("POST", apis?.downloadAbhaCard, patient_Id);
+    const response = await apiRequest(
+      "POST",
+      apis?.downloadAbhaCard,
+      patient_Id
+    );
     return response;
   }
 );
@@ -135,7 +177,22 @@ export const downloadAbha = createAsyncThunk(
 export const displayAbha = createAsyncThunk(
   "registration/displayAbha",
   async (patient_Id) => {
-    const response = await apiRequest("POST", apis?.displayAbhaCard, patient_Id);
+    const response = await apiRequest(
+      "POST",
+      apis?.displayAbhaCard,
+      patient_Id
+    );
+    return response;
+  }
+);
+
+export const getAbhaCard = createAsyncThunk(
+  "registration/getAbhaCard",
+  async (payload) => {
+    const response = await apiRequest(
+      "GET",
+      `${apis?.getAbhaCard}?access_token=${payload?.access_token}`
+    );
     return response;
   }
 );
@@ -156,10 +213,26 @@ export const patientAuthInit = createAsyncThunk(
   }
 );
 
+export const patientAuthResendOtp = createAsyncThunk(
+  "registration/patientAuthResendOtp",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      apis?.patientAuthResendOtp,
+      payload
+    );
+    return response;
+  }
+);
+
 export const patientAuthVerifyOTP = createAsyncThunk(
   "registration/patientAuthVerifyOTP",
   async (payload) => {
-    const response = await apiRequest("POST", apis?.patientAuthVerifyOTP, payload);
+    const response = await apiRequest(
+      "POST",
+      apis?.patientAuthVerifyOTP,
+      payload
+    );
     return response;
   }
 );
@@ -167,7 +240,10 @@ export const patientAuthVerifyOTP = createAsyncThunk(
 export const gatewayInteraction = createAsyncThunk(
   "registration/gatewayInteraction",
   async (requestId) => {
-    const response = await apiRequest("GET", apis?.gatewayInteraction + `/${requestId}`);
+    const response = await apiRequest(
+      "GET",
+      apis?.gatewayInteraction + `/${requestId}`
+    );
     return response;
   }
 );

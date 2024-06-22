@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import Sidebar from '../../components/Sidebar'
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../components/Sidebar";
 import {
   Grid,
   Typography,
@@ -10,51 +10,56 @@ import {
   Button,
   Paper,
 } from "@mui/material";
-import { Box } from '@mui/system';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { useDispatch } from 'react-redux';
-import { fetchAppointmentList } from '../AppointmentPage/AppointmentPage.slice';
-import { convertDateFormat, parseDateFormat } from '../../utils/utils';
+import { Box } from "@mui/system";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { useDispatch } from "react-redux";
+import {
+  fetchAppointmentList,
+  fetchAppointmentAnalystics,
+} from "../AppointmentPage/AppointmentPage.slice";
+import { convertDateFormat, parseDateFormat } from "../../utils/utils";
 
 const DashboardWrapper = styled("div")(({ theme }) => ({
   "&": {
     padding: "25px 10px 10px",
-    [theme.breakpoints.down('sm')]: {
-      padding: "10px"
-    }
+    [theme.breakpoints.down("sm")]: {
+      padding: "10px",
+    },
   },
   ".patientList-title-wrapper": {
     marginBottom: "20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
       display: "block",
     },
   },
   ".patientList-heading": {
     "&.MuiTypography-root": theme.typography.h1,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: "30px"
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "30px",
     },
   },
   ".patientList-desc": theme.typography.h2,
   ".chart-wrapper": {
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   ".chartStyling": {
     width: "100%",
-    height: "450px"
+    height: "450px",
   },
   ".chartStyling .MuiChartsAxis-tickLabel": {
-    fontSize: "16px !important"
+    fontSize: "16px !important",
   },
 }));
 
 const chartSetting = {
-  yAxis: [{
-    tickNumber: 0
-  }],
+  yAxis: [
+    {
+      tickNumber: 0,
+    },
+  ],
   // xAxis: [
   //   {
   //   }
@@ -65,7 +70,7 @@ function Dashboard() {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const username = sessionStorage.getItem("userName");
   const dispatch = useDispatch();
-  const [appointmentList, setAppointmentList] = useState({});
+  const [appointmentAnalystics, setAppointmentAnalystics] = useState({});
   const [completedAppointment, setCompletedAppointment] = useState(0);
   const [pendingAppointment, setPendingAppointment] = useState(0);
   const [followupCases, setFollowupCases] = useState(0);
@@ -89,70 +94,76 @@ function Dashboard() {
           year: "numeric",
           month: "numeric",
           day: "numeric",
-        })
+        });
         const day = currentDate.toLocaleDateString(undefined, {
           weekday: "long",
-        })
+        });
         const day_date = currentDate.toLocaleDateString(undefined, {
           weekday: "long",
           year: "numeric",
           month: "numeric",
           day: "numeric",
-        })
-        dates.push({ date: parseDateFormat(date, "yyyy-MM-dd"), day: day, count: 0, day_date: day_date });
+        });
+        dates.push({
+          date: parseDateFormat(date, "yyyy-MM-dd"),
+          day: day,
+          count: 0,
+          day_date: day_date,
+        });
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      dispatch(fetchAppointmentList(payload)).then((res) => {
+      dispatch(fetchAppointmentAnalystics(payload)).then((res) => {
         const mainList = res?.payload;
-        setAppointmentList(mainList);
-        let appointment_days = [];
-        let finalArray;
-        mainList.map((list) => {
-          if (list?.appointment_type === "first visit") {
-            setNewCases(prevCount => prevCount + 1);
-          }
-          else if (list?.appointment_type === "follow-up visit") {
-            setFollowupCases(prevCount => prevCount + 1);
-          }
-          if (list?.consultation_status === "Completed") {
-            setCompletedAppointment(prevCount => prevCount + 1);
-          }
-          else if (list?.consultation_status === "InProgress") {
-            setPendingAppointment(prevCount => prevCount + 1)
-          }
-          dates.map((date) => {
-            if (date.date === list?.slot_details?.date) {
-              appointment_days.push({ date: date.date, day: date.day });
-            }
-          });
-        });
 
-        const countsByDays = {};
-        appointment_days.forEach(({ day }) => {
-          countsByDays[day] = (countsByDays[day] || 0) + 1;
-        });
+        setAppointmentAnalystics(mainList);
+        // let appointment_days = [];
+        // let finalArray;
+        // mainList.map((list) => {
+        //   if (list?.appointment_type === "first visit") {
+        //     setNewCases((prevCount) => prevCount + 1);
+        //   } else if (list?.appointment_type === "follow-up visit") {
+        //     setFollowupCases((prevCount) => prevCount + 1);
+        //   }
+        //   if (list?.consultation_status === "Completed") {
+        //     setCompletedAppointment((prevCount) => prevCount + 1);
+        //   } else if (list?.consultation_status === "InProgress") {
+        //     setPendingAppointment((prevCount) => prevCount + 1);
+        //   }
+        //   dates.map((date) => {
+        //     if (date.date === list?.slot_details?.date) {
+        //       appointment_days.push({ date: date.date, day: date.day });
+        //     }
+        //   });
+        // });
 
-        finalArray = Object.entries(countsByDays)
-          .map(([day, count]) => ({ day, count }))
+        // const countsByDays = {};
+        // appointment_days.forEach(({ day }) => {
+        //   countsByDays[day] = (countsByDays[day] || 0) + 1;
+        // });
 
-        const chart_data = dates.map((item) => {
-          const matchedObject = finalArray.find((obj) => obj.day === item.day);
-          return { ...item, ...matchedObject };
-        });
-        setChartData(chart_data);
+        // finalArray = Object.entries(countsByDays).map(([day, count]) => ({
+        //   day,
+        //   count,
+        // }));
+
+        // const chart_data = dates.map((item) => {
+        //   const matchedObject = finalArray.find((obj) => obj.day === item.day);
+        //   return { ...item, ...matchedObject };
+        // });
+        // setChartData(chart_data);
         //setIsChart(true);
-      })
+      });
     }
-  }, [])
+  }, []);
 
   return (
     <DashboardWrapper>
       <div className="patientList-title-wrapper">
         <div>
-          <Typography className="patientList-heading">Hello, {username}</Typography>
-          <Typography className="patientList-desc">
-            OneLiner
+          <Typography className="patientList-heading">
+            Hello, {username}
           </Typography>
+          <Typography className="patientList-desc">OneLiner</Typography>
         </div>
       </div>
       <Grid container spacing={2}>
@@ -169,7 +180,7 @@ function Dashboard() {
                 <br />
               </Typography>
               <Typography variant="h1">
-                {appointmentList.length}
+                {appointmentAnalystics.total_appointments}
               </Typography>
             </CardContent>
           </Card>
@@ -181,14 +192,14 @@ function Dashboard() {
                 Completed appointments
               </Typography>
               <Typography variant="h5" component="div">
-                {completedAppointment}
+                {appointmentAnalystics.completed_appointments}
               </Typography>
               <br />
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
                 Pending appointments
               </Typography>
               <Typography variant="h5">
-                {pendingAppointment}
+                {appointmentAnalystics.inprogress_appointments}
               </Typography>
             </CardContent>
           </Card>
@@ -200,14 +211,14 @@ function Dashboard() {
                 Follow up cases
               </Typography>
               <Typography variant="h5" component="div">
-                {followupCases}
+                {appointmentAnalystics.follow_up_appointments}
               </Typography>
               <br />
               <Typography sx={{ mt: 1.5 }} color="text.secondary">
                 New cases
               </Typography>
               <Typography variant="h5">
-                {newCases}
+                {appointmentAnalystics.first_visit_appointments}
               </Typography>
             </CardContent>
           </Card>
@@ -245,7 +256,7 @@ function Dashboard() {
         </Paper>
       )} */}
     </DashboardWrapper>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

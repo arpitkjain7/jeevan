@@ -1,8 +1,9 @@
 from core import session, logger
 from core.orm_models.hims_patientDetails import PatientDetails
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 from core.utils.custom.patient_helper import calculate_age
+import pytz
 
 logging = logger(__name__)
 
@@ -246,7 +247,7 @@ class CRUDPatientDetails:
             [dict]: [PatientDetails record matching the criteria]
         """
         try:
-            logging.info("CRUDPatientDetails read request")
+            logging.info("CRUDPatientDetails read_by_patientId request")
             with session() as transaction_session:
                 obj: PatientDetails = (
                     transaction_session.query(PatientDetails)
@@ -257,7 +258,28 @@ class CRUDPatientDetails:
                 return obj.__dict__
             return None
         except Exception as error:
-            logging.error(f"Error in CRUDPatientDetails read function : {error}")
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_patientId function : {error}"
+            )
+            raise error
+
+    def read_by_patientUId(self, patient_uid: str, hip_id: str):
+        try:
+            logging.info("CRUDPatientDetails read_by_patientUId request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.patient_uid == patient_uid)
+                    .filter(PatientDetails.hip_id == hip_id)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientDetails read_by_patientUId function : {error}"
+            )
             raise error
 
     def read_by_name(self, name: str, DOB: str):
@@ -386,6 +408,85 @@ class CRUDPatientDetails:
                     result.append(patient_obj)
                 return result  # testing return [row.__dict__ for row in obj]
             return result
+        except Exception as error:
+            logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
+            raise error
+
+    def read_verified(self, hip_id: str):
+        """[CRUD function to read_verified PatientDetails record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all PatientDetails records]
+        """
+        try:
+            logging.info("CRUDPatientDetails read_verified request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.hip_id == hip_id)
+                    .order_by(PatientDetails.created_at.desc())
+                    .all()
+                )
+            result = []
+            if obj is not None:
+                for row in obj:
+                    patient_obj = row.__dict__
+                    patient_dob = patient_obj.get("DOB", None)
+                    if patient_dob:
+                        dob = datetime.strptime(patient_dob, "%Y-%m-%d")
+                        age_in_years, age_in_months = calculate_age(dob=dob)
+                        patient_obj["age_in_years"] = age_in_years
+                        patient_obj["age_in_months"] = age_in_months
+                    else:
+                        patient_yob = patient_obj.get("year_of_birth", None)
+                        today = datetime.today()
+                        age_in_years = today.year - int(patient_yob)
+                        patient_obj["age_in_years"] = age_in_years
+                    patient_verified = patient_obj.get("is_verified")
+                    if patient_verified:
+                        result.append(patient_obj)
+                    else:
+                        last_updated_date = patient_obj.get("updated_at")
+                        threshold_datetime = last_updated_date + timedelta(minutes=30)
+                        threshold_datetime = threshold_datetime.replace(tzinfo=pytz.UTC)
+                        now_datetime = datetime.now(timezone("Asia/Kolkata"))
+                        now_datetime.replace(tzinfo=pytz.UTC)
+                        threshold_time = threshold_datetime.time()
+                        now_time = now_datetime.time()
+                        if now_time < threshold_time:
+                            result.append(patient_obj)
+                return result
+            return result
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDPatientDetails read_verified function : {error}"
+            )
+            raise error
+
+    def read_by_hip(self, hip_id: str):
+        """[CRUD function to read_all PatientDetails record]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [list]: [all PatientDetails records]
+        """
+        try:
+            logging.info("CRUDPatientDetails read_all request")
+            with session() as transaction_session:
+                obj: PatientDetails = (
+                    transaction_session.query(PatientDetails)
+                    .filter(PatientDetails.hip_id == hip_id)
+                    .order_by(PatientDetails.created_at.desc())
+                    .all()
+                )
+            if obj is not None:
+                return [row.__dict__ for row in obj]
+            return []
         except Exception as error:
             logging.error(f"Error in CRUDPatientDetails read_all function : {error}")
             raise error

@@ -219,6 +219,19 @@ class FollowUp_ConsultationStatus(BaseModel):
     consultation_status: ConsultationStatus = None
 
 
+class PMRMetadata(BaseModel):
+    doctor_name: str
+    patient_name: str
+    hospital_name: str
+    patient_uid: str
+    patient_gender: str
+    document_id: str = None
+    patient_age_years: str = None
+    patient_age_months: str = None
+    patient_contact_number: str = None
+    patient_email: str = None
+
+
 class PMR(BaseModel):
     pmr_id: str
     vital: Vital = None
@@ -261,8 +274,23 @@ class PrescriptionMode(str, Enum):
     digital = "digital"
     handwritten = "handwritten"
 
+
 class SendNotificationByDocumentId(BaseModel):
     document_id: str
     pmr_id: str
     channel: NotificationChannel
     mobile_number: str = None
+
+
+class SendGoogleReview(BaseModel):
+    channel: NotificationChannel
+    mobile_number: str = None
+
+
+class SendAppointmentList(BaseModel):
+    channel: NotificationChannel
+    mobile_number: str = None
+    destination_mobile_number: str = None
+    patient_name: str = None
+    app_date: str = None
+    doc_name: str = None

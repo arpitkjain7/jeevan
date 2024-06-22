@@ -37,31 +37,32 @@ const ConsentValue = styled("div")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(2),
 }));
+
 const ConsentDocumentPage = (consentListData) => {
+  const consentSelected = JSON.parse(sessionStorage.getItem("consentSelected"));
+  const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const [documentData, setDocumentData] = useState([]);
   const selectedConsent = sessionStorage.getItem("consentSelected");
-  const [consentDetails, setConsentDetails] = useState([]);
-  const [consentPatientId, setConsentPatientId] = useState("");
   const dispatch = useDispatch();
 
   const createDocumentData = (data) => {
     const doclist = [];
-    // data?.map((item) => {
-    //   console.log(item, "item");
-    //   const docObj = {
-    //     documentContent: item?.attachment?.data,
-    //     type: item?.attachment?.contentType,
-    //     id: item?.attachment?.id,
-    //   };
-    const pname = {patient_name: data?.patient};
-    doclist.push(pname)
-    const contexts = data?.care_contexts?.care_context;
-     contexts?.map((item) => {
-      const docObj = { careContext: item?.careContextReference, date: convertDateFormat(data?.created_at, "dd-MM-yyyy"), hipId: data?.hip_id};
-      doclist.push(docObj);
-    });
+    const pname = { patient_name: selectedPatient?.name };
+    doclist.push(pname);
+    const contexts = data?.patientDataTransformed;
+    if (contexts && typeof contexts === "object") {
+      Object.entries(contexts).forEach(([key]) => {
+        const docObj = {
+          careContext: key,
+          date: data?.patientDataTransformed?.[key]?.Composition[0]?.date,
+          hipId: data?.hipId,
+        };
+        doclist.push(docObj);
+      });
+    }
     setDocumentData(doclist);
   };
+
   useEffect(() => {
     const currentConsent = JSON.parse(selectedConsent);
     if (currentConsent && Object.keys(currentConsent)?.length) {
@@ -69,30 +70,35 @@ const ConsentDocumentPage = (consentListData) => {
       dispatch(fetchConsentDetails(consentId)).then((response) => {
         const consentData = response?.payload;
         const formattedConsentList = {
-          createdAt: convertDateFormat(consentData?.created_at, "dd-MM-yyyy"),
-          expireAt: convertDateFormat(consentData?.expire_at, "dd-MM-yyyy"),
-          status: consentData.status
+          consultationDate: consentData?.patient_data_transformed,
+          hipId: consentData?.hip_id,
+          patientDataTransformed: consentData?.patient_data_transformed,
         };
-        setConsentDetails(formattedConsentList);
-        setConsentPatientId(consentData?.care_contexts?.care_context[0]?.patientRefernce);
-        // const documentReference = consentData?.patient_data_transformed[0]?.DocumentReference?.content;
-        createDocumentData(consentData);
+        createDocumentData(formattedConsentList);
+        // console.log("consentData", formattedConsentList);
+        sessionStorage.setItem(
+          "FhirDocDetails",
+          JSON.stringify(consentData?.patient_data_transformed)
+        );
       });
     }
-  }, []);
+  }, [dispatch]);
 
   const details = [
     {
+      key: "consentStatus",
       label: "Request Status",
-      value: consentDetails.status,
+      value: consentSelected?.status,
     },
     {
+      key: "consentCreatedOn",
       label: "Consent Created On",
-      value: consentDetails.createdAt,
+      value: convertDateFormat(consentSelected?.created_at, "dd-MM-yyyy"),
     },
     {
+      key: "consentExpiryOn",
       label: "Consent Expiry On",
-      value: consentDetails.expireAt,
+      value: convertDateFormat(consentSelected?.expire_at, "dd-MM-yyyy"),
     },
   ];
 
@@ -100,11 +106,11 @@ const ConsentDocumentPage = (consentListData) => {
     <ConsentDocsContainer>
       <ConsentDetailsWrapper>
         {details?.map((item) => (
-          <ConsentHeader>
-             <ConsentLabel>{item.label}</ConsentLabel>
+          <ConsentHeader key={item.key}>
+            <ConsentLabel>{item.label}</ConsentLabel>
             <ConsentValue>{item.value}</ConsentValue>
           </ConsentHeader>
-        ))} 
+        ))}
       </ConsentDetailsWrapper>
       <DocViewer docData={documentData} />
     </ConsentDocsContainer>

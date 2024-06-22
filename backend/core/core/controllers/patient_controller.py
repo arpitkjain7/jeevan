@@ -11,10 +11,11 @@ from core import logger
 from core.utils.custom.fuzzy_match import FuzzyMatch
 from datetime import datetime, timezone, timedelta
 import os, json
-import uuid
+import uuid, base64
 from pytz import timezone as pytz_timezone
 from core.utils.custom.patient_helper import calculate_age
 from fastapi import HTTPException, status
+from core.utils.custom.encryption_helper import rsa_encryption, rsa_encryption_oaep
 
 logging = logger(__name__)
 
@@ -260,7 +261,7 @@ class PatientController:
                         "requestId": request_id,
                         "timestamp": time_now,
                         "query": {
-                            "id": request_dict.get("abha_number"),
+                            "id": request_dict.get("abha_address"),
                             "purpose": request_dict.get("purpose"),
                             "authMode": request_dict.get("auth_mode"),
                             "requester": {"type": "HIP", "id": request_dict["hip_id"]},
@@ -311,7 +312,7 @@ class PatientController:
                             "requestId": request_id,
                             "timestamp": time_now,
                             "query": {
-                                "id": patient_obj.get("abha_number"),
+                                "id": patient_obj.get("abha_address"),
                                 "purpose": request_dict.get("purpose"),
                                 "authMode": request_dict.get("auth_mode"),
                                 "requester": {
@@ -343,6 +344,249 @@ class PatientController:
             return {"status": "Not Found"}
         except Exception as error:
             logging.error(f"Error in PatientController.auth_init_v2 function: {error}")
+            raise error
+
+    def auth_init_v3(self, request):
+        try:
+            logging.info("executing  auth_init_v3 function")
+            request_dict = request.dict()
+            auth_method = request_dict.get("mode").name
+            abha_identifier = request_dict.get("abha_identifier")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            abha_auth_init = f"{self.abha_url}/v2/auth/init"
+            payload = {"authMethod": auth_method, "healthid": abha_identifier}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_init,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            return resp_json
+        except Exception as error:
+            logging.error(f"Error in PatientController.auth_init_v3 function: {error}")
+            raise error
+
+    def auth_resendOTP_v3(self, request):
+        try:
+            logging.info("executing  auth_resendOTP_v3 function")
+            request_dict = request.dict()
+            auth_method = request_dict.get("mode").name
+            txn_id = request_dict.get("txnId")
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            abha_auth_resendOtp = f"{self.abha_url}/v1/auth/resendAuthOTP"
+            payload = {"authMethod": auth_method, "txnId": txn_id}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_resendOtp,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            return resp_json
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.auth_resendOTP_v3 function: {error}"
+            )
+            raise error
+
+    def auth_verifyOTP_v3(self, request):
+        try:
+            logging.info("executing  auth_verifyOTP_v3 function")
+            request_dict = request.dict()
+            txn_id = request_dict.get("txnId")
+            auth_mode = request_dict.get("mode")
+            hip_id = request_dict.get("hip_id")
+            otp = request_dict.get("otp")
+            logging.info(f"{otp=}")
+            encrypted_otp = rsa_encryption(data_to_encrypt=otp)
+            logging.info("Getting session access Token")
+            gateway_access_token = get_session_token(
+                session_parameter="gateway_token"
+            ).get("accessToken")
+            if auth_mode == "MOBILE_OTP":
+                abha_auth_verify = f"{self.abha_url}/v2/auth/confirmWithMobileOTP"
+            else:
+                abha_auth_verify = f"{self.abha_url}/v2/auth/confirmWithAadhaarOtp"
+            payload = {"txnId": txn_id, "otp": encrypted_otp}
+            resp_json, resp_code = APIInterface().post(
+                route=abha_auth_verify,
+                data=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            logging.debug(f"{resp_code=}")
+            if resp_code <= 250:
+                access_token = resp_json.get("token")
+                logging.info("OTP verified successfully")
+                logging.info("Getting ABHA details")
+                account_get_url = f"{self.abha_url}/v2/account/profile"
+                resp_json, resp_code = APIInterface().get(
+                    route=account_get_url,
+                    headers={
+                        "X-Token": f"Bearer {access_token}",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                abha_number = resp_json.get("healthIdNumber")
+                abha_number = abha_number.replace("-", "")
+                abha_address = resp_json.get("healthId")
+                auth_methods = resp_json.get("authMethods")
+                mobile_number = resp_json.get("mobile")
+                name = resp_json.get("name")
+                gender = resp_json.get("gender")
+                yob = resp_json.get("yearOfBirth")
+                DOB = f"{resp_json.get('dayOfBirth')}-{resp_json.get('monthOfBirth')}-{resp_json.get('yearOfBirth')}"
+                dob_obj = datetime.strptime(DOB, "%d-%m-%Y")
+                dob_str = dob_obj.strftime("%Y-%m-%d")
+                age_in_years, age_in_months = calculate_age(dob=dob_obj)
+
+                abha_registered_patient_obj = self.CRUDPatientDetails.read_by_abhaId(
+                    abha_number=abha_number, hip_id=hip_id
+                )
+                patient_payload = {}
+                if abha_registered_patient_obj:
+                    logging.info("Patient already exists with ABHA Id")
+                    patient_payload = {
+                        "id": abha_registered_patient_obj.get("id"),
+                        "abha_number": abha_number,
+                        "abha_address": abha_registered_patient_obj.get("abha_address"),
+                        "primary_abha_address": abha_registered_patient_obj.get(
+                            "primary_abha_address"
+                        ),
+                        "mobile_number": abha_registered_patient_obj.get(
+                            "mobile_number"
+                        ),
+                        "name": abha_registered_patient_obj.get("name"),
+                        "gender": abha_registered_patient_obj.get("gender"),
+                        "DOB": dob_str,
+                        "email": abha_registered_patient_obj.get("email"),
+                        "address": abha_registered_patient_obj.get("address"),
+                        "pincode": abha_registered_patient_obj.get("pincode"),
+                        "hip_id": hip_id,
+                        "auth_methods": abha_registered_patient_obj.get("auth_methods"),
+                        "status": "Patient already exists with ABHA Id",
+                        "age_in_years": age_in_years,
+                        "age_in_months": age_in_months,
+                    }
+                else:
+                    normal_registered_patient_obj = FuzzyMatch().find_duplicate_record(
+                        mobile_number=mobile_number,
+                        name=name,
+                        gender=gender,
+                        hip_id=hip_id,
+                        yob=yob,
+                    )
+                    if normal_registered_patient_obj:
+                        logging.info("Patient already exists without ABHA Id")
+                        patient_id = normal_registered_patient_obj.get("id")
+                        logging.info("Update Abha details on patient record")
+                        self.CRUDPatientDetails.update(
+                            **{
+                                "id": patient_id,
+                                "abha_number": abha_number,
+                                "abha_address": abha_address,
+                                "primary_abha_address": abha_address,
+                                "auth_methods": {"authMethods": auth_methods},
+                            }
+                        )
+                        patient_payload = {
+                            "id": patient_id,
+                            "abha_number": abha_number,
+                            "abha_address": abha_address,
+                            "primary_abha_address": abha_address,
+                            "mobile_number": normal_registered_patient_obj.get(
+                                "mobile_number"
+                            ),
+                            "name": normal_registered_patient_obj.get("name"),
+                            "gender": normal_registered_patient_obj.get("gender"),
+                            "DOB": dob_str,
+                            "email": normal_registered_patient_obj.get("email"),
+                            "address": normal_registered_patient_obj.get("address"),
+                            "pincode": normal_registered_patient_obj.get("pincode"),
+                            "hip_id": hip_id,
+                            "auth_methods": normal_registered_patient_obj.get(
+                                "auth_methods"
+                            ),
+                            "status": "Patient already exists without ABHA Id",
+                            "age_in_years": age_in_years,
+                            "age_in_months": age_in_months,
+                        }
+                    else:
+                        logging.info("New patient registeration")
+                        patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
+                        patient_list = self.CRUDPatientDetails.read_by_hip(
+                            hip_id=hip_id
+                        )
+                        if len(patient_list) == 0:
+                            patient_uid = "PID1"
+                        else:
+                            latest_patient_obj = patient_list[0]
+                            latest_patient_uid = latest_patient_obj["patient_uid"]
+                            patient_uid = (
+                                f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                            )
+                        patient_payload = {
+                            "id": patient_id,
+                            "abha_number": abha_number,
+                            "abha_address": abha_address,
+                            "primary_abha_address": abha_address,
+                            "mobile_number": mobile_number,
+                            "name": name,
+                            "patient_uid": patient_uid,
+                            "gender": gender,
+                            "DOB": dob_str,
+                            "email": resp_json.get("email"),
+                            "address": resp_json.get("address"),
+                            "pincode": resp_json.get("pincode"),
+                            "hip_id": hip_id,
+                            "auth_methods": {"": resp_json.get("authMethods")},
+                            "year_of_birth": yob,
+                            "is_verified": True,
+                        }
+                        self.CRUDPatientDetails.create(**patient_payload)
+                        patient_payload.update(
+                            {
+                                "status": "New Patient created",
+                                "age_in_years": age_in_years,
+                                "age_in_months": age_in_months,
+                            }
+                        )
+                logging.info("Getting ABHA Card")
+                account_get_abha_card_url = f"{self.abha_url}/v2/account/getPngCard"
+                resp_bytes, resp_code = APIInterface().get_bytes(
+                    route=account_get_abha_card_url,
+                    headers={
+                        "X-Token": f"Bearer {access_token}",
+                        "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                pdf_bytes_str = base64.b64encode(resp_bytes).decode("utf-8")
+                patient_payload.update({"abha_card_bytes": pdf_bytes_str})
+                return patient_payload
+            raise HTTPException(
+                status_code=resp_code,
+                detail=resp_json.get("details")[0].get("message"),
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        except Exception as error:
+            logging.error(
+                f"Error in PatientController.auth_verifyOTP_v3 function: {error}"
+            )
             raise error
 
     def verify_otp(self, request):
@@ -432,6 +676,7 @@ class PatientController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -473,8 +718,8 @@ class PatientController:
             for idf in patient_data.get("identifiers"):
                 if idf["type"] == "MOBILE":
                     mobile_number = idf["value"]
-                if idf["type"] == "EMAIL":
-                    email_id = idf["value"]
+                # if idf["type"] == "EMAIL":
+                #     email_id = idf["value"]
             dob_str = f"{patient_data['yearOfBirth']}-{patient_data['monthOfBirth']}-{patient_data['dayOfBirth']}"
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=mobile_number,
@@ -483,20 +728,19 @@ class PatientController:
                 gender=patient_data.get("gender"),
                 hip_id=hip_id,
             )
-            abha_number = patient_data.get("healthIdNumber")
             patient_request = {
-                "abha_number": abha_number,
-                "abha_address": patient_data["healthId"],
+                "abha_number": patient_data.get("healthIdNumber"),
+                "abha_address": patient_data.get("healthId"),
                 "mobile_number": mobile_number,
-                "name": patient_data["name"],
-                "gender": patient_data["gender"],
+                "name": patient_data.get("name"),
+                "gender": patient_data.get("gender"),
                 "DOB": dob_str,
-                "year_of_birth": patient_data["yearOfBirth"],
-                "email": email_id,
-                "address": patient_data["address"]["line"],
-                "district": patient_data["address"]["district"],
-                "pincode": patient_data["address"]["pincode"],
-                "state_name": patient_data["address"]["state"],
+                "year_of_birth": patient_data.get("yearOfBirth"),
+                # "email": email_id,
+                "address": patient_data["address"].get("line"),
+                "district": patient_data["address"].get("district"),
+                "pincode": patient_data["address"].get("pincode"),
+                "state_name": patient_data["address"].get("state"),
                 "auth_methods": {
                     "authMethods": ["AADHAAR_OTP", "MOBILE_OTP", "DEMOGRAPHICS"]
                 },
@@ -506,7 +750,14 @@ class PatientController:
             }
             if patient_obj is None:
                 patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                patient_request.update({"id": patient_id})
+                patient_list = self.CRUDPatientDetails.read_by_hip(hip_id=hip_id)
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                patient_request.update({"id": patient_id, "patient_uid": patient_uid})
                 self.CRUDPatientDetails.create(**patient_request)
             else:
                 patient_request.update({"id": patient_obj["id"]})
@@ -533,6 +784,7 @@ class PatientController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -605,6 +857,7 @@ class PatientController:
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
+                            "Content-Type": "application/json",
                         },
                     )
                     self.CRUDGatewayInteraction.update(
@@ -637,6 +890,7 @@ class PatientController:
                         headers={
                             "X-CM-ID": os.environ["X-CM-ID"],
                             "Authorization": f"Bearer {gateway_access_token}",
+                            "Content-Type": "application/json",
                         },
                     )
                     self.CRUDGatewayInteraction.update(
@@ -653,14 +907,54 @@ class PatientController:
                     patient_id = list(matching_results.keys())[0]
                     logging.info(f"{patient_id=}")
                     logging.info("Getting PMR records for patient")
-                    pmr_record = self.CRUDPatientMedicalRecord.read_by_patientId(
-                        patient_id=patient_id
+                    pmr_record = (
+                        self.CRUDPatientMedicalRecord.read_unlinked_by_patientId(
+                            patient_id=patient_id
+                        )
                     )
                     logging.info(f"{pmr_record=}")
+                    if len(pmr_record) == 0:
+                        resp, resp_code = APIInterface().post(
+                            route=on_discover_url,
+                            data=json.dumps(
+                                {
+                                    "requestId": str(uuid.uuid1()),
+                                    "timestamp": datetime.now(timezone.utc).strftime(
+                                        "%Y-%m-%dT%H:%M:%S.%f"
+                                    ),
+                                    "transactionId": txn_id,
+                                    "patient": None,
+                                    "error": {
+                                        "code": 10001,
+                                        "message": "no health records found for the patient",
+                                    },
+                                    "resp": {"requestId": req_id},
+                                }
+                            ),
+                            headers={
+                                "X-CM-ID": os.environ["X-CM-ID"],
+                                "Authorization": f"Bearer {gateway_access_token}",
+                                "Content-Type": "application/json",
+                            },
+                        )
+                        self.CRUDGatewayInteraction.update(
+                            **{
+                                "request_id": req_id,
+                                "request_status": "FAILED",
+                                "error_code": "1000",
+                                "error_message": "no health records found for the patient",
+                            }
+                        )
+                        return {
+                            "request_id": req_id,
+                            "request_status": "FAILED",
+                            "error_code": "1000",
+                            "error_message": "no health records found for the patient",
+                        }
                     for pmr in pmr_record:
                         care_context.append(
                             {
-                                "referenceNumber": f"{hip_obj['hip_uid']}-{pmr['id']}",
+                                "referenceNumber": pmr["id"],
                                 "display": f"Consultation Record for {pmr['date_of_consultation']}",
                             }
                         )
@@ -742,7 +1036,7 @@ class PatientController:
                     "authenticationType": "DIRECT",
                     "meta": {
                         "communicationMedium": "MOBILE",
-                        "communicationHint": "string",
+                        "communicationHint": patient_mobile_number,
                         "communicationExpiry": otp_expiry_time,
                     },
                 },
@@ -761,6 +1055,7 @@ class PatientController:
                 headers={
                     "X-CM-ID": os.environ["X-CM-ID"],
                     "Authorization": f"Bearer {gateway_access_token}",
+                    "Content-Type": "application/json",
                 },
             )
             logging.debug(f"{resp_code=}")
@@ -812,10 +1107,12 @@ class PatientController:
                 careContext = []
                 logging.info(f"{hip_id=}")
                 for pmr_id in gateway_meta.get("pmr_list"):
-                    pmr_id = pmr_id.split("-", 1)[1]
+                    # pmr_id = pmr_id.split("-", 1)[1]
                     logging.info(f"{pmr_id=}")
                     pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
                     logging.info(f"{pmr_obj=}")
+                    pmr_update_request = {"id": pmr_id, "abdm_linked": True}
+                    self.CRUDPatientMedicalRecord.update(**pmr_update_request)
                     careContext.append(
                         {
                             "referenceNumber": pmr_id,
@@ -845,6 +1142,7 @@ class PatientController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.debug(f"{resp_code=}")
@@ -880,6 +1178,7 @@ class PatientController:
                     headers={
                         "X-CM-ID": os.environ["X-CM-ID"],
                         "Authorization": f"Bearer {gateway_access_token}",
+                        "Content-Type": "application/json",
                     },
                 )
                 logging.debug(f"{resp_code=}")
@@ -903,9 +1202,9 @@ class PatientController:
         try:
             logging.info("executing register new patient function")
             request_json = request.dict()
+            request_json = dict((k, v) for k, v in request_json.items() if v)
+            patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
             dob_str = request_json.get("DOB")
-            # dob_obj = datetime.strptime(dob_str, "%Y-%m-%d")
-            # dob_str = dob_obj.strftime("%d/%m/%Y")
             patient_obj = FuzzyMatch().find_duplicate_record(
                 mobile_number=request_json["mobile_number"],
                 name=request_json["name"],
@@ -913,14 +1212,33 @@ class PatientController:
                 gender=request_json["gender"],
                 hip_id=request_json["hip_id"],
             )
+            if request_json.get("id", None):
+                self.CRUDPatientDetails.update(**request_json)
+                return request_json
             if patient_obj:
                 patient_obj.update({"status": "Patient already exist"})
-                request_json.update({"id": patient_obj["id"], "is_verified": True})
+                request_json.update(
+                    {
+                        "id": patient_obj["id"],
+                        "is_verified": True,
+                        "patient_uid": patient_obj["patient_uid"],
+                    }
+                )
                 self.CRUDPatientDetails.update(**request_json)
-                return patient_obj
+                return request_json
             else:
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id, "is_verified": True})
+                patient_list = self.CRUDPatientDetails.read_by_hip(
+                    hip_id=request_json["hip_id"]
+                )
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                request_json.update(
+                    {"id": patient_id, "patient_uid": patient_uid, "is_verified": True}
+                )
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update({"status": "New Patient created successfully"})
                 return request_json
@@ -943,6 +1261,7 @@ class PatientController:
         try:
             logging.info("executing register new patient v3 function")
             request_json = request.dict()
+            request_json = dict((k, v) for k, v in request_json.items() if v)
             request_json.update(
                 {
                     "auth_methods": {
@@ -950,32 +1269,21 @@ class PatientController:
                     }
                 }
             )
+            patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
             dob_str = request_json.get("DOB", None)
             age_str = request_json.get("age", None)
+            if request_json.get("age", None):
+                del request_json["age"]
             if dob_str:
                 yob_str = dob_str.split("-")[-1]
                 dob_obj = datetime.strptime(dob_str, "%d-%m-%Y")
                 dob_str = dob_obj.strftime("%Y-%m-%d")
                 age_in_years, age_in_months = calculate_age(dob=dob_obj)
-                patient_obj = FuzzyMatch().find_duplicate_record(
-                    mobile_number=request_json.get("mobile_number"),
-                    name=request_json.get("name"),
-                    yob=yob_str,
-                    gender=request_json.get("gender"),
-                    hip_id=request_json.get("hip_id"),
-                )
             elif age_str:
                 today = datetime.today()
                 yob_str = today.year - int(age_str)
                 age_in_years = age_str
                 age_in_months = "0"
-                patient_obj = FuzzyMatch().find_duplicate_record(
-                    mobile_number=request_json.get("mobile_number"),
-                    name=request_json.get("name"),
-                    yob=yob_str,
-                    gender=request_json.get("gender"),
-                    hip_id=request_json.get("hip_id"),
-                )
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -983,12 +1291,23 @@ class PatientController:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             request_json.update({"DOB": dob_str, "year_of_birth": yob_str})
-            del request_json["age"]
+            if request_json.get("id", None):
+                logging.info(f"{request_json=}")
+                self.CRUDPatientDetails.update(**request_json)
+                return request_json
+            patient_obj = FuzzyMatch().find_duplicate_record(
+                mobile_number=request_json.get("mobile_number"),
+                name=request_json.get("name"),
+                yob=yob_str,
+                gender=request_json.get("gender"),
+                hip_id=request_json.get("hip_id"),
+            )
             if patient_obj:
                 request_json.update({"id": patient_obj["id"], "is_verified": True})
                 self.CRUDPatientDetails.update(**request_json)
                 request_json.update(
                     {
+                        "patient_uid": patient_obj["patient_uid"],
                         "status": "Patient already exist, Updated database",
                         "age_in_years": age_in_years,
                         "age_in_months": age_in_months,
@@ -996,8 +1315,18 @@ class PatientController:
                 )
                 return request_json
             else:
-                patient_id = f"C360-PID-{str(uuid.uuid1().int)[:18]}"
-                request_json.update({"id": patient_id, "is_verified": True})
+                patient_list = self.CRUDPatientDetails.read_by_hip(
+                    hip_id=request_json["hip_id"]
+                )
+                if len(patient_list) == 0:
+                    patient_uid = "PID1"
+                else:
+                    latest_patient_obj = patient_list[0]
+                    latest_patient_uid = latest_patient_obj["patient_uid"]
+                    patient_uid = f"PID{int(latest_patient_uid.split('PID')[-1]) + 1}"
+                request_json.update(
+                    {"id": patient_id, "patient_uid": patient_uid, "is_verified": True}
+                )
                 self.CRUDPatientDetails.create(**request_json)
                 request_json.update(
                     {
@@ -1043,25 +1372,46 @@ class PatientController:
             patient_obj = self.CRUDPatientDetails.read_by_patientId(
                 patient_id=patient_id
             )
-            if patient_obj.get("DOB", None):
-                dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
-                age_in_years, age_in_months = calculate_age(dob=dob_obj)
-                patient_obj["age_in_years"] = age_in_years
-                patient_obj["age_in_months"] = age_in_months
-            else:
-                patient_obj["age_in_years"] = datetime.today().year - int(
-                    patient_obj["year_of_birth"]
-                )
+            if patient_obj:
+                if patient_obj.get("DOB", None):
+                    dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
+                    age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                    patient_obj["age_in_years"] = age_in_years
+                    patient_obj["age_in_months"] = age_in_months
+                else:
+                    patient_obj["age_in_years"] = datetime.today().year - int(
+                        patient_obj["year_of_birth"]
+                    )
             return patient_obj
         except Exception as error:
             logging.error(f"Error in get_patient_details function: {error}")
             raise error
 
+    def get_patient_by_puid(self, patient_uid: str, hip_id: str):
+        try:
+            logging.info("executing get_patient_by_puid function")
+            patient_obj = self.CRUDPatientDetails.read_by_patientUId(
+                patient_uid=patient_uid, hip_id=hip_id
+            )
+            if patient_obj:
+                if patient_obj.get("DOB", None):
+                    dob_obj = datetime.strptime(patient_obj["DOB"], "%Y-%m-%d")
+                    age_in_years, age_in_months = calculate_age(dob=dob_obj)
+                    patient_obj["age_in_years"] = age_in_years
+                    patient_obj["age_in_months"] = age_in_months
+                else:
+                    patient_obj["age_in_years"] = datetime.today().year - int(
+                        patient_obj["year_of_birth"]
+                    )
+            return patient_obj
+        except Exception as error:
+            logging.error(f"Error in get_patient_by_puid function: {error}")
+            raise error
+
     def list_all_patients(self, hip_id: str):
         try:
             logging.info("executing list_all_patients function")
-            patient_obj = self.CRUDPatientDetails.read_all(hip_id=hip_id)
-            return patient_obj
+            return self.CRUDPatientDetails.read_verified(hip_id=hip_id)
         except Exception as error:
             logging.error(f"Error in list_all_patients function: {error}")
             raise error

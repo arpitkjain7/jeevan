@@ -3,6 +3,7 @@ from core.crud.hims_slots_crud import CRUDSlots
 from core.crud.hims_docDetails_crud import CRUDDocDetails
 from core import logger
 from datetime import datetime, timezone, timedelta
+from commons.auth import encodePayload
 import os
 from dateutil import parser
 
@@ -60,6 +61,7 @@ class AppointmentsController:
                 "appointment_type": appointment_type,
                 "encounter_type_code": encounter_type_code,
                 "encounter_type": encounter_type,
+                "appointment_date": appointment_date,
                 "patient_id": patient_id,
                 "consultation_status": "Scheduled",
                 "slot_id": slot_id,
@@ -82,6 +84,45 @@ class AppointmentsController:
         except Exception as error:
             logging.error(
                 f"Error in AppointmentsController.get_all_appointment function: {error}"
+            )
+            raise error
+
+    def get_all_appointments_by_date(self, hip_id, appointment_date):
+        try:
+            logging.info("executing  get_all_appointments_by_date function")
+            logging.info(f"{hip_id=}")
+            logging.info(f"{appointment_date=}")
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+            appointment_obj = self.CRUDAppointments.read_appointments_by_date(
+                hip_id=hip_id, appointment_date=appointment_date
+            )
+            logging.info(f"{appointment_obj=}")
+            follow_up_obj = self.CRUDAppointments.read_followups_by_date(
+                hip_id=hip_id, followup_date=appointment_date
+            )
+            logging.info(f"{follow_up_obj=}")
+            return {"appointments": appointment_obj, "follow_ups": follow_up_obj}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_appointments_by_date function: {error}"
+            )
+            raise error
+
+    def get_all_followups_by_date(self, appointment_date):
+        try:
+            logging.info("executing  get_all_followups_by_date function")
+            logging.info(f"{appointment_date=}")
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+            follow_up_obj = self.CRUDAppointments.read_all_followups_by_date(
+                followup_date=appointment_date
+            )
+            logging.info(f"{follow_up_obj=}")
+            logging.info("Encrypting the payload")
+            encrypted_payload = encodePayload(payload={"data": follow_up_obj})
+            return {"follow_up": encrypted_payload}
+        except Exception as error:
+            logging.error(
+                f"Error in AppointmentsController.get_all_followups_by_date function: {error}"
             )
             raise error
 
@@ -178,3 +219,25 @@ class AppointmentsController:
                 f"Error in AppointmentsController.update_appointment function: {error}"
             )
             raise error
+
+    def get_appointment_metadata(self, hip_id: str):
+        total_appointments = self.CRUDAppointments.count_all_appointments(hip_id=hip_id)
+        appointment_status_counts = self.CRUDAppointments.count_appointments_status(
+            hip_id=hip_id
+        )
+        completed_appointments = appointment_status_counts.get("completed_count")
+        inprogress_appointments = appointment_status_counts.get("inprogress_count")
+        scheduled_appointments = appointment_status_counts.get("scheduled_count")
+        appointment_type_counts = self.CRUDAppointments.count_appointments_type(
+            hip_id=hip_id
+        )
+        first_visit_appointments = appointment_type_counts.get("first_visit_count")
+        follow_up_appointments = appointment_type_counts.get("follow_up_count")
+        return {
+            "total_appointments": total_appointments,
+            "completed_appointments": completed_appointments,
+            "inprogress_appointments": inprogress_appointments,
+            "scheduled_appointments": scheduled_appointments,
+            "first_visit_appointments": first_visit_appointments,
+            "follow_up_appointments": follow_up_appointments,
+        }

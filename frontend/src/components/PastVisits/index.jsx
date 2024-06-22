@@ -24,6 +24,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { convertDateFormat } from "../../utils/utils";
 import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
+import CustomLoader from "../CustomLoader";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -160,6 +161,7 @@ const PastVisits = ({ isPatientHistory }) => {
   const [visitList, setVisitList] = useState([]);
   const [documentPopup, setDocumentPopup] = useState(false);
   const [pmrId, setPmrId] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
   const isMobile = window.innerWidth < 600;
   // const pdfFileName = "custom_filename.pdf";
 
@@ -184,6 +186,7 @@ const PastVisits = ({ isPatientHistory }) => {
     });
   };
   useEffect(() => {
+    setShowLoader(true);
     const currentPatient = JSON.parse(patient);
     if (currentPatient && Object.keys(currentPatient)?.length) {
       dispatch(
@@ -202,6 +205,7 @@ const PastVisits = ({ isPatientHistory }) => {
         }
       });
     }
+    setShowLoader(false);
   }, []);
   const columns = [
     { key: "id", header: "Document Id" },
@@ -251,12 +255,16 @@ const PastVisits = ({ isPatientHistory }) => {
 
   return (
     <VisitsWrapper>
+      <CustomLoader
+        open={showLoader}
+      />
       <VitalsDetailsContainer>
         <SideList>
-          {visitList.map((item) => (
+          {visitList.map((item, index) => (
             <VitalsListContainer
               className={pmrId === item?.id ? "selected-vital" : ""}
               onClick={() => selectVisit(item)}
+              key={index}
             >
               <VisitListContainer>
                 <ListItem>

@@ -85,6 +85,7 @@ class DataTransferController:
                     route=data_push_url, data=data_request
                 )
                 print(f"Data push {resp_code=}")
+                print(f"Data push {resp=}")
                 ack_data_request = {
                     "consent_id": consent_id,
                     "transaction_id": transaction_id,
@@ -108,8 +109,9 @@ class DataTransferController:
                 }
             elif request_type == "decrypt":
                 patient_data_list = []
-                resources_dict = {}
-                patient_data_transformed = []
+                patient_data_transformed = {}
+                consent_id = data_obj.get("consent_id")
+                print(f"{consent_id=}")
                 transaction_id = data_obj.get("transactionId")
                 patient_data = data_obj.get("entries")
                 requesterNonce = data_obj.get("requesterNonce")
@@ -117,6 +119,7 @@ class DataTransferController:
                 requesterPrivateKey = data_obj.get("requesterPrivateKey")
                 senderPublicKey = data_obj.get("senderPublicKey")
                 for entry in patient_data:
+                    resources_dict = {}
                     encrypted_data = entry.get("content")
                     decrypted_data = decryptData(
                         decryptParams={
@@ -132,10 +135,16 @@ class DataTransferController:
                     fhir_json = ast.literal_eval(fhir_data)
                     data_entries = fhir_json["entry"]
                     for entry in data_entries:
-                        resources_dict[entry["resource"]["resourceType"]] = entry[
-                            "resource"
-                        ]
-                    patient_data_transformed.append(resources_dict)
+                        resource_type = entry["resource"]["resourceType"]
+                        if resource_type == "Composition":
+                            care_context_id = entry["resource"]["id"]
+                        resource_list = resources_dict.get(resource_type, [])
+                        if len(resource_list) == 0:
+                            resources_dict[resource_type] = [entry["resource"]]
+                        else:
+                            resource_list.append(entry["resource"])
+                            resources_dict[resource_type] = resource_list
+                    patient_data_transformed.update({care_context_id: resources_dict})
                     patient_data_list.append(fhir_json)
                 print(f"{patient_data_list=}")
                 callback_payload = {

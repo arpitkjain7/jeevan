@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyTable from "../../components/TableComponent";
 import { Typography, styled, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { fetchPatientList, verifyAbhaPatient} from "./patientpage.slice";
+import { fetchPatientList, verifyAbhaPatient } from "./patientpage.slice";
 import { createAppointment } from "../../components/ScheduleAppointment/scheduleAppointment.slice";
 import { convertDateFormat } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { AppointmentPageActions } from "../AppointmentPage/AppointmentPage.slice
 import { fetchDoctorList } from "../../components/AppointmentForm/AppointmentForm.slice";
 import MenuIcon from "../../assets/icons/kebabIcon.svg";
 import CustomLoader from "../../components/CustomLoader";
+import { getPatientDetails } from "../DoctorPage/EMRPage/EMRPage.slice";
 const tableStyle = {
   backgroundColor: "#f1f1f1",
 };
@@ -17,23 +18,23 @@ const tableStyle = {
 const ListWrapper = styled("div")(({ theme }) => ({
   "&": {
     padding: "20px 10px 10px",
-    [theme.breakpoints.down('sm')]: {
-      padding: "10px"
-    }
+    [theme.breakpoints.down("sm")]: {
+      padding: "10px",
+    },
   },
   ".patientList-title-wrapper": {
     marginBottom: "20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
       display: "block",
     },
   },
   ".patientList-heading": {
     "&.MuiTypography-root": theme.typography.h1,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: "30px"
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "30px",
     },
   },
   ".patientList-desc": theme.typography.h2,
@@ -45,8 +46,8 @@ const ListWrapper = styled("div")(({ theme }) => ({
     "& .MuiTableHead-root": {
       "& > tr >th": {
         "&": theme.typography.h3,
-        [theme.breakpoints.down('md')]: {
-          "&": theme.typography.body2
+        [theme.breakpoints.down("md")]: {
+          "&": theme.typography.body2,
         },
         padding: theme.spacing(4),
       },
@@ -64,8 +65,8 @@ const ListWrapper = styled("div")(({ theme }) => ({
       flex: 0.3,
       padding: 0,
       margin: 0,
-      [theme.breakpoints.down('sm')]: {
-        flex: "1 "
+      [theme.breakpoints.down("sm")]: {
+        flex: "1 ",
       },
       "& .MuiInputBase-input": {
         padding: "12px 16px",
@@ -78,8 +79,8 @@ const ListWrapper = styled("div")(({ theme }) => ({
   },
   ".header-btn": {
     "&.MuiButtonBase-root": theme.typography.primaryButton,
-    [theme.breakpoints.down('md')]: {
-      marginTop: "10px"
+    [theme.breakpoints.down("md")]: {
+      marginTop: "10px",
     },
   },
 }));
@@ -93,12 +94,12 @@ const searchInputStyle = {
 const PatientPage = () => {
   const hospital = sessionStorage?.getItem("selectedHospital");
   const [tableData, setTableData] = useState([]);
-  const [hospitalDetails, setHospitalDetails] = useState({});
+  // const [hospitalDetails, setHospitalDetails] = useState({});
   const [showLoader, setShowLoader] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 600;
-
+  const [docName, setDocName] = useState("");
   const currentDateAndTime = () => {
     const currentDatetime = new Date();
     const year = currentDatetime.getFullYear();
@@ -121,7 +122,13 @@ const PatientPage = () => {
     const formattedDatetime = `${year}-${month}-${day} ${hours}:${minutes}`;
     return formattedDatetime;
   };
-  
+
+  useEffect(() => {
+    if (docName) {
+      console.log(docName);
+      sessionStorage.setItem("docName", docName);
+    }
+  }, [docName]);
   const columns = [
     {
       key: "p_name",
@@ -130,9 +137,18 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
+            dispatch(getPatientDetails(row?.patient_id)).then((res) => {
+              const patient_detail = res?.payload;
+              sessionStorage.setItem(
+                "selectedPatient",
+                JSON.stringify(patient_detail)
+              );
+            });
             dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-            navigate("/patient-details");
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            setTimeout(() => {
+              navigate("/patient-details");
+            }, 500);
           },
         },
       ],
@@ -150,17 +166,24 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
-            if(item.is_verified){
-              sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+            if (item.is_verified) {
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
               sessionStorage.removeItem("billingTypeValue");
-              dispatch(AppointmentPageActions.setSelectedPatientData(item));
+              
+              dispatch(getPatientDetails(item?.patient_id)).then((res) => {
+                const patientDetail = res?.payload;
+                sessionStorage.setItem(
+                  "selectedPatient",
+                  JSON.stringify(patientDetail)
+                );
+                dispatch(AppointmentPageActions.setSelectedPatientData(patientDetail));
+              });
               navigate("/create-appointment");
             } else {
-              dispatch(verifyAbhaPatient({ patient_id: item?.id}));
+              dispatch(verifyAbhaPatient({ patient_id: item?.id }));
               window.location.reload();
             }
           },
@@ -175,43 +198,71 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            if(row.is_verified){
+            if (row.is_verified) {
               let currentHospital = {};
               if (hospital) {
                 currentHospital = JSON.parse(hospital);
                 const doctorListpayload = {
                   hip_id: currentHospital?.hip_id,
                 };
-        
-                dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
-                  const payload = {
-                    doc_id: doctorListResponse?.payload[0]?.id,
-                    patient_id: row?.id,
-                    appointment_type: "first visit",
-                    encounter_type: "emergency",
-                    hip_id: currentHospital?.hip_id,
-                    appointment_start: currentDateAndTime(),
-                    appointment_end: currentDateEndTime()
-                  };
-                  
-                  dispatch(createAppointment(payload)).then((res) => {
-                    if (res.payload?.appointment_id) {
-                      const AllPatientData = Object.assign(
-                        row,
-                        { patientId: row.id },
-                        { doc_id: doctorListResponse?.payload[0]?.id },
-                        { doc_name: doctorListResponse?.payload[0]?.doc_name },
-                        { hip_id: currentHospital?.hip_id }, 
-                        { id: res.payload?.appointment_id }
-                      )
-                      sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-                      setTimeout(() => navigate("/patient-emr"), 500);
-                    }
-                  });
-                })
+
+                dispatch(fetchDoctorList(doctorListpayload)).then(
+                  (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+                    console.log(
+                      "The response comming from docList  " + response
+                    );
+                    console.log(
+                      "The response comming from docList's array   " +
+                        response[0].doc_name
+                    );
+                    setDocName(response[0].doc_name);
+
+                    const payload = {
+                      doc_id: doctorListResponse?.payload[0]?.id,
+                      patient_id: row?.patient_id || row?.id,
+                      appointment_type: "first visit",
+                      encounter_type: "emergency",
+                      hip_id: currentHospital?.hip_id,
+                      appointment_start: currentDateAndTime(),
+                      appointment_end: currentDateEndTime(),
+                    };
+
+                    dispatch(createAppointment(payload)).then((res) => {
+                      if (res.payload?.appointment_id) {
+                        const AllPatientData = Object.assign(
+                          row,
+                          { patientId: row.id },
+                          { doc_id: doctorListResponse?.payload[0]?.id },
+                          {
+                            doc_name: doctorListResponse?.payload[0]?.doc_name,
+                          },
+                          { hip_id: currentHospital?.hip_id },
+                          { id: res.payload?.appointment_id }
+                        );
+                        sessionStorage.setItem(
+                          "encounterDetail",
+                          JSON.stringify(AllPatientData)
+                        );
+                      }
+                    });
+                    dispatch(
+                      getPatientDetails(row?.patient_id || row?.id)
+                    ).then((res) => {
+                      const patientDetails = res.payload;
+                      console.log(patientDetails);
+                      sessionStorage.setItem(
+                        "selectedPatient",
+                        JSON.stringify(patientDetails)
+                      );
+                    });
+
+                    setTimeout(() => navigate("/patient-emr"), 500);
+                  }
+                );
               }
             } else {
-              dispatch(verifyAbhaPatient({ patient_id: row?.id}));
+              dispatch(verifyAbhaPatient({ patient_id: row?.id }));
               window.location.reload();
             }
           },
@@ -240,9 +291,20 @@ const PatientPage = () => {
         {
           type: "link",
           onClick: (row) => {
-            dispatch(AppointmentPageActions.setSelectedPatientData(row));
-            sessionStorage.setItem("selectedPatient", JSON.stringify(row));
-            navigate("/patient-details");
+            console.log(row);
+            dispatch(getPatientDetails(row?.patient_id)).then((res) => {
+              const patient_detail = res?.payload;
+              sessionStorage.setItem(
+                "selectedPatient",
+                JSON.stringify(patient_detail)
+              );
+              dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
+            });
+            
+            // sessionStorage.setItem("selectedPatient", JSON.stringify(row));
+            setTimeout(() => {
+              navigate("/patient-details");
+            }, 500);
           },
         },
       ],
@@ -255,9 +317,9 @@ const PatientPage = () => {
           link: "Create Appointment",
           type: "link",
           onClick: (item) => {
-            if(item.is_verified){
+            if (item.is_verified) {
               sessionStorage.setItem("selectedPatient", JSON.stringify(item));
-              sessionStorage.removeItem("doctorName");
+              sessionStorage.removeItem("doctorId");
               sessionStorage.removeItem("encounterTypeValue");
               sessionStorage.removeItem("appointmentTypeValue");
               sessionStorage.removeItem("visitTypeValue");
@@ -265,7 +327,7 @@ const PatientPage = () => {
               dispatch(AppointmentPageActions.setSelectedPatientData(item));
               navigate("/create-appointment");
             } else {
-              dispatch(verifyAbhaPatient({ patient_id: item?.id}));
+              dispatch(verifyAbhaPatient({ patient_id: item?.id }));
               window.location.reload();
             }
           },
@@ -280,42 +342,63 @@ const PatientPage = () => {
           link: "Start Visit",
           type: "link",
           onClick: (row) => {
-            if(row.is_verified){
+            if (row.is_verified) {
               let currentHospital = {};
               if (hospital) {
                 currentHospital = JSON.parse(hospital);
                 const doctorListpayload = {
                   hip_id: currentHospital?.hip_id,
                 };
-        
-                dispatch(fetchDoctorList(doctorListpayload)).then((doctorListResponse) => {
-                  const payload = {
-                    doc_id: doctorListResponse?.payload[0]?.id,
-                    patient_id: row?.id,
-                    appointment_type: "first visit",
-                    encounter_type: "emergency",
-                    hip_id: currentHospital?.hip_id,
-                    appointment_start: currentDateAndTime(),
-                    appointment_end: currentDateEndTime()
-                  };
-                  
-                  dispatch(createAppointment(payload)).then((res) => {
-                    if (res.payload?.appointment_id) {
-                      const AllPatientData = Object.assign(
-                        row,
-                        { patientId: row.id },
-                        { doc_id: doctorListResponse?.payload[0]?.id },
-                        { hip_id: currentHospital?.hip_id }, 
-                        { id: res.payload?.appointment_id }
-                      )
-                      sessionStorage.setItem("selectedPatient", JSON.stringify(AllPatientData));
-                      setTimeout(() => navigate("/patient-emr"), 500);
-                    }
-                  });
-                })
+
+                dispatch(fetchDoctorList(doctorListpayload)).then(
+                  (doctorListResponse) => {
+                    const response = doctorListResponse?.payload;
+
+                    setDocName(response[0].doc_name);
+                    const payload = {
+                      doc_id: doctorListResponse?.payload[0]?.id,
+                      patient_id: row?.id,
+                      appointment_type: "first visit",
+                      encounter_type: "emergency",
+                      hip_id: currentHospital?.hip_id,
+                      appointment_start: currentDateAndTime(),
+                      appointment_end: currentDateEndTime(),
+                    };
+
+                    dispatch(createAppointment(payload)).then((res) => {
+                      if (res.payload?.appointment_id) {
+                        const AllPatientData = Object.assign(
+                          row,
+                          { patientId: row.id },
+                          { doc_id: doctorListResponse?.payload[0]?.id },
+                          {
+                            doc_name: doctorListResponse?.payload[0]?.doc_name,
+                          },
+                          { hip_id: currentHospital?.hip_id },
+                          { id: res.payload?.appointment_id }
+                        );
+                        sessionStorage.setItem(
+                          "encounterDetail",
+                          JSON.stringify(AllPatientData)
+                        );
+                      }
+                    });
+                    dispatch(
+                      getPatientDetails(row?.patient_id || row?.id)
+                    ).then((res) => {
+                      const patientDetails = res.payload;
+                      console.log(patientDetails);
+                      sessionStorage.setItem(
+                        "selectedPatient",
+                        JSON.stringify(patientDetails)
+                      );
+                    });
+                    setTimeout(() => navigate("/patient-emr"), 500);
+                  }
+                );
               }
             } else {
-              dispatch(verifyAbhaPatient({ patient_id: row?.id}));
+              dispatch(verifyAbhaPatient({ patient_id: row?.id }));
               window.location.reload();
             }
           },
@@ -335,20 +418,24 @@ const PatientPage = () => {
     let currentHospital = {};
     if (hospital) {
       currentHospital = JSON.parse(hospital);
-      setHospitalDetails(currentHospital);
+      // setHospitalDetails(currentHospital);
       const payload = {
         hip_id: currentHospital?.hip_id,
       };
       dispatch(fetchPatientList(payload)).then((res) => {
+        console.log(res);
         setShowLoader(false);
         const patientList = res?.payload;
         const formattedPatientList = patientList?.map((item) => {
-          const patientGender = item?.gender.toLowerCase()?.includes("m")
-            ? "M"
-            : "F";
+          const patientGender = item?.gender;
+          const patient_id = item?.id;
+          // .toLowerCase()?.includes("m")
+          //   ? "M"
+          //   : "F";
           const updatedDate = convertDateFormat(item?.updated_at, "dd/MM/yyyy");
           const createdDate = convertDateFormat(item?.created_at, "dd/MM/yyyy");
           return {
+            patient_id,
             patientDetails: `${item.name || ""} | ${patientGender || ""}`,
             p_name: `${item.name}`,
             updatedDate: updatedDate,
@@ -365,9 +452,7 @@ const PatientPage = () => {
 
   return (
     <ListWrapper>
-      <CustomLoader
-        open={showLoader}
-      />
+      <CustomLoader open={showLoader} />
       <div className="patientList-title-wrapper">
         <div>
           <Typography className="patientList-heading">Patient List</Typography>
@@ -396,14 +481,14 @@ const PatientPage = () => {
           />
         ) : (
           <MyTable
-          columns={columns}
-          data={tableData}
-          tableStyle={tableStyle}
-          searchInputStyle={searchInputStyle}
-          tableClassName="table-class"
-          searchClassName="search-class"
-          onRowClick={(row) => onTableRowClick(row)}
-        />
+            columns={columns}
+            data={tableData}
+            tableStyle={tableStyle}
+            searchInputStyle={searchInputStyle}
+            tableClassName="table-class"
+            searchClassName="search-class"
+            onRowClick={(row) => onTableRowClick(row)}
+          />
         )}
       </div>
     </ListWrapper>

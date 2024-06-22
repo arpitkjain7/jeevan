@@ -25,6 +25,7 @@ class HiType(str, Enum):
 class RaiseConsent(BaseModel):
     abha_address: str
     purpose: Purpose
+    patient_id: str
     hi_type: list[HiType]
     date_from: str
     date_to: str

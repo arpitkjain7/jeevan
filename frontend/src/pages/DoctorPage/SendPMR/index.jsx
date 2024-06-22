@@ -1,4 +1,4 @@
-import {FormControlLabel, IconButton, Radio, RadioGroup,  Typography } from "@mui/material";
+import {Checkbox, FormControlLabel, Grid, IconButton, Radio, RadioGroup,  Typography } from "@mui/material";
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -12,7 +12,7 @@ import { useState } from "react";
 import SyncAbha from "../SyncAbha";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { sendNotification } from "../EMRPage/EMRPage.slice";
+import { deepLink, googleReview, sendNotification } from "../EMRPage/EMRPage.slice";
 
 const SendPMR= ({
   notifyModal,
@@ -27,7 +27,8 @@ const SendPMR= ({
   const [channel, setChannel] = useState('whatsapp');
   const [mobile, setMobile] = useState(currentPatient?.mobile_number || currentPatient?.mobileNumber);
   const [showAbha, setShowAbha] = useState(false);
-
+  const [checked, setChecked] = useState(true);
+  const currentHospital = JSON.parse(sessionStorage.getItem("selectedHospital"));
   const handleMobileChange = (event) => {
     setMobile(event.target.value);
   };
@@ -40,6 +41,26 @@ const SendPMR= ({
     setShowSync(false);
   };
 
+  const handleReviewChange = (event) => {
+    setChecked(event.target.checked);
+  };
+
+  const handleSkip = () => {
+    handleNotifyModalClose();
+    if (
+      (
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
+        (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
+      )
+    ) {
+      setShowAbha(true);
+      setShowSync(true);
+    } else {
+      sessionStorage.removeItem("pmrID");
+      navigate("/appointment-list");
+    }
+  }
+
   const onSubmit = () => {
     const payload = {
       document_id: documentId,
@@ -49,16 +70,30 @@ const SendPMR= ({
     }
     dispatch(sendNotification(payload)).then((res) => {
       handleNotifyModalClose();
-      console.log("currentPatient", currentPatient)
       if(res){
+        if(currentHospital?.hip_id === "H3" && checked){
+          dispatch(googleReview({channel: payload.channel, mobile_number: payload.mobile_number}));
+        }
         if (
           !(
             (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) &&
             (currentPatient?.patient_details?.abha_number || currentPatient?.abha_number) !== ""
           )
         ) {
-          sessionStorage.removeItem("pmrID");
-          navigate("/appointment-list");
+          if(currentHospital?.hip_id === "123123"){
+            const deepLinkPayload = {
+              mobile_no: mobile,
+              hip_id: "123123",
+              hip_name: currentHospital?.name
+            }
+            dispatch(deepLink(deepLinkPayload)).then((response) => {
+              sessionStorage.removeItem("pmrID");
+              navigate("/appointment-list");
+            });
+          } else {
+            sessionStorage.removeItem("pmrID");
+            navigate("/appointment-list");
+          }
         } else {
           setShowAbha(true);
           setShowSync(true);
@@ -70,7 +105,7 @@ const SendPMR= ({
   }
 
   return (
-    <React.Fragment>
+    <>
       <Dialog
         open={notifyModal}
         onClose={handleNotifyModalClose}
@@ -99,33 +134,48 @@ const SendPMR= ({
           </DialogContentText>
          
           <br/>
-          <Typography>Patient's mobile Number</Typography>
-          <TextField
-            autoFocus
-            required
-            id="mobile"
-            name="mobile"
-            type="tel"
-            variant="outlined"
-            value={mobile}
-            onChange={handleMobileChange}
-          /> 
-          <br/>
-          <RadioGroup
-            row
-            aria-labelledby="demo-row-radio-buttons-group-label"
-            name="row-radio-buttons-group"
-            value={channel}
-            onChange={handleChannelChange}
-            style={{ marginTop: "10px" }}
-          >
-            {/* <p style={{ verticalAlign: "center" }}>Select Channel</p> */}
-            <FormControlLabel value="whatsapp" control={<Radio size="small"/>} label="WhatsApp" />
-            <FormControlLabel value="sms" control={<Radio size="small"/>} label="SMS" />
-          </RadioGroup>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Typography>Patient's mobile Number</Typography>
+              <TextField
+                autoFocus
+                required
+                id="mobile"
+                name="mobile"
+                type="tel"
+                variant="outlined"
+                value={mobile}
+                onChange={handleMobileChange}
+              /> 
+              <br/>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                value={channel}
+                onChange={handleChannelChange}
+                style={{ marginTop: "10px" }}
+              >
+                {/* <p style={{ verticalAlign: "center" }}>Select Channel</p> */}
+                <FormControlLabel value="whatsapp" control={<Radio size="small"/>} label="WhatsApp" />
+                <FormControlLabel value="sms" control={<Radio size="small"/>} label="SMS" />
+              </RadioGroup>
+            </Grid>
+            {currentHospital?.hip_id === "H3" &&
+              <Grid item xs={12} md={6}>
+                <FormControlLabel control={
+                  <Checkbox 
+                  checked={checked}
+                  onChange={handleReviewChange}
+                  defaultChecked />
+                  } 
+                  label="Send Google Review" />
+              </Grid>
+            }
+          </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => navigate("/appointment-list")}>Skip</Button>
+          <Button onClick={handleSkip}>Skip</Button>
           <Button onClick={handleNotifyModalClose}>Cancel</Button>
           <Button onClick={onSubmit}>Continue</Button>
         </DialogActions>
@@ -136,7 +186,7 @@ const SendPMR= ({
           handleModalClose={handleModalClose}
         />
       )}
-    </React.Fragment>
+    </>
   );
 }
 

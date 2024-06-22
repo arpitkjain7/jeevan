@@ -23,7 +23,7 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
     firstname: "",
     lastname: "",
     middlename: "",
-    gender: "",
+    gender: "M",
     dob: "",
     age_years: "",
     abhaAddress: "",
@@ -140,8 +140,10 @@ const PatientRegistartionForm = ({ setUserCreated, isForAbha, txnId }) => {
           }
           setUserCreated(true);
           dispatch(AppointmentPageActions.setSelectedPatientData(res?.payload));
+          sessionStorage.setItem("selectedPatient", JSON.stringify(res?.payload));
+          setTimeout(()=> { navigate("/registered-patient"); }, 2000);
         });
-        setTimeout(()=> { navigate("/registered-patient"); }, 2000);
+        
       } else {
         console.log("DOB or Age required");
         setShowSnackbar(true);

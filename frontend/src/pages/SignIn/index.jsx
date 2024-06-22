@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import StepperComponent from "../../components/CustomStepper";
 import LoginPage from "../../components/Login";
-import HospitalList from "../HospitalList";
 import { styled } from "@mui/material";
 import banner from "../../assets/sidebar-login.png";
 
@@ -16,13 +14,13 @@ const LoginPageWrapper = styled("div")(({ theme }) => ({
     height: "100%",
     maxWidth: "1440px",
     margin: "0 50px",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       margin: "0",
-      display: "block"
+      display: "block",
     },
   },
-  ".hospital-page-container":{
-    paddingTop: theme.spacing(20)
+  ".hospital-page-container": {
+    paddingTop: theme.spacing(20),
   },
   ".login-left-banner": {
     backgroundColor: "#0089E9",
@@ -50,20 +48,20 @@ const LogoText = styled("h1")(({ theme }) => ({
   fontSize: "28px",
   fontWeight: 400,
   color: theme.palette.primaryWhite,
-  [theme.breakpoints.down('sm')]: {
-    fontSize: "20px"
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "20px",
   },
 }));
 
 const BannerInfo = styled("h1")(({ theme }) => ({
   "&": theme.typography.bannerText,
   margin: 0,
-  [theme.breakpoints.down('md')]: {
-    fontSize: "24px"
+  [theme.breakpoints.down("md")]: {
+    fontSize: "24px",
   },
 }));
 
-const StyledDiv = styled("div")``;
+// const StyledDiv = styled("div")``;
 
 function SignInPage() {
   const [index, setIndex] = useState(0);
@@ -79,17 +77,17 @@ function SignInPage() {
   return (
     <LoginPageWrapper>
       <div className="login-page-container">
-         <div className="login-left-banner">
-           <LogoText>cliniQ360</LogoText>
-           <BannerInfo>
-             Elevate patient care with a seamless experience and innovative
-             technology
-           </BannerInfo>
-         </div>
-         <div className="login-right-form">
+        <div className="login-left-banner">
+          <LogoText>cliniQ360</LogoText>
+          <BannerInfo>
+            Elevate patient care with a seamless experience and innovative
+            technology
+          </BannerInfo>
+        </div>
+        <div className="login-right-form">
           <LoginPage setIndex={setIndex} />
-         </div>
-       </div>
+        </div>
+      </div>
       {/* {index == 0 ? (
         <div className="login-page-container">
          <div className="login-left-banner">

@@ -7,9 +7,11 @@ from core.apis.schemas.requests.doctor_request import (
     DocDetails,
     ExternalDoc,
 )
+from core.apis.schemas.requests.hip_request import DeepLinkNotify
 from commons.auth import decodeJWT
 from fastapi.security import OAuth2PasswordRequestForm
 from core import logger
+
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -26,13 +28,19 @@ listOfMedicines_router = APIRouter()
 
 
 @common_router.post("/v1/deepLinkNotify")
-def deep_link_notify(mobile_no: str, token: str = Depends(oauth2_scheme)):
+def deep_link_notify(
+    deep_link_request: DeepLinkNotify, token: str = Depends(oauth2_scheme)
+):
     try:
         logging.info(f"Calling /v1/deepLinkNotify endpoint")
-        logging.debug(f"Request: {mobile_no=}")
+        logging.debug(f"Request: {deep_link_request=}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().deep_link_notify(mobile_no=mobile_no)
+            return Common().deep_link_notify(
+                mobile_no=deep_link_request.mobile_no,
+                hip_id=deep_link_request.hip_id,
+                hip_name=deep_link_request.hip_name,
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

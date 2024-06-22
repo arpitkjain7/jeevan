@@ -1,4 +1,4 @@
-import { Button, TextField, Typography, styled } from "@mui/material";
+import { Button, InputLabel, TextField, Typography, styled } from "@mui/material";
 import React from "react";
 import OtpInput from "../OTPValidation";
 
@@ -53,65 +53,73 @@ const PhoneVerification = ({
   verifyOTP,
   phoneNumberUsed,
   seconds,
-  selectedAbhaModeOption
+  selectedAbhaModeOption,
+  isInputValid
 }) => {
+  console.log(isInputValid);
   return (
     <PhoneVerificationWrapper>
-      <div className="validate-phone-form">
-        <TextField
-          type="number"
-          value={number}
-          onChange={handleNumberChange}
-          error={isMobileError}
-          className="phone-text"
-        />
-        {selectedAbhaModeOption !== "create_abha" && (
-          seconds > 0 || seconds < 0 ? (
-          <Button
-            disabled={PhoneDisabled}
-            onClick={() => handleSubmit("phone_number")}
-            variant="contained"
-            className="verification-btn"
-          >
-            Verify
-          </Button>         
-          ) : (
-            <Button
-            disabled={PhoneDisabled}
-            style={{
-              color: seconds > 0 || seconds < 0 ? "#DFE3E8" : "#FFF",
-            }}
-            variant="contained"
-            className="verification-btn"
-            onClick={() => handleSubmit("phone_number")}
-          >
-            Resend OTP
-          </Button>
-          )
-        )}
-      </div>
-      <div>
-        <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
-      </div>
-      {selectedAbhaModeOption !== "create_abha" && (
-        seconds < 0 ? (
-          null
-        ) : ( 
-          <h5>
-            Resend OTP in: 00:
-            {seconds < 10 ? `0${seconds}` : seconds}
-          </h5>
-        )
-      )}
-      {!phoneNumberUsed && (
-        <div>
-          <Typography className="otp-title">Enter OTP</Typography>
-          <OtpInput
-            setSixDigitOTP={setSixDigitOTP}
-            verifyOTP={verifyOTP}
-            type="phone_number"
-          />
-        </div>
+      {!isInputValid && (
+        <>
+          <InputLabel>Enter Mobile Number</InputLabel>
+          <div className="validate-phone-form">
+            <TextField
+              type="tel"
+              value={number}
+              onChange={handleNumberChange}
+              error={isMobileError}
+              className="phone-text"
+              disabled={isInputValid}
+            />
+            {selectedAbhaModeOption !== "create_abha" && (
+              seconds === -1 ? (
+              <Button
+                disabled={PhoneDisabled}
+                onClick={() => handleSubmit("phone_number")}
+                variant="contained"
+                className="verification-btn"
+              >
+                Verify
+              </Button>
+              ) : (
+                <Button
+                disabled={PhoneDisabled}
+                style={{
+                  color: seconds > 0 ? "#DFE3E8" : "#FFF", // || seconds < 0
+                }}
+                variant="contained"
+                className="verification-btn"
+                onClick={() => handleSubmit("phone_number")}
+              >
+                Resend OTP
+              </Button>
+              )
+            )}
+          </div>
+          <div>
+            <span style={{ color: 'red'}}>{isMobileError ? "Please enter valid number" : ""}</span>
+          </div>
+          {selectedAbhaModeOption !== "create_abha" && (
+            seconds < 0 ? (
+              null
+            ) : ( 
+              <h5>
+                Resend OTP in: 00:
+                {seconds < 10 ? `0${seconds}` : seconds}
+              </h5>
+            )
+          )}
+          {!phoneNumberUsed && (
+            <div>
+              <Typography className="otp-title">Enter OTP</Typography>
+              <OtpInput
+                setSixDigitOTP={setSixDigitOTP}
+                verifyOTP={verifyOTP}
+                type="phone_number"
+              />
+            </div>
+          )}
+        </>
       )}
     </PhoneVerificationWrapper>
   );
