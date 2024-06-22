@@ -18,7 +18,7 @@ const VaccineChart = () => {
 
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
+      backgroundColor: "#2e96ff",
       color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
@@ -112,58 +112,60 @@ const VaccineChart = () => {
 
   return (
     <ChartWrapper>
-        <div style={{ textAlign: "center" }}>
-            <h3>Immunization (Indian Academy of Pediatrics) </h3>
-        </div>
-        <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Age</StyledTableCell>
-            <StyledTableCell align="right">Vaccine</StyledTableCell>
-            <StyledTableCell align="right">Due On</StyledTableCell>
-            <StyledTableCell align="right">Given On</StyledTableCell>
-            <StyledTableCell align="right">Comments/Batch</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row, index) => (
-            <StyledTableRow key={index} >
-              <StyledTableCell component="th" scope="row">
-                {row.age}
-              </StyledTableCell>
-              <StyledTableCell align="right">{row.vaccine}</StyledTableCell>
-              <StyledTableCell align="right">
-                <TextField
-                  type="date"
-                />
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                <TextField
-                  type="date"
-                />
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                <TextField
-                />
-              </StyledTableCell>
-              {/* <StyledTableCell align="right">{row.fat}</StyledTableCell>
-              <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="right">{row.protein}</StyledTableCell> */}
-            </StyledTableRow>
-          ))}
-           {/* <StyledTableRow>
-              <StyledTableCell component="th" scope="row">
-                Birth
-              </StyledTableCell>
-              <StyledTableCell align="right">BCG</StyledTableCell>
-              <StyledTableCell align="right"></StyledTableCell>
-              <StyledTableCell align="right"></StyledTableCell>
-              <StyledTableCell align="right"></StyledTableCell>
-            </StyledTableRow> */}
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <div style={{ textAlign: "center" }}>
+          <h3>Immunization (Indian Academy of Pediatrics) </h3>
+      </div>
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <TableContainer sx={{ maxHeight: 530 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Age</StyledTableCell>
+                <StyledTableCell align="right">Vaccine</StyledTableCell>
+                <StyledTableCell align="right">Due On</StyledTableCell>
+                <StyledTableCell align="right">Given On</StyledTableCell>
+                <StyledTableCell align="right">Comments/Batch</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, index) => (
+                <StyledTableRow key={index} >
+                  <StyledTableCell component="th" scope="row">
+                    {row.age}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">{row.vaccine}</StyledTableCell>
+                  <StyledTableCell align="right">
+                    <TextField
+                      type="date"
+                    />
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <TextField
+                      type="date"
+                    />
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <TextField
+                    />
+                  </StyledTableCell>
+                  {/* <StyledTableCell align="right">{row.fat}</StyledTableCell>
+                  <StyledTableCell align="right">{row.carbs}</StyledTableCell>
+                  <StyledTableCell align="right">{row.protein}</StyledTableCell> */}
+                </StyledTableRow>
+              ))}
+              {/* <StyledTableRow>
+                  <StyledTableCell component="th" scope="row">
+                    Birth
+                  </StyledTableCell>
+                  <StyledTableCell align="right">BCG</StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                </StyledTableRow> */}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </ChartWrapper>
   );
 };
