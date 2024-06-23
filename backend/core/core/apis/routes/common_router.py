@@ -152,6 +152,31 @@ def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
+@common_router.get("/v1/getDoctorDetails")
+def get_all_doctors(doc_id: str, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info(f"Calling /v1/getDoctorDetails")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return Common().doctor_details_by_docId(doc_id=doc_id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/getDoctorDetails endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/getDoctorDetails endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 #### function to add external doctor
 @common_router.post("/v1/doctorDetails/addExternal")
 def create_external_doctor(request: ExternalDoc, token: str = Depends(oauth2_scheme)):

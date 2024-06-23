@@ -130,6 +130,27 @@ class Common:
             )
             raise error
 
+    def doctor_details_by_docId(self, doc_id: str):
+        """[Controller to get all Doctors records]
+
+        Raises:
+            error: [Error raised from controller layer]
+
+        Returns:
+            [dict]: [authorization details]
+        """
+        try:
+            logging.info("executing doctor_details_by_docId function")
+            logging.info(f"Getting the Doctors records")
+            doc_details = self.CRUD_docDetails.read_by_docId(doc_id=doc_id)
+            logging.info(doc_details)
+            return doc_details
+        except Exception as error:
+            logging.error(
+                f"Error in CommonController.doctor_details_by_docId function: {error}"
+            )
+            raise error
+
     def create_doctor(self, request):
         try:
             logging.info("Creating doctor record")
