@@ -18,6 +18,14 @@ class DocDetails(BaseModel):
     consultation_end_time: time
     consultation_fees: int
     follow_up_fees: int
+    experience: str
+    commonly_treats: str
+    about: str
+    address: str
+    city: str
+    location: str
+    education: dict
+    awards: str
 
 
 class UpdateDoctor(BaseModel):
