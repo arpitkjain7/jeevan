@@ -1,0 +1,68 @@
+{
+  "consultation_summary": {
+    "comment": "Summary of the conversation",
+    "summary": "string"
+  },
+  "subjective": {
+    "comment": "Subjective information provided by the patient.",
+    "chief_complaint": "string",
+    "history_of_present_illness": ["string"],
+    "past_medical_history": ["string"],
+    "medication_history": ["string"],
+    "allergy_information": ["string"],
+    "family_history": ["string"],
+    "social_history": ["string"],
+    "review_of_systems": ["string"]
+  },
+  "objective": {
+    "comment": "Objective findings from physical examination and diagnostic tests.",
+    "vital_signs": {
+      "blood_pressure": "string",
+      "heart_rate": "integer",
+      "respiratory_rate": "integer",
+      "temperature": "float",
+      "oxygen_saturation": "integer"
+    },
+    "physical_examination_findings": "string",
+    "laboratory_and_diagnostic_test_results": "string"
+  },
+  "assessment": {
+    "comment": "Doctor's assessment based on subjective and objective information.",
+    "preliminary_diagnosis": "string",
+    "differential_diagnosis": "string",
+    "risk_factors": "string"
+  },
+  "plan": {
+    "diagnostic_plan": "string",
+    "treatment_plan": "string",
+    "patient_education": "string",
+    "follow_up": "string"
+  },
+  "tests_to_be_taken": {
+    "comment": "List of additional diagnostic tests to be conducted for further assessment.",
+    "laboratory_tests": ["string"],
+    "imaging_tests": ["string"],
+    "special_exams": ["string"]
+  },
+  "other_next_steps": {
+    "comment": "Other necessary actions before finalizing the patient's treatment plan.",
+    "consultations": ["string"],
+    "referrals": ["string"],
+    "precautions": ["string"],
+    "lifestyle_modifications": ["string"]
+  },
+  "prescription": {
+    "comment": " comment on the list Medication details including names, dosages, frequencies, routes, durations, and special instructions.",
+    "medications": [
+      {
+        "med_name": "string for scientific name or brand name if mentioned else empty",
+        "instructions": "string for how to take the medication if mentioned else empty",
+        "dosages": "string for dosage if mentioned else empty",
+        "duration_refill": "string for duration and refill if mentioned else empty"
+      }
+    ]
+  },
+  "additional_notes": {
+    "content": "string"
+  }
+}
