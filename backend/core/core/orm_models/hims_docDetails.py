@@ -1,5 +1,5 @@
 from enum import unique
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, TIME
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, TIME, JSON
 from core import Base
 
 
@@ -20,5 +20,13 @@ class DocDetails(Base):
     consultation_end_time = Column(TIME)
     consultation_fees = Column(Integer)
     follow_up_fees = Column(Integer)
+    experience = Column(String)
+    commonly_treats = Column(String)
+    about =  Column(String)
+    address = Column(String)
+    city = Column(String)
+    location = Column(String)
+    education = Column(JSON)
+    awards = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
