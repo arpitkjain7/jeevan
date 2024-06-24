@@ -37,6 +37,7 @@ import "react-pdf";
 // import "../node_modules/react-pdf/src/Page/AnnotationLayer.css";
 // import "react-pdf/src/Page/TextLayer.css";
 import { getPatientDetails } from "./EMRPage.slice";
+import RecorderComponent from "../../../components/RecorderComponent";
 const isMobile = window.innerWidth < 600;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
@@ -1813,7 +1814,11 @@ const PatientEMRDetails = (props) => {
         hospitalName: currentHospital?.name || "-",
         patientName:
           currentPatient?.patient_details?.name || currentPatient?.name || "-",
-        doctorName: docName || encounterDetail?.doc_name || currentPatient?.doc_name || "-",
+        doctorName:
+          docName ||
+          encounterDetail?.doc_name ||
+          currentPatient?.doc_name ||
+          "-",
         patientEmail:
           currentPatient?.patient_details?.email ||
           currentPatient?.email ||
@@ -2256,6 +2261,7 @@ const PatientEMRDetails = (props) => {
       {step === "create" && (
         <div>
           <PatientDetailsHeader documents={documents} />
+          <RecorderComponent />
           <EMRFormWrapper>
             <EMRFormInnerWrapper>
               <VitalsContainer>

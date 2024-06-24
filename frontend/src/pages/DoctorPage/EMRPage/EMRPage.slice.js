@@ -100,6 +100,17 @@ export const verifyDemographics = createAsyncThunk(
     return response;
   }
 );
+export const recorderAnalysis = createAsyncThunk(
+  "recorderAnalysis",
+  async (payload) => {
+    const response = await apiRequest(
+      "POST",
+      `${apis?.recorderAnalysis}?pmr_id=${payload.pmr_id}&patient_id=${payload.patient_id}&translate=true`,
+      payload.mediaUrl
+    );
+    return response;
+  }
+);
 
 export const deepLink = createAsyncThunk("sendLink", async (payload) => {
   const response = await apiRequest("POST", apis?.deepLink, payload);
