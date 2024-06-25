@@ -69,5 +69,5 @@ export const apis = {
   fetchPatientDetails: "v1/patient",
   appointmentAnalytics: "v1/appointmentAnalytics",
   previewPMR: "v1/PMR/previewPMR",
-  recorderAnalysis: "/v1/openAI/transcribe",
+  recorderAnalysis: "v1/openAI/transcribe",
 };
