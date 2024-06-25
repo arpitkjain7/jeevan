@@ -8,6 +8,8 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
+import { Box, Stack } from "@mui/material";
+import { useState } from "react";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -20,15 +22,31 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 export default function CustomizedSummaryDialog({
   open,
-  setOpen = false,
+  setOpen,
   summaryContent,
 }) {
+  const [content, setContent] = useState([]);
+  const [conSummary, setConSummary] = useState("");
+
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
+
+  if (
+    summaryContent &&
+    summaryContent.data &&
+    Object.keys(summaryContent.data).length > 1
+  ) {
+    setContent(Object.entries(summaryContent.data));
+
+    //Creating Conditions for Consultation
+  }
+  if (content.length > 1) {
+    setConSummary(content[0][1]?.summary || "Not Available");
+  }
 
   return (
     <React.Fragment>
@@ -40,8 +58,11 @@ export default function CustomizedSummaryDialog({
         aria-labelledby="customized-dialog-title"
         open={open}
       >
-        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Modal title
+        <DialogTitle
+          sx={{ m: 0, p: 2, display: "flex" }}
+          id="customized-dialog-title"
+        >
+          {/* Your title content */}
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -56,16 +77,11 @@ export default function CustomizedSummaryDialog({
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-            ac consectetur ac, vestibulum at eros.
+          <Typography variant="h3" gutterBottom>
+            Consultation Summary
           </Typography>
-          <Typography gutterBottom>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-            auctor.
-          </Typography>
+          <Typography gutterBottom>{conSummary}</Typography>
+          <hr />
           <Typography gutterBottom>
             Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
             cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
