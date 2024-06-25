@@ -53,6 +53,7 @@ const RecorderComponent = () => {
             <p>{status}</p>
             <button onClick={startRecording}>Start Recording</button>
             <button onClick={stopRecording}>Stop Recording</button>
+            <button onClick={clearBlobUrl}>Clear Recording</button>
             <audio src={mediaBlobUrl} controls autoPlay />
             <a href={mediaUrl} download="myFile">
               Download file
