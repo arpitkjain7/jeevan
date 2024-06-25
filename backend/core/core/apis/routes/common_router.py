@@ -109,7 +109,7 @@ def create_doctor(request: DocDetailsV2, token: str = Depends(oauth2_scheme)):
         logging.info(f"Calling /v2/doctorDetails/create")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().create_doctor(request=request)
+            return Common().v2_create_doctor(request=request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

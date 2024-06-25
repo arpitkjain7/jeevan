@@ -7,10 +7,12 @@ class DocDetails(Base):
     __tablename__ = "docDetails"
     __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    doc_uid = Column(String)  # This will be used as the path parameter.
     doc_name = Column(String)
     age = Column(String)
     languages = Column(String)
     email_id = Column(String)
+    mobile_number = Column(String)
     bio = Column(String)
     hip_id = Column(String)
     doc_degree = Column(String)
@@ -30,5 +32,6 @@ class DocDetails(Base):
     educational_content = Column(String)
     education = Column(JSON)
     awards = Column(String)
+    profile_photo = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
