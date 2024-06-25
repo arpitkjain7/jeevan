@@ -92,6 +92,35 @@ class CRUDDocDetails:
             )
             raise error
 
+    def read_by_uid(self, uid: str):
+        """[CRUD function to read a DocDetails record]
+
+        Args:
+            doc_id (str): [Doctor Id for filtering records]
+
+        Raises:
+            error: [Error returned from the DB layer]
+
+        Returns:
+            [dict]: [DocDetails record matching the criteria]
+        """
+        try:
+            logging.info("CRUDDocDetails read_by_url_endpoint request")
+            with session() as transaction_session:
+                obj: DocDetails = (
+                    transaction_session.query(DocDetails)
+                    .filter(DocDetails.doc_uid == uid)
+                    .first()
+                )
+            if obj is not None:
+                return obj.__dict__
+            return None
+        except Exception as error:
+            logging.error(
+                f"Error in CRUDDocDetails read_by_url_endpoint function : {error}"
+            )
+            raise error
+
     def read_by_hipId(self, hip_id: str):
         """[CRUD function to read a DocDetails record]
 

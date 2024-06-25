@@ -166,6 +166,22 @@ class Common:
             logging.error(f"Error in Common.create_doctor function: {error}")
             raise error
 
+    def check_endpoint_availability(self, endpoint):
+        try:
+            logging.info("executing check_endpoint_availability function")
+            doctor_details_obj = self.CRUDDocDetails.read_by_uid(uid=endpoint)
+            if doctor_details_obj:
+                return {
+                    "endpoint": endpoint,
+                    "availability": False,
+                    "doc_details": doctor_details_obj,
+                }
+            else:
+                return {"endpoint": endpoint, "availability": True, "doc_details": {}}
+        except Exception as error:
+            logging.error(f"Error in Common.create_doctor function: {error}")
+            raise error
+
     def v2_create_doctor(self, request):
         try:
             logging.info("executing v2_create_doctor function")
