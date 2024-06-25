@@ -25,28 +25,12 @@ export default function CustomizedSummaryDialog({
   setOpen,
   summaryContent,
 }) {
-  const [content, setContent] = useState([]);
-  const [conSummary, setConSummary] = useState("");
-
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
-
-  if (
-    summaryContent &&
-    summaryContent.data &&
-    Object.keys(summaryContent.data).length > 1
-  ) {
-    setContent(Object.entries(summaryContent.data));
-
-    //Creating Conditions for Consultation
-  }
-  if (content.length > 1) {
-    setConSummary(content[0][1]?.summary || "Not Available");
-  }
 
   return (
     <React.Fragment>
@@ -62,7 +46,21 @@ export default function CustomizedSummaryDialog({
           sx={{ m: 0, p: 2, display: "flex" }}
           id="customized-dialog-title"
         >
-          {/* Your title content */}
+          <Stack
+            justifyContent={"center"}
+            alignItems={"center"}
+            sx={{ backgroundColor: "#0089E9", width: "130px", padding: "5px" }}
+          >
+            <Typography
+              sx={{ fontSize: "1rem", fontWeight: 500, color: "white" }}
+              variant="h2"
+            >
+              CLINICAL NOTE
+            </Typography>
+          </Stack>
+          <Stack ml={5} justifyContent={"center"} alignItems={"center"}>
+            <Typography color={"#0089E9"}>PATIENT VISIT SUMMARY</Typography>
+          </Stack>
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -80,7 +78,7 @@ export default function CustomizedSummaryDialog({
           <Typography variant="h3" gutterBottom>
             Consultation Summary
           </Typography>
-          <Typography gutterBottom>{conSummary}</Typography>
+
           <hr />
           <Typography gutterBottom>
             Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
