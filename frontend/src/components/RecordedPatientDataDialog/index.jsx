@@ -8,12 +8,13 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
-import { Box, Stack } from "@mui/material";
+import { Box, List, ListItem, Stack } from "@mui/material";
 import { useState } from "react";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
+    overflowY: "scroll",
   },
   "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
@@ -31,7 +32,10 @@ export default function CustomizedSummaryDialog({
   const handleClose = () => {
     setOpen(false);
   };
-  console.log(summaryContent);
+  console.log(summaryContent?.data);
+  const content = Object.entries(summaryContent?.data);
+  console.log(content);
+
   return (
     <React.Fragment>
       <Button variant="outlined" onClick={handleClickOpen}>
@@ -78,13 +82,191 @@ export default function CustomizedSummaryDialog({
           <Typography variant="h3" gutterBottom>
             Consultation Summary
           </Typography>
-
+          <Typography gutterBottom>{content[0][1]?.summary}</Typography>
           <hr />
-          <Typography gutterBottom>
-            Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-            cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
-            dui. Donec ullamcorper nulla non metus auctor fringilla.
+          <Typography variant="h3" gutterBottom>
+            Subjective{" "}
           </Typography>
+          {content[1][1]?.allergy_information.length > 0 && (
+            <div>
+              <Typography gutterBottom>Allergies:</Typography>
+              <List>
+                {content[1][1]?.allergy_information.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          <Typography>
+            <strong>Cheif Complaint : </strong>
+            {content[1][1]?.chief_complaint}
+          </Typography>
+          {content[1][1]?.family_history.length > 0 && (
+            <div>
+              <Typography gutterBottom>Allergies:</Typography>
+              <List>
+                {content[1][1]?.family_history.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          {content[1][1]?.history_of_present_illness.length > 0 && (
+            <div>
+              <Typography gutterBottom>History of present illness: </Typography>
+              <List>
+                {content[1][1]?.history_of_present_illness.map(
+                  (item, index) => (
+                    <ListItem key={index}>{item}</ListItem>
+                  )
+                )}
+              </List>
+            </div>
+          )}
+          {content[1][1]?.medication_history.length > 0 && (
+            <div>
+              <Typography gutterBottom>Medication History: </Typography>
+              <List>
+                {content[1][1]?.medication_history.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          {content[1][1]?.past_medical_history.length > 0 && (
+            <div>
+              <Typography gutterBottom>Past Medical History: </Typography>
+              <List>
+                {content[1][1]?.past_medical_history.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          {content[1][1]?.review_of_systems.length > 0 && (
+            <div>
+              <Typography gutterBottom>Review of System: </Typography>
+              <List>
+                {content[1][1]?.review_of_systems.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          {content[1][1]?.social_history.length > 0 && (
+            <div>
+              <Typography gutterBottom>Social History: </Typography>
+              <List>
+                {content[1][1]?.social_history.map((item, index) => (
+                  <ListItem key={index}>{item}</ListItem>
+                ))}
+              </List>
+            </div>
+          )}
+          <hr />
+          <Typography variant="h3">Doctor's Assessment</Typography>
+          <List>
+            <ListItem>
+              Differential Diagnosis :{" "}
+              {content[3][1]?.differential_diagnosis || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Preliminary Diagnosis :{" "}
+              {content[4][1]?.preliminary_diagnosis || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Risk Factors : {content[3][1]?.risk_factors || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Treatment Plan: {content[3][1]?.treatment_plan || "Not Available"}
+            </ListItem>
+          </List>
+          <hr />
+          <Typography variant="h3">Plans</Typography>
+          <List>
+            <ListItem>
+              Diagnostic Plan :{" "}
+              {content[4][1]?.diagnostic_plan || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Follow up : {content[4][1]?.follow_up || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Patient Education:{" "}
+              {content[4][1]?.patient_education || "Not Available"}
+            </ListItem>
+            <ListItem>
+              Treatment Plan: {content[4][1]?.treatment_plan || "Not Available"}
+            </ListItem>
+          </List>
+          <hr />
+          <Typography variant="h3">Presciption</Typography>
+          <List>
+            Medications:
+            {content[7][1]?.medications.length > 0 &&
+              content[7][1]?.medications.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <hr />
+          <Typography variant="h3">Test To be Taken: </Typography>
+          <List>
+            Imaging Test:
+            {content[5][1]?.imaging_tests.length > 0 &&
+              content[5][1]?.imaging_tests.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <List>
+            Laboratory Test:
+            {content[5][1]?.laboratory_tests.length > 0 &&
+              content[5][1]?.laboratory_tests.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <List>
+            Special Exams:
+            {content[5][1]?.special_exams.length > 0 &&
+              content[5][1]?.special_exams.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <hr />
+          <Typography variant="h3">Other Next Steps: </Typography>
+          <List>
+            Consultations :
+            {content[6][1]?.consultations.length > 0 &&
+              content[6][1]?.consultations.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <List>
+            Lifestyle Modifications :
+            {content[6][1]?.lifestyle_modifications.length > 0 &&
+              content[6][1]?.lifestyle_modifications.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <List>
+            Precautions:
+            {content[6][1]?.precautions.length > 0 &&
+              content[6][1]?.precautions.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <List>
+            Referrals:
+            {content[6][1]?.referrals.length > 0 &&
+              content[6][1]?.referrals.map((item) => {
+                <ListItem>{item}</ListItem>;
+              })}
+          </List>
+          <hr />
+          <Typography variant="h3" gutterBottom>
+            Additional Notes
+          </Typography>
+          <Typography gutterBottom>{content[8][1]?.content}</Typography>
+          <hr />
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
