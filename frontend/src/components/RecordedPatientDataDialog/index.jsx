@@ -38,7 +38,7 @@ export default function CustomizedSummaryDialog({
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <Button variant="text" onClick={handleClickOpen}>
         See More...
       </Button>
       <BootstrapDialog
