@@ -9,6 +9,8 @@ import MicIcon from "@mui/icons-material/Mic";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import PauseIcon from "@mui/icons-material/Pause";
+import content from "./content.json";
 
 const RecordedSummaryContainer = styled(Card)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -30,15 +32,12 @@ const AudioControlPanel = styled(Card)(({ theme }) => ({
 }));
 
 const RecorderComponent = () => {
-  const [mediaUrl, setMediaUrl] = useState(null);
   const [openSummary, setOpenSummary] = useState(false);
   const [summaryContent, setSummaryContent] = useState({});
   console.log(summaryContent);
   const dispatch = useDispatch();
 
   const handleStopRecording = async (mediaBlobUrl) => {
-    setMediaUrl(mediaBlobUrl);
-
     try {
       const response = await fetch(mediaBlobUrl);
       const audio_file = await response.blob();
@@ -56,6 +55,7 @@ const RecorderComponent = () => {
 
       dispatch(recorderAnalysis(payload)).then((res) => {
         console.log(res);
+        // setSummaryContent(content);
         setSummaryContent(res.payload);
       });
     } catch (error) {
@@ -71,6 +71,8 @@ const RecorderComponent = () => {
           status,
           startRecording,
           stopRecording,
+          pauseRecording,
+          resumeRecording,
           mediaBlobUrl,
           clearBlobUrl,
         }) => (
@@ -82,6 +84,12 @@ const RecorderComponent = () => {
             </IconButton>
             <IconButton onClick={stopRecording}>
               <StopIcon />
+            </IconButton>
+            <IconButton onClick={pauseRecording}>
+              <PauseIcon />
+            </IconButton>
+            <IconButton onClick={resumeRecording}>
+              <PlayArrowIcon />
             </IconButton>
             <IconButton onClick={clearBlobUrl}>
               <RestartAltIcon />
