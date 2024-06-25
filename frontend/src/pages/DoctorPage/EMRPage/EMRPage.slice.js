@@ -100,15 +100,30 @@ export const verifyDemographics = createAsyncThunk(
     return response;
   }
 );
+
 export const recorderAnalysis = createAsyncThunk(
   "recorderAnalysis",
-  async (payload) => {
-    const response = await apiRequest(
-      "POST",
-      `${apis?.recorderAnalysis}?pmr_id=${payload.pmr_id}&patient_id=${payload.patient_id}&translate=true`,
-      payload.mediaUrl
-    );
-    return response;
+  async ({ pmr_id, patient_id, audio_file }) => {
+    const access_token = sessionStorage.getItem("accesstoken");
+    try {
+      const response = await axios.post(
+        ` ${BASE_URL}/${apis?.recorderAnalysis}?pmr_id=${pmr_id}&patient_id=${patient_id}&translate=true`,
+        audio_file,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers":
+              "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      throw Error(error.response.data.message);
+    }
   }
 );
 
