@@ -2,13 +2,38 @@ import React, { useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 import { useDispatch } from "react-redux";
 import { recorderAnalysis } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
-import { Box } from "@mui/material";
+import { Button, Card, Grid, IconButton, Typography } from "@mui/material";
 import CustomizedSummaryDialog from "../RecordedPatientDataDialog";
+import { styled } from "@mui/material/styles";
+import MicIcon from "@mui/icons-material/Mic";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+
+const RecordedSummaryContainer = styled(Card)(({ theme }) => ({
+  padding: theme.spacing(2),
+  margin: theme.spacing(2),
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+}));
+
+const AudioControlPanel = styled(Card)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: theme.spacing(2),
+  margin: theme.spacing(2),
+  border: "1px solid #ccc",
+  borderRadius: "50px",
+  width: "50%",
+}));
 
 const RecorderComponent = () => {
   const [mediaUrl, setMediaUrl] = useState(null);
   const [openSummary, setOpenSummary] = useState(false);
   const [summaryContent, setSummaryContent] = useState({});
+  console.log(summaryContent);
   const dispatch = useDispatch();
 
   const handleStopRecording = async (mediaBlobUrl) => {
@@ -49,27 +74,43 @@ const RecorderComponent = () => {
           mediaBlobUrl,
           clearBlobUrl,
         }) => (
-          <div>
-            <p>{status}</p>
-            <button onClick={startRecording}>Start Recording</button>
-            <button onClick={stopRecording}>Stop Recording</button>
-            <button onClick={clearBlobUrl}>Clear Recording</button>
+          <AudioControlPanel>
+            <IconButton onClick={startRecording}>
+              <MicIcon
+                sx={{ color: status === "recording" ? "Red" : "default" }}
+              />
+            </IconButton>
+            <IconButton onClick={stopRecording}>
+              <StopIcon />
+            </IconButton>
+            <IconButton onClick={clearBlobUrl}>
+              <RestartAltIcon />
+            </IconButton>
             <audio src={mediaBlobUrl} controls autoPlay />
-            <a href={mediaUrl} download="myFile">
+            {/* <a href={mediaUrl} download="myFile">
               Download file
-            </a>
-          </div>
+            </a> */}
+          </AudioControlPanel>
         )}
         onStop={handleStopRecording}
       />
-      <Box>
-        <CustomizedSummaryDialog
-          open={openSummary}
-          setOpen={setOpenSummary}
-          summaryContent={summaryContent}
-          setSummaryContent={setSummaryContent}
-        />
-      </Box>
+      <RecordedSummaryContainer>
+        <Grid container xs={12}>
+          <Grid item xs={10.5}>
+            <Typography variant="h6">
+              {summaryContent?.data?.consultation_summary?.summary}
+            </Typography>
+          </Grid>
+          <Grid item xs={1.5}>
+            <CustomizedSummaryDialog
+              open={openSummary}
+              setOpen={setOpenSummary}
+              summaryContent={summaryContent}
+              setSummaryContent={setSummaryContent}
+            />
+          </Grid>
+        </Grid>
+      </RecordedSummaryContainer>
     </>
   );
 };
