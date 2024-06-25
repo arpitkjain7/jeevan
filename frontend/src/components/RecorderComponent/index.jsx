@@ -2,9 +2,13 @@ import React, { useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 import { useDispatch } from "react-redux";
 import { recorderAnalysis } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
+import { Box } from "@mui/material";
+import CustomizedSummaryDialog from "../RecordedPatientDataDialog";
 
 const RecorderComponent = () => {
   const [mediaUrl, setMediaUrl] = useState(null);
+  const [openSummary, setOpenSummary] = useState(false);
+  const [summaryContent, setSummaryContent] = useState({});
   const dispatch = useDispatch();
 
   const handleStopRecording = async (mediaBlobUrl) => {
@@ -27,6 +31,7 @@ const RecorderComponent = () => {
 
       dispatch(recorderAnalysis(payload)).then((res) => {
         console.log(res);
+        setSummaryContent(res.payload);
       });
     } catch (error) {
       console.error("Error handling mediaBlobUrl:", error);
@@ -34,7 +39,7 @@ const RecorderComponent = () => {
   };
 
   return (
-    <div>
+    <>
       <ReactMediaRecorder
         audio
         render={({
@@ -56,7 +61,15 @@ const RecorderComponent = () => {
         )}
         onStop={handleStopRecording}
       />
-    </div>
+      <Box>
+        <CustomizedSummaryDialog
+          open={openSummary}
+          setOpen={setOpenSummary}
+          summaryContent={summaryContent}
+          setSummaryContent={setSummaryContent}
+        />
+      </Box>
+    </>
   );
 };
 

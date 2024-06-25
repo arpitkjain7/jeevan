@@ -18,10 +18,10 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export default function CustomizedDialogs({
+export default function CustomizedSummaryDialog({
   open,
   setOpen = false,
-  dialogContent,
+  summaryContent,
 }) {
   const handleClickOpen = () => {
     setOpen(true);

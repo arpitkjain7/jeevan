@@ -38,6 +38,7 @@ import "react-pdf";
 // import "react-pdf/src/Page/TextLayer.css";
 import { getPatientDetails } from "./EMRPage.slice";
 import RecorderComponent from "../../../components/RecorderComponent";
+import CustomizedSummaryDialog from "../../../components/RecordedPatientDataDialog";
 const isMobile = window.innerWidth < 600;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
