@@ -149,7 +149,7 @@ def get_doctor_profile_details(
         logging.info(f"Calling /v1/getDetails/doctorProfile")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return Common().check_endpoint_availability(endpoint=endpoint)
+            return Common().get_doctor_profile_details(endpoint=endpoint)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
