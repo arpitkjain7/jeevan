@@ -31,7 +31,7 @@ export default function CustomizedSummaryDialog({
   const handleClose = () => {
     setOpen(false);
   };
-
+  console.log(summaryContent);
   return (
     <React.Fragment>
       <Button variant="outlined" onClick={handleClickOpen}>

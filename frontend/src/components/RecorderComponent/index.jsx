@@ -94,23 +94,25 @@ const RecorderComponent = () => {
         )}
         onStop={handleStopRecording}
       />
-      <RecordedSummaryContainer>
-        <Grid container xs={12}>
-          <Grid item xs={10.5}>
-            <Typography variant="h6">
-              {summaryContent?.data?.consultation_summary?.summary}
-            </Typography>
+      {summaryContent?.data?.consultation_summary?.summary && (
+        <RecordedSummaryContainer>
+          <Grid container xs={12}>
+            <Grid item xs={10.5}>
+              <Typography variant="h6">
+                {summaryContent?.data?.consultation_summary?.summary}
+              </Typography>
+            </Grid>
+            <Grid item xs={1.5}>
+              <CustomizedSummaryDialog
+                open={openSummary}
+                setOpen={setOpenSummary}
+                summaryContent={summaryContent}
+                setSummaryContent={setSummaryContent}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={1.5}>
-            <CustomizedSummaryDialog
-              open={openSummary}
-              setOpen={setOpenSummary}
-              summaryContent={summaryContent}
-              setSummaryContent={setSummaryContent}
-            />
-          </Grid>
-        </Grid>
-      </RecordedSummaryContainer>
+        </RecordedSummaryContainer>
+      )}
     </>
   );
 };
