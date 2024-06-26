@@ -19,7 +19,14 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import PauseIcon from "@mui/icons-material/Pause";
 import content from "./content.json";
 import cliniq360Logo from "../../assets/icons/clinic360Logo.png";
+
+const NumBars = window.innerWidth < 768 ? 20 : 30;
+
 const RecordedSummaryContainer = styled(Card)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
   padding: theme.spacing(2),
   margin: theme.spacing(2),
   border: "1px solid #ccc",
@@ -35,8 +42,13 @@ const AudioControlPanel = styled(Card)(({ theme }) => ({
   margin: theme.spacing(2),
   border: "5px solid ",
   borderRadius: "50px",
-  width: "50%",
+  width: "35%",
   animation: "borderAnimation 3s infinite",
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    margin: theme.spacing(1),
+  },
 
   "@keyframes borderAnimation": {
     "0%": {
@@ -61,7 +73,7 @@ const shadesOfGray = ["#000000", "#333333", "#666666", "#999999", "#CCCCCC"];
 
 const generateBarStyles = () => {
   const styles = {};
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < NumBars; i++) {
     styles[`&:nth-of-type(${i + 1})`] = {
       animationDelay: `${(i % 10) * 0.1}s`,
       backgroundColor: shadesOfGray[i % 5],
@@ -95,7 +107,7 @@ const WaveAnimationContainer = styled("div")({
 
 const WaveAnimation = () => (
   <WaveAnimationContainer>
-    {[...Array(30)].map((_, i) => (
+    {[...Array(NumBars)].map((_, i) => (
       <Bar key={i} />
     ))}
   </WaveAnimationContainer>
@@ -170,7 +182,7 @@ const RecorderComponent = () => {
 
               {isRecording ? (
                 <WaveAnimation>
-                  {Array.from({ length: 30 }).map((_, index) => (
+                  {Array.from({ length: NumBars }).map((_, index) => (
                     <Bar key={index} />
                   ))}
                 </WaveAnimation>
@@ -184,26 +196,22 @@ const RecorderComponent = () => {
       />
       {summaryContent?.data?.consultation_summary?.summary && (
         <RecordedSummaryContainer>
-          <Grid container>
-            <Grid item xs={10.5}>
-              <Stack direction={"row"} alignItems={"center"} gap={2}>
-                <IconButton sx={{ backgroundColor: "#f8f8f8" }}>
-                  <img style={{ height: "20px" }} src={cliniq360Logo} />
-                </IconButton>
-                <Typography variant="h6">
-                  {summaryContent?.data?.consultation_summary?.summary}
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={1.5}>
-              <CustomizedSummaryDialog
-                open={openSummary}
-                setOpen={setOpenSummary}
-                summaryContent={summaryContent}
-                setSummaryContent={setSummaryContent}
-              />
-            </Grid>
-          </Grid>
+          <Stack direction={"row"} alignItems={"center"} gap={2}>
+            <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
+              <img style={{ height: "20px" }} src={cliniq360Logo} />
+            </IconButton>
+            <Typography variant="h6">
+              {summaryContent?.data?.consultation_summary?.summary}
+            </Typography>
+          </Stack>
+          <Stack>
+            <CustomizedSummaryDialog
+              open={openSummary}
+              setOpen={setOpenSummary}
+              summaryContent={summaryContent}
+              setSummaryContent={setSummaryContent}
+            />
+          </Stack>
         </RecordedSummaryContainer>
       )}
     </>

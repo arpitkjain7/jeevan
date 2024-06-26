@@ -8,7 +8,18 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
-import { Box, List, ListItem, Stack } from "@mui/material";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import AllergyIcon from "@mui/icons-material/HealthAndSafety";
+import ComplaintIcon from "@mui/icons-material/ReportProblem";
+import HistoryIcon from "@mui/icons-material/History";
+import MedicationIcon from "@mui/icons-material/Medication";
+import AssessmentIcon from "@mui/icons-material/Assignment";
+import PlanIcon from "@mui/icons-material/FactCheck";
+import PrescriptionIcon from "@mui/icons-material/Description";
+import TestIcon from "@mui/icons-material/Biotech";
+import NextStepsIcon from "@mui/icons-material/Forward";
+import NotesIcon from "@mui/icons-material/Notes";
+import { Box, List, ListItem, Stack, Tooltip } from "@mui/material";
 import { useState } from "react";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -60,9 +71,15 @@ export default function CustomizedSummaryDialog({
 
   return (
     <React.Fragment>
-      <Button variant="text" onClick={handleClickOpen}>
-        See More...
-      </Button>
+      <Tooltip title="See More">
+        <IconButton
+          variant="text"
+          onClick={handleClickOpen}
+          sx={{ backgroundColor: "#89f2ff61" }}
+        >
+          <AspectRatioIcon sx={{ color: "#1976d2" }} />
+        </IconButton>
+      </Tooltip>
       <BootstrapDialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
@@ -101,45 +118,51 @@ export default function CustomizedSummaryDialog({
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Typography variant="h3" gutterBottom>
-            Consultation Summary
+          <Typography variant="h6" gutterBottom>
+            <strong>Consultation Summary</strong>
           </Typography>
           <Typography gutterBottom>{content[0][1]?.summary}</Typography>
           <hr />
-          <Typography variant="h3" gutterBottom>
-            Subjective{" "}
+          <Typography variant="h6" gutterBottom>
+            <AllergyIcon /> <strong>Subjective</strong>
           </Typography>
           {content[1][1]?.allergy_information.length > 0 && (
             <div>
               <Typography gutterBottom>Allergies:</Typography>
-              <List>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.allergy_information.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
-          <Typography>
-            <strong>Cheif Complaint : </strong>
+          <Typography gutterBottom>
+            <ComplaintIcon /> <strong>Chief Complaint:</strong>{" "}
             {content[1][1]?.chief_complaint}
           </Typography>
           {content[1][1]?.family_history.length > 0 && (
             <div>
-              <Typography gutterBottom>Allergies:</Typography>
-              <List>
+              <Typography gutterBottom>Family History:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.family_history.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
           {content[1][1]?.history_of_present_illness.length > 0 && (
             <div>
-              <Typography gutterBottom>History of present illness: </Typography>
-              <List>
+              <Typography gutterBottom>History of Present Illness:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.history_of_present_illness.map(
                   (item, index) => (
-                    <ListItem key={index}>{item}</ListItem>
+                    <ListItem key={index} sx={{ display: "list-item" }}>
+                      {item}
+                    </ListItem>
                   )
                 )}
               </List>
@@ -147,145 +170,185 @@ export default function CustomizedSummaryDialog({
           )}
           {content[1][1]?.medication_history.length > 0 && (
             <div>
-              <Typography gutterBottom>Medication History: </Typography>
-              <List>
+              <Typography gutterBottom>Medication History:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.medication_history.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
           {content[1][1]?.past_medical_history.length > 0 && (
             <div>
-              <Typography gutterBottom>Past Medical History: </Typography>
-              <List>
+              <Typography gutterBottom>Past Medical History:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.past_medical_history.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
           {content[1][1]?.review_of_systems.length > 0 && (
             <div>
-              <Typography gutterBottom>Review of System: </Typography>
-              <List>
+              <Typography gutterBottom>Review of Systems:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.review_of_systems.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
           {content[1][1]?.social_history.length > 0 && (
             <div>
-              <Typography gutterBottom>Social History: </Typography>
-              <List>
+              <Typography gutterBottom>Social History:</Typography>
+              <List sx={{ listStyleType: "circle", pl: 4 }}>
                 {content[1][1]?.social_history.map((item, index) => (
-                  <ListItem key={index}>{item}</ListItem>
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
                 ))}
               </List>
             </div>
           )}
           <hr />
-          <Typography variant="h3">Doctor's Assessment</Typography>
+          <Typography variant="h6" gutterBottom>
+            <AssessmentIcon /> <strong>Doctor's Assessment</strong>
+          </Typography>
           <List>
             <ListItem>
-              Differential Diagnosis :{" "}
+              <strong>Differential Diagnosis:</strong>{" "}
               {content[3][1]?.differential_diagnosis || "Not Available"}
             </ListItem>
             <ListItem>
-              Preliminary Diagnosis :{" "}
+              <strong>Preliminary Diagnosis:</strong>{" "}
               {content[4][1]?.preliminary_diagnosis || "Not Available"}
             </ListItem>
             <ListItem>
-              Risk Factors : {content[3][1]?.risk_factors || "Not Available"}
+              <strong>Risk Factors:</strong>{" "}
+              {content[3][1]?.risk_factors || "Not Available"}
             </ListItem>
             <ListItem>
-              Treatment Plan: {content[3][1]?.treatment_plan || "Not Available"}
+              <strong>Treatment Plan:</strong>{" "}
+              {content[3][1]?.treatment_plan || "Not Available"}
             </ListItem>
           </List>
           <hr />
-          <Typography variant="h3">Plans</Typography>
+          <Typography variant="h6" gutterBottom>
+            <PlanIcon /> <strong>Plans</strong>
+          </Typography>
           <List>
             <ListItem>
-              Diagnostic Plan :{" "}
+              <strong>Diagnostic Plan:</strong>{" "}
               {content[4][1]?.diagnostic_plan || "Not Available"}
             </ListItem>
             <ListItem>
-              Follow up : {content[4][1]?.follow_up || "Not Available"}
+              <strong>Follow Up:</strong>{" "}
+              {content[4][1]?.follow_up || "Not Available"}
             </ListItem>
             <ListItem>
-              Patient Education:{" "}
-              {content[4][1]?.patient_education || "Not Available"}
-            </ListItem>
-            <ListItem>
-              Treatment Plan: {content[4][1]?.treatment_plan || "Not Available"}
+              <strong>Treatment Plan:</strong>{" "}
+              {content[4][1]?.treatment_plan || "Not Available"}
             </ListItem>
           </List>
           <hr />
-          <Typography variant="h3">Presciption</Typography>
+          <Typography variant="h6" gutterBottom>
+            <PrescriptionIcon /> <strong>Prescription</strong>
+          </Typography>
           <List>
-            Medications:
-            {content[7][1]?.medications.length > 0 &&
-              content[7][1]?.medications.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
+            <Typography gutterBottom>Medications:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[7][1]?.medications.length > 0 &&
+                content[7][1]?.medications.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
           </List>
           <hr />
-          <Typography variant="h3">Test To be Taken: </Typography>
+          <Typography variant="h6" gutterBottom>
+            <TestIcon /> <strong>Tests To Be Taken</strong>
+          </Typography>
           <List>
-            Imaging Test:
-            {content[5][1]?.imaging_tests.length > 0 &&
-              content[5][1]?.imaging_tests.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <List>
-            Laboratory Test:
-            {content[5][1]?.laboratory_tests.length > 0 &&
-              content[5][1]?.laboratory_tests.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <List>
-            Special Exams:
-            {content[5][1]?.special_exams.length > 0 &&
-              content[5][1]?.special_exams.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <hr />
-          <Typography variant="h3">Other Next Steps: </Typography>
-          <List>
-            Consultations :
-            {content[6][1]?.consultations.length > 0 &&
-              content[6][1]?.consultations.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <List>
-            Lifestyle Modifications :
-            {content[6][1]?.lifestyle_modifications.length > 0 &&
-              content[6][1]?.lifestyle_modifications.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <List>
-            Precautions:
-            {content[6][1]?.precautions.length > 0 &&
-              content[6][1]?.precautions.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
-          </List>
-          <List>
-            Referrals:
-            {content[6][1]?.referrals.length > 0 &&
-              content[6][1]?.referrals.map((item) => {
-                <ListItem>{item}</ListItem>;
-              })}
+            <Typography gutterBottom>Imaging Tests:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[5][1]?.imaging_tests.length > 0 &&
+                content[5][1]?.imaging_tests.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+            <Typography gutterBottom>Laboratory Tests:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[5][1]?.laboratory_tests.length > 0 &&
+                content[5][1]?.laboratory_tests.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+            <Typography gutterBottom>Special Exams:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[5][1]?.special_exams.length > 0 &&
+                content[5][1]?.special_exams.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
           </List>
           <hr />
-          <Typography variant="h3" gutterBottom>
-            Additional Notes
+          <Typography variant="h6" gutterBottom>
+            <NextStepsIcon /> <strong>Other Next Steps</strong>
+          </Typography>
+          <List>
+            <Typography gutterBottom>Consultations:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[6][1]?.consultations.length > 0 &&
+                content[6][1]?.consultations.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+            <Typography gutterBottom>Lifestyle Modifications:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[6][1]?.lifestyle_modifications.length > 0 &&
+                content[6][1]?.lifestyle_modifications.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+            <Typography gutterBottom>Precautions:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[6][1]?.precautions.length > 0 &&
+                content[6][1]?.precautions.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+            <Typography gutterBottom>Referrals:</Typography>
+            <List sx={{ listStyleType: "circle", pl: 4 }}>
+              {content[6][1]?.referrals.length > 0 &&
+                content[6][1]?.referrals.map((item, index) => (
+                  <ListItem key={index} sx={{ display: "list-item" }}>
+                    {item}
+                  </ListItem>
+                ))}
+            </List>
+          </List>
+          <hr />
+          <Typography variant="h6" gutterBottom>
+            <NotesIcon /> <strong>Additional Notes</strong>
           </Typography>
           <Typography gutterBottom>{content[8][1]?.content}</Typography>
           <hr />
