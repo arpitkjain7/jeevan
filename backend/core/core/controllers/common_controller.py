@@ -171,13 +171,9 @@ class Common:
             logging.info("executing check_endpoint_availability function")
             doctor_details_obj = self.CRUDDocDetails.read_by_uid(uid=endpoint)
             if doctor_details_obj:
-                return {
-                    "endpoint": endpoint,
-                    "availability": False,
-                    "doc_details": doctor_details_obj,
-                }
+                return {"endpoint": endpoint, "availability": False}
             else:
-                return {"endpoint": endpoint, "availability": True, "doc_details": {}}
+                return {"endpoint": endpoint, "availability": True}
         except Exception as error:
             logging.error(
                 f"Error in Common.check_endpoint_availability function: {error}"
@@ -187,11 +183,7 @@ class Common:
     def get_doctor_profile_details(self, endpoint):
         try:
             logging.info("executing get_doctor_profile_details function")
-            doctor_details_obj = self.CRUDDocDetails.read_by_uid(uid=endpoint)
-            if doctor_details_obj:
-                return doctor_details_obj
-            else:
-                return {}
+            return self.CRUDDocDetails.read_by_uid(uid=endpoint)
         except Exception as error:
             logging.error(
                 f"Error in Common.get_doctor_profile_details function: {error}"
@@ -236,6 +228,7 @@ class Common:
             request_dict.update({"doc_name": f"Dr. {doc_first_name} {doc_last_name}"})
             # request_dict.update({"doc_uid": doc_uid})
             logging.info(f"{request_dict=}")
+            # TODO: This should be moved above. If doctor record exist, why to create his/her user record also?
             doc_details_obj = self.CRUDDocDetails.read_by_mobile_number(
                 mobile_number=request_dict.get("mobile_number")
             )
