@@ -59,199 +59,11 @@ def deep_link_notify(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
-@common_router.post("/v1/doctor-details/create")
-def create_doctor(request: DocDetails, token: str = Depends(oauth2_scheme)):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
-    try:
-        logging.info(f"Calling /v1/doctor-details/create")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            return Common().create_doctor(request=request)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(f"Error in /v1/doctor-details/create: {httperror}")
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v1/doctor-details/create: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@common_router.post("/v1/doctor-details/check-endpoint-availability")
-def check_endpoint_availability(
-    endpoint: str,
-    token: str = Depends(oauth2_scheme),
-):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
-    try:
-        logging.info(f"Calling /v1/doctor-details/check-endpoint-availability")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            return Common().check_endpoint_availability(endpoint=endpoint)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(
-            f"Error in /v1/doctor-details/check-endpoint-availability: {httperror}"
-        )
-        raise httperror
-    except Exception as error:
-        logging.error(
-            f"Error in /v1/doctor-details/check-endpoint-availability: {error}"
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@common_router.get("/v1/doctor-details/get-doctor-profile/{endpoint}")
-def get_doctor_profile_details(
-    endpoint: str,
-    token: str = Depends(oauth2_scheme),
-):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
-    try:
-        logging.info(f"Calling /v1/doctor-details/get-doctor-profile")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            doctor_details_obj = Common().get_doctor_profile_details(endpoint=endpoint)
-            if doctor_details_obj:
-                return doctor_details_obj
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="No record found",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(f"Error in /v1/doctor-details/get-doctor-profile: {httperror}")
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v1/doctor-details/get-doctor-profile : {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@common_router.post("/v2/doctor-details/create")
-def create_doctor(request: DocDetailsV2, token: str = Depends(oauth2_scheme)):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
-    try:
-        logging.info(f"Calling /v2/doctor-details/create")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            return Common().v2_create_doctor(request=request)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(f"Error in /v2/doctor-details/create: {httperror}")
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v2/doctor-details/create: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@common_router.post("/v1/doctor-details/update")
-def update_doc_details(request: UpdateDoctor, token: str = Depends(oauth2_scheme)):
-    """[API router to register new user into the system]
-    Args:
-        register_user_request (Register): [New user details]
-    Raises:
-        HTTPException: [Unauthorized exception when invalid token is passed]
-        error: [Exception in underlying controller]
-    Returns:
-        [RegisterResponse]: [Register new user response]
-    """
-    try:
-        logging.info(f"Calling /v1/doctor-details/update")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            return Common().update_doc_details(request=request)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except HTTPException as httperror:
-        logging.error(f"Error in /v1/doctor-details/update: {httperror}")
-        raise httperror
-    except Exception as error:
-        logging.error(f"Error in /v1/doctor-details/update: {error}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(error),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-@common_router.get("/v1/doctor-details/list-all")
+#TODO: need to remove the APIs once FE changes are completed
+@common_router.get("/v1/listAllDoctors")
 def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/doctor-details/list-all")
+        logging.info(f"Calling /v1/listAllDoctors")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return Common().get_all_doctors(hip_id=hip_id)
@@ -262,10 +74,10 @@ def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/doctor-details/list-all endpoint: {httperror}")
+        logging.error(f"Error in /v1/listAllDoctors endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/doctor-details/list-all endpoint: {error}")
+        logging.error(f"Error in /v1/listAllDoctors endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
@@ -273,10 +85,10 @@ def get_all_doctors(hip_id: str, token: str = Depends(oauth2_scheme)):
         )
 
 
-@common_router.get("/v1/doctor-details/get-by-id/{doc_id}")
+@common_router.get("/v1/getDoctorDetails")
 def get_all_doctors(doc_id: str, token: str = Depends(oauth2_scheme)):
     try:
-        logging.info(f"Calling /v1/doctor-details/get-by-id/{doc_id}")
+        logging.info(f"Calling /v1/getDoctorDetails")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
             return Common().doctor_details_by_docId(doc_id=doc_id)
@@ -287,14 +99,10 @@ def get_all_doctors(doc_id: str, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(
-            f"Error in /v1/doctor-details/get-by-id/{doc_id} endpoint: {httperror}"
-        )
+        logging.error(f"Error in /v1/getDoctorDetails endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(
-            f"Error in /v1/doctor-details/get-by-id/{doc_id} endpoint: {error}"
-        )
+        logging.error(f"Error in /v1/getDoctorDetails endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

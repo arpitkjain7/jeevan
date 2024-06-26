@@ -28,10 +28,7 @@ class UserManagementController:
         """
         try:
             logging.info("executing register new user function")
-            if type(request) is not dict:
-                request_json = request.dict()
-            else:
-                request_json = request
+            request_json = request.dict()
             password_hash = encrypt_password(password=request_json.get("password"))
             user_obj = self.CRUDUser.read_by_username(
                 username=request_json.get("mobile_number")
@@ -70,10 +67,7 @@ class UserManagementController:
     def onboard_user_controller(self, request):
         try:
             logging.info("executing onboard_user_controller function")
-            if type(request) is not dict:
-                request_json = request.dict()
-            else:
-                request_json = request
+            request_json = request.dict()
             user_obj = self.CRUDUser.read_by_username(
                 username=request_json.get("mobile_number")
             )
