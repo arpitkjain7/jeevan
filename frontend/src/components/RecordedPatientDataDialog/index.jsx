@@ -12,6 +12,28 @@ import { Box, List, ListItem, Stack } from "@mui/material";
 import { useState } from "react";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  "& .MuiPaper-root": {
+    borderRadius: "15px",
+    border: "5px solid ",
+    animation: "borderAnimation 3s infinite",
+    "@keyframes borderAnimation": {
+      "0%": {
+        borderColor: "#000000",
+      },
+      "25%": {
+        borderColor: "#333333",
+      },
+      "50%": {
+        borderColor: "#666666",
+      },
+      "75%": {
+        borderColor: "#999999",
+      },
+      "100%": {
+        borderColor: "#CCCCCC",
+      },
+    }, // Change this to your desired border radius
+  },
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
     overflowY: "scroll",
