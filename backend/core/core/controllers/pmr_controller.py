@@ -82,7 +82,8 @@ class PMRController:
         try:
             logging.info("executing get pmr function")
             logging.info(f"Getting the PMR record for {pmr_id=}")
-            return self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            del pmr_details["raw_transcripts"]
         except Exception as error:
             logging.error(
                 f"Error in PMRController.get_pmr_controller function: {error}"
@@ -197,6 +198,7 @@ class PMRController:
             )
             # TODO: Optimise the function to reduce additional query
             pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            del pmr_details["raw_transcripts"]
             appointment_details = self.CRUDAppointments.read(
                 request_dict.get("appointment_id")
             )

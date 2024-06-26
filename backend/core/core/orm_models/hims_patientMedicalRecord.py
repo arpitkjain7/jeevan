@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Boolean, JSON
 from core import Base
 
 
@@ -13,7 +13,8 @@ class PatientMedicalRecord(Base):
     patient_id = Column(String, ForeignKey("patientDetails.id"))
     advices = Column(String)
     notes = Column(String)
-    # follow_up = Column(DateTime)
+    raw_transcripts = Column(JSON)
+    summarised_notes = Column(JSON)
     affiliated = Column(Boolean)
     abdm_linked = Column(Boolean, default=False)
     created_at = Column(DateTime)
