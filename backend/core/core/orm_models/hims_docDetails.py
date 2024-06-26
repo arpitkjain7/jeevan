@@ -31,6 +31,7 @@ class DocDetails(Base):
     google_reviews = Column(JSON)
     educational_content = Column(String)
     education = Column(JSON)
+    external_hips = Column(JSON)
     awards = Column(String)
     profile_photo = Column(String)
     created_at = Column(DateTime)

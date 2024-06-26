@@ -27,6 +27,16 @@ class EducationDetails(BaseModel):
     year: str
 
 
+class ExternalHIPDetails(BaseModel):
+    name: str = None
+    mobile_number: str = None
+    location: str = None
+    address: str = None
+    doc_working_days: str = None
+    consultation_start_time: str = None
+    consultation_end_time: str = None
+
+
 class UserRole(str, Enum):
     STAFF = "STAFF"
     DOCTOR = "DOCTOR"
@@ -60,6 +70,7 @@ class DocDetailsV2(BaseModel):
     bio: str
     education: List[EducationDetails]
     awards: str
+    external_hips: List[ExternalHIPDetails] = None
     languages: str = None
     google_reviews: str = None
     educational_content: str = None
