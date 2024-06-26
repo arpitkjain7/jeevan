@@ -302,6 +302,7 @@ function App() {
               <DrawerHeader />
               <Routes>
                 <Route path="/login" element={<SignInPage />} />
+                <Route path="/virtual-card" element={<VirtualCard />} />
                 {isAuthenticated ? (
                   <>
                     <Route path="/dashboard" element={<Dashboard />} />
