@@ -86,7 +86,11 @@ class DoctorController:
     def get_doctor_profile_details(self, endpoint):
         try:
             logging.info("executing get_doctor_profile_details function")
-            return self.CRUDDocDetails.read_by_uid(uid=endpoint)
+            doctor_details_obj = self.CRUDDocDetails.read_by_uid(uid=endpoint)
+            if doctor_details_obj:
+                hip_details = self.CRUDHIP.read(hip_ip=doctor_details_obj.get("hip_id"))
+                doctor_details_obj.update({"primary_hip": [hip_details]})
+            return doctor_details_obj
         except Exception as error:
             logging.error(
                 f"Error in DoctorController.get_doctor_profile_details function: {error}"
