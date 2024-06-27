@@ -73,15 +73,15 @@ class DocDetailsV2(BaseModel):
     consultation_fees: int
     follow_up_fees: int
     years_of_experience: str
-    commonly_treats: List[str]
+    commonly_treats: str
     bio: str
     about:str
     education: List[EducationDetails]
-    awards: List[str]
+    awards: str
     external_hips: List[ExternalHIPDetails] = None
     languages: str = None
     google_reviews: List[Review] = None
-    educational_content: List[str] = None
+    educational_content: str = None
 
 
 class UpdateDoctor(BaseModel):
