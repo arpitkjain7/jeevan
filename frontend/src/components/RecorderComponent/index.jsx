@@ -115,7 +115,7 @@ const WaveAnimation = () => (
 
 const RecorderComponent = () => {
   const [openSummary, setOpenSummary] = useState(false);
-  const [summaryContent, setSummaryContent] = useState();
+  const [summaryContent, setSummaryContent] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [translatedContent, setTranslatedContent] = useState({});
   const dispatch = useDispatch();
@@ -198,7 +198,7 @@ const RecorderComponent = () => {
         )}
         onStop={handleStopRecording}
       />
-      {summaryContent[0][1]?.summary && (
+      {summaryContent.length > 0 && summaryContent[0][1]?.summary && (
         <RecordedSummaryContainer>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
             <IconButton sx={{ backgroundColor: "#89f2ff61" }}>

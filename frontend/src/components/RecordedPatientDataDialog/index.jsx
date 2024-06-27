@@ -39,6 +39,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import contentData from "../../components/RecorderComponent/content.json";
+import Translate from "../Translate";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiPaper-root": {
@@ -801,6 +802,7 @@ export default function CustomizedSummaryDialog({
           </Accordion>
         </DialogContent>
         <DialogActions>
+          <Translate />
           <Button autoFocus onClick={() => setEdit(!edit)}>
             Edit
           </Button>
