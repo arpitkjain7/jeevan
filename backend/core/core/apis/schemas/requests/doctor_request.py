@@ -27,6 +27,13 @@ class EducationDetails(BaseModel):
     year: str
 
 
+class Review(BaseModel):
+    content: str
+    name: str
+    review_date: str
+    rating: str
+
+
 class ExternalHIPDetails(BaseModel):
     name: str = None
     mobile_number: str = None
@@ -66,14 +73,15 @@ class DocDetailsV2(BaseModel):
     consultation_fees: int
     follow_up_fees: int
     years_of_experience: str
-    commonly_treats: str
+    commonly_treats: List[str]
     bio: str
+    about:str
     education: List[EducationDetails]
-    awards: str
+    awards: List[str]
     external_hips: List[ExternalHIPDetails] = None
     languages: str = None
-    google_reviews: str = None
-    educational_content: str = None
+    google_reviews: List[Review] = None
+    educational_content: List[str] = None
 
 
 class UpdateDoctor(BaseModel):
