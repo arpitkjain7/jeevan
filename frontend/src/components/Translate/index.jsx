@@ -7,7 +7,7 @@ const Translate = ({ translatedContent, setTranslatedContent, setOpen }) => {
 
   const generateAnswers = async (selectedLanguage, retryCount = 0) => {
     if (retryCount >= 4) {
-      window.alert("Unable to Translate.");
+      alert("Unable to Translate.");
       return;
     }
     try {

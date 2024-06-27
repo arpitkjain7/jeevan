@@ -20,7 +20,7 @@ import PauseIcon from "@mui/icons-material/Pause";
 import content from "./content.json";
 import cliniq360Logo from "../../assets/icons/clinic360Logo.png";
 
-const NumBars = window.innerWidth < 768 ? 20 : 30;
+const NumBars = window?.innerWidth < 768 ? 20 : 30;
 
 const RecordedSummaryContainer = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -134,9 +134,12 @@ const RecorderComponent = () => {
       const formData = new FormData();
       formData.append("audio_file", audio_file, "recording.mp3");
 
+      const encounterDetails = JSON.parse(
+        sessionStorage.getItem("encounterDetail")
+      );
       const payload = {
-        pmr_id: "C360-PMR-754158906400214266",
-        patient_id: "C360-PID-319053493794171106",
+        pmr_id: sessionStorage.getItem("pmrID"),
+        patient_id: encounterDetails?.patient_id,
         audio_file: formData,
       };
 
