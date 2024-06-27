@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 import { useDispatch } from "react-redux";
 import { recorderAnalysis } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
@@ -120,6 +120,12 @@ const RecorderComponent = () => {
   const [translatedContent, setTranslatedContent] = useState({});
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (translatedContent && translatedContent.length > 0) {
+      setSummaryContent(translatedContent);
+    }
+  }, [translatedContent]);
+
   const handleStopRecording = async (mediaBlobUrl) => {
     try {
       setIsRecording(false);
@@ -137,8 +143,8 @@ const RecorderComponent = () => {
       dispatch(recorderAnalysis(payload)).then((res) => {
         const data = res?.payload?.data;
         setSummaryContent(Object.entries(data));
-        setTranslatedContent(res?.payload?.data);
-        console.log("res", summaryContent);
+        setTranslatedContent(data);
+        // console.log("res", summaryContent);
       });
     } catch (error) {
       console.error("Error handling mediaBlobUrl:", error);

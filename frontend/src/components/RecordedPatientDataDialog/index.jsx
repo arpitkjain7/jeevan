@@ -40,12 +40,14 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import contentData from "../../components/RecorderComponent/content.json";
 import Translate from "../Translate";
+import { he } from "date-fns/locale";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiPaper-root": {
     borderRadius: "15px",
     border: "5px solid ",
-    minWidth: "50%",
+    minWidth: "70%",
+    minHeight: "80%",
     animation: "borderAnimation 3s infinite",
     "@keyframes borderAnimation": {
       "0%": { borderColor: "#000000" },
@@ -58,6 +60,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
     overflowY: "scroll",
+    scrollbarWidth: "thin",
   },
   "& .MuiDialogActions-root": { padding: theme.spacing(1) },
   "& .MuiAccordion-root": {
@@ -237,7 +240,6 @@ export default function CustomizedSummaryDialog({
       duration_refill: "",
     });
   };
-
   return (
     <React.Fragment>
       <Tooltip title="See More">
@@ -802,7 +804,11 @@ export default function CustomizedSummaryDialog({
           </Accordion>
         </DialogContent>
         <DialogActions>
-          <Translate />
+          <Translate
+            translatedContent={translatedContent}
+            setTranslatedContent={setTranslatedContent}
+            setOpen={setOpen}
+          />
           <Button autoFocus onClick={() => setEdit(!edit)}>
             Edit
           </Button>
