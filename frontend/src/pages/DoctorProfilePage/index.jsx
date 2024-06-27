@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   Stack,
@@ -14,389 +14,403 @@ import {
   Box,
   CardMedia,
   Grid,
+  IconButton,
 } from "@mui/material";
 import CustomBackdrop from "../../components/CustomBackdrop";
 import PlayCircleFilledOutlinedIcon from "@mui/icons-material/PlayCircleFilledOutlined";
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import DirectionsIcon from "@mui/icons-material/Directions";
 import profile from "../../assets/prasad.jpg";
+import { useParams } from "react-router-dom";
+import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 // import {Link} from 'react-router-dom'
 
-const DoctorProfile = () => {
-  const ProfileContainer = styled("div")(({ theme }) => ({
-    backgroundColor: "#f8f8f8",
-    padding: "25px 40px",
-    [theme.breakpoints.down("sm")]: {
-      padding: "10px",
-    },
-  }));
+const ProfileContainer = styled("div")(({ theme }) => ({
+  marginTop: "-67px",
+  backgroundColor: "#f8f8f8",
+  padding: "25px 40px",
+  [theme.breakpoints.down("sm")]: {
+    padding: "10px",
+  },
+}));
 
-  const IntroContainer = styled("header")(({ theme }) => ({
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderRadius: "10px",
+const IntroContainer = styled("header")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  borderRadius: "10px",
+  marginBottom: "10px",
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
+}));
+
+const ProfileImage = styled(Avatar)(({ theme }) => ({
+  borderRadius: "50%",
+  overflow: "hidden",
+  width: "100px",
+  height: "100px",
+  [theme.breakpoints.down("sm")]: {
+    width: "60px",
+    height: "60px",
+  },
+}));
+
+const DoctorInfoHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  [theme.breakpoints.down("sm")]: {},
+}));
+
+const DoctorInfo = styled("div")(({ theme }) => ({
+  flex: 1,
+  marginLeft: "20px",
+
+  "&h2": {
+    marginTop: "3px",
+    marginBottom: "3px",
+  },
+  "& p": {
+    color: "#5B5B5A",
+    fontSize: "small",
+    margin: 0,
+  },
+  "& span": {
+    fontSize: "16px",
+    color: "black",
+    letterSpacing: "0.5px",
+  },
+}));
+
+const AppointmentContainer = styled("div")(({ theme }) => ({
+  textAlign: "right",
+  "& button": {
+    backgroundColor: "#0088E8",
+    color: "white",
+    padding: "10px 20px",
+    fontSize: "13px",
+    fontWeight: "bold",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
     marginBottom: "10px",
     [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-      alignItems: "flex-start",
-    },
-  }));
-
-  const ProfileImage = styled(Avatar)(({ theme }) => ({
-    borderRadius: "50%",
-    overflow: "hidden",
-    width: "100px",
-    height: "100px",
-    [theme.breakpoints.down("sm")]: {
-      width: "60px",
-      height: "60px",
-    },
-  }));
-
-  const DoctorInfoHeader = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    [theme.breakpoints.down("sm")]: {},
-  }));
-
-  const DoctorInfo = styled("div")(({ theme }) => ({
-    flex: 1,
-    marginLeft: "20px",
-
-    "&h2": {
-      marginTop: "3px",
-      marginBottom: "3px",
-    },
-    "& p": {
-      color: "#5B5B5A",
-      fontSize: "small",
-      margin: 0,
-    },
-    "& span": {
-      fontSize: "16px",
-      color: "black",
-      letterSpacing: "0.5px",
-    },
-  }));
-
-  const AppointmentContainer = styled("div")(({ theme }) => ({
-    textAlign: "right",
-    "& button": {
-      backgroundColor: "#0088E8",
-      color: "white",
-      padding: "10px 20px",
-      fontSize: "13px",
-      fontWeight: "bold",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-      marginBottom: "10px",
-      [theme.breakpoints.down("sm")]: {
-        marginTop: "10px",
-      },
-    },
-    "& p": {
-      fontSize: "small",
-      letterSpacing: "0.5px",
-      [theme.breakpoints.down("sm")]: {
-        fontSize: "12px",
-        letterSpacing: "0.3px",
-      },
-    },
-    "& span": {
-      fontWeight: 600,
-      letterSpacing: "0.8px",
-    },
-  }));
-
-  const DetailsCard = styled(Paper)(({ theme }) => ({
-    backgroundColor: "#fff",
-    padding: "10px 18px",
-    borderRadius: "5px",
-    boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-    marginTop: "18px",
-    width: "43vw",
-    height: "226px",
-    display: "flex",
-    flexDirection: "column",
-    overflowY: "auto",
-    scrollbarWidth: "thin",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
-  }));
-
-  const Details = styled("div")(({ theme }) => ({
-    "& p": {
-      fontSize: "14px",
-      fontWeight: "bold",
-      color: "#5A5A5A",
-      margin: "5px 0px",
-    },
-  }));
-
-  const DetailsColumn = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
-  }));
-
-  const DetailsBody = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    marginTop: "15px",
-    [theme.breakpoints.down("sm")]: {
       marginTop: "10px",
     },
-  }));
-
-  const DetailsRow = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    height: "80px",
-  }));
-
-  const DetailsLabel = styled("span")(({ theme }) => ({
-    fontWeight: "bold",
+  },
+  "& p": {
     fontSize: "small",
+    letterSpacing: "0.5px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "12px",
+      letterSpacing: "0.3px",
+    },
+  },
+  "& span": {
+    fontWeight: 600,
+    letterSpacing: "0.8px",
+  },
+}));
+
+const DetailsCard = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#fff",
+  padding: "10px 18px",
+  borderRadius: "5px",
+  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+  marginTop: "18px",
+  width: "44vw",
+  height: "auto",
+  display: "flex",
+  flexDirection: "column",
+  overflowY: "auto",
+  scrollbarWidth: "thin",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+  },
+}));
+
+const Details = styled("div")(({ theme }) => ({
+  "& p": {
+    fontSize: "19px",
+    fontWeight: "bold",
     color: "#5A5A5A",
-  }));
+    margin: "5px 0px",
+  },
+}));
 
-  const DetailsInfo = styled("span")(({ theme }) => ({
-    marginTop: "1px",
-    fontWeight: 900,
-  }));
+const DetailsColumn = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+  },
+}));
 
-  const TreatsContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-    },
-  }));
+const DetailsBody = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  marginTop: "15px",
+  [theme.breakpoints.down("sm")]: {
+    marginTop: "10px",
+  },
+}));
 
-  const Treats = styled("div")(({ theme }) => ({
-    marginTop: "15px",
-    display: "flex",
-    flexWrap: "wrap",
-    "& span": {
-      border: "0.5px solid #b3aeae",
-      borderRadius: "7px",
-      padding: "5px 10px 5px 10px",
-      margin: "13px 10px",
-    },
-    height: "130px",
-    overflowY: "scroll",
-    scrollbarWidth: "none",
-    [theme.breakpoints.down("sm")]: {
-      justifyContent: "center",
-    },
-  }));
+const DetailsRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "60px",
+}));
 
-  const AboutCard = styled(Paper)(({ theme }) => ({
-    backgroundColor: "#fff",
-    padding: "15px 20px",
-    borderRadius: "5px",
-    boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-    marginTop: "20px",
-    display: "flex",
+const DetailsLabel = styled("span")(({ theme }) => ({
+  fontWeight: "bold",
+  fontSize: "15px",
+  color: "#5A5A5A",
+}));
+
+const DetailsInfo = styled("span")(({ theme }) => ({
+  marginTop: "1px",
+  fontSize: "17px",
+  fontWeight: 900,
+}));
+
+const TreatsContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "8px",
-    },
-  }));
+  },
+}));
 
-  const AddressesContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    height: "200px",
-    overflowY: "auto",
-    [theme.breakpoints.down("sm")]: {
-      height: "150px",
-      marginRight: "0",
-      marginBottom: "20px",
-    },
-  }));
-
-  const AddressContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    border: "1px solid #b3aeae",
+const Treats = styled("div")(({ theme }) => ({
+  marginTop: "15px",
+  display: "flex",
+  flexWrap: "wrap",
+  "& span": {
+    border: "0.5px solid #b3aeae",
     borderRadius: "7px",
-    padding: "15px 15px",
-    width: "400px",
-    marginBottom: "5px",
-    [theme.breakpoints.down("sm")]: {
-      width: "300px",
-      text: "10px",
-    },
-  }));
+    padding: "5px 10px 5px 10px",
+    margin: "7px 5px",
+  },
+  // height: "130px",
+  overflowY: "scroll",
+  scrollbarWidth: "none",
+  [theme.breakpoints.down("sm")]: {
+    justifyContent: "center",
+  },
+}));
 
-  const DetailsAndActionButtonContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "700px",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
-    "& button": {
-      height: 50,
-      width: 200,
-      padding: "15px 5px",
-      marginLeft: "100px",
-      [theme.breakpoints.down("sm")]: {
-        marginLeft: 0,
-        width: 100,
-        fontSize: "8px",
-        height: 50,
-      },
-    },
-  }));
+const AboutCard = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#fff",
+  padding: "15px 20px",
+  borderRadius: "5px",
+  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+  marginTop: "20px",
+  display: "flex",
+  flexDirection: "column",
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "8px",
+  },
+}));
 
-  const DirectionContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    marginTop: "15px",
-    [theme.breakpoints.down("sm")]: {
-      marginTop: "10px",
-      display: "flex",
-      flexDirection: "column-reverse",
-    },
-  }));
+const AddressesContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "200px",
+  overflowY: "auto",
+  [theme.breakpoints.down("sm")]: {
+    height: "150px",
+    marginRight: "0",
+    marginBottom: "20px",
+  },
+}));
 
-  const DetailsContainer = styled("div")(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
+const AddressContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  border: "1px solid #b3aeae",
+  borderRadius: "7px",
+  padding: "10px 0",
+  // width: "400px",
+  marginBottom: "5px",
+  [theme.breakpoints.down("sm")]: {
+    // width: "300px",
+  },
+  "& .address": {
+    textAlign: "left", 
+    paddingLeft: "5px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "14px",
+    }
+  }
+}));
+
+const DetailsAndActionButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  width: "700px",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+  },
+  "& button": {
+    height: 50,
+    width: 200,
+    padding: "15px 5px",
     marginLeft: "100px",
-    marginTop: "15px",
     [theme.breakpoints.down("sm")]: {
-      margin: 0,
-      width: "200px",
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-evenly",
+      marginLeft: 0,
+      width: 100,
+      fontSize: "8px",
+      height: 50,
     },
-  }));
+  },
+}));
 
-  const [doctorDetails, setDoctorDetails] = useState({
-    avatar: profile,
-    name: "Dr. Prasad Gurjar",
-    registrationNo: "2012020164",
-    specialty: "DM Nephrology",
-    consultation: "Consultant Nephrology | Transplant Physician",
-    experience: "3 Years",
-    age: "35 years",
-    location: "Nagpur",
-    languages: ["English", "Hindi", "Marathi"],
-    availability: "Mon-Sat(10:30am-8:00pm)",
-    about:
-      "Dr. Prasad Gurjar is a respected kidney specialist at Aaradhya Balaji Kidney Care, committed to improving patient health through expert opinion  kidney to kidney patient about their disease  , treatment option and management strategies.He is expert in  hemodialysis, Kidney biopsy   and Kidney  transplant services.  He's known for his skill in preparing patients for dialysis and supporting them through the process, ensuring they receive the best possible treatment with compassion and care. He is also expert in hemodialysis catheter insertion both temporary permanent (perm cath). Aaradhya Balaji Kidney Care also provide services for AV fistula creation which are crucial for hemodialysis. He is specialize in providing comprehensive care for kidney transplant patients, ensuring they receive the necessary medical attention and support throughout their transplant journey.",
-    addresses: [
-      {
-        text: "A-wing, 2 Floor, Neeti Gaurav Complex, Ramdaspeth, Nagpur - 440010",
-        location:
-          "https://www.google.com/maps/dir//21.134892,79.076768/@21.1348922,78.9943632,12z?entry=ttu",
-      },
-    ],
-    appointmentAvailability: "Monday-Saturday",
-    appointmentTime: "10:30am-8:00pm",
-    education: [
-      {
-        year: 2020,
-        degree: "DM Nephrology",
-        college: "Dr. DY Patil Medical College, Pune",
-      },
-      {
-        year: 2015,
-        degree: "MD Genereal Medicine",
-        college: "Jawaharlal Nehru Medical College, Wardha",
-      },
-      {
-        year: 2010,
-        degree: "MBBS",
-        college: "Jawaharlal Nehru Medical College, Wardha",
-      },
-    ],
-    awards: [
-      {
-        year: 2022,
-        name: "Mentor Mentee Award, Argentina",
-      },
-    ],
-    reviews: [
-      {
-        name: "Ravi, Nagpur",
-        feedback:
-          "Dr. Prasad is good at explaining things. He answers all your questions and makes sure you know what's going on. It helps a lot.",
-        date: "20/03/2024",
-        rating: 4,
-      },
-      {
-        name: "Arjun, Nagpur",
-        feedback:
-          "When you go to see Dr. Prasad, everyone is friendly. It feels good to be there. Dr. Prasad is easy to talk to and very friendly",
-        date: "25/03/2024",
-        rating: 3,
-      },
-      {
-        name: "Nirali, Amravti",
-        feedback:
-          "Dr. Prasad is really nice and listens to what you have to say. He makes sure you understand everything and feel okay about your care",
-        date: "04/04/2024",
-        rating: 4,
-      },
-      {
-        name: "Jagmohan, Wardha",
-        feedback:
-          "He explains things clearly. I always know what he means because he uses simple words. It makes me feel more sure about my health",
-        date: "09/04/2024",
-        rating: 4,
-      },
-    ],
-    videos: [
-      {
-        title: "Parenting Tips: Navigating common childhood illness",
-        link: "https://www.youtube.com/watch?v=iWSewFlU6o8",
-      },
-      {
-        title: "Nephrology Kidney",
-        link: "https://www.youtube.com/watch?v=fv53QZRk4hs",
-      },
-      {
-        title: "Nephrology - Kidney Physiology Overview",
-        link: "https://www.youtube.com/watch?v=KWHasxDRf54",
-      },
-      {
-        title: "Can I reverse kidney disease? Is there a cure?",
-        link: "https://www.youtube.com/watch?v=z1nCUmWHvsU",
-      },
-    ],
-  });
+const DirectionContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  marginTop: "15px",
+  [theme.breakpoints.down("sm")]: {
+    marginTop: "10px",
+    display: "flex",
+    flexDirection: "column-reverse",
+  },
+}));
+
+const DetailsContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  marginLeft: "100px",
+  marginTop: "15px",
+  [theme.breakpoints.down("sm")]: {
+    margin: 0,
+    width: "200px",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+}));
+
+const DoctorProfile = () => {
+  const {doctorName} = useParams();
+  const reviewNavRef = useRef();
+  const videoNavRef = useRef();
+  const [doctorDetails, setDoctorDetails] = useState(
+    {
+      "languages": "Hindi, English",
+      "affiliated": true,
+      "consultation_fees": 500,
+      "external_hips": [
+        {
+          "name": "Ruby Hall Clinic",
+          "mobile_number": "7171818818",
+          "location": "<iframe src='https://www.google.com/maps/embed?pb=!1m19!1m8!1m3!1d15126.115498689049!2d73.7102156!3d18.5952671!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x3bc2bbc313557353%3A0xd6e203ef53147b33!2sRuby%20Hall%20Clinic%2C%20Rajeev%20Gandhi%20Infotech%20Park%2C%20MIDC%20Phase%20No%201%2C%20Plot%20No%2C%20P-33%2C%20Hinjawadi%2C%20Pune%2C%20Maharashtra%20411057!3m2!1d18.5926118!2d73.7340624!5e0!3m2!1sen!2sin!4v1719485348714!5m2!1sen!2sin' width='600' height='450' style='border:0;' allowfullscreen='' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>",
+          "address": "Hinjewadi",
+          "doc_working_days": "Saturday-Sunday",
+          "consultation_start_time": "10:00",
+          "consultation_end_time": "20:00"
+        }
+      ],
+      "email_id": "rachit@gmail.com",
+      "doc_specialization": "Ears, Nose, Tongue",
+      "awards": "Mentor Mentee Award, Argentina - 2022||Mentor Mentee Award, China - 2024",
+      "doc_uid": "dr-rohit-sharma-4-ent-pune",
+      "mobile_number": "8458919114",
+      "doc_department": "Hospital",
+      "follow_up_fees": 300,
+      "profile_photo": null,
+      "id": 14,
+      "bio": "Hi, JASJJ",
+      "doc_working_days": "Monday-Friday",
+      "years_of_experience": "5",
+      "signature": null,
+      "age": "45",
+      "about": "Blah Blah Blah Blah",
+      "doc_licence_no": "BAH83829-UW92B",
+      "commonly_treats": "Ears||Nose||Tongue",
+      "created_at": "2024-06-27T18:12:16.849051",
+      "doc_name": "Dr. Rohit Sharma",
+      "hip_id": "123123",
+      "avg_consultation_time": "30",
+      "google_reviews": [
+        {
+          "content": "Dr. Prasad is good at explaining things. He answers all your questions and makes sure you know what's going on. It helps a lot.",
+          "name": "Ravi, Nagpur",
+          "review_date": "20-03-2024",
+          "rating": "4"
+        },
+        {
+          "content": "When you go to see Dr. Prasad, everyone is friendly. It feels good to be there. Dr. Prasad is easy to talk to and very friendly",
+          "name": "Arjun, Nagpur",
+          "review_date": "19-03-2023",
+          "rating": "2"
+        }
+      ],
+      "updated_at": "2024-06-27T18:12:16.849090",
+      "doc_degree": "MD",
+      "consultation_start_time": "09:00:00",
+      "educational_content": "https://www.youtube.com/watch?v=iWSewFlU6o8||https://www.youtube.com/watch?v=fv53QZRk4hs",
+      "consultation_end_time": "20:00:00",
+      "education": [
+        {
+          "college": "GMC-Nagpur",
+          "degree": "MBBS",
+          "year": "2015-2019"
+        },
+        {
+          "college": "GMC-Bombay",
+          "degree": "MD",
+          "year": "2020-2022"
+        }
+      ],
+      "primary_hip": [
+        {
+          "hip_uid": "ABC",
+          "hip_id": "123123",
+          "name": "ABC Healthcare",
+          "id": 1,
+          "hip_city": null,
+          "hip_contact_number": null,
+          "hfr_reg_number": null,
+          "created_at": "2024-06-25T16:22:01.611048",
+          "hip_address": "DUMMY",
+          "hip_location": null,
+          "hip_email_address": null,
+          "hfr_status": null,
+          "updated_at": "2024-06-25T16:22:01.611112"
+        }
+      ]
+    }
+    
+  )
   //Treats:
 
-  const [treats, setTreats] = useState([
-    "Kidney Diseases",
-    "Dialysis",
-    "Kidney Transplant",
-    "Diabetic Kidney Disease",
-    "Hypertension and Kidney Disease",
-    "Kidney Stone",
-    "Urine Infection",
-  ]);
+  const [treats, setTreats] = useState([]);
 
+  const [addresses, setAddresses] = useState([]);
   //address:
-  const [selectedAddress, setSelectedAddress] = useState(
-    doctorDetails.addresses[0].location
-  );
+  const [selectedAddress, setSelectedAddress] = useState({});
   //STATE FOR BACKDROP
   const [backdrop, setBackDrop] = useState(false);
+  const [youtubeLinks, setYoutubeLinks] = useState([]);
+
+  useEffect(() => {
+    setAddresses([...doctorDetails?.primary_hip, ...doctorDetails?.external_hips]);
+    setSelectedAddress(doctorDetails?.primary_hip[0]);
+
+    setTreats(doctorDetails?.commonly_treats.split("||"));
+    const youtubeVideos = doctorDetails?.educational_content.split("||");
+    youtubeVideos.map(url => {
+      const videoId = url.split("v=")[1].substring(0, 11);
+      setYoutubeLinks(links => [...links, `https://www.youtube.com/embed/${videoId}`]);
+    }); 
+  }, []);
+  
   const onAppointementSubmit = () => {
     setBackDrop(!backdrop);
   };
@@ -416,7 +430,7 @@ const DoctorProfile = () => {
   const getYouTubeThumbnail = (url) => {
     // Extract the video id from the url
     const videoId = url.split("v=")[1].substring(0, 11);
-
+    
     // Return the url of the thumbnail
     return `https://img.youtube.com/vi/${videoId}/0.jpg`;
   };
@@ -428,19 +442,23 @@ const DoctorProfile = () => {
 
   return (
     <ProfileContainer>
-      <div>{backdrop && <CustomBackdrop />}</div>
+      {backdrop && 
+        <CustomBackdrop 
+          doctorDetails={doctorDetails}
+        />
+      }
       <IntroContainer>
         <DoctorInfoHeader>
-          <ProfileImage src={doctorDetails.avatar} alt="Doctor Profile Image" />
+          <ProfileImage src={doctorDetails?.profile_photo} alt="Doctor Profile Image" />
           <DoctorInfo>
             <Typography variant="body2" color="textSecondary">
-              Registration No. : {doctorDetails.registrationNo}
+              Registration No. : {doctorDetails?.doc_licence_no}
             </Typography>
-            <Typography variant="h4">{doctorDetails.name}</Typography>
+            <Typography variant="h4">{doctorDetails?.doc_name}</Typography>
 
             <Stack direction="row" spacing={2} sx={{ marginTop: "7px" }}>
               <Typography variant="body1" component="span">
-                {doctorDetails.specialty}{" "}
+                {doctorDetails?.doc_specialization}{" "}
               </Typography>
               <Divider
                 orientation="vertical"
@@ -449,7 +467,8 @@ const DoctorProfile = () => {
                 sx={{ borderColor: "#00000066" }}
               />{" "}
               <Typography variant="body1" component="span">
-                {doctorDetails.consultation}
+                {doctorDetails?.doc_degree} 
+                {/* consultation */}
               </Typography>
             </Stack>
           </DoctorInfo>
@@ -467,12 +486,17 @@ const DoctorProfile = () => {
           <Typography variant="body2" color="textSecondary">
             Available:{" "}
             <span style={{ color: "#5B5B5A" }}>
-              {doctorDetails.availability}
+              {doctorDetails?.doc_working_days}
             </span>
           </Typography>
         </AppointmentContainer>
       </IntroContainer>
 
+      <AboutCard>
+        <Typography variant="body1" sx={{ marginBottom: "4px" }}>
+          {doctorDetails?.bio}
+        </Typography>
+      </AboutCard>
       <TreatsContainer>
         <DetailsCard>
           <Details>
@@ -482,21 +506,21 @@ const DoctorProfile = () => {
             <DetailsColumn>
               <DetailsRow>
                 <DetailsLabel>Experience</DetailsLabel>
-                <DetailsInfo>{doctorDetails.experience}</DetailsInfo>
+                <DetailsInfo>{doctorDetails?.years_of_experience} Years</DetailsInfo>
               </DetailsRow>
               <DetailsRow>
                 <DetailsLabel>Age</DetailsLabel>
-                <DetailsInfo>{doctorDetails.age}</DetailsInfo>
+                <DetailsInfo>{doctorDetails?.age} Years</DetailsInfo>
               </DetailsRow>
             </DetailsColumn>
             <DetailsColumn>
               <DetailsRow>
                 <DetailsLabel>Location</DetailsLabel>
-                <DetailsInfo>{doctorDetails.location}</DetailsInfo>
+                <DetailsInfo>{addresses[0]?.hip_city}</DetailsInfo>
               </DetailsRow>
               <DetailsRow>
                 <DetailsLabel>Spoken Languages</DetailsLabel>
-                <DetailsInfo>{doctorDetails.languages.join(", ")}</DetailsInfo>
+                <DetailsInfo>{doctorDetails?.languages}</DetailsInfo>
               </DetailsRow>
             </DetailsColumn>
           </DetailsBody>
@@ -520,7 +544,7 @@ const DoctorProfile = () => {
           <Typography variant="body1">ABOUT</Typography>
         </Details>
         <Typography variant="body1" sx={{ marginBottom: "4px" }}>
-          {doctorDetails.about}
+          {doctorDetails?.about}
         </Typography>
       </AboutCard>
 
@@ -528,55 +552,77 @@ const DoctorProfile = () => {
         <Details>
           <Typography variant="body1">APPOINTMENT</Typography>
         </Details>
-        <DirectionContainer>
-          <AddressesContainer>
-            {doctorDetails.addresses.map((address, index) => (
+        <Grid container spacing={4} style={{ padding: "8px 0"}}>
+          <Grid item sx={12} md={4}>
+            {addresses.map((address, index) => (
               <AddressContainer
                 key={index}
                 style={{
                   border:
-                    selectedAddress === address.location
+                    (selectedAddress?.hip_address || selectedAddress?.address) === (address?.hip_address || address?.address)
                       ? "1px solid blue"
                       : "1px solid #b3aeae",
                 }}
               >
-                <Button onClick={() => handleAddress(address.location)}>
-                  <Typography variant="body1">{address.text}</Typography>
+                <Button onClick={() => handleAddress(address)} style={{ justifyContent: "flex-start"}}>
+                  <LocationOnOutlinedIcon fontSize="large"></LocationOnOutlinedIcon>
+                  <Typography variant="body1" className="address">
+                    {address?.hip_address || address?.address}
+                  </Typography>
                 </Button>
               </AddressContainer>
             ))}
-          </AddressesContainer>
-          <DetailsAndActionButtonContainer>
-            <DetailsContainer>
-              <DetailsRow>
+          </Grid>
+          <Grid item sx={12} md={8}>
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.4365350743133!2d79.07462427430923!3d21.135018984122247!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd4c09049d1c997%3A0xe2fe5c9822d82898!2sNeeti%20Gaurav%20Complex!5e0!3m2!1sen!2sin!4v1719432002570!5m2!1sen!2sin"
+              width="100%"
+              height="300"
+              direction
+              style={{ border: 0 }} 
+              allowfullscreen="true" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+            >
+            </iframe>
+            <div style={{ display: 'flex', direction: 'row'}}>
+              <DetailsRow style={{ paddingRight: "40px" }}>
                 <DetailsLabel>Availability</DetailsLabel>
                 <DetailsInfo>
-                  {doctorDetails.appointmentAvailability}
+                  {selectedAddress?.doc_working_days || doctorDetails?.doc_working_days}
                 </DetailsInfo>
               </DetailsRow>
               <DetailsRow>
                 <DetailsLabel>Time</DetailsLabel>
-                <DetailsInfo>{doctorDetails.appointmentTime}</DetailsInfo>
+                <DetailsInfo>
+                  {
+                    selectedAddress?.consultation_start_time 
+                    ?
+                    selectedAddress?.consultation_start_time + ' - ' + selectedAddress?.consultation_end_time
+                    :
+                    doctorDetails?.consultation_start_time + ' - ' + doctorDetails?.consultation_end_time
+                  }
+                </DetailsInfo>
               </DetailsRow>
-            </DetailsContainer>
-            <Button variant="contained" onClick={handleGetDirections}>
-              <DirectionsIcon /> Get Directions
-            </Button>
-          </DetailsAndActionButtonContainer>
-        </DirectionContainer>
+            </div>
+          </Grid>
+        </Grid>
+        {/* <Button variant="contained" onClick={handleGetDirections}>
+          <DirectionsIcon /> Get Directions
+        </Button> */}
       </AboutCard>
 
       <TreatsContainer>
         <DetailsCard>
           <Details>
-            <Typography variant="body1">EDUCATION</Typography>
+            <Typography variant="body1">EDUCATIONAL QUALIFICATIONS</Typography>
           </Details>
           <DetailsBody>
             <DetailsColumn>
               {doctorDetails.education.map((edu, index) => (
                 <DetailsRow key={index}>
                   <DetailsLabel>{`${edu.degree} - ${edu.year}`}</DetailsLabel>
-                  <DetailsInfo style={{ width: { lg: "40vw", sm: "100%" } }}>
+                  <DetailsInfo style={{ width: { lg: "1vw", sm: "100%" } }}>
                     {edu.college}
                   </DetailsInfo>
                 </DetailsRow>
@@ -591,36 +637,51 @@ const DoctorProfile = () => {
           </Details>
           <DetailsBody>
             <DetailsColumn>
-              {doctorDetails.awards.map((award, index) => (
-                <DetailsRow key={index}>
-                  <DetailsInfo style={{ width: "100%" }}>
-                    {`${award.name} - ${award.year}`}
-                  </DetailsInfo>
-                </DetailsRow>
-              ))}
+              {doctorDetails?.awards !== "None" && (
+                doctorDetails?.awards.split("||").map((award, index) => (
+                  <DetailsRow>
+                    <DetailsInfo style={{ width: "100%" }}>
+                      {award}
+                      {/* {`${award.name} - ${award.year}`} */}
+                    </DetailsInfo>
+                  </DetailsRow>
+                ))
+              )}
             </DetailsColumn>
           </DetailsBody>
         </DetailsCard>
       </TreatsContainer>
 
-      <AboutCard sx={{ height: 350 }}>
+      <AboutCard sx={{ height: 360 }}>
         <Details>
           <Typography variant="body1">
             IN THEIR OWN WORDS: PRASAD'S IMPACT
+              <div style={{ float: 'right', color: '#1976d2' }}>
+                <ArrowCircleLeftOutlinedIcon
+                  style={{ behavior: 'smooth' }}
+                  onClick={() => reviewNavRef ? (reviewNavRef.current.scrollLeft -= 255) : null }
+                />
+                <ArrowCircleRightOutlinedIcon
+                  style={{ behavior: 'smooth' }}
+                  onClick={() => reviewNavRef ? (reviewNavRef.current.scrollLeft += 255) : null }
+                />
+              </div>
           </Typography>
         </Details>
-        <Box sx={{ overflowX: "auto", width: "100%", padding: "10px" }}>
-          <Grid
-            container
-            spacing={2}
-            sx={{ display: "flex", flexDirection: "row", gap: "20px" }}
+        <Box sx={{ width: "100%", padding: "10px 10px 10px 0" }}>
+          <Stack
+            direction="row"
+            spacing={4}
+            ref={reviewNavRef}
+            sx={{ display: "flex", overflowX: "hidden" }}
           >
-            {doctorDetails.reviews.map((review, index) => (
-              <Grid item key={index} sx={{ minWidth: "250px" }}>
-                <Card variant="outlined" sx={{ maxWidth: 250, height: "100%" }}>
+            {doctorDetails?.google_reviews && 
+              doctorDetails.google_reviews.map((review, index) => (
+              <div item key={index} sx={{ width: "250px" }}>
+                <Card variant="outlined" sx={{ width: 250, height: "280px" }}>
                   <CardContent sx={{ height: 180 }}>
                     <Typography variant="body1" sx={{ color: "#5B5A5B" }}>
-                      {review.feedback}
+                      {review.content}
                     </Typography>
                   </CardContent>
                   <Divider variant="middle" />
@@ -655,9 +716,9 @@ const DoctorProfile = () => {
                     />
                   </Box>
                 </Card>
-              </Grid>
+              </div>
             ))}
-          </Grid>
+          </Stack>
         </Box>
       </AboutCard>
 
@@ -665,21 +726,45 @@ const DoctorProfile = () => {
       <AboutCard>
         <Details>
           <Typography variant="body1">
-            INFORMED PARENTING WITH NARESH
+            <>
+              INFORMED PARENTING WITH NARESH
+        
+              <div style={{ float: 'right', color: '#1976d2' }}>
+                <ArrowCircleLeftOutlinedIcon
+                  style={{ behavior: 'smooth' }}
+                  onClick={() => videoNavRef ? (videoNavRef.current.scrollLeft -= 255) : null }
+                />
+                <ArrowCircleRightOutlinedIcon
+                  style={{ behavior: 'smooth' }}
+                  onClick={() => videoNavRef ? (videoNavRef.current.scrollLeft += 255) : null }
+                />
+              </div>
+            </>
           </Typography>
         </Details>
 
         <Stack
           direction="row"
           spacing={5}
-          sx={{ marginTop: "10px", overflowX: "auto", scrollbarWidth: "thin" }}
+          ref={videoNavRef}
+          sx={{ marginTop: "10px", overflowX: "hidden", behavior: 'smooth' }}
         >
-          {doctorDetails.videos.map((video, index) => (
-            <a style={{ textDecoration: "none" }} key={index} href={video.link}>
-              <Card variant="outlined" sx={{ width: 280, height: 200 }}>
+          {youtubeLinks.length > 0 && youtubeLinks?.map((abc, i) => (
+            <>
+            <iframe
+              src={abc}
+              width="250" 
+              height="200"
+            >
+            </iframe>
+            </>
+           ))}
+          {/* {doctorDetails?.educational_content && doctorDetails.educational_content.map((video, index) => (
+            <a style={{ textDecoration: "none" }} key={index} href={video}>
+              <Card variant="outlined" sx={{ width: 250, height: 200 }}>
                 <CardMedia
                   sx={{ height: 120, backgroundColor: "#D9D9D9" }}
-                  image={getYouTubeThumbnail(video.link)}
+                  image={getYouTubeThumbnail(video)}
                 >
                   <PlayCircleFilledOutlinedIcon
                     sx={{
@@ -692,12 +777,13 @@ const DoctorProfile = () => {
                 </CardMedia>
                 <CardContent>
                   <Typography variant="body2" component="div">
-                    {video.title}
+                    {}
                   </Typography>
                 </CardContent>
               </Card>
             </a>
-          ))}
+          ))} */}
+       
         </Stack>
       </AboutCard>
     </ProfileContainer>

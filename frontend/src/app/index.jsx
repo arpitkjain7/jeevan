@@ -237,7 +237,7 @@ function App() {
                 )}
                 {/* <Route path="/view-profile" element={<DoctorProfilePage />} /> */}
                 <Route
-                  path="/view-profile/dr-prasad"
+                  path="/view-profile/:doctorName"
                   element={<DoctorProfilePage />}
                 />
                 <Route
@@ -339,7 +339,7 @@ function App() {
                   <Route path="*" element={<SignInPage />} />
                 )}
                 <Route
-                  path="/view-profile/dr-prasad"
+                  path="/view-profile/:doctorName"
                   element={<DoctorProfilePage />}
                 />
                 <Route
