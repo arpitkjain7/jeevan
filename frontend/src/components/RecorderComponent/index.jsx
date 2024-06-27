@@ -115,8 +115,9 @@ const WaveAnimation = () => (
 
 const RecorderComponent = () => {
   const [openSummary, setOpenSummary] = useState(false);
-  const [summaryContent, setSummaryContent] = useState({});
+  const [summaryContent, setSummaryContent] = useState();
   const [isRecording, setIsRecording] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState({});
   const dispatch = useDispatch();
 
   const handleStopRecording = async (mediaBlobUrl) => {
@@ -134,7 +135,10 @@ const RecorderComponent = () => {
       };
 
       dispatch(recorderAnalysis(payload)).then((res) => {
-        setSummaryContent(res.payload);
+        const data = res?.payload?.data;
+        setSummaryContent(Object.entries(data));
+        setTranslatedContent(res?.payload?.data);
+        console.log("res", summaryContent);
       });
     } catch (error) {
       console.error("Error handling mediaBlobUrl:", error);
@@ -194,14 +198,14 @@ const RecorderComponent = () => {
         )}
         onStop={handleStopRecording}
       />
-      {summaryContent?.data?.consultation_summary?.summary && (
+      {summaryContent[0][1]?.summary && (
         <RecordedSummaryContainer>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
             <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
               <img style={{ height: "20px" }} src={cliniq360Logo} />
             </IconButton>
             <Typography variant="h6">
-              {summaryContent?.data?.consultation_summary?.summary}
+              {summaryContent[0][1]?.summary}
             </Typography>
           </Stack>
           <Stack>
@@ -210,6 +214,8 @@ const RecorderComponent = () => {
               setOpen={setOpenSummary}
               summaryContent={summaryContent}
               setSummaryContent={setSummaryContent}
+              translatedContent={translatedContent}
+              setTranslatedContent={setTranslatedContent}
             />
           </Stack>
         </RecordedSummaryContainer>
