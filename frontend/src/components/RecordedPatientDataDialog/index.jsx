@@ -380,13 +380,35 @@ export default function CustomizedSummaryDialog({
               {summaryContent[1][1]?.family_history.length > 0 && (
                 <div>
                   <Typography gutterBottom>Family History:</Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.family_history.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                  </List>
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "family_history")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.family_history}
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Family History"
+                      />
+                    )}
+                  />
                 </div>
               )}
               {summaryContent[1][1]?.history_of_present_illness.length > 0 && (
@@ -394,69 +416,177 @@ export default function CustomizedSummaryDialog({
                   <Typography gutterBottom>
                     History of Present Illness:
                   </Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.history_of_present_illness.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(
+                        1,
+                        newValue,
+                        "history_of_present_illness"
                       )
+                    }
+                    id="tags-filled"
+                    defaultValue={
+                      summaryContent[1][1]?.history_of_present_illness
+                    }
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder=" History of Illness"
+                      />
                     )}
-                  </List>
+                  />
                 </div>
               )}
               {summaryContent[1][1]?.medication_history.length > 0 && (
                 <div>
                   <Typography gutterBottom>Medication History:</Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.medication_history.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
-                      )
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "medication_history")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.medication_history}
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder=" Medical History"
+                      />
                     )}
-                  </List>
+                  />
                 </div>
               )}
               {summaryContent[1][1]?.past_medical_history.length > 0 && (
                 <div>
                   <Typography gutterBottom>Past Medical History:</Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.past_medical_history.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
-                      )
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "past_medical_history")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.past_medical_history}
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder=" Past Medical History"
+                      />
                     )}
-                  </List>
+                  />
                 </div>
               )}
               {summaryContent[1][1]?.review_of_systems.length > 0 && (
                 <div>
                   <Typography gutterBottom>Review of Systems:</Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.review_of_systems.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
-                      )
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "review_of_systems")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.review_of_systems}
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Reviews of System"
+                      />
                     )}
-                  </List>
+                  />
                 </div>
               )}
               {summaryContent[1][1]?.social_history.length > 0 && (
                 <div>
                   <Typography gutterBottom>Social History:</Typography>
-                  <List sx={{ listStyleType: "circle", pl: 4 }}>
-                    {summaryContent[1][1]?.social_history.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                  </List>
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "social_history")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.social_history}
+                    renderTags={(value, getTagProps) =>
+                      value.map((item, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={key}
+                            {...tagProps}
+                          />
+                        );
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Social History"
+                      />
+                    )}
+                  />
                 </div>
               )}
             </AccordionDetails>
@@ -733,37 +863,110 @@ export default function CustomizedSummaryDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <List>
-                <Typography gutterBottom>Imaging Tests:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[5][1]?.imaging_tests?.length > 0 &&
-                    summaryContent[5][1]?.imaging_tests?.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                </List>
-                <Typography gutterBottom>Laboratory Tests:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[5][1]?.laboratory_tests?.length > 0 &&
-                    summaryContent[5][1]?.laboratory_tests?.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
-                      )
-                    )}
-                </List>
-                <Typography gutterBottom>Special Exams:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[5][1]?.special_exams?.length > 0 &&
-                    summaryContent[5][1]?.special_exams?.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                </List>
-              </List>
+              <>
+                {summaryContent[5][1]?.imaging_tests?.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Imaging Tests:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(5, newValue, "imaging_tests")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[5][1]?.imaging_tests}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Imaging Test"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[5][1]?.laboratory_tests?.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Laboratory Tests:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(5, newValue, "laboratory_tests")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[5][1]?.laboratory_tests}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Laboratory Test"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[5][1]?.special_exams?.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Special Exams:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(5, newValue, "special_exams")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[5][1]?.special_exams}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Special Exams"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+              </>
             </AccordionDetails>
           </Accordion>
           <Accordion>
@@ -773,46 +976,148 @@ export default function CustomizedSummaryDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <List>
-                <Typography gutterBottom>Consultations:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[6][1]?.consultations.length > 0 &&
-                    summaryContent[6][1]?.consultations.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                </List>
-                <Typography gutterBottom>Lifestyle Modifications:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[6][1]?.lifestyle_modifications.length > 0 &&
-                    summaryContent[6][1]?.lifestyle_modifications.map(
-                      (item, index) => (
-                        <ListItem key={index} sx={{ display: "list-item" }}>
-                          {item}
-                        </ListItem>
-                      )
-                    )}
-                </List>
-                <Typography gutterBottom>Precautions:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[6][1]?.precautions.length > 0 &&
-                    summaryContent[6][1]?.precautions.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                </List>
-                <Typography gutterBottom>Referrals:</Typography>
-                <List sx={{ listStyleType: "circle", pl: 4 }}>
-                  {summaryContent[6][1]?.referrals.length > 0 &&
-                    summaryContent[6][1]?.referrals.map((item, index) => (
-                      <ListItem key={index} sx={{ display: "list-item" }}>
-                        {item}
-                      </ListItem>
-                    ))}
-                </List>
-              </List>
+              <>
+                {summaryContent[6][1]?.consultations.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Consultations:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(6, newValue, "consultations")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[6][1]?.consultations}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Consulation"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[6][1]?.lifestyle_modifications.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>
+                      Lifestyle Modifications:
+                    </Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(6, newValue, "lifestyle_modifications")
+                      }
+                      id="tags-filled"
+                      defaultValue={
+                        summaryContent[6][1]?.lifestyle_modifications
+                      }
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Lifestyle Modifications"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[6][1]?.precautions.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Precautions:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(6, newValue, "precautions")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[6][1]?.precautions}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Precautions"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[6][1]?.referrals.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Referrals:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      onChange={(newValue) =>
+                        handleChipChange(6, newValue, "referrals")
+                      }
+                      id="tags-filled"
+                      defaultValue={summaryContent[6][1]?.referrals}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Precautions"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+              </>
             </AccordionDetails>
           </Accordion>
           <Accordion>
