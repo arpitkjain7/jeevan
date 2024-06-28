@@ -442,10 +442,3 @@ def create_pdf(file_obj, input_data, pdf_type):
         # Build the PDF
     doc.build(elements)
     return file_obj
-
-
-bytes_io = io.BytesIO()
-bytes_io = create_pdf(
-    file_obj=bytes_io,
-    input_data=pmr_data,
-)
