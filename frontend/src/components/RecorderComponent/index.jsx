@@ -157,8 +157,8 @@ const RecorderComponent = () => {
       console.error("Error handling mediaBlobUrl:", error);
     }
   };
-  const summary =
-    summaryContent?.[0]?.[1]?.summary.slice(0, 250) + ".............";
+  // const summary =
+  //   summaryContent?.[0]?.[1]?.summary.slice(0, 250) + ".............";
   return (
     <>
       <ReactMediaRecorder
@@ -222,7 +222,19 @@ const RecorderComponent = () => {
               <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
                 <img style={{ height: "20px" }} src={cliniq360Logo} />
               </IconButton>
-              <Typography variant="h6">{summary}</Typography>
+              <Typography
+                variant="body1"
+                component="p"
+                sx={{
+                  display: "-webkit-box",
+                  overflow: "hidden",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2,
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {summaryContent?.[0]?.[1]?.summary}
+              </Typography>
             </Stack>
             <Stack>
               <CustomizedSummaryDialog
