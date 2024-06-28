@@ -53,11 +53,37 @@ import { ThemeProvider } from "@emotion/react";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
 const theme = createTheme({
-  .css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
-    opacity: 1;
-    -webkit-text-fill-color: rgb(0 0 0 / 38%);
-}
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        input: {
+          "&.Mui-disabled": {
+            WebkitTextFillColor: "black",
+          },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        input: {
+          "&.Mui-disabled": {
+            WebkitTextFillColor: "black",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          "&.Mui-disabled": {
+            opacity: 1,
+          },
+        },
+      },
+    },
+  },
 });
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
@@ -1212,7 +1238,7 @@ export default function CustomizedSummaryDialog({
               setTranslatedContent={setTranslatedContent}
               setOpen={setOpen}
             />
-            {edit ? (
+            {!edit ? (
               <Button autoFocus onClick={() => setEdit(!edit)}>
                 Edit
               </Button>
