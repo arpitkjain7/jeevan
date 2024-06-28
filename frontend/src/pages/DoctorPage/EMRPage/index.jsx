@@ -439,7 +439,7 @@ const PatientEMRDetails = (props) => {
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
   const [submitEMRPayload, setSubmitEMRPayload] = useState({});
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
   const [number, setNumber] = useState("");

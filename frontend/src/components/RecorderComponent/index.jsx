@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ReactMediaRecorder } from "react-media-recorder";
+import { ReactMediaRecorder } from "react-media-recorder-2";
 import { useDispatch } from "react-redux";
 import { recorderAnalysis } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import {
