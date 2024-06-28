@@ -107,18 +107,6 @@ export default function CustomizedSummaryDialog({
     duration_refill: "",
   });
 
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-
   const handleSummaryChange = (event, index) => {
     const { name, value } = event.target;
     setSummaryContent((prevContent) => {
@@ -131,7 +119,9 @@ export default function CustomizedSummaryDialog({
     });
   };
 
-  const handleChipChange = (index, newValue, sectionName) => {
+  const handleChipChange = (e, index, newValue, sectionName) => {
+    // e.prevent.default();
+    console.log(sectionName);
     setSummaryContent((prevContent) => {
       const newContent = [...prevContent];
       if (newContent[index] && newContent[index][1]) {
@@ -348,11 +338,15 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "allergy_information")
+                    name="allergy_information"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "allergy_information")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.allergy_information}
+                    options={[]}
+                    defaultValue={
+                      summaryContent[1][1]?.allergy_information || []
+                    }
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -383,11 +377,13 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "family_history")
+                    name="family_history"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "family_history")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.family_history}
+                    options={[]}
+                    defaultValue={summaryContent[1][1]?.family_history || []}
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -419,16 +415,19 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
+                    name="history_of_present_illness"
+                    onChange={(e, newValue) =>
                       handleChipChange(
+                        e,
                         1,
                         newValue,
                         "history_of_present_illness"
                       )
                     }
                     id="tags-filled"
+                    options={[]}
                     defaultValue={
-                      summaryContent[1][1]?.history_of_present_illness
+                      summaryContent[1][1]?.history_of_present_illness || []
                     }
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
@@ -459,11 +458,15 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "medication_history")
+                    name="medication_history"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "medication_history")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.medication_history}
+                    options={[]}
+                    defaultValue={
+                      summaryContent[1][1]?.medication_history || []
+                    }
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -493,11 +496,15 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "past_medical_history")
+                    name="past_medical_history"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "past_medical_history")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.past_medical_history}
+                    options={[]}
+                    defaultValue={
+                      summaryContent[1][1]?.past_medical_history || []
+                    }
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -527,11 +534,13 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "review_of_systems")
+                    name="review_of_systems"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "review_of_systems")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.review_of_systems}
+                    options={[]}
+                    defaultValue={summaryContent[1][1]?.review_of_systems || []}
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -561,11 +570,13 @@ export default function CustomizedSummaryDialog({
                   <Autocomplete
                     multiple
                     freeSolo
-                    onChange={(newValue) =>
-                      handleChipChange(1, newValue, "social_history")
+                    name="social_history"
+                    onChange={(e, newValue) =>
+                      handleChipChange(e, 1, newValue, "social_history")
                     }
                     id="tags-filled"
-                    defaultValue={summaryContent[1][1]?.social_history}
+                    options={[]}
+                    defaultValue={summaryContent[1][1]?.social_history || []}
                     renderTags={(value, getTagProps) =>
                       value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -870,11 +881,13 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(5, newValue, "imaging_tests")
+                      name="imaging_tests"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "imaging_tests")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[5][1]?.imaging_tests}
+                      options={[]}
+                      defaultValue={summaryContent[5][1]?.imaging_tests || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -904,11 +917,15 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(5, newValue, "laboratory_tests")
+                      name="laboratory_tests"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "laboratory_tests")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[5][1]?.laboratory_tests}
+                      options={[]}
+                      defaultValue={
+                        summaryContent[5][1]?.laboratory_tests || []
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -938,11 +955,13 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(5, newValue, "special_exams")
+                      name="special_exams"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "special_exams")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[5][1]?.special_exams}
+                      options={[]}
+                      defaultValue={summaryContent[5][1]?.special_exams || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -983,11 +1002,13 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(6, newValue, "consultations")
+                      name="consultations"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "consultations")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[6][1]?.consultations}
+                      options={[]}
+                      defaultValue={summaryContent[6][1]?.consultations || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -1019,12 +1040,19 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(6, newValue, "lifestyle_modifications")
+                      name="lifestyle_modifications"
+                      onChange={(e, newValue) =>
+                        handleChipChange(
+                          e,
+                          6,
+                          newValue,
+                          "lifestyle_modifications"
+                        )
                       }
                       id="tags-filled"
+                      options={[]}
                       defaultValue={
-                        summaryContent[6][1]?.lifestyle_modifications
+                        summaryContent[6][1]?.lifestyle_modifications || []
                       }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
@@ -1055,11 +1083,13 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(6, newValue, "precautions")
+                      name="precautions"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "precautions")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[6][1]?.precautions}
+                      options={[]}
+                      defaultValue={summaryContent[6][1]?.precautions || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -1089,11 +1119,13 @@ export default function CustomizedSummaryDialog({
                     <Autocomplete
                       multiple
                       freeSolo
-                      onChange={(newValue) =>
-                        handleChipChange(6, newValue, "referrals")
+                      name="referrals"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "referrals")
                       }
                       id="tags-filled"
-                      defaultValue={summaryContent[6][1]?.referrals}
+                      options={[]}
+                      defaultValue={summaryContent[6][1]?.referrals || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
