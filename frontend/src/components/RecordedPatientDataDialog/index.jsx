@@ -131,6 +131,17 @@ export default function CustomizedSummaryDialog({
     });
   };
 
+  const handleChipChange = (index, newValue, sectionName) => {
+    setSummaryContent((prevContent) => {
+      const newContent = [...prevContent];
+      if (newContent[index] && newContent[index][1]) {
+        newContent[index][1][sectionName] = newValue;
+      }
+      console.log(newContent);
+      return newContent;
+    });
+  };
+
   const handleMedicationInputChange = (e, field) => {
     setNewMedication({ ...newMedication, [field]: e.target.value });
   };
@@ -332,20 +343,23 @@ export default function CustomizedSummaryDialog({
               </FormControl>
 
               {summaryContent[1][1]?.allergy_information.length > 0 && (
-                <div>
+                <>
+                  <Typography gutterBottom>Allergy Information:</Typography>
                   <Autocomplete
                     multiple
-                    id="tags-filled"
-                    options={top100Films.map((option) => option.title)}
-                    defaultValue={[top100Films[13].title]}
                     freeSolo
+                    onChange={(newValue) =>
+                      handleChipChange(1, newValue, "allergy_information")
+                    }
+                    id="tags-filled"
+                    defaultValue={summaryContent[1][1]?.allergy_information}
                     renderTags={(value, getTagProps) =>
-                      value.map((option, index) => {
+                      value.map((item, index) => {
                         const { key, ...tagProps } = getTagProps({ index });
                         return (
                           <Chip
                             variant="outlined"
-                            label={option}
+                            label={item}
                             key={key}
                             {...tagProps}
                           />
@@ -355,14 +369,14 @@ export default function CustomizedSummaryDialog({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        variant="filled"
-                        label="freeSolo"
-                        placeholder="Favorites"
+                        variant="outlined"
+                        placeholder="allergies"
                       />
                     )}
                   />
-                </div>
+                </>
               )}
+
               {summaryContent[1][1]?.family_history.length > 0 && (
                 <div>
                   <Typography gutterBottom>Family History:</Typography>
