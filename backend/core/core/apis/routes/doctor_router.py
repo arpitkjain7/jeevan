@@ -205,7 +205,7 @@ async def upload_profile_photo_and_signature(
                 # Create signature bytes
                 sign_encoded_content = base64.b64encode(contents).decode("utf-8")
                 request.update({"signature": sign_encoded_content})
-            return DoctorController().update_doc_details(request=request)
+            return DoctorController().update_profile_photo_signature(request=request)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

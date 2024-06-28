@@ -157,12 +157,29 @@ class DoctorController:
     def update_doc_details(self, request):
         try:
             logging.info("Updating doctor details records")
-            # for patient_obj in request.data:
-            # doctor_obj_dict = request.dict()
-            # doctor_obj_dict.pop("doc_id")
+            request_dict = request.dict()
+            doc_first_name = request_dict.pop("doc_first_name")
+            doc_last_name = request_dict.pop("doc_last_name")
+            if doc_first_name and doc_last_name:
+                request_dict.update(
+                    {"doc_name": f"Dr. {doc_first_name} {doc_last_name}"}
+                )
+            logging.info(f"{request_dict=}")
+            cleaned_data = {k: v for k, v in request_dict.items() if v is not None}
+            self.CRUDDocDetails.update(**cleaned_data)
+            return {"doc_id": request_dict.get("id")}
+        except Exception as error:
+            logging.error(f"Error in DoctorController.update_doctor function: {error}")
+            raise error
+
+    def update_profile_photo_signature(self, request):
+        try:
+            logging.info("executing update_profile_photo_signature function")
             self.CRUDDocDetails.update(**request)
             logging.info(f"{request=}")
             return {"doc_id": request.get("id")}
         except Exception as error:
-            logging.error(f"Error in DoctorController.update_doctor function: {error}")
+            logging.error(
+                f"Error in DoctorController.update_profile_photo_signature function: {error}"
+            )
             raise error
