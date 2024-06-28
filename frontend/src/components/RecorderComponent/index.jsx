@@ -3,6 +3,7 @@ import { ReactMediaRecorder } from "react-media-recorder-2";
 import { useDispatch } from "react-redux";
 import { recorderAnalysis } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import {
+  Box,
   Button,
   Card,
   Grid,
@@ -19,7 +20,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import PauseIcon from "@mui/icons-material/Pause";
 import content from "./content.json";
 import cliniq360Logo from "../../assets/icons/clinic360Logo.png";
-
+import Skeleton from "@mui/material/Skeleton";
 const NumBars = window?.innerWidth < 768 ? 20 : 30;
 
 const RecordedSummaryContainer = styled(Card)(({ theme }) => ({
@@ -118,6 +119,7 @@ const RecorderComponent = () => {
   const [summaryContent, setSummaryContent] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [translatedContent, setTranslatedContent] = useState({});
+  const [skeleton, setSkeleton] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -129,6 +131,7 @@ const RecorderComponent = () => {
   const handleStopRecording = async (mediaBlobUrl) => {
     try {
       setIsRecording(false);
+      setSkeleton(true);
       const response = await fetch(mediaBlobUrl);
       const audio_file = await response.blob();
       const formData = new FormData();
@@ -147,6 +150,7 @@ const RecorderComponent = () => {
         const data = res?.payload?.data;
         setSummaryContent(Object.entries(data));
         setTranslatedContent(data);
+        setSkeleton(false);
         // console.log("res", summaryContent);
       });
     } catch (error) {
@@ -208,25 +212,38 @@ const RecorderComponent = () => {
         )}
         onStop={handleStopRecording}
       />
-      {summaryContent.length > 0 && summaryContent[0][1]?.summary && (
-        <RecordedSummaryContainer>
-          <Stack direction={"row"} alignItems={"center"} gap={2}>
-            <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
-              <img style={{ height: "20px" }} src={cliniq360Logo} />
-            </IconButton>
-            <Typography variant="h6">{summary}</Typography>
-          </Stack>
-          <Stack>
-            <CustomizedSummaryDialog
-              open={openSummary}
-              setOpen={setOpenSummary}
-              summaryContent={summaryContent}
-              setSummaryContent={setSummaryContent}
-              translatedContent={translatedContent}
-              setTranslatedContent={setTranslatedContent}
-            />
-          </Stack>
-        </RecordedSummaryContainer>
+
+      {!skeleton &&
+      summaryContent.length > 0 &&
+      summaryContent[0][1]?.summary ? (
+        <>
+          <RecordedSummaryContainer>
+            <Stack direction={"row"} alignItems={"center"} gap={2}>
+              <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
+                <img style={{ height: "20px" }} src={cliniq360Logo} />
+              </IconButton>
+              <Typography variant="h6">{summary}</Typography>
+            </Stack>
+            <Stack>
+              <CustomizedSummaryDialog
+                open={openSummary}
+                setOpen={setOpenSummary}
+                summaryContent={summaryContent}
+                setSummaryContent={setSummaryContent}
+                translatedContent={translatedContent}
+                setTranslatedContent={setTranslatedContent}
+              />
+            </Stack>
+          </RecordedSummaryContainer>
+        </>
+      ) : (
+        <>
+          <Box sx={{ width: "auto" }}>
+            <Skeleton sx={{ height: "30px" }} animation="wave" />
+            <Skeleton sx={{ height: "30px" }} animation="wave" />
+            <Skeleton sx={{ height: "30px" }} animation="wave" />
+          </Box>
+        </>
       )}
     </>
   );
