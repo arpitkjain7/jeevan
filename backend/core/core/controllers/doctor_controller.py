@@ -7,6 +7,7 @@ from core.apis.schemas.requests.user_request import (
     OnBoard,
 )
 
+
 logging = logger(__name__)
 
 
@@ -157,10 +158,11 @@ class DoctorController:
         try:
             logging.info("Updating doctor details records")
             # for patient_obj in request.data:
-            doctor_obj_dict = request.dict()
-            doctor_obj_dict.pop("doc_id")
-            self.CRUDDocDetails.update(**doctor_obj_dict, id=request.doc_id)
-            return {"doc_id": request.doc_id}
+            # doctor_obj_dict = request.dict()
+            # doctor_obj_dict.pop("doc_id")
+            self.CRUDDocDetails.update(**request)
+            logging.info(f"{request=}")
+            return {"doc_id": request.get("id")}
         except Exception as error:
             logging.error(f"Error in DoctorController.update_doctor function: {error}")
             raise error

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
 from fastapi.security import OAuth2PasswordBearer
 from core.controllers.doctor_controller import DoctorController
 from core.apis.schemas.requests.doctor_request import (
@@ -9,7 +9,7 @@ from core.apis.schemas.requests.doctor_request import (
 )
 from commons.auth import decodeJWT
 from core import logger
-
+import base64
 
 logging = logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/signIn")
@@ -139,7 +139,10 @@ def get_doctor_profile_details(
 
 
 @doctor_router.post("/v2/doctor-details/create")
-def create_doctor_v2(request: DocDetailsV2, token: str = Depends(oauth2_scheme)):
+def create_doctor_v2(
+    request: DocDetailsV2,
+    token: str = Depends(oauth2_scheme),
+):
     """[API router to register new user into the system]
     Args:
         register_user_request (Register): [New user details]
@@ -165,6 +168,59 @@ def create_doctor_v2(request: DocDetailsV2, token: str = Depends(oauth2_scheme))
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v2/doctor-details/create: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@doctor_router.post("/v2/doctor-details/profile-photo-signature-upload")
+async def upload_profile_photo_and_signature(
+    doc_id: str,
+    profile_photo: UploadFile = None,
+    signature: UploadFile = None,
+    token: str = Depends(oauth2_scheme),
+):
+    """[API router to register new user into the system]
+    Args:
+        register_user_request (Register): [New user details]
+    Raises:
+        HTTPException: [Unauthorized exception when invalid token is passed]
+        error: [Exception in underlying controller]
+    Returns:
+        [RegisterResponse]: [Register new user response]
+    """
+    try:
+        logging.info(f"Calling /v2/doctor-details/profile-photo-signature-upload")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            request = {"id": doc_id}
+            if profile_photo:
+                contents = await profile_photo.read()
+                profile_encoded_content = base64.b64encode(contents).decode("utf-8")
+                request.update({"profile_photo": profile_encoded_content})
+            if signature:
+                contents = await signature.read()
+                # Create signature bytes
+                sign_encoded_content = base64.b64encode(contents).decode("utf-8")
+                request.update({"signature": sign_encoded_content})
+            return DoctorController().update_doc_details(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(
+            f"Error in /v2/doctor-details/profile-photo-signature-upload : {httperror}"
+        )
+        raise httperror
+    except Exception as error:
+        logging.error(
+            f"Error in /v2/doctor-details/profile-photo-signature-upload : {error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
