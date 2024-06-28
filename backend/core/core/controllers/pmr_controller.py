@@ -1241,8 +1241,10 @@ class PMRController:
             pmr_request_dict = pmr_request.dict()
             pmr_metadata_dict = pmr_metadata.dict()
             appointment_request_dict = appointment_request.dict()
+            pmr_id = pmr_request_dict.get("pmr_id")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
             pmr_data = {
-                "pmr_request": pmr_request_dict,
+                "pmr_request": pmr_obj,
                 "metadata": pmr_metadata_dict,
                 "appointment_request": appointment_request_dict,
             }
