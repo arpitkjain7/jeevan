@@ -39,6 +39,7 @@ import {
   TableRow,
   TextField,
   Tooltip,
+  createTheme,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -47,10 +48,18 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { alpha, styled } from "@mui/material/styles";
 import contentData from "../../components/RecorderComponent/content.json";
 import Translate from "../Translate";
+import { ThemeProvider } from "@emotion/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+const theme = createTheme({
+  .css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
+    opacity: 1;
+    -webkit-text-fill-color: rgb(0 0 0 / 38%);
+}
+});
+
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   "label + &": {
     marginTop: theme.spacing(6),
@@ -238,693 +247,115 @@ export default function CustomizedSummaryDialog({
 
   return (
     <React.Fragment>
-      <Tooltip title="See More">
-        <IconButton
-          variant="text"
-          onClick={handleClickOpen}
-          sx={{ backgroundColor: "#89f2ff61" }}
+      <ThemeProvider theme={theme}>
+        <Tooltip title="See More">
+          <IconButton
+            variant="text"
+            onClick={handleClickOpen}
+            sx={{ backgroundColor: "#89f2ff61" }}
+          >
+            <AspectRatioIcon sx={{ color: "#1976d2" }} />
+          </IconButton>
+        </Tooltip>
+        <Dialog
+          fullScreen
+          open={open}
+          onClose={handleClose}
+          TransitionComponent={Transition}
         >
-          <AspectRatioIcon sx={{ color: "#1976d2" }} />
-        </IconButton>
-      </Tooltip>
-      <Dialog
-        fullScreen
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Transition}
-      >
-        <AppBar sx={{ position: "relative", backgroundColor: "#f8f8f8" }}>
-          <Toolbar>
-            <DialogTitle
-              sx={{ m: 0, p: 2, display: "flex", flex: 1 }}
-              id="customized-dialog-title"
-            >
-              <Stack
-                justifyContent={"center"}
-                alignItems={"center"}
-                sx={{
-                  backgroundColor: "#0089E9",
-                  width: "130px",
-                  padding: "5px",
-                }}
+          <AppBar sx={{ position: "relative", backgroundColor: "#f8f8f8" }}>
+            <Toolbar>
+              <DialogTitle
+                sx={{ m: 0, p: 2, display: "flex", flex: 1 }}
+                id="customized-dialog-title"
               >
-                <Typography
-                  sx={{ fontSize: "1rem", fontWeight: 500, color: "white" }}
-                  variant="h2"
+                <Stack
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                  sx={{
+                    backgroundColor: "#0089E9",
+                    width: "130px",
+                    padding: "5px",
+                  }}
                 >
-                  CLINICAL NOTE
+                  <Typography
+                    sx={{ fontSize: "1rem", fontWeight: 500, color: "white" }}
+                    variant="h2"
+                  >
+                    CLINICAL NOTE
+                  </Typography>
+                </Stack>
+                <Stack ml={5} justifyContent={"center"} alignItems={"center"}>
+                  <Typography color={"#0089E9"}>
+                    PATIENT VISIT SUMMARY
+                  </Typography>
+                </Stack>
+              </DialogTitle>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleClose}
+                aria-label="close"
+              >
+                <CloseIcon sx={{ color: "#0089E9" }} />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <DialogContent dividers>
+            <FormControl variant="standard" fullWidth>
+              <TextField
+                disabled={!edit}
+                label="Consultaion Summary"
+                variant="outlined"
+                defaultValue={summaryContent?.[0]?.[1]?.summary}
+                id="bootstrap-input"
+                name="summary"
+                multiline
+                onChange={(e) => handleSummaryChange(e, 0)}
+              />
+            </FormControl>
+
+            <Typography gutterBottom></Typography>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <AllergyIcon /> <strong>Subjective</strong>
                 </Typography>
-              </Stack>
-              <Stack ml={5} justifyContent={"center"} alignItems={"center"}>
-                <Typography color={"#0089E9"}>PATIENT VISIT SUMMARY</Typography>
-              </Stack>
-            </DialogTitle>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleClose}
-              aria-label="close"
-            >
-              <CloseIcon sx={{ color: "#0089E9" }} />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <DialogContent dividers>
-          <FormControl variant="standard" fullWidth>
-            <InputLabel shrink htmlFor="bootstrap-input">
-              <Typography variant="h6">
-                <strong>Consultation Summary</strong>
-              </Typography>
-            </InputLabel>
-            <BootstrapInput
-              disabled={!edit}
-              defaultValue={summaryContent?.[0]?.[1]?.summary}
-              id="bootstrap-input"
-              name="summary"
-              multiline
-              onChange={(e) => handleSummaryChange(e, 0)}
-            />
-          </FormControl>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong> Chief Complaint: </strong>
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[1][1]?.chief_complaint || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="chief_complaint"
+                    onChange={(e) => handleSummaryChange(e, 1)}
+                  />
+                </FormControl>
 
-          <Typography gutterBottom></Typography>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <AllergyIcon /> <strong>Subjective</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong> Chief Complaint: </strong>
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[1][1]?.chief_complaint || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="chief_complaint"
-                  onChange={(e) => handleSummaryChange(e, 1)}
-                />
-              </FormControl>
-
-              {summaryContent[1][1]?.allergy_information.length > 0 && (
-                <>
-                  <Typography gutterBottom>Allergy Information:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="allergy_information"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "allergy_information")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={
-                      summaryContent[1][1]?.allergy_information || []
-                    }
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="allergies"
-                      />
-                    )}
-                  />
-                </>
-              )}
-
-              {summaryContent[1][1]?.family_history.length > 0 && (
-                <div>
-                  <Typography gutterBottom>Family History:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="family_history"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "family_history")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={summaryContent[1][1]?.family_history || []}
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="Family History"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-              {summaryContent[1][1]?.history_of_present_illness.length > 0 && (
-                <div>
-                  <Typography gutterBottom>
-                    History of Present Illness:
-                  </Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="history_of_present_illness"
-                    onChange={(e, newValue) =>
-                      handleChipChange(
-                        e,
-                        1,
-                        newValue,
-                        "history_of_present_illness"
-                      )
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={
-                      summaryContent[1][1]?.history_of_present_illness || []
-                    }
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder=" History of Illness"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-              {summaryContent[1][1]?.medication_history.length > 0 && (
-                <div>
-                  <Typography gutterBottom>Medication History:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="medication_history"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "medication_history")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={
-                      summaryContent[1][1]?.medication_history || []
-                    }
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder=" Medical History"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-              {summaryContent[1][1]?.past_medical_history.length > 0 && (
-                <div>
-                  <Typography gutterBottom>Past Medical History:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="past_medical_history"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "past_medical_history")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={
-                      summaryContent[1][1]?.past_medical_history || []
-                    }
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder=" Past Medical History"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-              {summaryContent[1][1]?.review_of_systems.length > 0 && (
-                <div>
-                  <Typography gutterBottom>Review of Systems:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="review_of_systems"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "review_of_systems")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={summaryContent[1][1]?.review_of_systems || []}
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="Reviews of System"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-              {summaryContent[1][1]?.social_history.length > 0 && (
-                <div>
-                  <Typography gutterBottom>Social History:</Typography>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    name="social_history"
-                    onChange={(e, newValue) =>
-                      handleChipChange(e, 1, newValue, "social_history")
-                    }
-                    id="tags-filled"
-                    options={[]}
-                    defaultValue={summaryContent[1][1]?.social_history || []}
-                    renderTags={(value, getTagProps) =>
-                      value.map((item, index) => {
-                        const { key, ...tagProps } = getTagProps({ index });
-                        return (
-                          <Chip
-                            variant="outlined"
-                            label={item}
-                            key={key}
-                            {...tagProps}
-                          />
-                        );
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="Social History"
-                      />
-                    )}
-                  />
-                </div>
-              )}
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <AssessmentIcon /> <strong>Doctor's Assessment</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong> comment: </strong>
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[3][1]?.comment || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="comment"
-                  onChange={(e) => handleSummaryChange(e, 3)}
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Differential Diagnosis:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[3][1]?.differential_diagnosis ||
-                    "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="differential_diagnosis"
-                  onChange={(e) => handleSummaryChange(e, 3)}
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Preliminary Diagnosis:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[3][1]?.preliminary_diagnosis ||
-                    "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="preliminary_diagnosis"
-                  onChange={(e) => handleSummaryChange(e, 3)}
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Risk Factors:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[3][1]?.risk_factors || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="risk_factors"
-                  onChange={(e) => handleSummaryChange(e, 3)}
-                />
-              </FormControl>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <PlanIcon /> <strong>Plans</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong> Diagnostic Plan: </strong>
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[4][1]?.diagnostic_plan || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="diagnostic_plan"
-                  onChange={(e) => handleSummaryChange(e, 4)}
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Treatment Plan:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[4][1]?.treatment_plan || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="treatment_plan"
-                  onChange={(e) => handleSummaryChange(e, 4)}
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Follow Up:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[4][1]?.follow_up || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="follow_up"
-                  onChange={(e) => handleSummaryChange(e, 4)}
-                />
-              </FormControl>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <PrescriptionIcon /> <strong>Prescription</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel shrink htmlFor="bootstrap-input">
-                  <Typography variant="h6">
-                    <strong>Comment:</strong>{" "}
-                  </Typography>
-                </InputLabel>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[7][1]?.comment || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="comment"
-                  onChange={(e) => handleSummaryChange(e, 7)}
-                />
-              </FormControl>
-              <Typography variant="h7">
-                <strong>Medications:</strong>{" "}
-              </Typography>
-              <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="medications table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Medication Name</TableCell>
-                      <TableCell align="right">Instructions</TableCell>
-                      <TableCell align="right">Dosages</TableCell>
-                      <TableCell align="right">Duration/Refill</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {summaryContent[7][1]?.medications?.map((medication) => (
-                      <TableRow
-                        key={medication.med_name}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {medication.med_name}
-                        </TableCell>
-                        <TableCell align="right">
-                          {medication.instructions}
-                        </TableCell>
-                        <TableCell align="right">
-                          {medication.dosages}
-                        </TableCell>
-                        <TableCell align="right">
-                          {medication.duration_refill}
-                        </TableCell>
-                        {edit && (
-                          <TableCell>
-                            <button
-                              onClick={() =>
-                                handleDeleteMedication(medication.med_name)
-                              }
-                            >
-                              Delete
-                            </button>
-                            <button
-                              onClick={() => startEditMedication(medication)}
-                            >
-                              Edit
-                            </button>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                    {edit && (
-                      <TableRow>
-                        <TableCell component="th" scope="row">
-                          <TextField
-                            value={newMedication.med_name}
-                            onChange={(e) =>
-                              handleMedicationInputChange(e, "med_name")
-                            }
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <TextField
-                            value={newMedication.instructions}
-                            onChange={(e) =>
-                              handleMedicationInputChange(e, "instructions")
-                            }
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <TextField
-                            value={newMedication.dosages}
-                            onChange={(e) =>
-                              handleMedicationInputChange(e, "dosages")
-                            }
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <TextField
-                            value={newMedication.duration_refill}
-                            onChange={(e) =>
-                              handleMedicationInputChange(e, "duration_refill")
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-                {edit &&
-                  (!isEditing ? (
-                    <Button onClick={handleAddMedication}>
-                      Add Medication
-                    </Button>
-                  ) : (
-                    <Button onClick={saveEditedMedication}>
-                      Save Edited Medication
-                    </Button>
-                  ))}
-              </TableContainer>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <TestIcon /> <strong>Tests To Be Taken</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <>
-                {summaryContent[5][1]?.imaging_tests?.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Imaging Tests:</Typography>
+                {summaryContent[1][1]?.allergy_information.length > 0 && (
+                  <>
+                    <Typography gutterBottom>Allergy Information:</Typography>
                     <Autocomplete
                       multiple
                       freeSolo
-                      name="imaging_tests"
+                      disabled={!edit}
+                      name="allergy_information"
                       onChange={(e, newValue) =>
-                        handleChipChange(e, 5, newValue, "imaging_tests")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={summaryContent[5][1]?.imaging_tests || []}
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Imaging Test"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {summaryContent[5][1]?.laboratory_tests?.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Laboratory Tests:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      name="laboratory_tests"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 5, newValue, "laboratory_tests")
+                        handleChipChange(e, 1, newValue, "allergy_information")
                       }
                       id="tags-filled"
                       options={[]}
                       defaultValue={
-                        summaryContent[5][1]?.laboratory_tests || []
+                        summaryContent[1][1]?.allergy_information || []
                       }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
@@ -943,25 +374,27 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Laboratory Test"
+                          placeholder="allergies"
                         />
                       )}
                     />
-                  </div>
+                  </>
                 )}
-                {summaryContent[5][1]?.special_exams?.length > 0 && (
+
+                {summaryContent[1][1]?.family_history.length > 0 && (
                   <div>
-                    <Typography gutterBottom>Special Exams:</Typography>
+                    <Typography gutterBottom>Family History:</Typography>
                     <Autocomplete
                       multiple
+                      disabled={!edit}
                       freeSolo
-                      name="special_exams"
+                      name="family_history"
                       onChange={(e, newValue) =>
-                        handleChipChange(e, 5, newValue, "special_exams")
+                        handleChipChange(e, 1, newValue, "family_history")
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={summaryContent[5][1]?.special_exams || []}
+                      defaultValue={summaryContent[1][1]?.family_history || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -979,80 +412,35 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Special Exams"
+                          placeholder="Family History"
                         />
                       )}
                     />
                   </div>
                 )}
-              </>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <NextStepsIcon /> <strong>Other Next Steps</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <>
-                {summaryContent[6][1]?.consultations.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Consultations:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      name="consultations"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 6, newValue, "consultations")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={summaryContent[6][1]?.consultations || []}
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Consulation"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {summaryContent[6][1]?.lifestyle_modifications.length > 0 && (
+                {summaryContent[1][1]?.history_of_present_illness.length >
+                  0 && (
                   <div>
                     <Typography gutterBottom>
-                      Lifestyle Modifications:
+                      History of Present Illness:
                     </Typography>
                     <Autocomplete
                       multiple
                       freeSolo
-                      name="lifestyle_modifications"
+                      disabled={!edit}
+                      name="history_of_present_illness"
                       onChange={(e, newValue) =>
                         handleChipChange(
                           e,
-                          6,
+                          1,
                           newValue,
-                          "lifestyle_modifications"
+                          "history_of_present_illness"
                         )
                       }
                       id="tags-filled"
                       options={[]}
                       defaultValue={
-                        summaryContent[6][1]?.lifestyle_modifications || []
+                        summaryContent[1][1]?.history_of_present_illness || []
                       }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
@@ -1071,25 +459,28 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Lifestyle Modifications"
+                          placeholder=" History of Illness"
                         />
                       )}
                     />
                   </div>
                 )}
-                {summaryContent[6][1]?.precautions.length > 0 && (
+                {summaryContent[1][1]?.medication_history.length > 0 && (
                   <div>
-                    <Typography gutterBottom>Precautions:</Typography>
+                    <Typography gutterBottom>Medication History:</Typography>
                     <Autocomplete
                       multiple
                       freeSolo
-                      name="precautions"
+                      disabled={!edit}
+                      name="medication_history"
                       onChange={(e, newValue) =>
-                        handleChipChange(e, 6, newValue, "precautions")
+                        handleChipChange(e, 1, newValue, "medication_history")
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={summaryContent[6][1]?.precautions || []}
+                      defaultValue={
+                        summaryContent[1][1]?.medication_history || []
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -1107,25 +498,28 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Precautions"
+                          placeholder=" Medical History"
                         />
                       )}
                     />
                   </div>
                 )}
-                {summaryContent[6][1]?.referrals.length > 0 && (
+                {summaryContent[1][1]?.past_medical_history.length > 0 && (
                   <div>
-                    <Typography gutterBottom>Referrals:</Typography>
+                    <Typography gutterBottom>Past Medical History:</Typography>
                     <Autocomplete
                       multiple
                       freeSolo
-                      name="referrals"
+                      disabled={!edit}
+                      name="past_medical_history"
                       onChange={(e, newValue) =>
-                        handleChipChange(e, 6, newValue, "referrals")
+                        handleChipChange(e, 1, newValue, "past_medical_history")
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={summaryContent[6][1]?.referrals || []}
+                      defaultValue={
+                        summaryContent[1][1]?.past_medical_history || []
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -1143,51 +537,693 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Precautions"
+                          placeholder=" Past Medical History"
                         />
                       )}
                     />
                   </div>
                 )}
-              </>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">
-                <NotesIcon /> <strong>Additional Notes</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControl variant="standard" fullWidth>
-                <BootstrapInput
-                  disabled={!edit}
-                  defaultValue={
-                    summaryContent[8][1]?.content || "Not Available"
-                  }
-                  id="bootstrap-input"
-                  multiline
-                  name="content"
-                  onChange={(e) => handleSummaryChange(e, 8)}
-                />
-              </FormControl>
-            </AccordionDetails>
-          </Accordion>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus variant="contained">
-            Review Priscription
-          </Button>
-          <Translate
-            translatedContent={translatedContent}
-            setTranslatedContent={setTranslatedContent}
-            setOpen={setOpen}
-          />
-          <Button autoFocus onClick={() => setEdit(!edit)}>
-            Edit
-          </Button>
-        </DialogActions>
-      </Dialog>
+                {summaryContent[1][1]?.review_of_systems.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Review of Systems:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="review_of_systems"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "review_of_systems")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={
+                        summaryContent[1][1]?.review_of_systems || []
+                      }
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Reviews of System"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+                {summaryContent[1][1]?.social_history.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Social History:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="social_history"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "social_history")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={summaryContent[1][1]?.social_history || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Social History"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <AssessmentIcon /> <strong>Doctor's Assessment</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong> comment: </strong>
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[3][1]?.comment || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="comment"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Differential Diagnosis:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[3][1]?.differential_diagnosis ||
+                      "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="differential_diagnosis"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Preliminary Diagnosis:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[3][1]?.preliminary_diagnosis ||
+                      "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="preliminary_diagnosis"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Risk Factors:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[3][1]?.risk_factors || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="risk_factors"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <PlanIcon /> <strong>Plans</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong> Diagnostic Plan: </strong>
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[4][1]?.diagnostic_plan || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="diagnostic_plan"
+                    onChange={(e) => handleSummaryChange(e, 4)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Treatment Plan:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[4][1]?.treatment_plan || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="treatment_plan"
+                    onChange={(e) => handleSummaryChange(e, 4)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Follow Up:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[4][1]?.follow_up || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="follow_up"
+                    onChange={(e) => handleSummaryChange(e, 4)}
+                  />
+                </FormControl>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <PrescriptionIcon /> <strong>Prescription</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Comment:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[7][1]?.comment || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="comment"
+                    onChange={(e) => handleSummaryChange(e, 7)}
+                  />
+                </FormControl>
+                <Typography variant="h7">
+                  <strong>Medications:</strong>{" "}
+                </Typography>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="medications table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Medication Name</TableCell>
+                        <TableCell align="right">Instructions</TableCell>
+                        <TableCell align="right">Dosages</TableCell>
+                        <TableCell align="right">Duration/Refill</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {summaryContent[7][1]?.medications?.map((medication) => (
+                        <TableRow
+                          key={medication.med_name}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {medication.med_name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {medication.instructions}
+                          </TableCell>
+                          <TableCell align="right">
+                            {medication.dosages}
+                          </TableCell>
+                          <TableCell align="right">
+                            {medication.duration_refill}
+                          </TableCell>
+                          {edit && (
+                            <TableCell>
+                              <button
+                                onClick={() =>
+                                  handleDeleteMedication(medication.med_name)
+                                }
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => startEditMedication(medication)}
+                              >
+                                Edit
+                              </button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                      {edit && (
+                        <TableRow>
+                          <TableCell component="th" scope="row">
+                            <TextField
+                              value={newMedication.med_name}
+                              onChange={(e) =>
+                                handleMedicationInputChange(e, "med_name")
+                              }
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              value={newMedication.instructions}
+                              onChange={(e) =>
+                                handleMedicationInputChange(e, "instructions")
+                              }
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              value={newMedication.dosages}
+                              onChange={(e) =>
+                                handleMedicationInputChange(e, "dosages")
+                              }
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              value={newMedication.duration_refill}
+                              onChange={(e) =>
+                                handleMedicationInputChange(
+                                  e,
+                                  "duration_refill"
+                                )
+                              }
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                  {edit &&
+                    (!isEditing ? (
+                      <Button onClick={handleAddMedication}>
+                        Add Medication
+                      </Button>
+                    ) : (
+                      <Button onClick={saveEditedMedication}>
+                        Save Edited Medication
+                      </Button>
+                    ))}
+                </TableContainer>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <TestIcon /> <strong>Tests To Be Taken</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <>
+                  {summaryContent[5][1]?.imaging_tests?.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Imaging Tests:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="imaging_tests"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 5, newValue, "imaging_tests")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={summaryContent[5][1]?.imaging_tests || []}
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Imaging Test"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  {summaryContent[5][1]?.laboratory_tests?.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Laboratory Tests:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="laboratory_tests"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 5, newValue, "laboratory_tests")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={
+                          summaryContent[5][1]?.laboratory_tests || []
+                        }
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Laboratory Test"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  {summaryContent[5][1]?.special_exams?.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Special Exams:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="special_exams"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 5, newValue, "special_exams")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={summaryContent[5][1]?.special_exams || []}
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Special Exams"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                </>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <NextStepsIcon /> <strong>Other Next Steps</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <>
+                  {summaryContent[6][1]?.consultations.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Consultations:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="consultations"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 6, newValue, "consultations")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={summaryContent[6][1]?.consultations || []}
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Consulation"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  {summaryContent[6][1]?.lifestyle_modifications.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>
+                        Lifestyle Modifications:
+                      </Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="lifestyle_modifications"
+                        onChange={(e, newValue) =>
+                          handleChipChange(
+                            e,
+                            6,
+                            newValue,
+                            "lifestyle_modifications"
+                          )
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={
+                          summaryContent[6][1]?.lifestyle_modifications || []
+                        }
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Lifestyle Modifications"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  {summaryContent[6][1]?.precautions.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Precautions:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="precautions"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 6, newValue, "precautions")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={summaryContent[6][1]?.precautions || []}
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Precautions"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  {summaryContent[6][1]?.referrals.length > 0 && (
+                    <div>
+                      <Typography gutterBottom>Referrals:</Typography>
+                      <Autocomplete
+                        multiple
+                        freeSolo
+                        disabled={!edit}
+                        name="referrals"
+                        onChange={(e, newValue) =>
+                          handleChipChange(e, 6, newValue, "referrals")
+                        }
+                        id="tags-filled"
+                        options={[]}
+                        defaultValue={summaryContent[6][1]?.referrals || []}
+                        renderTags={(value, getTagProps) =>
+                          value.map((item, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                variant="outlined"
+                                label={item}
+                                key={key}
+                                {...tagProps}
+                              />
+                            );
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            placeholder="Precautions"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                </>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">
+                  <NotesIcon /> <strong>Additional Notes</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      summaryContent[8][1]?.content || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="content"
+                    onChange={(e) => handleSummaryChange(e, 8)}
+                  />
+                </FormControl>
+              </AccordionDetails>
+            </Accordion>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus variant="contained">
+              Review Priscription
+            </Button>
+            <Translate
+              translatedContent={translatedContent}
+              setTranslatedContent={setTranslatedContent}
+              setOpen={setOpen}
+            />
+            {edit ? (
+              <Button autoFocus onClick={() => setEdit(!edit)}>
+                Edit
+              </Button>
+            ) : (
+              <Button autoFocus onClick={() => setEdit(!edit)}>
+                Save Changes
+              </Button>
+            )}
+          </DialogActions>
+        </Dialog>
+      </ThemeProvider>
     </React.Fragment>
   );
 }
