@@ -43,7 +43,7 @@ const AudioControlPanel = styled(Card)(({ theme }) => ({
   margin: theme.spacing(2),
   border: "5px solid ",
   borderRadius: "50px",
-  width: "35%",
+  width: "50%",
   animation: "borderAnimation 3s infinite",
 
   [theme.breakpoints.down("md")]: {
@@ -102,8 +102,6 @@ const WaveAnimationContainer = styled("div")({
   display: "flex",
   alignItems: "center",
   height: "50px",
-  width: "100%", // Adjust the width of the container if needed
-  justifyContent: "center",
 });
 
 const WaveAnimation = () => (
@@ -216,14 +214,19 @@ const RecorderComponent = ({ PmrSummary }) => {
 
       <>
         <RecordedSummaryContainer>
-          <Stack direction={"row"} alignItems={"center"} gap={2}>
+          <Stack direction={"row"} alignItems={"center"} gap={2} width={"100%"}>
             <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
               <img style={{ height: "20px" }} src={cliniq360Logo} />
             </IconButton>
             {!showSkeleton &&
             summaryContent.length > 0 &&
             summaryContent[0][1]?.summary ? (
-              <>
+              <Stack
+                direction={"row"}
+                justifyContent={"space-between"}
+                alignItems={"center"}
+                sx={{ width: "100%" }}
+              >
                 <Typography
                   variant="body1"
                   component="p"
@@ -245,12 +248,12 @@ const RecorderComponent = ({ PmrSummary }) => {
                     setSummaryContent={setSummaryContent}
                   />
                 </Stack>
-              </>
+              </Stack>
             ) : (
-              <Box sx={{ width: "80%" }}>
+              <Stack flex={1} sx={{ width: "100%" }}>
                 <Skeleton sx={{ height: "30px" }} animation="wave" />
                 <Skeleton sx={{ height: "30px" }} animation="wave" />
-              </Box>
+              </Stack>
             )}
           </Stack>
         </RecordedSummaryContainer>

@@ -132,7 +132,7 @@ export default function CustomizedSummaryDialog({
   const [translatedContent, setTranslatedContent] = useState(summaryContent);
   const [changeLanguage, setChangeLanguage] = useState(false);
   const [edit, setEdit] = useState(false);
-  let content = changeLanguage ? summaryContent : translatedContent;
+  let content = !changeLanguage ? summaryContent : translatedContent;
   const handleClickOpen = () => {
     setOpen(true);
   };
