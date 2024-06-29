@@ -100,6 +100,13 @@ export const verifyDemographics = createAsyncThunk(
     return response;
   }
 );
+export const updatePMRSummary = createAsyncThunk(
+  "updatePMRSummary",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.updatePMRSummary, payload);
+    return response;
+  }
+);
 
 export const recorderAnalysis = createAsyncThunk(
   "recorderAnalysis",

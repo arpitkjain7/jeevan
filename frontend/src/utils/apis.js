@@ -70,4 +70,5 @@ export const apis = {
   appointmentAnalytics: "v1/appointmentAnalytics",
   previewPMR: "v1/PMR/previewPMR",
   recorderAnalysis: "v1/openAI/transcribe",
+  updatePMRSummary: "v1/openAI/update-summary",
 };

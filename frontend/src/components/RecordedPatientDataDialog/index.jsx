@@ -28,6 +28,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  Grid,
   InputBase,
   InputLabel,
   ListItem,
@@ -50,7 +51,8 @@ import { alpha, styled } from "@mui/material/styles";
 import contentData from "../../components/RecorderComponent/content.json";
 import Translate from "../Translate";
 import { ThemeProvider } from "@emotion/react";
-
+import { useDispatch } from "react-redux";
+import { updatePMRSummary } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -89,7 +91,8 @@ const theme = createTheme({
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   "label + &": {
-    marginTop: theme.spacing(6),
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(2),
   },
   "& .MuiInputBase-input": {
     borderRadius: 4,
@@ -132,6 +135,7 @@ export default function CustomizedSummaryDialog({
   const [translatedContent, setTranslatedContent] = useState(summaryContent);
   const [changeLanguage, setChangeLanguage] = useState(false);
   const [edit, setEdit] = useState(false);
+  const dispatch = useDispatch();
   let content = !changeLanguage ? summaryContent : translatedContent;
   const handleClickOpen = () => {
     setOpen(true);
@@ -278,6 +282,20 @@ export default function CustomizedSummaryDialog({
     });
   };
 
+  //Changing the Summary
+  const handleSavechanges = () => {
+    const payload = {
+      pmr_id: sessionStorage.getItem("pmrID"),
+      ...Object.fromEntries(summaryContent),
+    };
+    dispatch(updatePMRSummary(payload)).then((res) => {
+      if (res?.payload) {
+        console.log(res?.payload);
+        setEdit(!edit);
+      }
+    });
+  };
+
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
@@ -394,7 +412,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.allergy_information || []}
+                      defaultValue={
+                        content[1][1]?.allergy_information || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -432,7 +452,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.family_history || []}
+                      defaultValue={
+                        content[1][1]?.family_history || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -477,7 +499,9 @@ export default function CustomizedSummaryDialog({
                       id="tags-filled"
                       options={[]}
                       defaultValue={
-                        content[1][1]?.history_of_present_illness || []
+                        content[1][1]?.history_of_present_illness || [
+                          "Not Available",
+                        ]
                       }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
@@ -515,7 +539,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.medication_history || []}
+                      defaultValue={
+                        content[1][1]?.medication_history || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -552,7 +578,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.past_medical_history || []}
+                      defaultValue={
+                        content[1][1]?.past_medical_history || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -589,7 +617,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.review_of_systems || []}
+                      defaultValue={
+                        content[1][1]?.review_of_systems || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -626,7 +656,9 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.social_history || []}
+                      defaultValue={
+                        content[1][1]?.social_history || ["Not Available"]
+                      }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -655,76 +687,148 @@ export default function CustomizedSummaryDialog({
             <Accordion>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6">
-                  <AssessmentIcon /> <strong>Doctor's Assessment</strong>
+                  <AllergyIcon /> <strong>Objective</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <FormControl variant="standard" fullWidth>
                   <InputLabel shrink htmlFor="bootstrap-input">
                     <Typography variant="h6">
-                      <strong> comment: </strong>
-                    </Typography>
-                  </InputLabel>
-                  <BootstrapInput
-                    disabled={!edit}
-                    defaultValue={content[3][1]?.comment || "Not Available"}
-                    id="bootstrap-input"
-                    multiline
-                    name="comment"
-                    onChange={(e) => handleSummaryChange(e, 3)}
-                  />
-                </FormControl>
-                <FormControl variant="standard" fullWidth>
-                  <InputLabel shrink htmlFor="bootstrap-input">
-                    <Typography variant="h6">
-                      <strong>Differential Diagnosis:</strong>{" "}
+                      <strong> Laboratory and Diagnostic Test Result: </strong>
                     </Typography>
                   </InputLabel>
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      content[3][1]?.differential_diagnosis || "Not Available"
+                      content[2][1]?.laboratory_and_diagnostic_test_results ||
+                      "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
-                    name="differential_diagnosis"
-                    onChange={(e) => handleSummaryChange(e, 3)}
+                    name="laboratory_and_diagnostic_test_results"
+                    onChange={(e) => handleSummaryChange(e, 2)}
                   />
                 </FormControl>
                 <FormControl variant="standard" fullWidth>
                   <InputLabel shrink htmlFor="bootstrap-input">
                     <Typography variant="h6">
-                      <strong>Preliminary Diagnosis:</strong>{" "}
+                      <strong> physical Examination Findings </strong>
                     </Typography>
                   </InputLabel>
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      content[3][1]?.preliminary_diagnosis || "Not Available"
+                      content[2][1]?.physical_examination_findings ||
+                      "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
-                    name="preliminary_diagnosis"
-                    onChange={(e) => handleSummaryChange(e, 3)}
+                    name="physical_examination_findings"
+                    onChange={(e) => handleSummaryChange(e, 2)}
                   />
                 </FormControl>
-                <FormControl variant="standard" fullWidth>
-                  <InputLabel shrink htmlFor="bootstrap-input">
-                    <Typography variant="h6">
-                      <strong>Risk Factors:</strong>{" "}
-                    </Typography>
-                  </InputLabel>
-                  <BootstrapInput
-                    disabled={!edit}
-                    defaultValue={
-                      content[3][1]?.risk_factors || "Not Available"
-                    }
-                    id="bootstrap-input"
-                    multiline
-                    name="risk_factors"
-                    onChange={(e) => handleSummaryChange(e, 3)}
-                  />
-                </FormControl>
+                <Grid container gap={1}>
+                  <Grid item md={5} sm={12}>
+                    <FormControl variant="standard" fullWidth>
+                      <InputLabel shrink htmlFor="bootstrap-input">
+                        <Typography variant="h6">
+                          <strong> Blood Pressure </strong>
+                        </Typography>
+                      </InputLabel>
+                      <BootstrapInput
+                        disabled={!edit}
+                        defaultValue={
+                          content[2][1]?.vital_signs?.blood_pressure ||
+                          "Not Available"
+                        }
+                        id="bootstrap-input"
+                        multiline
+                        name="blood_pressure"
+                        onChange={(e) => handleSummaryChange(e, 2)}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={5} sm={12}>
+                    <FormControl variant="standard" fullWidth>
+                      <InputLabel shrink htmlFor="bootstrap-input">
+                        <Typography variant="h6">
+                          <strong> Heart Rate: </strong>
+                        </Typography>
+                      </InputLabel>
+                      <BootstrapInput
+                        disabled={!edit}
+                        defaultValue={
+                          content[2][1]?.vital_signs?.heart_rate ||
+                          "Not Available"
+                        }
+                        id="bootstrap-input"
+                        multiline
+                        name="heart_rate"
+                        onChange={(e) => handleSummaryChange(e, 2)}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={5} sm={12}>
+                    <FormControl variant="standard" fullWidth>
+                      <InputLabel shrink htmlFor="bootstrap-input">
+                        <Typography variant="h6">
+                          <strong> Oxygen Saturation : </strong>
+                        </Typography>
+                      </InputLabel>
+                      <BootstrapInput
+                        disabled={!edit}
+                        defaultValue={
+                          content[2][1]?.vital_signs?.oxygen_saturation ||
+                          "Not Available"
+                        }
+                        id="bootstrap-input"
+                        multiline
+                        name="oxygen_saturation"
+                        onChange={(e) => handleSummaryChange(e, 2)}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={5} sm={12}>
+                    <FormControl variant="standard" fullWidth>
+                      <InputLabel shrink htmlFor="bootstrap-input">
+                        <Typography variant="h6">
+                          <strong>Respiratory Rate : </strong>
+                        </Typography>
+                      </InputLabel>
+                      <BootstrapInput
+                        disabled={!edit}
+                        defaultValue={
+                          content[2][1]?.vital_signs?.respiratory_rate ||
+                          "Not Available"
+                        }
+                        id="bootstrap-input"
+                        multiline
+                        name="respiratory_rate"
+                        onChange={(e) => handleSummaryChange(e, 2)}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={5} sm={12}>
+                    <FormControl variant="standard" fullWidth>
+                      <InputLabel shrink htmlFor="bootstrap-input">
+                        <Typography variant="h6">
+                          <strong>Temperature : </strong>
+                        </Typography>
+                      </InputLabel>
+                      <BootstrapInput
+                        disabled={!edit}
+                        defaultValue={
+                          content[2][1]?.vital_signs?.temperature ||
+                          "Not Available"
+                        }
+                        id="bootstrap-input"
+                        multiline
+                        name="temperature"
+                        onChange={(e) => handleSummaryChange(e, 2)}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
               </AccordionDetails>
             </Accordion>
             <Accordion>
@@ -933,7 +1037,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[5][1]?.imaging_tests || []}
+                        defaultValue={
+                          content[5][1]?.imaging_tests || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -970,7 +1076,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[5][1]?.laboratory_tests || []}
+                        defaultValue={
+                          content[5][1]?.laboratory_tests || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1007,7 +1115,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[5][1]?.special_exams || []}
+                        defaultValue={
+                          content[5][1]?.special_exams || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1055,7 +1165,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[6][1]?.consultations || []}
+                        defaultValue={
+                          content[6][1]?.consultations || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1100,7 +1212,9 @@ export default function CustomizedSummaryDialog({
                         id="tags-filled"
                         options={[]}
                         defaultValue={
-                          content[6][1]?.lifestyle_modifications || []
+                          content[6][1]?.lifestyle_modifications || [
+                            "Not Available",
+                          ]
                         }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
@@ -1138,7 +1252,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[6][1]?.precautions || []}
+                        defaultValue={
+                          content[6][1]?.precautions || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1175,7 +1291,9 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={content[6][1]?.referrals || []}
+                        defaultValue={
+                          content[6][1]?.referrals || ["Not Available"]
+                        }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1236,7 +1354,7 @@ export default function CustomizedSummaryDialog({
                 <Button
                   sx={{ width: "150px" }}
                   autoFocus
-                  onClick={() => setEdit(!edit)}
+                  onClick={handleSavechanges}
                 >
                   Save Changes
                 </Button>
