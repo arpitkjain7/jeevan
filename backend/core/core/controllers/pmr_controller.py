@@ -82,7 +82,8 @@ class PMRController:
         try:
             logging.info("executing get pmr function")
             logging.info(f"Getting the PMR record for {pmr_id=}")
-            return self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            del pmr_details["raw_transcripts"]
         except Exception as error:
             logging.error(
                 f"Error in PMRController.get_pmr_controller function: {error}"
@@ -197,6 +198,7 @@ class PMRController:
             )
             # TODO: Optimise the function to reduce additional query
             pmr_details = self.CRUDPatientMedicalRecord.read_joined(pmr_id=pmr_id)
+            del pmr_details["raw_transcripts"]
             appointment_details = self.CRUDAppointments.read(
                 request_dict.get("appointment_id")
             )
@@ -1185,31 +1187,87 @@ class PMRController:
                 "appointment_request": appointment_request_dict,
             }
             bytes_io = io.BytesIO()
-            bytes_io = create_pdf(bytes_io, pmr_data)
+            bytes_io = create_pdf(
+                file_obj=bytes_io, input_data=pmr_data, pdf_type="pmr"
+            )
             pdf_bytes = bytes_io.getvalue()
             if pmr_metadata_dict.get("document_id", None):
                 document_id = pmr_metadata_dict.get("document_id")
                 document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
-                # self.s3_client.put_object(
-                #     Bucket=self.cliniq_bucket, Key=document_key, Body=pdf_bytes
-                # )
                 s3_location = upload_to_s3(
                     bucket_name=self.cliniq_bucket,
                     byte_data=pdf_bytes,
                     file_name=document_key,
                     content_type="application/pdf",
                 )
-                # s3_location = f"{self.cliniq_bucket}/{document_key}"
                 self.CRUDPatientMedicalDocuments.update(
                     document_id=document_id, **{"document_location": s3_location}
                 )
             else:
                 document_id = f"C360-DOCU-{str(uuid.uuid1().int)[:18]}"
                 document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
-                # self.s3_client.put_object(
-                #     Bucket=self.cliniq_bucket, Key=document_key, Body=pdf_bytes
-                # )
-                # s3_location = f"{self.cliniq_bucket}/{document_key}"
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=pdf_bytes,
+                    file_name=document_key,
+                    content_type="application/pdf",
+                )
+                self.CRUDPatientMedicalDocuments.create(
+                    **{
+                        "id": document_id,
+                        "pmr_id": pmr_request.pmr_id,
+                        "document_name": "Prescription_digital",
+                        "document_mime_type": self.mime_type_mapping.get("pdf"),
+                        "document_type": "OPConsultation",
+                        "document_type_code": "OP Consultation",
+                        "document_location": s3_location,
+                    }
+                )
+            document_bytes = read_object(
+                bucket_name=self.cliniq_bucket,
+                prefix=document_key,
+            )
+            return {
+                "document_id": document_id,
+                "s3_location": s3_location,
+                "data": document_bytes,
+            }
+        except Exception as error:
+            logging.error(f"Error in PMRController.preview_pmr function: {error}")
+            raise error
+
+    def preview_summary(self, pmr_request, appointment_request, pmr_metadata):
+        try:
+            pmr_request_dict = pmr_request.dict()
+            pmr_metadata_dict = pmr_metadata.dict()
+            appointment_request_dict = appointment_request.dict()
+            pmr_id = pmr_request_dict.get("pmr_id")
+            pmr_obj = self.CRUDPatientMedicalRecord.read(pmr_id=pmr_id)
+            pmr_data = {
+                "pmr_request": pmr_obj,
+                "metadata": pmr_metadata_dict,
+                "appointment_request": appointment_request_dict,
+            }
+            bytes_io = io.BytesIO()
+            bytes_io = create_pdf(
+                file_obj=bytes_io, input_data=pmr_data, pdf_type="summary"
+            )
+            pdf_bytes = bytes_io.getvalue()
+            if pmr_metadata_dict.get("document_id", None):
+                document_id = pmr_metadata_dict.get("document_id")
+                document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
+                s3_location = upload_to_s3(
+                    bucket_name=self.cliniq_bucket,
+                    byte_data=pdf_bytes,
+                    file_name=document_key,
+                    content_type="application/pdf",
+                )
+                self.CRUDPatientMedicalDocuments.update(
+                    document_id=document_id, **{"document_location": s3_location}
+                )
+            else:
+                document_id = f"C360-DOCU-{str(uuid.uuid1().int)[:18]}"
+                document_key = f"PATIENT_DATA/{pmr_metadata.patient_uid}/{pmr_request.pmr_id}/{document_id}.pdf"
                 s3_location = upload_to_s3(
                     bucket_name=self.cliniq_bucket,
                     byte_data=pdf_bytes,
