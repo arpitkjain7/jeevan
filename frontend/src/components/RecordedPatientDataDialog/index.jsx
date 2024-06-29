@@ -20,6 +20,7 @@ import PrescriptionIcon from "@mui/icons-material/Description";
 import TestIcon from "@mui/icons-material/Biotech";
 import NextStepsIcon from "@mui/icons-material/Forward";
 import NotesIcon from "@mui/icons-material/Notes";
+import { Document, Page } from "react-pdf";
 import {
   Autocomplete,
   Box,
@@ -53,13 +54,49 @@ import Translate from "../Translate";
 import { ThemeProvider } from "@emotion/react";
 import { useDispatch } from "react-redux";
 import {
+  postEMR,
   previewPMRSummary,
   updatePMRSummary,
 } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
 import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
+import SendPMR from "../../pages/DoctorPage/SendPMR";
+import CustomLoader from "../CustomLoader";
+import CustomizedDialogs from "../Dialog";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
+const isMobile = window.innerWidth < 600;
+
+const PDFViewerWrapper = styled("div")(({ theme }) => ({
+  height: "800px",
+  marginBottom: "32px",
+  flex: "1",
+  [theme.breakpoints.down("md")]: {
+    height: "auto",
+    marginBottom: "0",
+  },
+}));
+
+const PDFButtonWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  gap: "16px",
+  position: "sticky",
+  bottom: 0,
+  border: `1px solid ${theme.palette.primaryBlue}`,
+  backgroundColor: "#b2d6f0",
+  padding: theme.spacing(2, 2),
+  zIndex: 1,
+}));
+
+const PrimaryButton = styled("button")(({ theme }) => ({
+  "&": theme.typography.primaryButton,
+  float: "right",
+  [theme.breakpoints.down("sm")]: {
+    padding: "5px 7px",
+  },
+}));
 
 const theme = createTheme({
   components: {
@@ -130,6 +167,29 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height,
+  };
+}
+function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions()
+  );
+
+  React.useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return windowDimensions;
+}
+
 export default function CustomizedSummaryDialog({
   open,
   setOpen,
@@ -137,16 +197,20 @@ export default function CustomizedSummaryDialog({
   setSummaryContent,
   emrData,
 }) {
+  const [showLoader, setShowLoader] = useState(false);
   const [translatedContent, setTranslatedContent] = useState(summaryContent);
   const [changeLanguage, setChangeLanguage] = useState(false);
   const [edit, setEdit] = useState(false);
   const [data, setData] = useState("");
   const [openPdf, setOpenPdf] = useState(false);
+  const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
+  const [numPages, setNumPages] = useState(null);
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const selectedHospital = JSON.parse(
     sessionStorage.getItem("selectedHospital")
   );
   const encounterDetail = JSON.parse(sessionStorage.getItem("encounterDetail"));
+
   const dispatch = useDispatch();
   let content = !changeLanguage ? summaryContent : translatedContent;
   const handleClickOpen = () => {
@@ -160,6 +224,58 @@ export default function CustomizedSummaryDialog({
     dosages: "",
     duration_refill: "",
   });
+
+  const postPMR = async () => {
+    setShowLoader(true);
+    let pmr_request;
+    // const pmr_request = pdfData;
+    // pmr_request["pmr_id"] = emrId;
+    // pmr_request["advice"] = advices;
+    // pmr_request["notes"] = prescriptionComment;
+
+    // const pdfPayload = {
+    //   mode: "digital",
+    //   pmr_id: emrId,
+    // };
+
+    let appointment_request;
+    // if (followUp) {
+    //   appointment_request = {
+    //     appointment_id: encounterDetail?.id || currentPatient?.id,
+    //     followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
+    //     consultation_status: "Completed",
+    //   };
+    // } else {
+    //   appointment_request = {
+    //     appointment_id: encounterDetail?.id || currentPatient?.id,
+    //     consultation_status: "Completed",
+    //   };
+    // }
+    const allData = {
+      pmr_request,
+      appointment_request,
+    };
+    // const blob = await createPdfBlob();
+    // dispatch(submitPdf({ blob, pdfPayload }))
+    //   .then((pdfResponse) => {
+    dispatch(postEMR(allData))
+      .then((res) => {
+        setShowLoader(false);
+        if (res?.meta?.requestStatus === "rejected") {
+          setPmrDialogOpen(true);
+        } else {
+          // setDocumentId(pdfResponse?.payload?.data?.document_id);
+          setNotifyModal(true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
 
   React.useEffect(() => {
     if (translatedContent && translatedContent.length > 0) {
@@ -278,8 +394,12 @@ export default function CustomizedSummaryDialog({
     }
   };
 
+  const { height, width } = useWindowDimensions();
+  const [notifyModal, setNotifyModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingMedName, setEditingMedName] = useState("");
+  const [documentID, setDocumentID] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const startEditMedication = (medication) => {
     setIsEditing(true);
@@ -366,13 +486,36 @@ export default function CustomizedSummaryDialog({
     console.log(payload);
     console.log("selectedPatient", selectedPatient);
     dispatch(previewPMRSummary(payload)).then((res) => {
-      setData(res?.payload?.data);
-      setOpenPdf(true);
+      if (res?.payload) {
+        setDocumentID(res?.payload?.document_id);
+        setData(res?.payload?.data);
+        setOpenPdf(true);
+        if (res?.payload?.data) {
+          const decodedByteCode = atob(res?.payload?.data);
+          const byteNumbers = new Array(decodedByteCode.length);
+          for (let i = 0; i < decodedByteCode.length; i++) {
+            byteNumbers[i] = decodedByteCode.charCodeAt(i);
+          }
+          const blobData = new Blob([new Uint8Array(byteNumbers)], {
+            type: "application/pdf",
+          });
+          // const pdfUrls = URL.createObjectURL(blobData);
+          setPdfUrl(URL.createObjectURL(blobData));
+          return () => {
+            URL.revokeObjectURL(pdfUrl);
+          };
+        }
+      }
     });
   };
 
   return (
     <React.Fragment>
+      <CustomLoader open={showLoader} />
+      <CustomizedDialogs
+        open={pmrDialogOpen}
+        handleClose={() => setPmrDialogOpen(false)}
+      />
       <ThemeProvider theme={theme}>
         <Tooltip title="See More">
           <IconButton
@@ -1444,12 +1587,85 @@ export default function CustomizedSummaryDialog({
             </Button>
           </DialogActions>
         </Dialog>
-        <PdfFromDocumentBytes
+        {/* <PdfFromDocumentBytes
           open={openPdf}
           handleClose={handlePdfClose}
           documentType={"application/pdf"}
           docBytes={data}
-        />
+        /> */}
+
+        <Dialog
+          fullScreen
+          open={openPdf}
+          onClose={() => setOpenPdf(false)}
+          aria-labelledby="responsive-dialog-title"
+        >
+          <AppBar position="relative">
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={() => setOpenPdf(false)}
+                aria-label="close"
+              >
+                <CloseIcon />
+              </IconButton>
+              {/* You can add the dialog title or other actions here */}
+            </Toolbar>
+          </AppBar>
+          {/* Your existing JSX content goes here, without the openPdf conditional rendering */}
+          <SendPMR
+            notifyModal={notifyModal}
+            handleNotifyModalClose={() => setNotifyModal(false)}
+            documentId={documentID} //check this
+          />
+          {!isMobile && (
+            <PDFViewerWrapper>
+              <div style={{ width: "100%", height: "100%" }} zoom={1}>
+                <embed
+                  style={{ width: "100%", height: height }}
+                  src={`data:application/pdf;base64,${data}`}
+                />
+              </div>
+              <PDFButtonWrapper>
+                <PrimaryButton onClick={postPMR}>
+                  Finish Prescription
+                </PrimaryButton>
+              </PDFButtonWrapper>
+            </PDFViewerWrapper>
+          )}
+          {isMobile && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginBottom: "10px",
+                }}
+              >
+                <PrimaryButton onClick={postPMR}>
+                  Finish Prescription
+                </PrimaryButton>
+              </div>
+              <PDFViewerWrapper>
+                <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+                  {Array.apply(null, Array(numPages))
+                    .map((x, i) => i + 1)
+                    .map((page) => (
+                      <Page
+                        wrap
+                        pageNumber={page}
+                        renderTextLayer={false}
+                        width={width}
+                        height="auto"
+                      />
+                    ))}
+                </Document>
+              </PDFViewerWrapper>
+            </>
+          )}
+        </Dialog>
       </ThemeProvider>
     </React.Fragment>
   );
