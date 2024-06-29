@@ -71,4 +71,5 @@ export const apis = {
   previewPMR: "v1/PMR/previewPMR",
   recorderAnalysis: "v1/openAI/transcribe",
   updatePMRSummary: "v1/openAI/update-summary",
+  previewSummary: "v1/PMR/preview-summary",
 };

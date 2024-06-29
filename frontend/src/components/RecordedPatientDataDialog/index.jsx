@@ -52,7 +52,11 @@ import contentData from "../../components/RecorderComponent/content.json";
 import Translate from "../Translate";
 import { ThemeProvider } from "@emotion/react";
 import { useDispatch } from "react-redux";
-import { updatePMRSummary } from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
+import {
+  previewPMRSummary,
+  updatePMRSummary,
+} from "../../pages/DoctorPage/EMRPage/EMRPage.slice";
+import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -135,12 +139,20 @@ export default function CustomizedSummaryDialog({
   const [translatedContent, setTranslatedContent] = useState(summaryContent);
   const [changeLanguage, setChangeLanguage] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [data, setData] = useState("");
+  const [openPdf, setOpenPdf] = useState(false);
+  const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
+  const selectedHospital = JSON.parse(
+    sessionStorage.getItem("selectedHospital")
+  );
+  const encounterDetail = JSON.parse(sessionStorage.getItem("encounterDetail"));
   const dispatch = useDispatch();
   let content = !changeLanguage ? summaryContent : translatedContent;
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
+  const handlePdfClose = () => setOpenPdf(false);
   const [newMedication, setNewMedication] = useState({
     med_name: "",
     instructions: "",
@@ -293,6 +305,38 @@ export default function CustomizedSummaryDialog({
         console.log(res?.payload);
         setEdit(!edit);
       }
+    });
+  };
+
+  //Handling Preview Summary
+  const handleReviewPrescription = () => {
+    const payload = {
+      pmr_metadata: {
+        doctor_name: selectedPatient?.doc_name,
+        patient_name: selectedPatient?.p_name,
+        hospital_name: selectedHospital?.name,
+        patient_uid: selectedPatient?.patientUid,
+        patient_gender: selectedPatient?.patient_details?.gender,
+        // document_id: selectedPatient?.doc_id || null,
+        patient_age_years: selectedPatient?.age_in_years,
+        patient_age_months: selectedPatient?.age_in_months,
+        patient_contact_number: selectedPatient?.mobileNumber,
+        patient_email: selectedPatient?.email || "NA",
+      },
+      pmr_request: {
+        pmr_id: sessionStorage.getItem("pmrID"),
+      },
+      appointment_request: {
+        appointment_id: selectedPatient?.id,
+        followup_date: selectedPatient?.followup_date || "2024-06-29",
+        consultation_status: selectedPatient?.consultation_status,
+      },
+    };
+    console.log(payload);
+    console.log("selectedPatient", selectedPatient);
+    dispatch(previewPMRSummary(payload)).then((res) => {
+      setData(res?.payload?.data);
+      setOpenPdf(true);
     });
   };
 
@@ -1341,7 +1385,7 @@ export default function CustomizedSummaryDialog({
             </Accordion>
           </DialogContent>
           <DialogActions>
-            <Stack alignContent={"flex-start"} sx={{ flex: 1 }}>
+            <Stack>
               {!edit ? (
                 <Button
                   sx={{ width: "50px" }}
@@ -1360,11 +1404,21 @@ export default function CustomizedSummaryDialog({
                 </Button>
               )}
             </Stack>
-            <Button autoFocus variant="contained">
-              Review Priscription
+            <Button
+              onClick={handleReviewPrescription}
+              autoFocus
+              variant="contained"
+            >
+              Review Prescription
             </Button>
           </DialogActions>
         </Dialog>
+        <PdfFromDocumentBytes
+          open={openPdf}
+          handleClose={handlePdfClose}
+          documentType={"application/pdf"}
+          docBytes={data}
+        />
       </ThemeProvider>
     </React.Fragment>
   );

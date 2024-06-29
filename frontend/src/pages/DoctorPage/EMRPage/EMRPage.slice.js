@@ -107,6 +107,13 @@ export const updatePMRSummary = createAsyncThunk(
     return response;
   }
 );
+export const previewPMRSummary = createAsyncThunk(
+  "previewPMRSummary",
+  async (payload) => {
+    const response = await apiRequest("POST", apis?.previewSummary, payload);
+    return response;
+  }
+);
 
 export const recorderAnalysis = createAsyncThunk(
   "recorderAnalysis",
