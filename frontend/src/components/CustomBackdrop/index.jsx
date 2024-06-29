@@ -258,20 +258,16 @@ export default function CustomBackdrop(doctorDetails) {
       //     "Content-Type": "application/json",
       //   },
       // });
-      const payload = {
-        mobile_number: formData?.mobile_number,
-        name: formData?.patient_name,
-        gender: formData?.gender,
-        DOB: formData?.DOB,
-        // age: "",
-        // email: "",
-        // address: "",
-        // pincode: "",
-        hip_id: "",
-        doc_id: "",
-        appointment_start: formatDateTime(selectedDate + " " + startTime24hour),
-        appointment_end: formatDateTime(selectedDate + " " + endTime24hour),
-      };
+      // const payload = {
+      //   mobile_number: formData?.mobile_number,
+      //   name: formData?.patient_name,
+      //   gender: formData?.gender,
+      //   DOB: formData?.DOB,
+      //   hip_id: "",
+      //   doc_id: "",
+      //   appointment_start: formatDateTime(selectedDate + " " + startTime24hour),
+      //   appointment_end: formatDateTime(selectedDate + " " + endTime24hour),
+      // };
       // await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
       //   headers: {
       //     "Content-Type": "application/json",
