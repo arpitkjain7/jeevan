@@ -24,6 +24,10 @@ import { useParams } from "react-router-dom";
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import { convertTimeSlot } from "../../utils/utils";
+import { useDispatch } from "react-redux";
+import { getDoctorProfile } from "./middleware";
+import CustomLoader from "../../components/CustomLoader";
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 const ProfileContainer = styled("div")(({ theme }) => ({
   marginTop: "-67px",
@@ -220,18 +224,6 @@ const AboutCard = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const AddressesContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  height: "200px",
-  overflowY: "auto",
-  [theme.breakpoints.down("sm")]: {
-    height: "150px",
-    marginRight: "0",
-    marginBottom: "20px",
-  },
-}));
-
 const AddressContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -252,145 +244,14 @@ const AddressContainer = styled("div")(({ theme }) => ({
   }
 }));
 
-const DetailsAndActionButtonContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  width: "700px",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-  },
-  "& button": {
-    height: 50,
-    width: 200,
-    padding: "15px 5px",
-    marginLeft: "100px",
-    [theme.breakpoints.down("sm")]: {
-      marginLeft: 0,
-      width: 100,
-      fontSize: "8px",
-      height: 50,
-    },
-  },
-}));
-
-const DirectionContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  marginTop: "15px",
-  [theme.breakpoints.down("sm")]: {
-    marginTop: "10px",
-    display: "flex",
-    flexDirection: "column-reverse",
-  },
-}));
-
-const DetailsContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  marginLeft: "100px",
-  marginTop: "15px",
-  [theme.breakpoints.down("sm")]: {
-    margin: 0,
-    width: "200px",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-  },
-}));
-
 const DoctorProfile = () => {
   const {doctorName} = useParams();
   const reviewNavRef = useRef();
   const videoNavRef = useRef();
-  const [doctorDetails, setDoctorDetails] = useState(
-    {
-      "languages": "Hindi, English",
-      "affiliated": true,
-      "consultation_fees": 500,
-      "external_hips": [
-        {
-          "name": "Ruby Hall Clinic",
-          "mobile_number": "7171818818",
-          "location": "<iframe src='https://www.google.com/maps/embed?pb=!1m19!1m8!1m3!1d15126.115498689049!2d73.7102156!3d18.5952671!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x3bc2bbc313557353%3A0xd6e203ef53147b33!2sRuby%20Hall%20Clinic%2C%20Rajeev%20Gandhi%20Infotech%20Park%2C%20MIDC%20Phase%20No%201%2C%20Plot%20No%2C%20P-33%2C%20Hinjawadi%2C%20Pune%2C%20Maharashtra%20411057!3m2!1d18.5926118!2d73.7340624!5e0!3m2!1sen!2sin!4v1719485348714!5m2!1sen!2sin' width='600' height='450' style='border:0;' allowfullscreen='' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>",
-          "address": "Hinjewadi",
-          "doc_working_days": "Saturday-Sunday",
-          "consultation_start_time": "10:00",
-          "consultation_end_time": "20:00"
-        }
-      ],
-      "email_id": "rachit@gmail.com",
-      "doc_specialization": "Ears, Nose, Tongue",
-      "awards": "Mentor Mentee Award, Argentina - 2022||Mentor Mentee Award, China - 2024",
-      "doc_uid": "dr-rohit-sharma-4-ent-pune",
-      "mobile_number": "8458919114",
-      "doc_department": "Hospital",
-      "follow_up_fees": 300,
-      "profile_photo": "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",
-      "id": 14,
-      "bio": "Hi, JASJJ",
-      "doc_working_days": "Monday-Friday",
-      "years_of_experience": "5",
-      "signature": null,
-      "age": "45",
-      "about": "Blah Blah Blah Blah",
-      "doc_licence_no": "BAH83829-UW92B",
-      "commonly_treats": "Ears||Nose||Tongue",
-      "created_at": "2024-06-27T18:12:16.849051",
-      "doc_name": "Dr. Rohit Sharma",
-      "hip_id": "123123",
-      "avg_consultation_time": "30",
-      "google_reviews": [
-        {
-          "content": "Dr. Prasad is good at explaining things. He answers all your questions and makes sure you know what's going on. It helps a lot.",
-          "name": "Ravi, Nagpur",
-          "review_date": "20-03-2024",
-          "rating": "4"
-        },
-        {
-          "content": "When you go to see Dr. Prasad, everyone is friendly. It feels good to be there. Dr. Prasad is easy to talk to and very friendly",
-          "name": "Arjun, Nagpur",
-          "review_date": "19-03-2023",
-          "rating": "2"
-        }
-      ],
-      "updated_at": "2024-06-28T13:11:27.505658",
-      "doc_degree": "MD",
-      "consultation_start_time": "09:00:00",
-      "educational_content": "https://www.youtube.com/watch?v=iWSewFlU6o8||https://www.youtube.com/watch?v=fv53QZRk4hs",
-      "consultation_end_time": "20:00:00",
-      "education": [
-        {
-          "college": "GMC-Nagpur",
-          "degree": "MBBS",
-          "year": "2015-2019"
-        },
-        {
-          "college": "GMC-Bombay",
-          "degree": "MD",
-          "year": "2020-2022"
-        }
-      ],
-      "primary_hip": [
-        {
-          "hip_uid": "ABC",
-          "name": "ABC Healthcare",
-          "id": 1,
-          "hip_id": "123123",
-          "hip_city": null,
-          "hip_contact_number": null,
-          "hfr_reg_number": null,
-          "created_at": "2024-06-25T16:22:01.611048",
-          "hip_address": "DUMMY",
-          "hip_location": null,
-          "hip_email_address": null,
-          "hfr_status": null,
-          "updated_at": "2024-06-25T16:22:01.611112"
-        }
-      ]
-    }
-    
-  );
+  const [showLoader, setShowLoader] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [doctorDetails, setDoctorDetails] = useState();
   const [treats, setTreats] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState({});
@@ -399,19 +260,36 @@ const DoctorProfile = () => {
   const [youtubeLinks, setYoutubeLinks] = useState([]);
 
   useEffect(() => {
-    setAddresses([...doctorDetails?.primary_hip, ...doctorDetails?.external_hips]);
-    setSelectedAddress(doctorDetails?.primary_hip[0]);
-
-    if(doctorDetails?.commonly_treats) 
-      setTreats(doctorDetails?.commonly_treats.split("||"));
-
-    if(doctorDetails?.educational_content){
-    const youtubeVideos = doctorDetails?.educational_content.split("||");
-    youtubeVideos.map(url => {
-      const videoId = url.split("v=")[1].substring(0, 11);
-      setYoutubeLinks(links => [...links, `https://www.youtube.com/embed/${videoId}`]);
-    }); 
-  }
+    setShowLoader(true);
+    //dr-prasad-gurjar-nephrologist-nagpur
+    // dispatch(getDoctorProfile(doctorName)).then(res => {
+    //   console.log(res);
+    // })
+    // const doctorData = await axios.get('https://engine.doc.cliniq360.com/v1/doctor-details/get-doctor-profile/'+doctorName);
+    getDoctorProfile(doctorName).then(doctorData => {
+      if(doctorData?.data){
+        setDoctorDetails(doctorData?.data);
+        setAddresses([...doctorData?.data?.primary_hip, ...doctorData?.data?.external_hips]);
+        setSelectedAddress(doctorData?.data?.primary_hip[0]);
+  
+        if(doctorData?.data?.commonly_treats) 
+          setTreats(doctorData?.data?.commonly_treats.split("||"));
+  
+        if(doctorData?.data?.educational_content){
+        const youtubeVideos = doctorData?.data?.educational_content.split("||");
+        youtubeVideos.map(url => {
+          const videoId = url.split("v=")[1].substring(0, 11);
+          setYoutubeLinks(links => [...links, `https://www.youtube.com/embed/${videoId}`]);
+        }); 
+      }
+      } else {
+        setErrorMessage("Error while fetching details");
+        console.log("Error while fetching details");
+        setShowSnackbar(true);
+      }
+      setShowLoader(false);
+    });
+   
   }, []);
 
   const onAppointementSubmit = () => {
@@ -443,8 +321,21 @@ const DoctorProfile = () => {
     setSelectedAddress(address);
   };
 
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
   return (
     <ProfileContainer>
+      <CustomLoader
+        open={showLoader}
+      />
+      <CustomSnackbar
+          message={errorMessage || "Something went wrong"}
+          open={showSnackbar}
+          status={"error"}
+          onClose={onSnackbarClose}
+        />
       {backdrop && 
         <CustomBackdrop 
           doctorDetails={doctorDetails}

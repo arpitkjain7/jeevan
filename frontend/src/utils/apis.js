@@ -62,10 +62,12 @@ export const apis = {
   demographicsAuthInit: "v2/patient/auth/init",
   deepLink: "v1/deepLinkNotify",
   searchAbha: "v1/HID/searchAbha",
-  sendAppointmentList: "v1/PMR/sendAppointementList",
   googleReview: "v1/PMR/sendGoogleReviewLink",
   listAppointmentByDate: "v1/appointment/listByDate",
   fetchPatientDetails: "v1/patient",
   appointmentAnalytics: "v1/appointmentAnalytics",
   previewPMR: "v1/PMR/previewPMR",
+  getDoctorProfile: "v1/doctor-details/get-doctor-profile",
+  sendAppointmentList: "v1/PMR/sendAppointementList",
+  bookAppointment: "v1/register-patient/book-appointment"
 };

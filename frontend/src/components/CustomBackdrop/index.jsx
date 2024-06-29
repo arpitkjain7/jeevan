@@ -22,11 +22,12 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { red } from "@mui/material/colors";
-import axios from "axios";
-import { BASE_URL } from "../../utils/request";
-import { apis } from "../../utils/apis";
 import { format } from "date-fns";
 import { convertTimeSlot, convertToNumber, parseDateFormat } from "../../utils/utils";
+import { bookAppointment } from "../../pages/DoctorProfilePage/middleware";
+import { useDispatch } from "react-redux";
+import CustomLoader from "../CustomLoader";
+import CustomSnackbar from "../CustomSnackbar";
 
 const SlotsWrapper = styled("div")(({theme}) =>({
   "&": { 
@@ -80,6 +81,11 @@ const DateButton = styled("button")(({ theme }) => ({
 export default function CustomBackdrop(doctorDetails) {
   const today = new Date();
   const date_today = parseDateFormat(today, "yyyy-MM-dd");
+  const dispatch = useDispatch();
+  const [showLoader, setShowLoader] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [snackbarStatus, setSnackbarStatus] = useState("error");
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -247,273 +253,329 @@ export default function CustomBackdrop(doctorDetails) {
     }
   };
 
-  const onhandleSubmit = async (e) => {
-    e.preventDefault();
+  function formatDateTime(dateTimeString) {
+    const [datePart, timePart] = dateTimeString.split(" ");
+    const [hour, minute] = timePart.split(":");
+    const formattedTime = `${hour}:${minute}`;
 
-    try {
-      setLoading(true);
-      setError(false);
-      // await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-      // const payload = {
-      //   mobile_number: formData?.mobile_number,
-      //   name: formData?.patient_name,
-      //   gender: formData?.gender,
-      //   DOB: formData?.DOB,
-      //   hip_id: "",
-      //   doc_id: "",
-      //   appointment_start: formatDateTime(selectedDate + " " + startTime24hour),
-      //   appointment_end: formatDateTime(selectedDate + " " + endTime24hour),
-      // };
-      // await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-      setLoading(false);
-      setFormData({
-        channel: "whatsapp",
-        mobile_number: "",
-        patient_name: "",
-        app_date: "",
-        doc_name: "Dr.Prasad Gurjar",
-        destination_mobile_number: "8275330450",
-      });
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-      setError(true);
+    return `${datePart} ${formattedTime}`;
+  }
+
+  const onSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setShowLoader(true);
+    handleClose();
+    const timeRange = selectedSlot;
+    const [startTime, endTime] = timeRange.split(" - ");
+    let startTime24hour;
+    let endTime24hour;
+    if(startTime){
+      var startTimeHour = Number(startTime.match(/^(\d+)/)[1]);
+      var startTimeMinutes = Number(startTime.match(/:(\d+)/)[1]);
+      var meridiem = startTime.slice(-2);
+      if(meridiem === "PM" && startTimeHour < 12) startTimeHour = startTimeHour + 12;
+      else if(meridiem === "AM" && startTimeHour === 12) startTimeHour = startTimeHour-12;
+      var sHours = startTimeHour.toString();
+      var sMinutes = startTimeMinutes.toString();
+      if(startTimeHour<10) sHours = "0" + sHours;
+      if(startTimeMinutes<10) sMinutes = "0" + sMinutes;
+        startTime24hour = sHours + ":" + sMinutes;
     }
+    if(endTime){
+      var endTimeHour = Number(endTime.match(/^(\d+)/)[1]);
+      var endTimeMinutes = Number(endTime.match(/:(\d+)/)[1]);
+      var meridiem = endTime.slice(-2);
+      if(meridiem === "PM" && endTimeHour < 12) endTimeHour = endTimeHour + 12;
+      else if(meridiem === "AM" && endTimeHour === 12) endTimeHour = endTimeHour-12;
+      var sHours = endTimeHour.toString();
+      var sMinutes = endTimeMinutes.toString();
+      if(endTimeHour<10) sHours = "0" + sHours;
+      if(endTimeMinutes<10) sMinutes = "0" + sMinutes;
+      endTime24hour = sHours + ":" + sMinutes;
+    }
+      const payload = {
+        mobile_number: formData?.mobile_number,
+        name: formData?.patient_name,
+        gender: formData?.gender,
+        DOB: parseDateFormat(formData?.DOB, "dd-MM-yyyy"),
+        hip_id: doctorDetails?.doctorDetails?.hip_id,
+        doc_id: doctorDetails?.doctorDetails?.id,
+        appointment_start: formatDateTime(selectedDate + " " + startTime24hour),
+        appointment_end: formatDateTime(selectedDate + " " + endTime24hour),
+      };
+      bookAppointment(payload).then(res => {
+        console.log(res);
+        if(res?.data){
+          setSnackbarStatus("success");
+          setErrorMessage("Submission successful. You will be notified shortly about appointment confirmation");
+          setShowSnackbar(true);
+         
+        } else {
+          setSnackbarStatus("error");
+          setShowSnackbar(true);
+        }
+      });
+      setShowLoader(false);
+      // setFormData({
+      //   channel: "whatsapp",
+      //   mobile_number: "",
+      //   patient_name: "",
+      //   app_date: "",
+      //   doc_name: "Dr.Prasad Gurjar",
+      //   destination_mobile_number: "8275330450",
+      // });
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (
-    <Backdrop
-      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      open={open}
-    >
-      {loading ? (
-        <CircularProgress color="inherit" />
-      ) : (
-        <Dialog
-          // height={400}
-          // width="70%"
-          // my={4}
-          // display="flex"
-          // flexDirection="column"
-          // gap={2}
-          // p={4}
-          open={open}
-          onClose={handleClose}
-          maxWidth="md"
-          // sx={{
-          //   border: "2px solid grey",
-          //   backgroundColor: "white",
-          //   borderRadius: "2%",
-          // }}
-        >
-          {/* <Box
-            // height="25px"
-            // width="25px"
-            component="span"
-            sx={{
-              backgroundColor: "black",
-              marginLeft: "auto",
-              borderRadius: "50%",
-              padding: "2px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
+    <div>
+      <CustomLoader
+        open={showLoader}
+      />
+      <CustomSnackbar
+        message={errorMessage || "Something went wrong"}
+        open={showSnackbar}
+        status={snackbarStatus}
+        onClose={onSnackbarClose}
+      />
+    
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+      >
+        
+        {loading ? (
+          <CircularProgress color="inherit" />
+        ) : (
+          <Dialog
+            // height={400}
+            // width="70%"
+            // my={4}
+            // display="flex"
+            // flexDirection="column"
+            // gap={2}
+            // p={4}
+            open={open}
+            onClose={handleClose}
+            maxWidth="md"
+            // sx={{
+            //   border: "2px solid grey",
+            //   backgroundColor: "white",
+            //   borderRadius: "2%",
+            // }}
+          >
+            {/* <Box
+              // height="25px"
+              // width="25px"
+              component="span"
+              sx={{
+                backgroundColor: "black",
+                marginLeft: "auto",
+                borderRadius: "50%",
+                padding: "2px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              onClick={handleClose}
+            >
+              <CloseIcon />
+            </Box> */}
+          <DialogTitle >
+            Book an Appointment
+          </DialogTitle>
+          <IconButton
+            aria-label="close"
             onClick={handleClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
           >
             <CloseIcon />
-          </Box> */}
-        <DialogTitle >
-          Book an Appointment
-        </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent dividers>
-          <form onSubmit={onhandleSubmit}>
-            <Grid container spacing={4}>
-              <Grid item xs={12} md={6}>
-                <Typography>Full Name</Typography>
-                <TextField
-                  onChange={handleChange}
-                  fullWidth
-                  variant="outlined"
-                  placeholder="Enter Your fullname"
-                  value={formData.patient_name}
-                  required
-                  id="patient_name"
-                  name="patient_name"
-                  sx={{ marginBottom: "10px" }}
-                />
+          </IconButton>
+          <DialogContent dividers>
+            <form>
+              <Grid container spacing={4}>
+                <Grid item xs={12} md={6}>
+                  <Typography>Full Name</Typography>
+                  <TextField
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Enter Your fullname"
+                    value={formData.patient_name}
+                    required
+                    id="patient_name"
+                    name="patient_name"
+                    sx={{ marginBottom: "10px" }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography>Mobile Number</Typography>
+                  <TextField
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                    value={formData.mobile_number}
+                    required
+                    id="mobile_number"
+                    name="mobile_number"
+                    placeholder="Enter Your Mobile Number"
+                    sx={{ marginBottom: "10px" }}
+                    error={isMobileError}
+                    helperText={
+                      isMobileError
+                        ? "Please enter a valid 10-digit mobile number"
+                        : ""
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography>DOB</Typography>
+                  <TextField
+                    name="DOB"
+                    value={formData.DOB}
+                    onChange={handleChange}
+                    type="date"
+                    inputProps={{
+                      max: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                    }}
+                    InputLabelProps={{ shrink: true }}
+                    // required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl component="fieldset">
+                  <FormLabel component="legend">Gender</FormLabel>
+                  <RadioGroup
+                    aria-label="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                  >
+                    <Grid>
+                      <FormControlLabel value="M" control={<Radio />} label="Male" />
+                      <FormControlLabel
+                        value="F"
+                        control={<Radio />}
+                        label="Female"
+                      />
+                      <FormControlLabel
+                        value="other"
+                        control={<Radio />}
+                        label="Other"
+                      />
+                    </Grid>
+                  </RadioGroup>
+                </FormControl>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography>Enter Your Appointment Date</Typography>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={selectedDate}
+                    onChange={handleChange}
+                    required
+                    type="date"
+                    inputProps={{
+                      min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                    }}
+                    // id="app_date"
+                    name="app_date"
+                    sx={{ marginBottom: "10px" }}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography>Mobile Number</Typography>
-                <TextField
-                  onChange={handleChange}
-                  fullWidth
-                  variant="outlined"
-                  value={formData.mobile_number}
-                  required
-                  id="mobile_number"
-                  name="mobile_number"
-                  placeholder="Enter Your Mobile Number"
-                  sx={{ marginBottom: "10px" }}
-                  error={isMobileError}
-                  helperText={
-                    isMobileError
-                      ? "Please enter a valid 10-digit mobile number"
-                      : ""
-                  }
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography>DOB</Typography>
-                <TextField
-                  name="DOB"
-                  value={formData.DOB}
-                  onChange={handleChange}
-                  type="date"
-                  inputProps={{
-                    max: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                  // required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FormControl component="fieldset">
-                <FormLabel component="legend">Gender</FormLabel>
-                <RadioGroup
-                  aria-label="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                >
-                  <Grid>
-                    <FormControlLabel value="M" control={<Radio />} label="Male" />
-                    <FormControlLabel
-                      value="F"
-                      control={<Radio />}
-                      label="Female"
-                    />
-                    <FormControlLabel
-                      value="other"
-                      control={<Radio />}
-                      label="Other"
-                    />
-                  </Grid>
-                </RadioGroup>
-              </FormControl>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography>Enter Your Appointment Date</Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={selectedDate}
-                  onChange={handleChange}
-                  required
-                  type="date"
-                  inputProps={{
-                    min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
-                  }}
-                  // id="app_date"
-                  name="app_date"
-                  sx={{ marginBottom: "10px" }}
-                />
-              </Grid>
-            </Grid>
-            {/* <Button 
-              variant="outlined"
-              onClick={handleSelectSlot}
-              disabled={formData.app_date === "" ? true : false}
-              fullWidth
-            >
-              Select slot
-            </Button> */}
+              {/* <Button 
+                variant="outlined"
+                onClick={handleSelectSlot}
+                disabled={formData.app_date === "" ? true : false}
+                fullWidth
+              >
+                Select slot
+              </Button> */}
+            
+              {error && (
+                <Typography sx={{ fontSize: "13px" }} color={red[500]}>
+                  Error Occurred
+                </Typography>
+              )}
+            
+            </form>  
             <br/>
-            <Typography>Available Slots:</Typography> 
-            {
-                selectedDate === date_today 
-              ? 
-              (
-                <SlotsWrapper>
-                <Box className="slots_wrapper_container">
-                <SlotsContainer>
-                  {todaySlots.length > 0 ? todaySlots?.map((todayslot) => (
-                    <DateButton
-                      key={todayslot}
-                      color="primary"
-                      onClick={() => handleSlotSelect(todayslot)}
-                      className={
-                        selectedSlot === todayslot ? "selected-btn" : ""
-                      }
-                    >
-                      {todayslot}
-                    </DateButton>
-                  )) : <h4 color="black">No slots available</h4>}
-                </SlotsContainer>
-                </Box>
-                </SlotsWrapper>
-              )
-              :
-              (
-                <SlotsWrapper>
-                <Box className="slots_wrapper_container">
-                <SlotsContainer>
-                  {slots.length > 0 ? slots.map((slot) => (
-                    <DateButton
-                      key={slot}
-                      color="primary"
-                      onClick={() => handleSlotSelect(slot)}
-                      className={
-                        selectedSlot === slot ? "selected-btn" : ""
-                      }
-                    >
-                      {slot}
-                    </DateButton>
-                  )) : <h4 color="black">No slots available</h4>}
-                </SlotsContainer>
-                </Box>
-                </SlotsWrapper>
-              )
-            }    
-            {error && (
-              <Typography sx={{ fontSize: "13px" }} color={red[500]}>
-                Error Occurred
-              </Typography>
-            )}
+              <Typography>Available Slots:</Typography> 
+              {
+                  selectedDate === date_today 
+                ? 
+                (
+                  <SlotsWrapper>
+                  <Box className="slots_wrapper_container">
+                  <SlotsContainer>
+                    {todaySlots.length > 0 ? todaySlots?.map((todayslot) => (
+                      <DateButton
+                        key={todayslot}
+                        color="primary"
+                        onClick={() => handleSlotSelect(todayslot)}
+                        className={
+                          selectedSlot === todayslot ? "selected-btn" : ""
+                        }
+                      >
+                        {todayslot}
+                      </DateButton>
+                    )) : <h4 color="black">No slots available</h4>}
+                  </SlotsContainer>
+                  </Box>
+                  </SlotsWrapper>
+                )
+                :
+                (
+                  <SlotsWrapper>
+                  <Box className="slots_wrapper_container">
+                  <SlotsContainer>
+                    {slots.length > 0 ? slots.map((slot) => (
+                      <DateButton
+                        key={slot}
+                        color="primary"
+                        onClick={() => handleSlotSelect(slot)}
+                        className={
+                          selectedSlot === slot ? "selected-btn" : ""
+                        }
+                      >
+                        {slot}
+                      </DateButton>
+                    )) : <h4 color="black">No slots available</h4>}
+                  </SlotsContainer>
+                  </Box>
+                  </SlotsWrapper>
+                )
+              }
+            </DialogContent>
+            <DialogActions>
             <Button
-              sx={{ width: "100%", marginTop: 2 }}
-              variant="contained"
-              color="success"
-              type="submit"
-            >
-              Submit
-            </Button>
-          </form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </Backdrop>
+                sx={{ width: "100%", marginTop: 2 }}
+                variant="contained"
+                color="success"
+                type="submit"
+                onClick={handleSubmit}
+              >
+                Submit
+              </Button>
+          </DialogActions>
+          </Dialog>
+        )}
+      </Backdrop>
+    </div>
   );
 }
