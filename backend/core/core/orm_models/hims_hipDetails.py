@@ -10,6 +10,8 @@ class HIPDetail(Base):
     hip_uid = Column(String)
     hip_id = Column(String, unique=True)
     hip_address = Column(String)
+    hip_city = Column(String)
+    hip_location = Column(String)
     hip_contact_number = Column(String)
     hip_email_address = Column(String)
     hfr_reg_number = Column(String)

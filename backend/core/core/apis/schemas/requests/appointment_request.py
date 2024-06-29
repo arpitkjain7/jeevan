@@ -41,3 +41,17 @@ class Update(BaseModel):
 class Read(BaseModel):
     doc_id: int
     date: str
+
+class BookAppointment(BaseModel):
+    mobile_number: str = None
+    name: str = None
+    gender: str = None
+    DOB: str = None
+    age: str = None
+    email: str = None
+    address: str = None
+    pincode: str = None
+    hip_id: str = None
+    doc_id: int
+    appointment_start: str
+    appointment_end: str = None
