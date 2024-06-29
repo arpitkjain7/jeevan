@@ -6,6 +6,7 @@ from core.apis.schemas.requests.user_request import (
     ResetPassword,
     GenerateOTP,
     VerifyOTP,
+    UserOnboard,
 )
 from core.apis.schemas.responses.user_response import (
     RegisterResponse,
@@ -85,6 +86,33 @@ def onboard_user(onboard_request: OnBoard, token: str = Depends(oauth2_scheme)):
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/user/onBoard endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@user_router.post("/v2/user/onBoard")
+def onboard_user_v2(onboard_request: UserOnboard, token: str = Depends(oauth2_scheme)):
+    try:
+        logging.info("Calling /v2/user/onBoard endpoint")
+        logging.debug(f"Request: {onboard_request}")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            user_obj = UserManagementController().v2_create_user(onboard_request)
+            return user_obj
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v2/user/onBoard endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v2/user/onBoard endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
