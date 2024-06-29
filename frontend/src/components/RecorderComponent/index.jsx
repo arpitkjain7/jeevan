@@ -114,24 +114,26 @@ const WaveAnimation = () => (
   </WaveAnimationContainer>
 );
 
-const RecorderComponent = () => {
+const RecorderComponent = ({ PmrSummary }) => {
   const [openSummary, setOpenSummary] = useState(false);
   const [summaryContent, setSummaryContent] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [translatedContent, setTranslatedContent] = useState({});
-  const [skeleton, setSkeleton] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (translatedContent && translatedContent.length > 0) {
-      setSummaryContent(translatedContent);
+    if (PmrSummary) {
+      console.log("PmrSummary", PmrSummary);
+      if (PmrSummary[0]?.[1]?.summary) {
+        setSummaryContent(PmrSummary);
+      }
     }
-  }, [translatedContent]);
+  }, [PmrSummary]);
 
   const handleStopRecording = async (mediaBlobUrl) => {
     try {
       setIsRecording(false);
-      setSkeleton(true);
+      setShowSkeleton(true);
       const response = await fetch(mediaBlobUrl);
       const audio_file = await response.blob();
       const formData = new FormData();
@@ -149,8 +151,7 @@ const RecorderComponent = () => {
       dispatch(recorderAnalysis(payload)).then((res) => {
         const data = res?.payload?.data;
         setSummaryContent(Object.entries(data));
-        setTranslatedContent(data);
-        setSkeleton(false);
+        setShowSkeleton(false);
         // console.log("res", summaryContent);
       });
     } catch (error) {
@@ -213,50 +214,47 @@ const RecorderComponent = () => {
         onStop={handleStopRecording}
       />
 
-      {!skeleton &&
-      summaryContent.length > 0 &&
-      summaryContent[0][1]?.summary ? (
-        <>
-          <RecordedSummaryContainer>
-            <Stack direction={"row"} alignItems={"center"} gap={2}>
-              <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
-                <img style={{ height: "20px" }} src={cliniq360Logo} />
-              </IconButton>
-              <Typography
-                variant="body1"
-                component="p"
-                sx={{
-                  display: "-webkit-box",
-                  overflow: "hidden",
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: 2,
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {summaryContent?.[0]?.[1]?.summary}
-              </Typography>
-            </Stack>
-            <Stack>
-              <CustomizedSummaryDialog
-                open={openSummary}
-                setOpen={setOpenSummary}
-                summaryContent={summaryContent}
-                setSummaryContent={setSummaryContent}
-                translatedContent={translatedContent}
-                setTranslatedContent={setTranslatedContent}
-              />
-            </Stack>
-          </RecordedSummaryContainer>
-        </>
-      ) : (
-        <>
-          <Box sx={{ width: "auto" }}>
-            <Skeleton sx={{ height: "30px" }} animation="wave" />
-            <Skeleton sx={{ height: "30px" }} animation="wave" />
-            <Skeleton sx={{ height: "30px" }} animation="wave" />
-          </Box>
-        </>
-      )}
+      <>
+        <RecordedSummaryContainer>
+          <Stack direction={"row"} alignItems={"center"} gap={2}>
+            <IconButton sx={{ backgroundColor: "#89f2ff61" }}>
+              <img style={{ height: "20px" }} src={cliniq360Logo} />
+            </IconButton>
+            {!showSkeleton &&
+            summaryContent.length > 0 &&
+            summaryContent[0][1]?.summary ? (
+              <>
+                <Typography
+                  variant="body1"
+                  component="p"
+                  sx={{
+                    display: "-webkit-box",
+                    overflow: "hidden",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 2,
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {summaryContent?.[0]?.[1]?.summary}
+                </Typography>
+                <Stack>
+                  <CustomizedSummaryDialog
+                    open={openSummary}
+                    setOpen={setOpenSummary}
+                    summaryContent={summaryContent}
+                    setSummaryContent={setSummaryContent}
+                  />
+                </Stack>
+              </>
+            ) : (
+              <Box sx={{ width: "80%" }}>
+                <Skeleton sx={{ height: "30px" }} animation="wave" />
+                <Skeleton sx={{ height: "30px" }} animation="wave" />
+              </Box>
+            )}
+          </Stack>
+        </RecordedSummaryContainer>
+      </>
     </>
   );
 };

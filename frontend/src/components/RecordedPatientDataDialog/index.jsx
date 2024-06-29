@@ -22,6 +22,7 @@ import NextStepsIcon from "@mui/icons-material/Forward";
 import NotesIcon from "@mui/icons-material/Notes";
 import {
   Autocomplete,
+  Box,
   Chip,
   DialogActions,
   DialogContent,
@@ -127,10 +128,11 @@ export default function CustomizedSummaryDialog({
   setOpen,
   summaryContent,
   setSummaryContent,
-  translatedContent,
-  setTranslatedContent,
 }) {
+  const [translatedContent, setTranslatedContent] = useState(summaryContent);
+  const [changeLanguage, setChangeLanguage] = useState(false);
   const [edit, setEdit] = useState(false);
+  let content = changeLanguage ? summaryContent : translatedContent;
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -141,6 +143,11 @@ export default function CustomizedSummaryDialog({
     dosages: "",
     duration_refill: "",
   });
+
+  React.useEffect(() => {
+    if (translatedContent && translatedContent.length > 0) {
+    }
+  }, [translatedContent]);
 
   const handleSummaryChange = (event, index) => {
     const { name, value } = event.target;
@@ -317,14 +324,21 @@ export default function CustomizedSummaryDialog({
                   </Typography>
                 </Stack>
               </DialogTitle>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={handleClose}
-                aria-label="close"
-              >
-                <CloseIcon sx={{ color: "#0089E9" }} />
-              </IconButton>
+              <Stack direction={"row"} gap={2}>
+                <Translate
+                  translatedContent={translatedContent}
+                  setTranslatedContent={setTranslatedContent}
+                  setOpen={setOpen}
+                />
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={handleClose}
+                  aria-label="close"
+                >
+                  <CloseIcon sx={{ color: "#0089E9" }} />
+                </IconButton>
+              </Stack>
             </Toolbar>
           </AppBar>
           <DialogContent dividers>
@@ -333,7 +347,7 @@ export default function CustomizedSummaryDialog({
                 disabled={!edit}
                 label="Consultaion Summary"
                 variant="outlined"
-                defaultValue={summaryContent?.[0]?.[1]?.summary}
+                defaultValue={content?.[0]?.[1]?.summary}
                 id="bootstrap-input"
                 name="summary"
                 multiline
@@ -358,7 +372,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[1][1]?.chief_complaint || "Not Available"
+                      content[1][1]?.chief_complaint || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -367,7 +381,7 @@ export default function CustomizedSummaryDialog({
                   />
                 </FormControl>
 
-                {summaryContent[1][1]?.allergy_information.length > 0 && (
+                {content[1][1]?.allergy_information.length > 0 && (
                   <>
                     <Typography gutterBottom>Allergy Information:</Typography>
                     <Autocomplete
@@ -380,9 +394,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        summaryContent[1][1]?.allergy_information || []
-                      }
+                      defaultValue={content[1][1]?.allergy_information || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -407,7 +419,7 @@ export default function CustomizedSummaryDialog({
                   </>
                 )}
 
-                {summaryContent[1][1]?.family_history.length > 0 && (
+                {content[1][1]?.family_history.length > 0 && (
                   <div>
                     <Typography gutterBottom>Family History:</Typography>
                     <Autocomplete
@@ -420,7 +432,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={summaryContent[1][1]?.family_history || []}
+                      defaultValue={content[1][1]?.family_history || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -444,8 +456,7 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 )}
-                {summaryContent[1][1]?.history_of_present_illness.length >
-                  0 && (
+                {content[1][1]?.history_of_present_illness.length > 0 && (
                   <div>
                     <Typography gutterBottom>
                       History of Present Illness:
@@ -466,7 +477,7 @@ export default function CustomizedSummaryDialog({
                       id="tags-filled"
                       options={[]}
                       defaultValue={
-                        summaryContent[1][1]?.history_of_present_illness || []
+                        content[1][1]?.history_of_present_illness || []
                       }
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
@@ -491,7 +502,7 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 )}
-                {summaryContent[1][1]?.medication_history.length > 0 && (
+                {content[1][1]?.medication_history.length > 0 && (
                   <div>
                     <Typography gutterBottom>Medication History:</Typography>
                     <Autocomplete
@@ -504,9 +515,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        summaryContent[1][1]?.medication_history || []
-                      }
+                      defaultValue={content[1][1]?.medication_history || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -530,7 +539,7 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 )}
-                {summaryContent[1][1]?.past_medical_history.length > 0 && (
+                {content[1][1]?.past_medical_history.length > 0 && (
                   <div>
                     <Typography gutterBottom>Past Medical History:</Typography>
                     <Autocomplete
@@ -543,9 +552,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        summaryContent[1][1]?.past_medical_history || []
-                      }
+                      defaultValue={content[1][1]?.past_medical_history || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -569,7 +576,7 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 )}
-                {summaryContent[1][1]?.review_of_systems.length > 0 && (
+                {content[1][1]?.review_of_systems.length > 0 && (
                   <div>
                     <Typography gutterBottom>Review of Systems:</Typography>
                     <Autocomplete
@@ -582,9 +589,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        summaryContent[1][1]?.review_of_systems || []
-                      }
+                      defaultValue={content[1][1]?.review_of_systems || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -608,7 +613,7 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 )}
-                {summaryContent[1][1]?.social_history.length > 0 && (
+                {content[1][1]?.social_history.length > 0 && (
                   <div>
                     <Typography gutterBottom>Social History:</Typography>
                     <Autocomplete
@@ -621,7 +626,7 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={summaryContent[1][1]?.social_history || []}
+                      defaultValue={content[1][1]?.social_history || []}
                       renderTags={(value, getTagProps) =>
                         value.map((item, index) => {
                           const { key, ...tagProps } = getTagProps({ index });
@@ -662,9 +667,7 @@ export default function CustomizedSummaryDialog({
                   </InputLabel>
                   <BootstrapInput
                     disabled={!edit}
-                    defaultValue={
-                      summaryContent[3][1]?.comment || "Not Available"
-                    }
+                    defaultValue={content[3][1]?.comment || "Not Available"}
                     id="bootstrap-input"
                     multiline
                     name="comment"
@@ -680,8 +683,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[3][1]?.differential_diagnosis ||
-                      "Not Available"
+                      content[3][1]?.differential_diagnosis || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -698,8 +700,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[3][1]?.preliminary_diagnosis ||
-                      "Not Available"
+                      content[3][1]?.preliminary_diagnosis || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -716,7 +717,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[3][1]?.risk_factors || "Not Available"
+                      content[3][1]?.risk_factors || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -742,7 +743,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[4][1]?.diagnostic_plan || "Not Available"
+                      content[4][1]?.diagnostic_plan || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -759,7 +760,7 @@ export default function CustomizedSummaryDialog({
                   <BootstrapInput
                     disabled={!edit}
                     defaultValue={
-                      summaryContent[4][1]?.treatment_plan || "Not Available"
+                      content[4][1]?.treatment_plan || "Not Available"
                     }
                     id="bootstrap-input"
                     multiline
@@ -775,9 +776,7 @@ export default function CustomizedSummaryDialog({
                   </InputLabel>
                   <BootstrapInput
                     disabled={!edit}
-                    defaultValue={
-                      summaryContent[4][1]?.follow_up || "Not Available"
-                    }
+                    defaultValue={content[4][1]?.follow_up || "Not Available"}
                     id="bootstrap-input"
                     multiline
                     name="follow_up"
@@ -801,9 +800,7 @@ export default function CustomizedSummaryDialog({
                   </InputLabel>
                   <BootstrapInput
                     disabled={!edit}
-                    defaultValue={
-                      summaryContent[7][1]?.comment || "Not Available"
-                    }
+                    defaultValue={content[7][1]?.comment || "Not Available"}
                     id="bootstrap-input"
                     multiline
                     name="comment"
@@ -824,7 +821,7 @@ export default function CustomizedSummaryDialog({
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {summaryContent[7][1]?.medications?.map((medication) => (
+                      {content[7][1]?.medications?.map((medication) => (
                         <TableRow
                           key={medication.med_name}
                           sx={{
@@ -923,7 +920,7 @@ export default function CustomizedSummaryDialog({
               </AccordionSummary>
               <AccordionDetails>
                 <>
-                  {summaryContent[5][1]?.imaging_tests?.length > 0 && (
+                  {content[5][1]?.imaging_tests?.length > 0 && (
                     <div>
                       <Typography gutterBottom>Imaging Tests:</Typography>
                       <Autocomplete
@@ -936,7 +933,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={summaryContent[5][1]?.imaging_tests || []}
+                        defaultValue={content[5][1]?.imaging_tests || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -960,7 +957,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </div>
                   )}
-                  {summaryContent[5][1]?.laboratory_tests?.length > 0 && (
+                  {content[5][1]?.laboratory_tests?.length > 0 && (
                     <div>
                       <Typography gutterBottom>Laboratory Tests:</Typography>
                       <Autocomplete
@@ -973,9 +970,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={
-                          summaryContent[5][1]?.laboratory_tests || []
-                        }
+                        defaultValue={content[5][1]?.laboratory_tests || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -999,7 +994,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </div>
                   )}
-                  {summaryContent[5][1]?.special_exams?.length > 0 && (
+                  {content[5][1]?.special_exams?.length > 0 && (
                     <div>
                       <Typography gutterBottom>Special Exams:</Typography>
                       <Autocomplete
@@ -1012,7 +1007,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={summaryContent[5][1]?.special_exams || []}
+                        defaultValue={content[5][1]?.special_exams || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1047,7 +1042,7 @@ export default function CustomizedSummaryDialog({
               </AccordionSummary>
               <AccordionDetails>
                 <>
-                  {summaryContent[6][1]?.consultations.length > 0 && (
+                  {content[6][1]?.consultations.length > 0 && (
                     <div>
                       <Typography gutterBottom>Consultations:</Typography>
                       <Autocomplete
@@ -1060,7 +1055,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={summaryContent[6][1]?.consultations || []}
+                        defaultValue={content[6][1]?.consultations || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1084,7 +1079,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </div>
                   )}
-                  {summaryContent[6][1]?.lifestyle_modifications.length > 0 && (
+                  {content[6][1]?.lifestyle_modifications.length > 0 && (
                     <div>
                       <Typography gutterBottom>
                         Lifestyle Modifications:
@@ -1105,7 +1100,7 @@ export default function CustomizedSummaryDialog({
                         id="tags-filled"
                         options={[]}
                         defaultValue={
-                          summaryContent[6][1]?.lifestyle_modifications || []
+                          content[6][1]?.lifestyle_modifications || []
                         }
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
@@ -1130,7 +1125,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </div>
                   )}
-                  {summaryContent[6][1]?.precautions.length > 0 && (
+                  {content[6][1]?.precautions.length > 0 && (
                     <div>
                       <Typography gutterBottom>Precautions:</Typography>
                       <Autocomplete
@@ -1143,7 +1138,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={summaryContent[6][1]?.precautions || []}
+                        defaultValue={content[6][1]?.precautions || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1167,7 +1162,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </div>
                   )}
-                  {summaryContent[6][1]?.referrals.length > 0 && (
+                  {content[6][1]?.referrals.length > 0 && (
                     <div>
                       <Typography gutterBottom>Referrals:</Typography>
                       <Autocomplete
@@ -1180,7 +1175,7 @@ export default function CustomizedSummaryDialog({
                         }
                         id="tags-filled"
                         options={[]}
-                        defaultValue={summaryContent[6][1]?.referrals || []}
+                        defaultValue={content[6][1]?.referrals || []}
                         renderTags={(value, getTagProps) =>
                           value.map((item, index) => {
                             const { key, ...tagProps } = getTagProps({ index });
@@ -1217,9 +1212,7 @@ export default function CustomizedSummaryDialog({
                 <FormControl variant="standard" fullWidth>
                   <BootstrapInput
                     disabled={!edit}
-                    defaultValue={
-                      summaryContent[8][1]?.content || "Not Available"
-                    }
+                    defaultValue={content[8][1]?.content || "Not Available"}
                     id="bootstrap-input"
                     multiline
                     name="content"
@@ -1230,23 +1223,28 @@ export default function CustomizedSummaryDialog({
             </Accordion>
           </DialogContent>
           <DialogActions>
+            <Stack alignContent={"flex-start"} sx={{ flex: 1 }}>
+              {!edit ? (
+                <Button
+                  sx={{ width: "50px" }}
+                  autoFocus
+                  onClick={() => setEdit(!edit)}
+                >
+                  Edit
+                </Button>
+              ) : (
+                <Button
+                  sx={{ width: "150px" }}
+                  autoFocus
+                  onClick={() => setEdit(!edit)}
+                >
+                  Save Changes
+                </Button>
+              )}
+            </Stack>
             <Button autoFocus variant="contained">
               Review Priscription
             </Button>
-            <Translate
-              translatedContent={translatedContent}
-              setTranslatedContent={setTranslatedContent}
-              setOpen={setOpen}
-            />
-            {!edit ? (
-              <Button autoFocus onClick={() => setEdit(!edit)}>
-                Edit
-              </Button>
-            ) : (
-              <Button autoFocus onClick={() => setEdit(!edit)}>
-                Save Changes
-              </Button>
-            )}
           </DialogActions>
         </Dialog>
       </ThemeProvider>

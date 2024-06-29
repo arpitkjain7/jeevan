@@ -468,6 +468,7 @@ const PatientEMRDetails = (props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const [documentBytes, setDocumentBytes] = useState("");
+  const [PMRsummaryNotes, setPMRSummaryNotes] = useState([]);
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -553,12 +554,16 @@ const PatientEMRDetails = (props) => {
           res?.payload?.appointment_details?.patient_id
         );
         const pmrDetails = res?.payload?.pmr_details.pmr_data;
+        const PMRSummarisedNotes = res?.payload?.pmr_details.summarised_notes;
         setAdvices(res?.payload?.pmr_details?.advices);
         setPrescriptionComment(res?.payload?.pmr_details?.notes);
         // { res.payload?.appointment_details?.followup_date !== null ?
         //   setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
         // }
         setFollowUp(res.payload?.appointment_details?.followup_date);
+        if (PMRSummarisedNotes && PMRSummarisedNotes.consultation_summary) {
+          setPMRSummaryNotes(Object.entries(PMRSummarisedNotes));
+        }
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
@@ -2262,7 +2267,7 @@ const PatientEMRDetails = (props) => {
       {step === "create" && (
         <div>
           <PatientDetailsHeader documents={documents} />
-          <RecorderComponent />
+          <RecorderComponent PmrSummary={PMRsummaryNotes} />
           <EMRFormWrapper>
             <EMRFormInnerWrapper>
               <VitalsContainer>
