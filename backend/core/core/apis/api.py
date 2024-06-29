@@ -15,6 +15,7 @@ from core.apis.routes.appointment_router import appointment_router
 from core.apis.routes.hiu_router import hiu_router
 from core.apis.routes.abdm_wrapper import abdm_router
 from core.apis.routes.ai_router import ai_router
+from core.apis.routes.doctor_router import doctor_router
 
 """
 from core.apis.routes.listOfComplaints_router import listOfComplaint_router
@@ -55,6 +56,7 @@ app.include_router(callback_router, tags=["Callback"])
 app.include_router(dataTransfer_router, tags=["Data Transfer"])
 app.include_router(hiu_router, tags=["HIU Routers"])
 app.include_router(common_router, tags=["Common"])
+app.include_router(doctor_router, tags=["Doctor Router"])
 app.include_router(ai_router, tags=["AI Engine"])
 app.include_router(abdm_router, tags=["ABDM Wrapper"])
 

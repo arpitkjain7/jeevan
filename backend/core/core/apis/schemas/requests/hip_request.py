@@ -7,6 +7,8 @@ class CreateHIP(BaseModel):
     name: str
     hip_id: str
     hip_address: str
+    hip_city: str
+    hip_location: str = None
     hip_contact_number: str
     hip_email_address: str
     hfr_reg_number: str
