@@ -42,3 +42,15 @@ class VerifyOTP(BaseModel):
 #     username: str
 #     old_password: str
 #     new_password: str
+
+
+class UserOnboard(BaseModel):
+    mobile_number: str
+    password: str
+    email_id: str
+    user_first_name: str
+    user_last_name: str
+    hip_id: str
+    user_role: str
+    age: str
+    user_department: str
