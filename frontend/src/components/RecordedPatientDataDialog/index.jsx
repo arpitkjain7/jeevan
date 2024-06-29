@@ -165,6 +165,29 @@ export default function CustomizedSummaryDialog({
     });
   };
 
+  const handleVitalsChange = (event, index) => {
+    const { name, value } = event.target;
+    console.log(name, value);
+    setSummaryContent((prevContent) => {
+      let newContent = [...prevContent];
+      if (
+        newContent[index] &&
+        newContent[index][1] &&
+        newContent[index][1].vital_signs
+      ) {
+        newContent[index][1] = {
+          ...newContent[index][1],
+          vital_signs: {
+            ...newContent[index][1].vital_signs,
+            [name]: value,
+          },
+        };
+      }
+      console.log(newContent);
+      return newContent;
+    });
+  };
+
   const handleChipChange = (e, index, newValue, sectionName) => {
     // e.prevent.default();
     console.log(sectionName);
@@ -744,7 +767,7 @@ export default function CustomizedSummaryDialog({
                         id="bootstrap-input"
                         multiline
                         name="blood_pressure"
-                        onChange={(e) => handleSummaryChange(e, 2)}
+                        onChange={(e) => handleVitalsChange(e, 2)}
                       />
                     </FormControl>
                   </Grid>
@@ -764,7 +787,7 @@ export default function CustomizedSummaryDialog({
                         id="bootstrap-input"
                         multiline
                         name="heart_rate"
-                        onChange={(e) => handleSummaryChange(e, 2)}
+                        onChange={(e) => handleVitalsChange(e, 2)}
                       />
                     </FormControl>
                   </Grid>
@@ -784,7 +807,7 @@ export default function CustomizedSummaryDialog({
                         id="bootstrap-input"
                         multiline
                         name="oxygen_saturation"
-                        onChange={(e) => handleSummaryChange(e, 2)}
+                        onChange={(e) => handleVitalsChange(e, 2)}
                       />
                     </FormControl>
                   </Grid>
@@ -804,7 +827,7 @@ export default function CustomizedSummaryDialog({
                         id="bootstrap-input"
                         multiline
                         name="respiratory_rate"
-                        onChange={(e) => handleSummaryChange(e, 2)}
+                        onChange={(e) => handleVitalsChange(e, 2)}
                       />
                     </FormControl>
                   </Grid>
@@ -824,7 +847,7 @@ export default function CustomizedSummaryDialog({
                         id="bootstrap-input"
                         multiline
                         name="temperature"
-                        onChange={(e) => handleSummaryChange(e, 2)}
+                        onChange={(e) => handleVitalsChange(e, 2)}
                       />
                     </FormControl>
                   </Grid>
