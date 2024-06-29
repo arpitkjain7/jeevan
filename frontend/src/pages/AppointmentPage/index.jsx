@@ -288,7 +288,6 @@ const AppointmentPage = () => {
   ];
   useEffect(() => {
     fetchList();
-    sessionStorage.removeItem("encounterDetail");
   }, []);
 
   const fetchList = (date) => {
