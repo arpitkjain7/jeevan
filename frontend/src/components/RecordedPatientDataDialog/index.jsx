@@ -335,22 +335,28 @@ export default function CustomizedSummaryDialog({
   const handleReviewPrescription = () => {
     const payload = {
       pmr_metadata: {
-        doctor_name: selectedPatient?.doc_name,
-        patient_name: selectedPatient?.p_name,
+        doctor_name: encounterDetail?.doc_name || selectedPatient?.doc_name,
+        patient_name: encounterDetail?.p_name || selectedPatient?.p_name,
         hospital_name: selectedHospital?.name,
-        patient_uid: selectedPatient?.patientUid,
-        patient_gender: selectedPatient?.patient_details?.gender,
+        patient_uid:
+          encounterDetail?.patient_uid || selectedPatient?.patientUid,
+        patient_gender:
+          encounterDetail?.gender ||
+          selectedPatient?.patient_details?.gender ||
+          "NA",
         // document_id: selectedPatient?.doc_id || null,
-        patient_age_years: selectedPatient?.age_in_years,
+        patient_age_years:
+          encounterDetail?.age_in_years || selectedPatient?.age_in_years,
         patient_age_months: selectedPatient?.age_in_months,
-        patient_contact_number: selectedPatient?.mobileNumber,
-        patient_email: selectedPatient?.email || "NA",
+        patient_contact_number:
+          encounterDetail?.mobile_number || selectedPatient?.mobileNumber,
+        patient_email: encounterDetail?.email || selectedPatient?.email || "NA",
       },
       pmr_request: {
         pmr_id: sessionStorage.getItem("pmrID"),
       },
       appointment_request: {
-        appointment_id: selectedPatient?.id,
+        appointment_id: encounterDetail?.id || selectedPatient?.id,
         followup_date: selectedPatient?.followup_date || "2024-06-29",
         consultation_status: selectedPatient?.consultation_status,
       },
