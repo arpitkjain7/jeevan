@@ -484,6 +484,7 @@ const PatientEMRDetails = (props) => {
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [emrData, setEmrData] = useState({});
   // const [retryCount, setRetryCount] = useState(0);
   // const [functionCalled, setFunctionCalled] = useState(false);
   // const [gatewayRequestId, setGatewayRequestId]= useState("");
@@ -542,6 +543,7 @@ const PatientEMRDetails = (props) => {
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
         setShowLoader(false);
+        setEmrData(res?.payload?.appointment_details);
         setEMRId(res?.payload?.pmr_details?.id);
         res?.payload?.document_details?.map((data) => {
           if (data.document_type === "OPConsultation")
@@ -2267,7 +2269,7 @@ const PatientEMRDetails = (props) => {
       {step === "create" && (
         <div>
           <PatientDetailsHeader documents={documents} />
-          <RecorderComponent PmrSummary={PMRsummaryNotes} />
+          <RecorderComponent PmrSummary={PMRsummaryNotes} emrData={emrData} />
           <EMRFormWrapper>
             <EMRFormInnerWrapper>
               <VitalsContainer>

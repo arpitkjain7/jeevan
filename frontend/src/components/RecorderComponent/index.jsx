@@ -112,7 +112,7 @@ const WaveAnimation = () => (
   </WaveAnimationContainer>
 );
 
-const RecorderComponent = ({ PmrSummary }) => {
+const RecorderComponent = ({ PmrSummary, emrData }) => {
   const [openSummary, setOpenSummary] = useState(false);
   const [summaryContent, setSummaryContent] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -126,6 +126,7 @@ const RecorderComponent = ({ PmrSummary }) => {
         setSummaryContent(PmrSummary);
       }
     }
+    console.log(emrData);
   }, [PmrSummary]);
 
   const handleStopRecording = async (mediaBlobUrl) => {
@@ -142,7 +143,7 @@ const RecorderComponent = ({ PmrSummary }) => {
       );
       const payload = {
         pmr_id: sessionStorage.getItem("pmrID"),
-        patient_id: encounterDetails?.patient_id,
+        patient_id: sessionStorage.getItem("ID"),
         audio_file: formData,
       };
 
@@ -246,6 +247,7 @@ const RecorderComponent = ({ PmrSummary }) => {
                     setOpen={setOpenSummary}
                     summaryContent={summaryContent}
                     setSummaryContent={setSummaryContent}
+                    emrData={emrData}
                   />
                 </Stack>
               </Stack>

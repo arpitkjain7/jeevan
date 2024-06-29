@@ -135,6 +135,7 @@ export default function CustomizedSummaryDialog({
   setOpen,
   summaryContent,
   setSummaryContent,
+  emrData,
 }) {
   const [translatedContent, setTranslatedContent] = useState(summaryContent);
   const [changeLanguage, setChangeLanguage] = useState(false);
@@ -335,7 +336,7 @@ export default function CustomizedSummaryDialog({
   const handleReviewPrescription = () => {
     const payload = {
       pmr_metadata: {
-        doctor_name: encounterDetail?.doc_name || selectedPatient?.doc_name,
+        doctor_name: selectedPatient?.doc_name || encounterDetail?.doc_name,
         patient_name: encounterDetail?.p_name || selectedPatient?.p_name,
         hospital_name: selectedHospital?.name,
         patient_uid:
@@ -356,7 +357,8 @@ export default function CustomizedSummaryDialog({
         pmr_id: sessionStorage.getItem("pmrID"),
       },
       appointment_request: {
-        appointment_id: encounterDetail?.id || selectedPatient?.id,
+        appointment_id:
+          emrData?.id || encounterDetail?.id || selectedPatient?.id,
         followup_date: selectedPatient?.followup_date || "2024-06-29",
         consultation_status: selectedPatient?.consultation_status,
       },
