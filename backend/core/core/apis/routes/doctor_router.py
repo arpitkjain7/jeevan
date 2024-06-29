@@ -94,7 +94,6 @@ def check_endpoint_availability(
 @doctor_router.get("/v1/doctor-details/get-doctor-profile/{endpoint}")
 def get_doctor_profile_details(
     endpoint: str,
-    token: str = Depends(oauth2_scheme),
 ):
     """[API router to register new user into the system]
     Args:
@@ -107,23 +106,15 @@ def get_doctor_profile_details(
     """
     try:
         logging.info(f"Calling /v1/doctor-details/get-doctor-profile")
-        authenticated_user_details = decodeJWT(token=token)
-        if authenticated_user_details:
-            doctor_details_obj = DoctorController().get_doctor_profile_details(
-                endpoint=endpoint
-            )
-            if doctor_details_obj:
-                return doctor_details_obj
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="No record found",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
+        doctor_details_obj = DoctorController().get_doctor_profile_details(
+            endpoint=endpoint
+        )
+        if doctor_details_obj:
+            return doctor_details_obj
         else:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid access token",
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No record found",
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
