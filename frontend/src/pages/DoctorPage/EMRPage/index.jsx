@@ -454,8 +454,7 @@ const PatientEMRDetails = (props) => {
   const [symptomOptions, setSymptomOptions] = useState("");
   const [medicalHistoryOptions, setMedicalHistoryOptions] = useState("");
   const [diagnosisOptions, setDiagnosisOptions] = useState("");
-  const [examinationFindingOptions, setExaminationFindingOptions] =
-    useState("");
+  const [examinationFindingOptions, setExaminationFindingOptions] = useState("");
   const [medicationOptions, setMedicationOptions] = useState("");
   const [labInvestigationOptions, setLabInvestigationOptions] = useState("");
   const [notifyModal, setNotifyModal] = useState(false);

@@ -68,9 +68,9 @@ const DateButton = styled("button")(({ theme }) => ({
     width: "140px",
     padding: theme.spacing(2, 1.5),
   },
-  [theme.breakpoints.down("350")]: {
-    width: "114px",
-  },
+  // [theme.breakpoints.down("350")]: {
+  //   width: "114px",
+  // },
   "&.selected-btn": {
     backgroundColor: theme.palette.secondaryOpacityBlue,
     border: `1px solid ${theme.palette.secondaryBlue}`,
@@ -81,16 +81,6 @@ export default function CustomBackdrop(doctorDetails) {
   const today = new Date();
   const date_today = parseDateFormat(today, "yyyy-MM-dd");
   const [open, setOpen] = useState(true);
-  const [formData, setFormData] = useState({
-    channel: "whatsapp",
-    doc_name: "Dr.Prasad Gurjar",
-    app_date: selectedDate,
-    patient_name: "",
-    mobile_number: "",
-    gender: "M",
-    dob: "",
-    destination_mobile_number: "8275330450",
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [isMobileError, setIsMobileError] = useState(false);
@@ -99,7 +89,29 @@ export default function CustomBackdrop(doctorDetails) {
   const [slots, setSlots] = useState([]);
   const [todaySlots, setTodaySlots] = useState([]);
   const [allTimeSlots, setAllTimeSlots] = useState([]);
-  const [openSlotsSection, setOpenSlotsSection] = useState(false);
+  const [formData, setFormData] = useState({
+    // channel: "whatsapp",
+    // doc_name: "Dr.Prasad Gurjar",
+    // app_date: selectedDate,
+    // patient_name: "",
+    // mobile_number: "",
+    // gender: "M",
+    // dob: "",
+    // destination_mobile_number: "8275330450",
+
+    mobile_number: "",
+    patient_name: "",
+    gender: "",
+    DOB: "",
+    age: "",
+    email: "",
+    address: "",
+    pincode: "",
+    hip_id: "",
+    doc_id: 0,
+    appointment_start: "",
+    appointment_end: ""
+  });
 
   const handleSlotSelect = (slot) => {
     setSelectedSlot(slot);
@@ -241,11 +253,30 @@ export default function CustomBackdrop(doctorDetails) {
     try {
       setLoading(true);
       setError(false);
-      await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      const payload = {
+        mobile_number: formData?.mobile_number,
+        name: formData?.patient_name,
+        gender: formData?.gender,
+        DOB: formData?.DOB,
+        // age: "",
+        // email: "",
+        // address: "",
+        // pincode: "",
+        hip_id: "",
+        doc_id: "",
+        appointment_start: formatDateTime(selectedDate + " " + startTime24hour),
+        appointment_end: formatDateTime(selectedDate + " " + endTime24hour),
+      };
+      // await axios.post(`${BASE_URL}/${apis?.sendAppointmentList}`, formData, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
       setLoading(false);
       setFormData({
         channel: "whatsapp",
@@ -280,7 +311,7 @@ export default function CustomBackdrop(doctorDetails) {
           // p={4}
           open={open}
           onClose={handleClose}
-          maxWidth="450px"
+          maxWidth="md"
           // sx={{
           //   border: "2px solid grey",
           //   backgroundColor: "white",
@@ -360,8 +391,8 @@ export default function CustomBackdrop(doctorDetails) {
               <Grid item xs={12} md={6}>
                 <Typography>DOB</Typography>
                 <TextField
-                  name="dob"
-                  value={formData.dob}
+                  name="DOB"
+                  value={formData.DOB}
                   onChange={handleChange}
                   type="date"
                   inputProps={{
