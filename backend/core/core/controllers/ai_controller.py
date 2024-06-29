@@ -87,3 +87,18 @@ class AIController:
         except Exception as error:
             logging.error(f"Error in AIController.whisper_transcribe function: {error}")
             raise error
+
+    def update_summary(self, request):
+        try:
+            logging.info("Calling AIController.update_summary controller")
+            request_dict = request.dict()
+            logging.debug(f"Request: {request_dict}")
+            pmr_id = request_dict.get("pmr_id")
+            del request_dict["pmr_id"]
+            pmr_id = self.CRUDPatientMedicalRecord.update(
+                **{"id": pmr_id, "summarised_notes": request_dict}
+            )
+            return {"pmr_id": pmr_id, "status": "success"}
+        except Exception as error:
+            logging.error(f"Error in AIController.update_summary function: {error}")
+            raise error
