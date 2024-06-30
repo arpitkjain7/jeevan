@@ -3,6 +3,9 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 import uuid, os, json, io
+from core import logger
+
+logging = logger(__name__)
 
 
 # Define a function to create the PDF
@@ -161,7 +164,9 @@ def create_pdf(file_obj, input_data, pdf_type):
             elements.append(Spacer(1, 12))
 
     if pdf_type == "summary":
+        logging.info(f"{pdf_type=}")
         # Vitals section
+        logging.info("Adding vital section")
         vitals_data = [
             {"label": key.replace("_", " ").title(), "value": value}
             for key, value in input_data["pmr_request"]["summarised_notes"][
@@ -171,6 +176,7 @@ def create_pdf(file_obj, input_data, pdf_type):
         create_section("Vitals", vitals_data)
 
         # Medical history section
+        logging.info("Adding medical history section")
         medical_history_data = [
             {"label": item}
             for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
@@ -180,6 +186,7 @@ def create_pdf(file_obj, input_data, pdf_type):
         create_text_section("Medical History", medical_history_data)
 
         # Symptoms section
+        logging.info("Adding symtoms section")
         symptoms_data = [
             {"label": item}
             for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
@@ -189,51 +196,77 @@ def create_pdf(file_obj, input_data, pdf_type):
         create_text_section("Symptoms", symptoms_data)
 
         # Diagnosis section
-        diagnosis_data = [
-            {
-                "label": "Preliminary Diagnosis",
-                "value": input_data["pmr_request"]["summarised_notes"]["assessment"][
-                    "preliminary_diagnosis"
-                ],
-            },
-            {
-                "label": "Differential Diagnosis",
-                "value": input_data["pmr_request"]["summarised_notes"]["assessment"][
-                    "differential_diagnosis"
-                ],
-            },
-        ]
-        create_section("Diagnosis", diagnosis_data)
+        diagnosis_data = []
+        if input_data["pmr_request"]["summarised_notes"]["assessment"][
+            "preliminary_diagnosis"
+        ]:
+            diagnosis_data.append(
+                {
+                    "label": "Preliminary Diagnosis",
+                    "value": input_data["pmr_request"]["summarised_notes"][
+                        "assessment"
+                    ]["preliminary_diagnosis"],
+                }
+            )
+        if input_data["pmr_request"]["summarised_notes"]["assessment"][
+            "differential_diagnosis"
+        ]:
+            diagnosis_data.append(
+                {
+                    "label": "Differential Diagnosis",
+                    "value": input_data["pmr_request"]["summarised_notes"][
+                        "assessment"
+                    ]["differential_diagnosis"],
+                }
+            )
+        if len(diagnosis_data) > 0:
+            logging.info("Adding diagnosis section")
+            create_section("Diagnosis", diagnosis_data)
 
         # Lab investigation section
-        lab_investigation_data = [
-            {"label": item["name"], "value": ""}
-            for item in input_data["pmr_request"]["summarised_notes"][
-                "tests_to_be_taken"
-            ]["laboratory_tests"]
-        ]
-        create_section("Lab Investigation", lab_investigation_data)
+        lab_investigation_data = []
+        if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+            "laboratory_tests"
+        ]:
+            lab_investigation_data.extend(
+                [
+                    {"label": "Lab Investigation", "value": item}
+                    for item in input_data["pmr_request"]["summarised_notes"][
+                        "tests_to_be_taken"
+                    ]["laboratory_tests"]
+                ]
+            )
+        if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+            "imaging_tests"
+        ]:
+            # Imaging investigation section
+            lab_investigation_data.extend(
+                [
+                    {"label": "Imaging Investigation", "value": item}
+                    for item in input_data["pmr_request"]["summarised_notes"][
+                        "tests_to_be_taken"
+                    ]["imaging_tests"]
+                ]
+            )
 
-        # Imaging investigation section
-        image_investigation_data = [
-            {"label": item["name"], "value": ""}
-            for item in input_data["pmr_request"]["summarised_notes"][
-                "tests_to_be_taken"
-            ]["imaging_tests"]
-        ]
-        create_section("Imaging Investigation", image_investigation_data)
-
-        # Imaging investigation section
-        special_investigation_data = [
-            {"label": item["name"], "value": ""}
-            for item in input_data["pmr_request"]["summarised_notes"][
-                "tests_to_be_taken"
-            ]["special_exams"]
-        ]
-        create_section("Special Investigation", special_investigation_data)
-
+        if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+            "special_exams"
+        ]:
+            # Special investigation section
+            lab_investigation_data.extend(
+                [
+                    {"label": "Special Investigation", "value": item}
+                    for item in input_data["pmr_request"]["summarised_notes"][
+                        "tests_to_be_taken"
+                    ]["special_exams"]
+                ]
+            )
+        if len(lab_investigation_data) > 0:
+            logging.info("Adding lab investigation section")
+            create_section("Lab Investigation", lab_investigation_data)
         # Prescription section
         if input_data["pmr_request"]["summarised_notes"]["prescription"]["medications"]:
+            logging.info("Adding medication section")
             elements.append(Paragraph("Prescription", styles["Bold"]))
             medication_data = [
                 [
@@ -274,6 +307,7 @@ def create_pdf(file_obj, input_data, pdf_type):
         if input_data["pmr_request"]["summarised_notes"]["other_next_steps"][
             "precautions"
         ]:
+            logging.info("Adding advice section")
             elements.append(Paragraph("Advice", styles["Bold"]))
             for item in input_data["pmr_request"]["summarised_notes"][
                 "other_next_steps"
@@ -290,6 +324,7 @@ def create_pdf(file_obj, input_data, pdf_type):
         if input_data["pmr_request"]["summarised_notes"]["other_next_steps"][
             "lifestyle_modifications"
         ]:
+            logging.info("Adding lifestyle modifications section")
             elements.append(Paragraph("Lifestyle Modifications", styles["Bold"]))
             for item in input_data["pmr_request"]["summarised_notes"][
                 "other_next_steps"
@@ -304,6 +339,7 @@ def create_pdf(file_obj, input_data, pdf_type):
 
         # Notes section
         if input_data["pmr_request"]["summarised_notes"]["plan"]["patient_education"]:
+            logging.info("Adding Notes section")
             elements.append(Paragraph("Notes", styles["Bold"]))
             elements.append(
                 Paragraph(
@@ -316,6 +352,7 @@ def create_pdf(file_obj, input_data, pdf_type):
 
         # Follow-up section
         if input_data["pmr_request"]["summarised_notes"]["plan"]["follow_up"]:
+            logging.info("Adding follow-up section")
             elements.append(Paragraph("Follow-up", styles["Bold"]))
             for follow_up in input_data["pmr_request"]["summarised_notes"]["plan"][
                 "follow_up"

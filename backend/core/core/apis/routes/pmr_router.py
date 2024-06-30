@@ -165,7 +165,7 @@ def previewPMR(
     token: str = Depends(oauth2_scheme),
 ):
     try:
-        logging.info("Calling /v1/pmr/previewPMR endpoint")
+        logging.info("Calling /v1/PMR/preview-summary endpoint")
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
@@ -181,10 +181,10 @@ def previewPMR(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/previewPMR endpoint: {httperror}")
+        logging.error(f"Error in /v1/PMR/preview-summary endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/previewPMR endpoint: {error}")
+        logging.error(f"Error in /v1/PMR/preview-summary endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
