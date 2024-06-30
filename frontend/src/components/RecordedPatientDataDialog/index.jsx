@@ -1592,8 +1592,10 @@ export default function CustomizedSummaryDialog({
         >
           <AppBar position="relative">
             <Toolbar>
+              <div style={{ flexGrow: 1 }}></div>{" "}
+              {/* This div pushes the following items to the end */}
               <IconButton
-                edge="start"
+                edge="end"
                 color="inherit"
                 onClick={() => setOpenPdf(false)}
                 aria-label="close"
