@@ -69,28 +69,24 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const isMobile = window.innerWidth < 600;
 
 const PDFViewerWrapper = styled("div")(({ theme }) => ({
-  height: "800px",
-  marginBottom: "32px",
+  height: isMobile ? "auto" : "800px",
+  marginBottom: isMobile ? "0" : "32px",
   flex: "1",
-  [theme.breakpoints.down("md")]: {
-    height: "auto",
-    marginBottom: "0",
-  },
 }));
 
-const PDFButtonWrapper = styled("div")(({ theme }) => ({
+const PDFButtonWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   gap: "16px",
   position: "sticky",
   bottom: 0,
-  border: `1px solid ${theme.palette.primaryBlue}`,
+  border: "1px solid #0089E9",
   backgroundColor: "#b2d6f0",
   padding: theme.spacing(2, 2),
   zIndex: 1,
 }));
 
-const PrimaryButton = styled("button")(({ theme }) => ({
+const PrimaryButton = styled(Button)(({ theme }) => ({
   "&": theme.typography.primaryButton,
   float: "right",
   [theme.breakpoints.down("sm")]: {
@@ -174,6 +170,7 @@ function getWindowDimensions() {
     height,
   };
 }
+
 function useWindowDimensions() {
   const [windowDimensions, setWindowDimensions] = useState(
     getWindowDimensions()
@@ -1587,13 +1584,6 @@ export default function CustomizedSummaryDialog({
             </Button>
           </DialogActions>
         </Dialog>
-        {/* <PdfFromDocumentBytes
-          open={openPdf}
-          handleClose={handlePdfClose}
-          documentType={"application/pdf"}
-          docBytes={data}
-        /> */}
-
         <Dialog
           fullScreen
           open={openPdf}
@@ -1610,33 +1600,30 @@ export default function CustomizedSummaryDialog({
               >
                 <CloseIcon />
               </IconButton>
-              {/* You can add the dialog title or other actions here */}
             </Toolbar>
           </AppBar>
-          {/* Your existing JSX content goes here, without the openPdf conditional rendering */}
           <SendPMR
             notifyModal={notifyModal}
             handleNotifyModalClose={() => setNotifyModal(false)}
-            documentId={documentID} //check this
+            documentId={documentID}
           />
-          {!isMobile && (
+          {!isMobile ? (
             <PDFViewerWrapper>
-              <div style={{ width: "100%", height: "100%" }} zoom={1}>
+              <div style={{ width: "100%", height: "100%" }}>
                 <embed
-                  style={{ width: "100%", height: height }}
+                  style={{ width: "100%", height: "100%" }}
                   src={`data:application/pdf;base64,${data}`}
                 />
               </div>
               <PDFButtonWrapper>
-                <PrimaryButton onClick={postPMR}>
+                <PrimaryButton variant="contained" onClick={postPMR}>
                   Finish Prescription
                 </PrimaryButton>
               </PDFButtonWrapper>
             </PDFViewerWrapper>
-          )}
-          {isMobile && (
+          ) : (
             <>
-              <div
+              <PDFButtonWrapper
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1644,23 +1631,25 @@ export default function CustomizedSummaryDialog({
                   marginBottom: "10px",
                 }}
               >
-                <PrimaryButton onClick={postPMR}>
+                <PrimaryButton variant={"contained"} onClick={postPMR}>
                   Finish Prescription
                 </PrimaryButton>
-              </div>
+              </PDFButtonWrapper>
               <PDFViewerWrapper>
-                <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
-                  {Array.apply(null, Array(numPages))
-                    .map((x, i) => i + 1)
-                    .map((page) => (
+                <Document
+                  file={`data:application/pdf;base64,${data}`}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                >
+                  {Array.from({ length: numPages }, (v, i) => i + 1).map(
+                    (page) => (
                       <Page
-                        wrap
+                        key={`page_${page}`}
                         pageNumber={page}
                         renderTextLayer={false}
-                        width={width}
-                        height="auto"
+                        width={getWindowDimensions().width}
                       />
-                    ))}
+                    )
+                  )}
                 </Document>
               </PDFViewerWrapper>
             </>
