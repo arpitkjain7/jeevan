@@ -953,8 +953,7 @@ export default function CustomizedSummaryDialog({
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
-                          content[2][1]?.vital_signs?.blood_pressure ||
-                          "Not Available"
+                          content[2][1]?.vital_signs?.blood_pressure || 0
                         }
                         id="bootstrap-input"
                         multiline
@@ -973,8 +972,7 @@ export default function CustomizedSummaryDialog({
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
-                          content[2][1]?.vital_signs?.heart_rate ||
-                          "Not Available"
+                          content[2][1]?.vital_signs?.heart_rate || 0
                         }
                         id="bootstrap-input"
                         multiline
@@ -993,8 +991,7 @@ export default function CustomizedSummaryDialog({
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
-                          content[2][1]?.vital_signs?.oxygen_saturation ||
-                          "Not Available"
+                          content[2][1]?.vital_signs?.oxygen_saturation || 0
                         }
                         id="bootstrap-input"
                         multiline
@@ -1013,8 +1010,7 @@ export default function CustomizedSummaryDialog({
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
-                          content[2][1]?.vital_signs?.respiratory_rate ||
-                          "Not Available"
+                          content[2][1]?.vital_signs?.respiratory_rate || 0
                         }
                         id="bootstrap-input"
                         multiline
@@ -1033,8 +1029,7 @@ export default function CustomizedSummaryDialog({
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
-                          content[2][1]?.vital_signs?.temperature ||
-                          "Not Available"
+                          content[2][1]?.vital_signs?.temperature || 0
                         }
                         id="bootstrap-input"
                         multiline
