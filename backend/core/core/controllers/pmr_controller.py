@@ -1248,6 +1248,7 @@ class PMRController:
                 "metadata": pmr_metadata_dict,
                 "appointment_request": appointment_request_dict,
             }
+            logging.info(f"{pmr_data=}")
             bytes_io = io.BytesIO()
             bytes_io = create_pdf(
                 file_obj=bytes_io, input_data=pmr_data, pdf_type="summary"
@@ -1295,7 +1296,7 @@ class PMRController:
                 "data": document_bytes,
             }
         except Exception as error:
-            logging.error(f"Error in PMRController.preview_pmr function: {error}")
+            logging.error(f"Error in PMRController.preview_summary function: {error}")
             raise error
 
     async def upload_document(self, pmr_id, files, document_type):
