@@ -21,10 +21,10 @@ class Subjective(BaseModel):
 
 class VitalSigns(BaseModel):
     blood_pressure: Optional[str]
-    heart_rate: Optional[float]
-    respiratory_rate: Optional[float]
-    temperature: float
-    oxygen_saturation: Optional[float]
+    heart_rate: Optional[str]
+    respiratory_rate: Optional[str]
+    temperature: Optional[str]
+    oxygen_saturation: Optional[str]
 
 
 class Objective(BaseModel):
@@ -43,20 +43,20 @@ class Assessment(BaseModel):
 
 class Plan(BaseModel):
     diagnostic_plan: Optional[str]
-    treatment_plan: str
+    treatment_plan: Optional[str]
     patient_education: Optional[str]
-    follow_up: str
+    follow_up: Optional[str]
 
 
 class TestsToBeTaken(BaseModel):
-    comment: str
+    comment: Optional[str]
     laboratory_tests: List[str]
     imaging_tests: List[str]
     special_exams: List[str]
 
 
 class OtherNextSteps(BaseModel):
-    comment: str
+    comment: Optional[str]
     consultations: List[str]
     referrals: List[str]
     precautions: List[str]
@@ -64,14 +64,14 @@ class OtherNextSteps(BaseModel):
 
 
 class Medication(BaseModel):
-    med_name: str
+    med_name: Optional[str]
     instructions: Optional[str]
     dosages: Optional[str]
     duration_refill: Optional[str]
 
 
 class Prescription(BaseModel):
-    comment: str
+    comment: Optional[str]
     medications: List[Medication]
 
 
