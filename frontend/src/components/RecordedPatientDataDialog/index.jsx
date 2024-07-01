@@ -349,6 +349,7 @@ export default function CustomizedSummaryDialog({
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [numPages, setNumPages] = useState(null);
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
+  const PageSelected = sessionStorage.getItem("PageSelected");
   const [openCalendar, setOpenCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [openFollowUp, setOpenFollowUp] = useState(false);
@@ -633,13 +634,19 @@ export default function CustomizedSummaryDialog({
     let appointment_request;
     if (selectedDate) {
       appointment_request = {
-        appointment_id: encounterDetail?.id || selectedPatient?.id,
+        appointment_id:
+          PageSelected === "1"
+            ? encounterDetail?.id || selectedPatient?.id
+            : selectedPatient?.id || encounterDetail?.id,
         followup_date: selectedDate, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed",
       };
     } else {
       appointment_request = {
-        appointment_id: encounterDetail?.id || selectedPatient?.id,
+        appointment_id:
+          PageSelected === "1"
+            ? encounterDetail?.id || selectedPatient?.id
+            : selectedPatient?.id || encounterDetail?.id,
         consultation_status: "Completed",
       };
     }
@@ -726,68 +733,68 @@ export default function CustomizedSummaryDialog({
     });
   };
 
-  // const handleMedicationInputChange = (e, field) => {
-  //   setNewMedication({ ...newMedication, [field]: e.target.value });
-  //   console.log(newMedication);
-  // };
+  const handleMedicationInputChange = (e, field) => {
+    setNewMedication({ ...newMedication, [field]: e.target.value });
+    console.log(newMedication);
+  };
 
-  // const handleDeleteMedication = (medNameToDelete) => {
-  //   setSummaryContent((prevContent) => {
-  //     const updatedContent = [...prevContent];
-  //     console.log(updatedContent);
-  //     const medicationsIndex = 7;
-  //     const medicationList =
-  //       updatedContent[medicationsIndex][1]?.medications || [];
-  //     const filteredMedications = medicationList.filter(
-  //       (medication) => medication.med_name !== medNameToDelete
-  //     );
-  //     console.log(updatedContent);
-  //     updatedContent[medicationsIndex][1].medications = filteredMedications;
-  //     return updatedContent;
-  //   });
-  // };
+  const handleDeleteMedication = (medNameToDelete) => {
+    setSummaryContent((prevContent) => {
+      const updatedContent = [...prevContent];
+      console.log(updatedContent);
+      const medicationsIndex = 7;
+      const medicationList =
+        updatedContent[medicationsIndex][1]?.medications || [];
+      const filteredMedications = medicationList.filter(
+        (medication) => medication.med_name !== medNameToDelete
+      );
+      console.log(updatedContent);
+      updatedContent[medicationsIndex][1].medications = filteredMedications;
+      return updatedContent;
+    });
+  };
 
-  // const handleAddMedication = () => {
-  //   if (
-  //     newMedication.med_name &&
-  //     newMedication.frequency &&
-  //     newMedication.time_of_day &&
-  //     newMedication.instructions &&
-  //     newMedication.dosages &&
-  //     newMedication.duration
-  //   ) {
-  //     // Create a new medication object from the input fields
-  //     const medicationToAdd = { ...newMedication };
+  const handleAddMedication = () => {
+    if (
+      newMedication.med_name &&
+      newMedication.frequency &&
+      newMedication.time_of_day &&
+      newMedication.instructions &&
+      newMedication.dosages &&
+      newMedication.duration
+    ) {
+      // Create a new medication object from the input fields
+      const medicationToAdd = { ...newMedication };
 
-  //     // Update the summaryContent state with the new medication
-  //     setSummaryContent((prevContent) => {
-  //       const updatedContent = [...prevContent];
+      // Update the summaryContent state with the new medication
+      setSummaryContent((prevContent) => {
+        const updatedContent = [...prevContent];
 
-  //       if (!updatedContent[7][1]?.medications) {
-  //         updatedContent[7][1] = { medications: [] };
-  //       }
+        if (!updatedContent[7][1]?.medications) {
+          updatedContent[7][1] = { medications: [] };
+        }
 
-  //       // Add the new medication to the medications array
-  //       updatedContent[7][1].medications.push(medicationToAdd);
+        // Add the new medication to the medications array
+        updatedContent[7][1].medications.push(medicationToAdd);
 
-  //       // Return the updated state
-  //       return updatedContent;
-  //     });
+        // Return the updated state
+        return updatedContent;
+      });
 
-  //     // Reset the newMedication input fields
-  //     setNewMedication({
-  //       med_name: "",
-  //       frequency: "",
-  //       dosages: "",
-  //       duration: "",
-  //       instructions: "",
-  //       time_of_day: "",
-  //     });
-  //   } else {
-  //     // Optionally handle the case where some fields are empty
-  //     console.log("Please fill in all fields.");
-  //   }
-  // };
+      // Reset the newMedication input fields
+      setNewMedication({
+        med_name: "",
+        frequency: "",
+        dosages: "",
+        duration: "",
+        instructions: "",
+        time_of_day: "",
+      });
+    } else {
+      // Optionally handle the case where some fields are empty
+      console.log("Please fill in all fields.");
+    }
+  };
 
   const { width } = useWindowDimensions();
   const [notifyModal, setNotifyModal] = useState(false);
@@ -796,44 +803,44 @@ export default function CustomizedSummaryDialog({
   const [documentID, setDocumentID] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
 
-  // const startEditMedication = (medication) => {
-  //   setIsEditing(true);
-  //   setEditingMedName(medication.med_name);
-  //   setNewMedication(medication);
-  // };
+  const startEditMedication = (medication) => {
+    setIsEditing(true);
+    setEditingMedName(medication.med_name);
+    setNewMedication(medication);
+  };
 
-  // const saveEditedMedication = () => {
-  //   setSummaryContent((prevContent) => {
-  //     const updatedContent = [...prevContent];
-  //     const medicationsIndex = 7; // Assuming the medications are at index 7
-  //     const medicationList =
-  //       updatedContent[medicationsIndex][1]?.medications || [];
+  const saveEditedMedication = () => {
+    setSummaryContent((prevContent) => {
+      const updatedContent = [...prevContent];
+      const medicationsIndex = 7; // Assuming the medications are at index 7
+      const medicationList =
+        updatedContent[medicationsIndex][1]?.medications || [];
 
-  //     // Find and update the medication
-  //     const medicationIndex = medicationList.findIndex(
-  //       (medication) => medication.med_name === editingMedName
-  //     );
-  //     if (medicationIndex !== -1) {
-  //       updatedContent[medicationsIndex][1].medications[medicationIndex] = {
-  //         ...newMedication,
-  //       };
-  //     }
+      // Find and update the medication
+      const medicationIndex = medicationList.findIndex(
+        (medication) => medication.med_name === editingMedName
+      );
+      if (medicationIndex !== -1) {
+        updatedContent[medicationsIndex][1].medications[medicationIndex] = {
+          ...newMedication,
+        };
+      }
 
-  //     return updatedContent;
-  //   });
+      return updatedContent;
+    });
 
-  //   // Reset states
-  //   setIsEditing(false);
-  //   setEditingMedName("");
-  //   setNewMedication({
-  //     med_name: "",
-  //     frequency: "",
-  //     dosages: "",
-  //     duration: "",
-  //     instructions: "",
-  //     time_of_day: "",
-  //   });
-  // };
+    // Reset states
+    setIsEditing(false);
+    setEditingMedName("");
+    setNewMedication({
+      med_name: "",
+      frequency: "",
+      dosages: "",
+      duration: "",
+      instructions: "",
+      time_of_day: "",
+    });
+  };
 
   //Changing the Summary
   const handleSavechanges = () => {
@@ -1262,290 +1269,6 @@ export default function CustomizedSummaryDialog({
                     />
                   </div>
                 </>
-
-                {/* {content[1][1]?.allergy_information.length > 0 && (
-                  <>
-                    <Typography gutterBottom>Allergy Information:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="allergy_information"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "allergy_information")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.allergy_information || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="allergies"
-                        />
-                      )}
-                    />
-                  </>
-                )}
-
-                {content[1][1]?.family_history.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Family History:</Typography>
-                    <Autocomplete
-                      multiple
-                      disabled={!edit}
-                      freeSolo
-                      name="family_history"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "family_history")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.family_history || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Family History"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {content[1][1]?.history_of_present_illness.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>
-                      History of Present Illness:
-                    </Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="history_of_present_illness"
-                      onChange={(e, newValue) =>
-                        handleChipChange(
-                          e,
-                          1,
-                          newValue,
-                          "history_of_present_illness"
-                        )
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.history_of_present_illness || [
-                          "Not Available",
-                        ]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder=" History of Illness"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {content[1][1]?.medication_history.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Medication History:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="medication_history"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "medication_history")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.medication_history || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder=" Medication History"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {content[1][1]?.past_medical_history.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Past Medical History:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="past_medical_history"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "past_medical_history")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.past_medical_history || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder=" Past Medical History"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {content[1][1]?.review_of_systems.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Review of Systems:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="review_of_systems"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "review_of_systems")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.review_of_systems || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Reviews of System"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-                {content[1][1]?.social_history.length > 0 && (
-                  <div>
-                    <Typography gutterBottom>Social History:</Typography>
-                    <Autocomplete
-                      multiple
-                      freeSolo
-                      disabled={!edit}
-                      name="social_history"
-                      onChange={(e, newValue) =>
-                        handleChipChange(e, 1, newValue, "social_history")
-                      }
-                      id="tags-filled"
-                      options={[]}
-                      defaultValue={
-                        content[1][1]?.social_history || ["Not Available"]
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Social History"
-                        />
-                      )}
-                    />
-                  </div>
-                )} */}
               </AccordionDetails>
             </Accordion>
             <Accordion>
@@ -1787,7 +1510,7 @@ export default function CustomizedSummaryDialog({
                 <Typography variant="h7">
                   <strong>Medications:</strong>{" "}
                 </Typography>
-                {/* <TableContainer>
+                <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="medications table">
                     <TableHead>
                       <TableRow>
@@ -1907,8 +1630,8 @@ export default function CustomizedSummaryDialog({
                         Save Edited Medication
                       </Button>
                     ))}
-                </TableContainer> */}
-                {edit && (
+                </TableContainer>
+                {/* {edit && (
                   <CustomAutoComplete
                     options={medicationsOpts}
                     handleInputChange={handleMedicationsChange}
@@ -2176,7 +1899,7 @@ export default function CustomizedSummaryDialog({
                       </Button>
                     )}
                   </div>
-                )}
+                )} */}
               </AccordionDetails>
             </Accordion>
             <Accordion>
