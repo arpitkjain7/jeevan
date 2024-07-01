@@ -312,13 +312,21 @@ export default function CustomizedSummaryDialog({
   };
 
   const handleChipChange = (e, index, newValue, sectionName) => {
-    // e.prevent.default();
     console.log(sectionName);
     setSummaryContent((prevContent) => {
-      const newContent = [...prevContent];
-      if (newContent[index] && newContent[index][1]) {
-        newContent[index][1][sectionName] = newValue;
-      }
+      // Create a deep copy of the previous content
+      const newContent = prevContent.map((item, idx) => {
+        if (idx === index && item[1]) {
+          return [
+            ...item.slice(0, 1),
+            {
+              ...item[1],
+              [sectionName]: newValue,
+            },
+          ];
+        }
+        return item;
+      });
       console.log(newContent);
       return newContent;
     });
