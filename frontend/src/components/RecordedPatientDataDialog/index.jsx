@@ -953,7 +953,7 @@ export default function CustomizedSummaryDialog({
                 <FormControl variant="standard" fullWidth>
                   <InputLabel shrink htmlFor="bootstrap-input">
                     <Typography variant="h6">
-                      <strong> physical Examination Findings </strong>
+                      <strong>Examination Findings </strong>
                     </Typography>
                   </InputLabel>
                   <BootstrapInput
@@ -1140,21 +1140,6 @@ export default function CustomizedSummaryDialog({
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <FormControl variant="standard" fullWidth>
-                  <InputLabel shrink htmlFor="bootstrap-input">
-                    <Typography variant="h6">
-                      <strong>Comment:</strong>{" "}
-                    </Typography>
-                  </InputLabel>
-                  <BootstrapInput
-                    disabled={!edit}
-                    defaultValue={content[7][1]?.comment || "Not Available"}
-                    id="bootstrap-input"
-                    multiline
-                    name="comment"
-                    onChange={(e) => handleSummaryChange(e, 7)}
-                  />
-                </FormControl>
                 <Typography variant="h7">
                   <strong>Medications:</strong>{" "}
                 </Typography>
