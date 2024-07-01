@@ -536,14 +536,22 @@ const PatientEMRDetails = (props) => {
       (currentPatient && Object.keys(currentPatient).length)
     ) {
       const emrPayload = {
-        patient_id: encounterDetail?.patientId || currentPatient.patientId,
-        doc_id: encounterDetail?.doc_id || currentPatient.doc_id,
-
+        patient_id:
+          pageSelected === "1"
+            ? encounterDetail?.patientId || currentPatient.patientId
+            : currentPatient.patientId || encounterDetail?.patientId,
+        doc_id:
+          pageSelected === "1"
+            ? encounterDetail?.doc_id || currentPatient.doc_id
+            : currentPatient.doc_id || encounterDetail?.doc_id,
         appointment_id:
           pageSelected === "1"
             ? encounterDetail?.id || currentPatient.id
             : currentPatient.id || encounterDetail?.id,
-        hip_id: encounterDetail?.hip_id || currentPatient.hip_id,
+        hip_id:
+          pageSelected === "1"
+            ? encounterDetail?.hip_id || currentPatient.hip_id
+            : currentPatient.hip_id || encounterDetail?.hip_id,
         consultation_status: "InProgress",
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
