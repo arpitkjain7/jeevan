@@ -46,8 +46,7 @@ import {
   TextField,
   TextareaAutosize,
   Tooltip,
-  createTheme,
-  Modal
+  createTheme
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
