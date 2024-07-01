@@ -294,6 +294,7 @@ def create_pdf(file_obj, input_data, pdf_type):
                         item["frequency"],
                         item["duration"],
                         item["dosages"],
+                        item["time_of_day"],
                         item["instructions"],
                     ]
                 )
