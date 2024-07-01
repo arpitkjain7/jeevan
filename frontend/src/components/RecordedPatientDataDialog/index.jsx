@@ -18,6 +18,7 @@ import AssessmentIcon from "@mui/icons-material/Assignment";
 import PlanIcon from "@mui/icons-material/FactCheck";
 import PrescriptionIcon from "@mui/icons-material/Description";
 import TestIcon from "@mui/icons-material/Biotech";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import NextStepsIcon from "@mui/icons-material/Forward";
 import NotesIcon from "@mui/icons-material/Notes";
 import { Document, Page } from "react-pdf";
@@ -62,6 +63,7 @@ import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
+import Calendar from "../Calendar";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -203,6 +205,8 @@ export default function CustomizedSummaryDialog({
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [numPages, setNumPages] = useState(null);
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
+  const [openCalendar, setOpenCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
   const selectedHospital = JSON.parse(
     sessionStorage.getItem("selectedHospital")
   );
@@ -231,10 +235,10 @@ export default function CustomizedSummaryDialog({
       pmr_id: sessionStorage.getItem("pmrID"),
     };
     let appointment_request;
-    if (selectedPatient?.followUp) {
+    if (selectedDate) {
       appointment_request = {
         appointment_id: encounterDetail?.id || selectedPatient?.id,
-        followup_date: selectedPatient?.followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
+        followup_date: selectedDate, //convertDateFormat(followUp, "yyyy-MM-dd"),
         consultation_status: "Completed",
       };
     } else {
@@ -474,7 +478,7 @@ export default function CustomizedSummaryDialog({
       appointment_request: {
         appointment_id:
           emrData?.id || encounterDetail?.id || selectedPatient?.id,
-        followup_date: selectedPatient?.followup_date || "2024-06-29",
+        followup_date: selectedDate || selectedPatient?.followup_date,
         consultation_status: selectedPatient?.consultation_status,
       },
     };
@@ -588,9 +592,13 @@ export default function CustomizedSummaryDialog({
 
             <Typography gutterBottom></Typography>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">
-                  <AllergyIcon /> <strong>Subjective</strong>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <AllergyIcon sx={{ marginRight: "5px" }} />
+                <Typography variant="h6" textAlign={"center"}>
+                  <strong>Subjective</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -898,9 +906,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <MonitorHeartIcon sx={{ marginRight: "5px" }} />
                 <Typography variant="h6">
-                  <AllergyIcon /> <strong>Objective</strong>
+                  <strong>Objective</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1040,9 +1052,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <PlanIcon sx={{ marginRight: "5px" }} />
                 <Typography variant="h6">
-                  <PlanIcon /> <strong>Plans</strong>
+                  <strong>Plans</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1098,9 +1114,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <PrescriptionIcon sx={{ marginRight: "5px" }} />{" "}
                 <Typography variant="h6">
-                  <PrescriptionIcon /> <strong>Prescription</strong>
+                  <strong>Prescription</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1145,10 +1165,10 @@ export default function CustomizedSummaryDialog({
                           <TableCell component="th" scope="row">
                             {medication.med_name}
                           </TableCell>
-                          <TableCell component="th" scope="row">
+                          <TableCell align="right">
                             {medication.frequency}
                           </TableCell>
-                          <TableCell component="th" scope="row">
+                          <TableCell align="right">
                             {medication.time_of_day}
                           </TableCell>
                           <TableCell align="right">
@@ -1246,9 +1266,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <TestIcon sx={{ marginRight: "5px" }} />{" "}
                 <Typography variant="h6">
-                  <TestIcon /> <strong>Tests To Be Taken</strong>
+                  <strong>Tests To Be Taken</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1374,9 +1398,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <NextStepsIcon sx={{ marginRight: "5px" }} />{" "}
                 <Typography variant="h6">
-                  <NextStepsIcon /> <strong>Other Next Steps</strong>
+                  <strong>Other Next Steps</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1550,9 +1578,13 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
             <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <NotesIcon sx={{ marginRight: "5px" }} />{" "}
                 <Typography variant="h6">
-                  <NotesIcon /> <strong>Additional Notes</strong>
+                  <strong>Additional Notes</strong>
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -1569,33 +1601,36 @@ export default function CustomizedSummaryDialog({
               </AccordionDetails>
             </Accordion>
           </DialogContent>
-          <DialogActions>
-            <Stack>
-              {!edit ? (
-                <Button
-                  sx={{ width: "50px" }}
-                  autoFocus
-                  onClick={() => setEdit(!edit)}
-                >
-                  Edit
-                </Button>
-              ) : (
-                <Button
-                  sx={{ width: "150px" }}
-                  autoFocus
-                  onClick={handleSavechanges}
-                >
-                  Save Changes
-                </Button>
-              )}
-            </Stack>
+          <DialogActions gap={2}>
+            <Button variant="outlined" onClick={() => setOpenCalendar(true)}>
+              Follow Up Date : {selectedDate || "YYYY-MM-DD"}
+            </Button>
+            {!edit ? (
+              <Button
+                sx={{ width: "50px" }}
+                autoFocus
+                variant="outlined"
+                onClick={() => setEdit(!edit)}
+              >
+                Edit
+              </Button>
+            ) : (
+              <Button
+                sx={{ width: "150px" }}
+                autoFocus
+                variant="outlined"
+                onClick={handleSavechanges}
+              >
+                Save Changes
+              </Button>
+            )}
             <Button
               onClick={handleReviewPrescription}
               autoFocus
               variant="contained"
             >
               Review Prescription
-            </Button>
+            </Button>{" "}
           </DialogActions>
         </Dialog>
         <Dialog
@@ -1672,6 +1707,12 @@ export default function CustomizedSummaryDialog({
           )}
         </Dialog>
       </ThemeProvider>
+      <Calendar
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        openCalendar={openCalendar}
+        setOpenCalendar={setOpenCalendar}
+      />
     </React.Fragment>
   );
 }
