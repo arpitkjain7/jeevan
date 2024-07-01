@@ -22,6 +22,7 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import NextStepsIcon from "@mui/icons-material/Forward";
 import NotesIcon from "@mui/icons-material/Notes";
 import { Document, Page } from "react-pdf";
+import { pdfjs } from "react-pdf";
 import {
   Autocomplete,
   Box,
@@ -331,12 +332,14 @@ export default function CustomizedSummaryDialog({
   const handleDeleteMedication = (medNameToDelete) => {
     setSummaryContent((prevContent) => {
       const updatedContent = [...prevContent];
+      console.log(updatedContent);
       const medicationsIndex = 7;
       const medicationList =
         updatedContent[medicationsIndex][1]?.medications || [];
       const filteredMedications = medicationList.filter(
         (medication) => medication.med_name !== medNameToDelete
       );
+      console.log(updatedContent);
       updatedContent[medicationsIndex][1].medications = filteredMedications;
       return updatedContent;
     });
@@ -484,13 +487,15 @@ export default function CustomizedSummaryDialog({
     };
     console.log(payload);
     console.log("selectedPatient", selectedPatient);
-    dispatch(previewPMRSummary(payload)).then((res) => {
-      if (res?.payload) {
-        setDocumentID(res?.payload?.document_id);
-        setData(res?.payload?.data);
+    dispatch(previewPMRSummary(payload)).then((response) => {
+      if (response?.payload) {
+        setDocumentID(response?.payload?.document_id);
+        setData(response?.payload?.data);
         setOpenPdf(true);
-        if (res?.payload?.data) {
-          const decodedByteCode = atob(res?.payload?.data);
+        // setDocumentBytes(response?.payload?.data);
+        pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+        if (response?.payload?.data) {
+          const decodedByteCode = atob(response?.payload?.data);
           const byteNumbers = new Array(decodedByteCode.length);
           for (let i = 0; i < decodedByteCode.length; i++) {
             byteNumbers[i] = decodedByteCode.charCodeAt(i);
@@ -504,6 +509,7 @@ export default function CustomizedSummaryDialog({
             URL.revokeObjectURL(pdfUrl);
           };
         }
+      else return;
       }
     });
   };
@@ -1688,10 +1694,21 @@ export default function CustomizedSummaryDialog({
               </PDFButtonWrapper>
               <PDFViewerWrapper>
                 <Document
-                  file={`data:application/pdf;base64,${data}`}
+                  file={pdfUrl}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
-                  {Array.from({ length: numPages }, (v, i) => i + 1).map(
+                   {Array.apply(null, Array(numPages))
+                    .map((x, i) => i + 1)
+                    .map((page) => (
+                      <Page
+                        wrap
+                        pageNumber={page}
+                        renderTextLayer={false}
+                        width={width}
+                        height="auto"
+                      />
+                    ))}
+                  {/* {Array.from({ length: numPages }, (v, i) => i + 1).map(
                     (page) => (
                       <Page
                         key={`page_${page}`}
@@ -1700,7 +1717,7 @@ export default function CustomizedSummaryDialog({
                         width={getWindowDimensions().width}
                       />
                     )
-                  )}
+                  )} */}
                 </Document>
               </PDFViewerWrapper>
             </>
