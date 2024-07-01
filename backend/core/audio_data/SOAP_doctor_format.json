@@ -56,9 +56,11 @@
     "medications": [
       {
         "med_name": "string for name or brand of medicine suggested else empty",
-        "instructions": "string for how to take the medication if suggested else empty",
+        "frequency": "string for frequency to take the medicine if suggested else empty",
+        "time_of_day": "string for time of the day when to take the medicine if suggested else empty",
         "dosages": "string for dosage if suggested else empty",
-        "duration_refill": "string for duration and refill if suggested else empty"
+        "duration": "string for duration and refill if suggested else empty",
+        "instructions": "string for how to take the medication if suggested else empty"
       }
     ]
   },
