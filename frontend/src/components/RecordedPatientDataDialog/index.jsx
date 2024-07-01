@@ -1036,8 +1036,234 @@ export default function CustomizedSummaryDialog({
                     onChange={(e) => handleSummaryChange(e, 1)}
                   />
                 </FormControl>
+                <>
+                  <div>
+                    <Typography gutterBottom>Allergy Information:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="allergy_information"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "allergy_information")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[1][1]?.allergy_information || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Allergies"
+                        />
+                      )}
+                    />
+                  </div>
 
-                {content[1][1]?.allergy_information.length > 0 && (
+                  <div>
+                    <Typography gutterBottom>Family History:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="family_history"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "family_history")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[1][1]?.family_history || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Family History"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>
+                      History of Present Illness:
+                    </Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="history_of_present_illness"
+                      onChange={(e, newValue) =>
+                        handleChipChange(
+                          e,
+                          1,
+                          newValue,
+                          "history_of_present_illness"
+                        )
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={
+                        content[1][1]?.history_of_present_illness || []
+                      }
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="History of Illness"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>Medication History:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="medication_history"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "medication_history")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[1][1]?.medication_history || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Medication History"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>Past Medical History:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="past_medical_history"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "past_medical_history")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[1][1]?.past_medical_history || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Past Medical History"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>Social History:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="social_history"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 1, newValue, "social_history")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[1][1]?.social_history || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Social History"
+                        />
+                      )}
+                    />
+                  </div>
+                </>
+
+                {/* {content[1][1]?.allergy_information.length > 0 && (
                   <>
                     <Typography gutterBottom>Allergy Information:</Typography>
                     <Autocomplete
@@ -1319,7 +1545,7 @@ export default function CustomizedSummaryDialog({
                       )}
                     />
                   </div>
-                )}
+                )} */}
               </AccordionDetails>
             </Accordion>
             <Accordion>
@@ -1510,6 +1736,23 @@ export default function CustomizedSummaryDialog({
                     id="bootstrap-input"
                     multiline
                     name="treatment_plan"
+                    onChange={(e) => handleSummaryChange(e, 4)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Patient Education:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      content[4][1]?.patient_education || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="patient_education"
                     onChange={(e) => handleSummaryChange(e, 4)}
                   />
                 </FormControl>
