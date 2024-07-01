@@ -359,10 +359,20 @@ export default function CustomizedSummaryDialog({
 
       // Update the summaryContent state with the new medication
       setSummaryContent((prevContent) => {
+        // Create a deep copy of the previous state
         const updatedContent = [...prevContent];
 
-        if (!updatedContent[7][1]?.medications) {
+        // Ensure the nested structure exists and is extensible
+        if (!updatedContent[7][1]) {
           updatedContent[7][1] = { medications: [] };
+        } else if (!updatedContent[7][1].medications) {
+          updatedContent[7][1].medications = [];
+        } else {
+          // Create a copy of the medications array to avoid modifying the state directly
+          updatedContent[7][1] = {
+            ...updatedContent[7][1],
+            medications: [...updatedContent[7][1].medications],
+          };
         }
 
         // Add the new medication to the medications array
