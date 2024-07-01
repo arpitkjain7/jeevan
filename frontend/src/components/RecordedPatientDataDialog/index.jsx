@@ -46,7 +46,7 @@ import {
   TextField,
   TextareaAutosize,
   Tooltip,
-  createTheme
+  createTheme,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -1948,123 +1948,111 @@ export default function CustomizedSummaryDialog({
               </AccordionSummary>
               <AccordionDetails>
                 <>
-                  {content[5][1]?.imaging_tests?.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Imaging Tests:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="imaging_tests"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 5, newValue, "imaging_tests")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[5][1]?.imaging_tests || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Imaging Test"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                  {content[5][1]?.laboratory_tests?.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Laboratory Tests:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="laboratory_tests"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 5, newValue, "laboratory_tests")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[5][1]?.laboratory_tests || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Laboratory Test"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                  {content[5][1]?.special_exams?.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Special Exams:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="special_exams"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 5, newValue, "special_exams")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[5][1]?.special_exams || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Special Exams"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <Typography gutterBottom>Imaging Tests:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="imaging_tests"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "imaging_tests")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[5][1]?.imaging_tests || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Imaging Test"
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Typography gutterBottom>Laboratory Tests:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="laboratory_tests"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "laboratory_tests")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[5][1]?.laboratory_tests || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Laboratory Test"
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Typography gutterBottom>Special Exams:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="special_exams"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 5, newValue, "special_exams")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[5][1]?.special_exams || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Special Exam"
+                        />
+                      )}
+                    />
+                  </div>
                 </>
               </AccordionDetails>
             </Accordion>
@@ -2080,171 +2068,158 @@ export default function CustomizedSummaryDialog({
               </AccordionSummary>
               <AccordionDetails>
                 <>
-                  {content[6][1]?.consultations.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Consultations:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="consultations"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 6, newValue, "consultations")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[6][1]?.consultations || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Consulation"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                  {content[6][1]?.lifestyle_modifications.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>
-                        Lifestyle Modifications:
-                      </Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="lifestyle_modifications"
-                        onChange={(e, newValue) =>
-                          handleChipChange(
-                            e,
-                            6,
-                            newValue,
-                            "lifestyle_modifications"
-                          )
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[6][1]?.lifestyle_modifications || [
-                            "Not Available",
-                          ]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Lifestyle Modifications"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                  {content[6][1]?.precautions.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Precautions:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="precautions"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 6, newValue, "precautions")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[6][1]?.precautions || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Precautions"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                  {content[6][1]?.referrals.length > 0 && (
-                    <div>
-                      <Typography gutterBottom>Referrals:</Typography>
-                      <Autocomplete
-                        multiple
-                        freeSolo
-                        disabled={!edit}
-                        name="referrals"
-                        onChange={(e, newValue) =>
-                          handleChipChange(e, 6, newValue, "referrals")
-                        }
-                        id="tags-filled"
-                        options={[]}
-                        defaultValue={
-                          content[6][1]?.referrals || ["Not Available"]
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((item, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
-                            return (
-                              <Chip
-                                variant="outlined"
-                                label={item}
-                                key={key}
-                                {...tagProps}
-                              />
-                            );
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder="Precautions"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <Typography gutterBottom>Consultations:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="consultations"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "consultations")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[6][1]?.consultations || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Consultations"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>
+                      Lifestyle Modifications:
+                    </Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="lifestyle_modifications"
+                      onChange={(e, newValue) =>
+                        handleChipChange(
+                          e,
+                          6,
+                          newValue,
+                          "lifestyle_modifications"
+                        )
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={
+                        content[6][1]?.lifestyle_modifications || []
+                      }
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Lifestyle Modifications"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>Precautions:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="precautions"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "precautions")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[6][1]?.precautions || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Precautions"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Typography gutterBottom>Referrals:</Typography>
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      disabled={!edit}
+                      name="referrals"
+                      onChange={(e, newValue) =>
+                        handleChipChange(e, 6, newValue, "referrals")
+                      }
+                      id="tags-filled"
+                      options={[]}
+                      defaultValue={content[6][1]?.referrals || []}
+                      renderTags={(value, getTagProps) =>
+                        value.map((item, index) => {
+                          const { key, ...tagProps } = getTagProps({ index });
+                          return (
+                            <Chip
+                              variant="outlined"
+                              label={item}
+                              key={key}
+                              {...tagProps}
+                            />
+                          );
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Referrals"
+                        />
+                      )}
+                    />
+                  </div>
                 </>
               </AccordionDetails>
             </Accordion>
@@ -2276,13 +2251,14 @@ export default function CustomizedSummaryDialog({
             {/* <Button variant="outlined" onClick={() => setOpenCalendar(true)}>
               Follow Up Date : {selectedDate || "YYYY-MM-DD"}
             </Button> */}
-           <Button variant="outlined"
+            <Button
+              variant="outlined"
               style={{ marginRight: "10px" }}
               onClick={handleFollowUp}
             >
               Follow Up Date
             </Button>
-             {/* <TextField
+            {/* <TextField
                 sx={{ width: "100%", marginBottom: "20px" }}
                 type="date"
                 inputProps={{
@@ -2409,10 +2385,7 @@ export default function CustomizedSummaryDialog({
       >
         <Box sx={style}>
           <Toolbar stye={{ padding: 0 }}>
-            <Typography
-              sx={{ flex: 1, fontSize: "20px" }}
-              component="div"
-            >
+            <Typography sx={{ flex: 1, fontSize: "20px" }} component="div">
               Follow Up Date
             </Typography>
             <IconButton
@@ -2433,9 +2406,7 @@ export default function CustomizedSummaryDialog({
             value={selectedDate}
             onChange={handleFollowUpDateChange}
           />
-          <PrimaryButton onClick={handleFollowUpClose}>
-            Submit
-          </PrimaryButton>
+          <PrimaryButton onClick={handleFollowUpClose}>Submit</PrimaryButton>
         </Box>
       </Modal>
       {/* <Calendar
