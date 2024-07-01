@@ -3,6 +3,9 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 import uuid, os, json, io
+
+from functools import reduce
+
 from core import logger
 
 logging = logger(__name__)
@@ -262,38 +265,41 @@ def create_pdf(file_obj, input_data, pdf_type):
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "laboratory_tests"
         ]:
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "laboratory_tests"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Lab Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["laboratory_tests"]
-                ]
+                [{"label": "Lab Investigation", "value": item}]
             )
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "imaging_tests"
         ]:
             # Imaging investigation section
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "imaging_tests"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Imaging Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["imaging_tests"]
-                ]
+                [{"label": "Imaging Investigation", "value": item}]
             )
 
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "special_exams"
         ]:
             # Special investigation section
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "special_exams"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Special Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["special_exams"]
-                ]
+                [{"label": "Special Investigation", "value": item}]
             )
         if len(lab_investigation_data) > 0:
             logging.info("Adding lab investigation section")
