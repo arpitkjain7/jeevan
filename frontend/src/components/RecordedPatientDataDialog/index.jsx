@@ -508,8 +508,7 @@ export default function CustomizedSummaryDialog({
           return () => {
             URL.revokeObjectURL(pdfUrl);
           };
-        }
-      else return;
+        } else return;
       }
     });
   };
@@ -565,21 +564,22 @@ export default function CustomizedSummaryDialog({
                   </Typography>
                 </Stack>
               </DialogTitle>
-              <Stack direction={"row"} gap={2}>
+              {/* <Stack direction={"row"} gap={2}>
                 <Translate
                   translatedContent={translatedContent}
                   setTranslatedContent={setTranslatedContent}
                   setOpen={setOpen}
                 />
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  onClick={handleClose}
-                  aria-label="close"
-                >
-                  <CloseIcon sx={{ color: "#0089E9" }} />
-                </IconButton>
-              </Stack>
+               
+              </Stack> */}
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleClose}
+                aria-label="close"
+              >
+                <CloseIcon sx={{ color: "#0089E9" }} />
+              </IconButton>
             </Toolbar>
           </AppBar>
           <DialogContent dividers>
@@ -1693,11 +1693,8 @@ export default function CustomizedSummaryDialog({
                 </PrimaryButton>
               </PDFButtonWrapper>
               <PDFViewerWrapper>
-                <Document
-                  file={pdfUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                >
-                   {Array.apply(null, Array(numPages))
+                <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+                  {Array.apply(null, Array(numPages))
                     .map((x, i) => i + 1)
                     .map((page) => (
                       <Page
