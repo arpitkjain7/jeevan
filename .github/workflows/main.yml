@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["frontend/recording-analysis"]
+    branches: ["frontend/-analysis"]
   workflow_dispatch:
 
 jobs:
