@@ -44,6 +44,7 @@ class AIController:
                 )
             file_name = os.path.basename(audio_file_path)
             logging.info("Uploading audio file to s3")
+            logging.info(f"PATIENT_DATA/{patient_id}/{pmr_id}/{file_name}")
             upload_object(
                 file_name=audio_file_path,
                 bucket_name=self.s3_bucket,

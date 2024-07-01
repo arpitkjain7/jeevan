@@ -6,7 +6,7 @@ class WhisperHelper:
     def __init__(self):
         self.api_key = os.environ.get("OPENAI_API_KEY")
         openai.api_key = self.api_key
-        self.temperature = 0.2
+        self.temperature = 0.0
 
     def translate(self, file_path: str, prompt: str = None):
         try:
