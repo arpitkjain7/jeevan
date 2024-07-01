@@ -167,12 +167,14 @@ def create_pdf(file_obj, input_data, pdf_type):
         logging.info(f"{pdf_type=}")
         # Vitals section
         logging.info("Adding vital section")
-        vitals_data = [
-            {"label": key.replace("_", " ").title(), "value": value}
-            for key, value in input_data["pmr_request"]["summarised_notes"][
-                "objective"
-            ]["vital_signs"].items()
-        ]
+        vitals_data = []
+        for key, value in input_data["pmr_request"]["summarised_notes"]["objective"][
+            "vital_signs"
+        ].items():
+            if value is not None and value != "":
+                vitals_data.append(
+                    {"label": key.replace("_", " ").title(), "value": value}
+                )
         create_section("Vitals", vitals_data)
 
         # Medical history section
@@ -211,6 +213,12 @@ def create_pdf(file_obj, input_data, pdf_type):
         if input_data["pmr_request"]["summarised_notes"]["assessment"][
             "differential_diagnosis"
         ]:
+            logging.info("differential_diagnosis")
+            logging.info(
+                input_data["pmr_request"]["summarised_notes"]["assessment"][
+                    "differential_diagnosis"
+                ]
+            )
             diagnosis_data.append(
                 {
                     "label": "Differential Diagnosis",
@@ -263,7 +271,7 @@ def create_pdf(file_obj, input_data, pdf_type):
             )
         if len(lab_investigation_data) > 0:
             logging.info("Adding lab investigation section")
-            create_section("Lab Investigation", lab_investigation_data)
+            create_section("Investigations", lab_investigation_data)
         # Prescription section
         if input_data["pmr_request"]["summarised_notes"]["prescription"]["medications"]:
             logging.info("Adding medication section")
@@ -271,6 +279,7 @@ def create_pdf(file_obj, input_data, pdf_type):
             medication_data = [
                 [
                     Paragraph("Medications", styles["TableHeader"]),
+                    Paragraph("Frequency", styles["TableHeader"]),
                     Paragraph("Duration", styles["TableHeader"]),
                     Paragraph("Dosage", styles["TableHeader"]),
                     Paragraph("Notes", styles["TableHeader"]),
@@ -282,7 +291,8 @@ def create_pdf(file_obj, input_data, pdf_type):
                 medication_data.append(
                     [
                         item["med_name"],
-                        item["duration_refill"],
+                        item["frequency"],
+                        item["duration"],
                         item["dosages"],
                         item["instructions"],
                     ]
