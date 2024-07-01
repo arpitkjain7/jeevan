@@ -1173,7 +1173,7 @@ export default function CustomizedSummaryDialog({
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder=" Medical History"
+                          placeholder=" Medication History"
                         />
                       )}
                     />
