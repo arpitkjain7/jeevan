@@ -7,6 +7,14 @@ from core import logger
 
 logging = logger(__name__)
 
+vital_units_map = {
+    "blood_pressure": "mm/Hg",
+    "heart_rate": "/min",
+    "respiratory_rate": "/min",
+    "temperature": "°C",
+    "oxygen_saturation": "%",
+}
+
 
 # Define a function to create the PDF
 def create_pdf(file_obj, input_data, pdf_type):
@@ -173,7 +181,10 @@ def create_pdf(file_obj, input_data, pdf_type):
         ].items():
             if value is not None and value != "":
                 vitals_data.append(
-                    {"label": key.replace("_", " ").title(), "value": value}
+                    {
+                        "label": key.replace("_", " ").title(),
+                        "value": f"{value} {vital_units_map[key]}",
+                    }
                 )
         create_section("Vitals", vitals_data)
 
@@ -230,7 +241,22 @@ def create_pdf(file_obj, input_data, pdf_type):
         if len(diagnosis_data) > 0:
             logging.info("Adding diagnosis section")
             create_section("Diagnosis", diagnosis_data)
-
+        # Examination Findings section
+        examination_findings_data = []
+        if input_data["pmr_request"]["summarised_notes"]["objective"][
+            "physical_examination_findings"
+        ]:
+            examination_findings_data.append(
+                {
+                    "label": "Examination Findings",
+                    "value": input_data["pmr_request"]["summarised_notes"]["objective"][
+                        "physical_examination_findings"
+                    ],
+                }
+            )
+        if len(examination_findings_data) > 0:
+            logging.info("Adding Examination Findings section")
+            create_section("Examination Findings", examination_findings_data)
         # Lab investigation section
         lab_investigation_data = []
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
