@@ -421,6 +421,7 @@ const PatientEMRDetails = (props) => {
   const [labInvestigation, setLabInvestigation] = useState([]);
   const [prescriptionComment, setPrescriptionComment] = useState("");
   const [advices, setAdvices] = useState("");
+  const pageSelected = sessionStorage.getItem("PageSelected");
   // const [showSeveritySymptomps, setShowSeveritySymptomps] = useState(false);
   // const [showMedicalHistory, setShowMedicalHistory] = useState(false);
   const [optionTextValues, setOptionTextValues] = useState({});
@@ -537,7 +538,11 @@ const PatientEMRDetails = (props) => {
       const emrPayload = {
         patient_id: encounterDetail?.patientId || currentPatient.patientId,
         doc_id: encounterDetail?.doc_id || currentPatient.doc_id,
-        appointment_id: encounterDetail?.id || currentPatient.id,
+
+        appointment_id:
+          pageSelected === "1"
+            ? encounterDetail?.id || currentPatient.id
+            : currentPatient.id || encounterDetail?.id,
         hip_id: encounterDetail?.hip_id || currentPatient.hip_id,
         consultation_status: "InProgress",
       };

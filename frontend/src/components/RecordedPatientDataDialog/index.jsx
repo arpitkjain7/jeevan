@@ -217,51 +217,43 @@ export default function CustomizedSummaryDialog({
   const handlePdfClose = () => setOpenPdf(false);
   const [newMedication, setNewMedication] = useState({
     med_name: "",
-    instructions: "",
+    frequency: "",
     dosages: "",
-    duration_refill: "",
+    duration: "",
+    instructions: "",
+    time_of_day: "",
   });
 
   const postPMR = async () => {
     setShowLoader(true);
     let pmr_request;
-    // const pmr_request = pdfData;
-    // pmr_request["pmr_id"] = emrId;
-    // pmr_request["advice"] = advices;
-    // pmr_request["notes"] = prescriptionComment;
-
-    // const pdfPayload = {
-    //   mode: "digital",
-    //   pmr_id: emrId,
-    // };
-
+    pmr_request = {
+      pmr_id: sessionStorage.getItem("pmrID"),
+    };
     let appointment_request;
-    // if (followUp) {
-    //   appointment_request = {
-    //     appointment_id: encounterDetail?.id || currentPatient?.id,
-    //     followup_date: followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
-    //     consultation_status: "Completed",
-    //   };
-    // } else {
-    //   appointment_request = {
-    //     appointment_id: encounterDetail?.id || currentPatient?.id,
-    //     consultation_status: "Completed",
-    //   };
-    // }
+    if (selectedPatient?.followUp) {
+      appointment_request = {
+        appointment_id: encounterDetail?.id || selectedPatient?.id,
+        followup_date: selectedPatient?.followUp, //convertDateFormat(followUp, "yyyy-MM-dd"),
+        consultation_status: "Completed",
+      };
+    } else {
+      appointment_request = {
+        appointment_id: encounterDetail?.id || selectedPatient?.id,
+        consultation_status: "Completed",
+      };
+    }
     const allData = {
       pmr_request,
       appointment_request,
     };
-    // const blob = await createPdfBlob();
-    // dispatch(submitPdf({ blob, pdfPayload }))
-    //   .then((pdfResponse) => {
+
     dispatch(postEMR(allData))
       .then((res) => {
         setShowLoader(false);
         if (res?.meta?.requestStatus === "rejected") {
           setPmrDialogOpen(true);
         } else {
-          // setDocumentId(pdfResponse?.payload?.data?.document_id);
           setNotifyModal(true);
         }
       })
@@ -329,23 +321,19 @@ export default function CustomizedSummaryDialog({
 
   const handleMedicationInputChange = (e, field) => {
     setNewMedication({ ...newMedication, [field]: e.target.value });
+    console.log(newMedication);
   };
 
   const handleDeleteMedication = (medNameToDelete) => {
     setSummaryContent((prevContent) => {
       const updatedContent = [...prevContent];
-      const medicationsIndex = 7; // Assuming the medications are at index 7
+      const medicationsIndex = 7;
       const medicationList =
         updatedContent[medicationsIndex][1]?.medications || [];
-
-      // Filter out the medication to delete
       const filteredMedications = medicationList.filter(
         (medication) => medication.med_name !== medNameToDelete
       );
-
-      // Update the medications array
       updatedContent[medicationsIndex][1].medications = filteredMedications;
-
       return updatedContent;
     });
   };
@@ -353,20 +341,19 @@ export default function CustomizedSummaryDialog({
   const handleAddMedication = () => {
     if (
       newMedication.med_name &&
+      newMedication.frequency &&
+      newMedication.time_of_day &&
       newMedication.instructions &&
       newMedication.dosages &&
-      newMedication.duration_refill
+      newMedication.duration
     ) {
       // Create a new medication object from the input fields
       const medicationToAdd = { ...newMedication };
 
       // Update the summaryContent state with the new medication
       setSummaryContent((prevContent) => {
-        // Clone the previous state to avoid direct mutation
         const updatedContent = [...prevContent];
 
-        // Assuming summaryContent[7][1]?.medications is the array you're updating
-        // Check if the medications array exists, if not, initialize it
         if (!updatedContent[7][1]?.medications) {
           updatedContent[7][1] = { medications: [] };
         }
@@ -381,9 +368,11 @@ export default function CustomizedSummaryDialog({
       // Reset the newMedication input fields
       setNewMedication({
         med_name: "",
-        instructions: "",
+        frequency: "",
         dosages: "",
-        duration_refill: "",
+        duration: "",
+        instructions: "",
+        time_of_day: "",
       });
     } else {
       // Optionally handle the case where some fields are empty
@@ -429,9 +418,11 @@ export default function CustomizedSummaryDialog({
     setEditingMedName("");
     setNewMedication({
       med_name: "",
-      instructions: "",
+      frequency: "",
       dosages: "",
-      duration_refill: "",
+      duration: "",
+      instructions: "",
+      time_of_day: "",
     });
   };
 
@@ -454,20 +445,27 @@ export default function CustomizedSummaryDialog({
     const payload = {
       pmr_metadata: {
         doctor_name: selectedPatient?.doc_name || encounterDetail?.doc_name,
-        patient_name: encounterDetail?.p_name || selectedPatient?.p_name,
+        patient_name:
+          selectedPatient?.name ||
+          selectedPatient?.p_name ||
+          encounterDetail?.p_name,
         hospital_name: selectedHospital?.name,
         patient_uid:
-          encounterDetail?.patient_uid || selectedPatient?.patientUid,
+          selectedPatient?.patient_uid ||
+          selectedPatient?.patientUid ||
+          encounterDetail?.patient_uid,
         patient_gender:
           encounterDetail?.gender ||
           selectedPatient?.patient_details?.gender ||
           "NA",
         // document_id: selectedPatient?.doc_id || null,
         patient_age_years:
-          encounterDetail?.age_in_years || selectedPatient?.age_in_years,
+          selectedPatient?.age_in_years || encounterDetail?.age_in_years,
         patient_age_months: selectedPatient?.age_in_months,
         patient_contact_number:
-          encounterDetail?.mobile_number || selectedPatient?.mobileNumber,
+          selectedPatient?.mobile_number ||
+          selectedPatient?.mobileNumber ||
+          encounterDetail?.mobile_number,
         patient_email: encounterDetail?.email || selectedPatient?.email || "NA",
       },
       pmr_request: {
@@ -1129,9 +1127,11 @@ export default function CustomizedSummaryDialog({
                     <TableHead>
                       <TableRow>
                         <TableCell>Medication Name</TableCell>
-                        <TableCell align="right">Instructions</TableCell>
+                        <TableCell align="right">Frequency</TableCell>
+                        <TableCell align="right">Time of Day</TableCell>
                         <TableCell align="right">Dosages</TableCell>
-                        <TableCell align="right">Duration/Refill</TableCell>
+                        <TableCell align="right">Duration</TableCell>
+                        <TableCell align="right">Instruction</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1145,14 +1145,20 @@ export default function CustomizedSummaryDialog({
                           <TableCell component="th" scope="row">
                             {medication.med_name}
                           </TableCell>
-                          <TableCell align="right">
-                            {medication.instructions}
+                          <TableCell component="th" scope="row">
+                            {medication.frequency}
+                          </TableCell>
+                          <TableCell component="th" scope="row">
+                            {medication.time_of_day}
                           </TableCell>
                           <TableCell align="right">
                             {medication.dosages}
                           </TableCell>
                           <TableCell align="right">
-                            {medication.duration_refill}
+                            {medication.duration}
+                          </TableCell>
+                          <TableCell align="right">
+                            {medication.instructions}
                           </TableCell>
                           {edit && (
                             <TableCell>
@@ -1184,9 +1190,17 @@ export default function CustomizedSummaryDialog({
                           </TableCell>
                           <TableCell align="right">
                             <TextField
-                              value={newMedication.instructions}
+                              value={newMedication.frequency}
                               onChange={(e) =>
-                                handleMedicationInputChange(e, "instructions")
+                                handleMedicationInputChange(e, "frequency")
+                              }
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              value={newMedication.time_of_day}
+                              onChange={(e) =>
+                                handleMedicationInputChange(e, "time_of_day")
                               }
                             />
                           </TableCell>
@@ -1200,12 +1214,17 @@ export default function CustomizedSummaryDialog({
                           </TableCell>
                           <TableCell align="right">
                             <TextField
-                              value={newMedication.duration_refill}
+                              value={newMedication.duration}
                               onChange={(e) =>
-                                handleMedicationInputChange(
-                                  e,
-                                  "duration_refill"
-                                )
+                                handleMedicationInputChange(e, "duration")
+                              }
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              value={newMedication.instructions}
+                              onChange={(e) =>
+                                handleMedicationInputChange(e, "instructions")
                               }
                             />
                           </TableCell>
