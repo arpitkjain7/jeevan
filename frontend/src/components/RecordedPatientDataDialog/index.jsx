@@ -45,6 +45,7 @@ import {
   TextField,
   Tooltip,
   createTheme,
+  Modal
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -64,12 +65,25 @@ import PdfFromDocumentBytes from "../PdfFromDocumentBytes";
 import SendPMR from "../../pages/DoctorPage/SendPMR";
 import CustomLoader from "../CustomLoader";
 import CustomizedDialogs from "../Dialog";
+import { format } from "date-fns";
 import Calendar from "../Calendar";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const isMobile = window.innerWidth < 600;
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 320,
+  bgcolor: "background.paper",
+  border: "1px solid #000",
+  boxShadow: 24,
+  padding: "0 16px 16px",
+};
 
 const PDFViewerWrapper = styled("div")(({ theme }) => ({
   height: isMobile ? "auto" : "800px",
@@ -208,6 +222,8 @@ export default function CustomizedSummaryDialog({
   const selectedPatient = JSON.parse(sessionStorage.getItem("selectedPatient"));
   const [openCalendar, setOpenCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [openFollowUp, setOpenFollowUp] = useState(false);
+  const handleFollowUpClose = () => setOpenFollowUp(false);
   const selectedHospital = JSON.parse(
     sessionStorage.getItem("selectedHospital")
   );
@@ -529,6 +545,15 @@ export default function CustomizedSummaryDialog({
         } else return;
       }
     });
+  };
+
+  const handleFollowUpDateChange = (event) => {
+    console.log(event.target.value);
+    setSelectedDate(event.target.value);
+  };
+
+  const handleFollowUp = () => {
+    setOpenFollowUp(true);
   };
 
   return (
@@ -1611,9 +1636,24 @@ export default function CustomizedSummaryDialog({
             </Accordion>
           </DialogContent>
           <DialogActions gap={2}>
-            <Button variant="outlined" onClick={() => setOpenCalendar(true)}>
+            {/* <Button variant="outlined" onClick={() => setOpenCalendar(true)}>
               Follow Up Date : {selectedDate || "YYYY-MM-DD"}
+            </Button> */}
+           <Button variant="outlined"
+              style={{ marginRight: "10px" }}
+              onClick={handleFollowUp}
+            >
+              Follow Up Date
             </Button>
+             {/* <TextField
+                sx={{ width: "100%", marginBottom: "20px" }}
+                type="date"
+                inputProps={{
+                  min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+                }}
+                value={selectedDate}
+                onChange={(value) => setSelectedDate(value)}
+              /> */}
             {!edit ? (
               <Button
                 sx={{ width: "50px" }}
@@ -1724,12 +1764,49 @@ export default function CustomizedSummaryDialog({
           )}
         </Dialog>
       </ThemeProvider>
-      <Calendar
+      <Modal
+        open={openFollowUp}
+        onClose={handleFollowUpClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Toolbar stye={{ padding: 0 }}>
+            <Typography
+              sx={{ flex: 1, fontSize: "20px" }}
+              component="div"
+            >
+              Follow Up Date
+            </Typography>
+            <IconButton
+              edge="end"
+              color="inherit"
+              onClick={handleFollowUpClose}
+              aria-label="close"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+          <TextField
+            sx={{ width: "100%", marginBottom: "20px" }}
+            type="date"
+            inputProps={{
+              min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
+            }}
+            value={selectedDate}
+            onChange={handleFollowUpDateChange}
+          />
+          <PrimaryButton onClick={handleFollowUpClose}>
+            Submit
+          </PrimaryButton>
+        </Box>
+      </Modal>
+      {/* <Calendar
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         openCalendar={openCalendar}
         setOpenCalendar={setOpenCalendar}
-      />
+      /> */}
     </React.Fragment>
   );
 }
