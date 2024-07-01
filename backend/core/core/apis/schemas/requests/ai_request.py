@@ -69,7 +69,7 @@ class Medication(BaseModel):
     dosages: Optional[str]
     frequency: Optional[str]
     time_of_day: Optional[str]
-    duration_refill: Optional[str]
+    duration: Optional[str]
 
 
 class Prescription(BaseModel):
