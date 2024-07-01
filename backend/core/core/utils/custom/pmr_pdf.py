@@ -282,6 +282,7 @@ def create_pdf(file_obj, input_data, pdf_type):
                     Paragraph("Frequency", styles["TableHeader"]),
                     Paragraph("Duration", styles["TableHeader"]),
                     Paragraph("Dosage", styles["TableHeader"]),
+                    Paragraph("Time of day", styles["TableHeader"]),
                     Paragraph("Notes", styles["TableHeader"]),
                 ]
             ]
