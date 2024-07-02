@@ -1498,7 +1498,7 @@ export default function CustomizedSummaryDialog({
                   />
                 </FormControl>
                 <Grid container gap={1} spacing={1}>
-                  <Grid item md={2.5} sm={6}>
+                  <Grid item md={2.5} sm={10} xs={12}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1521,7 +1521,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={2.5} sm={6}>
+                  <Grid item md={2.5} sm={5} xs={12}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1543,7 +1543,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={2.5} sm={6}>
+                  <Grid item md={2.5} sm={5} xs={12}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1565,7 +1565,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={2.5} sm={6}>
+                  <Grid item md={2.5} sm={5} xs={12}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1587,7 +1587,7 @@ export default function CustomizedSummaryDialog({
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={2.5} sm={6}>
+                  <Grid item md={2.5} sm={5} xs={12}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
