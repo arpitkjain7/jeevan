@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["frontend/-analysis"]
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
         run: docker-compose -f docker-compose-ui.yml up --build -d
 
       - name: Push to Docker Hub
-        run: docker push cliniq360/lobster-ui:1.20
+        run: docker push cliniq360/lobster-ui:1.21
 
 # name: CI/CD counter app
 
