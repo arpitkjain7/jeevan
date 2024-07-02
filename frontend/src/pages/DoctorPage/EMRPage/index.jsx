@@ -37,6 +37,8 @@ import "react-pdf";
 // import "../node_modules/react-pdf/src/Page/AnnotationLayer.css";
 // import "react-pdf/src/Page/TextLayer.css";
 import { getPatientDetails } from "./EMRPage.slice";
+import RecorderComponent from "../../../components/RecorderComponent";
+import CustomizedSummaryDialog from "../../../components/RecordedPatientDataDialog";
 const isMobile = window.innerWidth < 600;
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
@@ -419,6 +421,7 @@ const PatientEMRDetails = (props) => {
   const [labInvestigation, setLabInvestigation] = useState([]);
   const [prescriptionComment, setPrescriptionComment] = useState("");
   const [advices, setAdvices] = useState("");
+  const pageSelected = sessionStorage.getItem("PageSelected");
   // const [showSeveritySymptomps, setShowSeveritySymptomps] = useState(false);
   // const [showMedicalHistory, setShowMedicalHistory] = useState(false);
   const [optionTextValues, setOptionTextValues] = useState({});
@@ -437,7 +440,7 @@ const PatientEMRDetails = (props) => {
   const [pmrFinished, setPmrFinished] = useState(false);
   const [pdfData, setPdfData] = useState({});
   const [submitEMRPayload, setSubmitEMRPayload] = useState({});
-  const dataState = useSelector((state) => state);
+  // const dataState = useSelector((state) => state);
   const [patientData, setPatientData] = useState({});
   const [step, setStep] = useState("create");
   const [number, setNumber] = useState("");
@@ -466,6 +469,7 @@ const PatientEMRDetails = (props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const userRole = sessionStorage?.getItem("userRole");
   const [documentBytes, setDocumentBytes] = useState("");
+  const [PMRsummaryNotes, setPMRSummaryNotes] = useState([]);
   const [formValues, setFormValues] = useState({
     pulseRate: "",
     oxygenSaturation: "",
@@ -481,6 +485,7 @@ const PatientEMRDetails = (props) => {
   const [followUp, setFollowUp] = useState("");
   const [pmrDialogOpen, setPmrDialogOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [emrData, setEmrData] = useState({});
   // const [retryCount, setRetryCount] = useState(0);
   // const [functionCalled, setFunctionCalled] = useState(false);
   // const [gatewayRequestId, setGatewayRequestId]= useState("");
@@ -531,14 +536,27 @@ const PatientEMRDetails = (props) => {
       (currentPatient && Object.keys(currentPatient).length)
     ) {
       const emrPayload = {
-        patient_id: encounterDetail?.patientId || currentPatient.patientId,
-        doc_id: encounterDetail?.doc_id || currentPatient.doc_id,
-        appointment_id: encounterDetail?.id || currentPatient.id,
-        hip_id: encounterDetail?.hip_id || currentPatient.hip_id,
+        patient_id:
+          pageSelected === "1"
+            ? encounterDetail?.patientId || currentPatient.patientId
+            : currentPatient.patientId || encounterDetail?.patientId,
+        doc_id:
+          pageSelected === "1"
+            ? encounterDetail?.doc_id || currentPatient.doc_id
+            : currentPatient.doc_id || encounterDetail?.doc_id,
+        appointment_id:
+          pageSelected === "1"
+            ? encounterDetail?.id || currentPatient.id
+            : currentPatient.id || encounterDetail?.id,
+        hip_id:
+          pageSelected === "1"
+            ? encounterDetail?.hip_id || currentPatient.hip_id
+            : currentPatient.hip_id || encounterDetail?.hip_id,
         consultation_status: "InProgress",
       };
       dispatch(getEMRId(emrPayload)).then((res) => {
         setShowLoader(false);
+        setEmrData(res?.payload?.appointment_details);
         setEMRId(res?.payload?.pmr_details?.id);
         res?.payload?.document_details?.map((data) => {
           if (data.document_type === "OPConsultation")
@@ -551,12 +569,16 @@ const PatientEMRDetails = (props) => {
           res?.payload?.appointment_details?.patient_id
         );
         const pmrDetails = res?.payload?.pmr_details.pmr_data;
+        const PMRSummarisedNotes = res?.payload?.pmr_details.summarised_notes;
         setAdvices(res?.payload?.pmr_details?.advices);
         setPrescriptionComment(res?.payload?.pmr_details?.notes);
         // { res.payload?.appointment_details?.followup_date !== null ?
         //   setFollowUp(dayjs(res.payload?.appointment_details?.followup_date)) : setFollowUp(null)
         // }
         setFollowUp(res.payload?.appointment_details?.followup_date);
+        if (PMRSummarisedNotes && PMRSummarisedNotes.consultation_summary) {
+          setPMRSummaryNotes(Object.entries(PMRSummarisedNotes));
+        }
         if (pmrDetails) {
           if (pmrDetails.vital) {
             setFormValues({
@@ -1813,7 +1835,11 @@ const PatientEMRDetails = (props) => {
         hospitalName: currentHospital?.name || "-",
         patientName:
           currentPatient?.patient_details?.name || currentPatient?.name || "-",
-        doctorName: docName || encounterDetail?.doc_name || currentPatient?.doc_name || "-",
+        doctorName:
+          docName ||
+          encounterDetail?.doc_name ||
+          currentPatient?.doc_name ||
+          "-",
         patientEmail:
           currentPatient?.patient_details?.email ||
           currentPatient?.email ||
@@ -2256,6 +2282,7 @@ const PatientEMRDetails = (props) => {
       {step === "create" && (
         <div>
           <PatientDetailsHeader documents={documents} />
+          <RecorderComponent PmrSummary={PMRsummaryNotes} emrData={emrData} />
           <EMRFormWrapper>
             <EMRFormInnerWrapper>
               <VitalsContainer>
