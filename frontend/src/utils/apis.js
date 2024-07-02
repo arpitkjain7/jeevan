@@ -47,7 +47,8 @@ export const apis = {
   verifyAadhaarAbha: "v3/HID/registration/aadhaar/verifyOTP",
   suggestAbhaAddress: "v3/HID/registration/aadhaar/suggestAbha",
   createAbhaAddress: "v3/HID/registration/aadhaar/createAbhaAddress",
-  aadhaarMobileGenerateOTP: "v3/HID/registration/updateProfileDetails/generateOTP",
+  aadhaarMobileGenerateOTP:
+    "v3/HID/registration/updateProfileDetails/generateOTP",
   addhaarMobileVerifyOTP: "v3/HID/registration/updateProfileDetails/verifyOTP",
   registerAbhaPatient: "v3/patient/register",
   verifyAbhaUser: "v3/HID/retrieveAbha/verifyUser",
@@ -68,4 +69,7 @@ export const apis = {
   fetchPatientDetails: "v1/patient",
   appointmentAnalytics: "v1/appointmentAnalytics",
   previewPMR: "v1/PMR/previewPMR",
+  recorderAnalysis: "v1/openAI/transcribe",
+  updatePMRSummary: "v1/openAI/update-summary",
+  previewSummary: "v1/PMR/preview-summary",
 };

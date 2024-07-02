@@ -3,9 +3,20 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 import uuid, os, json, io
+
+from functools import reduce
+
 from core import logger
 
 logging = logger(__name__)
+
+vital_units_map = {
+    "blood_pressure": "mm/Hg",
+    "heart_rate": "/min",
+    "respiratory_rate": "/min",
+    "temperature": "°C",
+    "oxygen_saturation": "%",
+}
 
 
 # Define a function to create the PDF
@@ -173,9 +184,30 @@ def create_pdf(file_obj, input_data, pdf_type):
         ].items():
             if value is not None and value != "":
                 vitals_data.append(
-                    {"label": key.replace("_", " ").title(), "value": value}
+                    {
+                        "label": key.replace("_", " ").title(),
+                        "value": f"{value} {vital_units_map[key]}",
+                    }
                 )
         create_section("Vitals", vitals_data)
+
+        # Cheif Complaints section
+        logging.info("Adding cheif complaints section")
+        item = input_data["pmr_request"]["summarised_notes"]["subjective"][
+            "chief_complaint"
+        ]
+        chief_complaint_data = [{"label": item}]
+        create_text_section("Cheif Complaints", chief_complaint_data)
+
+        # Symptoms section
+        logging.info("Adding symtoms section")
+        symptoms_data = [
+            {"label": item}
+            for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
+                "history_of_present_illness"
+            ]
+        ]
+        create_text_section("Symptoms", symptoms_data)
 
         # Medical history section
         logging.info("Adding medical history section")
@@ -187,15 +219,32 @@ def create_pdf(file_obj, input_data, pdf_type):
         ]
         create_text_section("Medical History", medical_history_data)
 
-        # Symptoms section
-        logging.info("Adding symtoms section")
-        symptoms_data = [
+        # Family history section
+        logging.info("Adding Family history section")
+        family_history_data = [
             {"label": item}
             for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
-                "history_of_present_illness"
+                "family_history"
             ]
         ]
-        create_text_section("Symptoms", symptoms_data)
+        create_text_section("Family History", family_history_data)
+
+        # Examination Findings section
+        examination_findings_data = []
+        if input_data["pmr_request"]["summarised_notes"]["objective"][
+            "physical_examination_findings"
+        ]:
+            examination_findings_data.append(
+                {
+                    "label": "Examination Findings",
+                    "value": input_data["pmr_request"]["summarised_notes"]["objective"][
+                        "physical_examination_findings"
+                    ],
+                }
+            )
+        if len(examination_findings_data) > 0:
+            logging.info("Adding Examination Findings section")
+            create_section("Examination Findings", examination_findings_data)
 
         # Diagnosis section
         diagnosis_data = []
@@ -236,38 +285,41 @@ def create_pdf(file_obj, input_data, pdf_type):
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "laboratory_tests"
         ]:
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "laboratory_tests"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Lab Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["laboratory_tests"]
-                ]
+                [{"label": "Lab Investigation", "value": item}]
             )
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "imaging_tests"
         ]:
             # Imaging investigation section
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "imaging_tests"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Imaging Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["imaging_tests"]
-                ]
+                [{"label": "Imaging Investigation", "value": item}]
             )
 
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
             "special_exams"
         ]:
             # Special investigation section
+            item = reduce(
+                lambda x, y: str(x) + ", " + str(y),
+                input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
+                    "special_exams"
+                ],
+            )
             lab_investigation_data.extend(
-                [
-                    {"label": "Special Investigation", "value": item}
-                    for item in input_data["pmr_request"]["summarised_notes"][
-                        "tests_to_be_taken"
-                    ]["special_exams"]
-                ]
+                [{"label": "Special Investigation", "value": item}]
             )
         if len(lab_investigation_data) > 0:
             logging.info("Adding lab investigation section")
@@ -350,13 +402,13 @@ def create_pdf(file_obj, input_data, pdf_type):
             elements.append(Spacer(1, 12))
 
         # Notes section
-        if input_data["pmr_request"]["summarised_notes"]["plan"]["patient_education"]:
+        if input_data["pmr_request"]["summarised_notes"]["additional_notes"]["content"]:
             logging.info("Adding Notes section")
             elements.append(Paragraph("Notes", styles["Bold"]))
             elements.append(
                 Paragraph(
-                    input_data["pmr_request"]["summarised_notes"]["plan"][
-                        "patient_education"
+                    input_data["pmr_request"]["summarised_notes"]["additional_notes"][
+                        "content"
                     ]
                 )
             )
@@ -372,6 +424,23 @@ def create_pdf(file_obj, input_data, pdf_type):
                 elements.append(
                     Paragraph(
                         follow_up,
+                        styles["Normal"],
+                    )
+                )
+            elements.append(Spacer(1, 12))
+
+        # Referral section
+        if input_data["pmr_request"]["summarised_notes"]["other_next_steps"][
+            "referrals"
+        ]:
+            logging.info("Adding referral section")
+            elements.append(Paragraph("Referral", styles["Bold"]))
+            for referral in input_data["pmr_request"]["summarised_notes"][
+                "other_next_steps"
+            ]["referrals"]:
+                elements.append(
+                    Paragraph(
+                        referral,
                         styles["Normal"],
                     )
                 )

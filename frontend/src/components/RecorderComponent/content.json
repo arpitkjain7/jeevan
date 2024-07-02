@@ -1,0 +1,83 @@
+{
+  "consultation_summary": {
+    "comment": "Summary of the conversation",
+    "summary": "The patient presented with a terrible stomach ache, diarrhea, nausea, vomiting, and dizziness that started this morning after eating something raw yesterday evening."
+  },
+  "subjective": {
+    "comment": "Subjective information provided by the patient.",
+    "chief_complaint": "Terrible stomach ache",
+    "history_of_present_illness": [
+      "Symptoms started this morning",
+      "Ate something raw yesterday evening"
+    ],
+    "past_medical_history": ["Blood test", "Urine sample"],
+    "medication_history": ["Blood test", "Urine sample"],
+    "allergy_information": ["Blood test", "Urine sample"],
+    "family_history": ["Blood test", "Urine sample"],
+    "social_history": ["Blood test", "Urine sample"],
+    "review_of_systems": ["Diarrhea", "Nausea", "Vomiting", "Dizziness"]
+  },
+  "objective": {
+    "comment": "Objective findings from physical examination and diagnostic tests.",
+    "vital_signs": {
+      "blood_pressure": "120/80 mmHg",
+      "heart_rate": "72 bpm",
+      "respiratory_rate": "16 breaths/min",
+      "temperature": "98.6°F",
+      "oxygen_saturation": "98%"
+    },
+    "physical_examination_findings": "Patient reported pain during physical examination.",
+    "laboratory_and_diagnostic_test_results": "Indigestion"
+  },
+  "assessment": {
+    "comment": "Doctor's assessment based on subjective and objective information.",
+    "preliminary_diagnosis": "Indigestion",
+    "differential_diagnosis": "Indigestion",
+    "risk_factors": "Indigestion"
+  },
+  "plan": {
+    "diagnostic_plan": "Run a blood test and obtain a urine sample.",
+    "treatment_plan": "Prescription for indigestion tablets.",
+    "patient_education": "Indigestion",
+    "follow_up": "Indigestion"
+  },
+  "tests_to_be_taken": {
+    "comment": "List of additional diagnostic tests to be conducted for further assessment.",
+    "laboratory_tests": ["Blood test", "Urine sample"],
+    "imaging_tests": ["Blood test", "Urine sample"],
+    "special_exams": ["Blood test", "Urine sample"]
+  },
+  "other_next_steps": {
+    "comment": "Other necessary actions before finalizing the patient's treatment plan.",
+    "consultations": ["Blood test", "Urine sample"],
+    "referrals": ["Blood test", "Urine sample"],
+    "precautions": ["Blood test", "Urine sample"],
+    "lifestyle_modifications": ["Blood test", "Urine sample"]
+  },
+  "prescription": {
+    "comment": "Comment on the list Medication details including names, dosages, frequencies, routes, durations, and special instructions.",
+    "medications": [
+      {
+        "med_name": "Indigestion tablets",
+        "instructions": "Take 1 tablet after meals",
+        "dosages": "1 tablet",
+        "duration_refill": "30 days"
+      },
+      {
+        "med_name": "Pain relief tablets",
+        "instructions": "Take 1 tablet as needed for pain",
+        "dosages": "1 tablet",
+        "duration_refill": "30 days"
+      },
+      {
+        "med_name": "Antiemetic tablets",
+        "instructions": "Take 1 tablet as needed for nausea",
+        "dosages": "1 tablet",
+        "duration_refill": "30 days"
+      }
+    ]
+  },
+  "additional_notes": {
+    "content": "Patient should avoid spicy and fatty foods."
+  }
+}
