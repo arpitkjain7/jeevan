@@ -202,9 +202,9 @@ const FieldSpecsContainer = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
     // marginTop: theme.spacing(4),
-    
+    margin: "20px 0",
     justifyContent: "space-between",
-    gap: theme.spacing(4),
+    gap: "20px",
     [theme.breakpoints.down("sm")]: {
       gap: theme.spacing(2),
       padding: "10px 5px",
@@ -217,7 +217,9 @@ const FieldSpecsContainer = styled("div")(({ theme }) => ({
 
 const RecordLayout = styled("div")(({ theme }) => ({
   textAlign: "left",
-  padding: theme.spacing(3, 4),
+  width: "120px",
+  // padding: "20px 5px",
+  // margin: "10px 0",
   border: `1px solid ${theme.palette.primaryGrey}`,
   flex: 1,
   // height: theme.spacing(13),
@@ -241,6 +243,7 @@ const SelectedRecord = styled(Typography)(({ theme }) => ({
   "&": theme.typography.body1,
   marginBottom: theme.spacing(1),
   // marginBottom: "0",
+  width: "120px",
   [theme.breakpoints.down("sm")]: {
     marginBottom: "0",
   },
@@ -279,6 +282,7 @@ const VitalsContainer = styled("div")(({ theme }) => ({
 
 const TextBoxLayout = styled("div")(({ theme }) => ({
   flex: 1,
+  width: "120px",
   "&.desktopTextBoxLayout": {
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -1907,9 +1911,12 @@ export default function CustomizedSummaryDialog({
                       .map((item, index) => (
                         <FieldSpecsContainer key={index}>
                           <RecordLayout>
-                            <SelectedRecord>
-                              {item?.label || item}
-                            </SelectedRecord>
+                            <>
+                            <TextField
+                              label="Medicine"
+                              value = {item?.label || item}
+                            />
+                            </>
                           </RecordLayout>
                           <TextBoxLayout
                             className="desktopTextBoxLayout"
