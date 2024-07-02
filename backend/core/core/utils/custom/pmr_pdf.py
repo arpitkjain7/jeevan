@@ -193,13 +193,21 @@ def create_pdf(file_obj, input_data, pdf_type):
 
         # Cheif Complaints section
         logging.info("Adding cheif complaints section")
-        chief_complaint_data = [
+        item = input_data["pmr_request"]["summarised_notes"]["subjective"][
+            "chief_complaint"
+        ]
+        chief_complaint_data = [{"label": item}]
+        create_text_section("Cheif Complaints", chief_complaint_data)
+
+        # Symptoms section
+        logging.info("Adding symtoms section")
+        symptoms_data = [
             {"label": item}
             for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
-                "chief_complaint"
+                "history_of_present_illness"
             ]
         ]
-        create_text_section("Cheif Complaints", chief_complaint_data)
+        create_text_section("Symptoms", symptoms_data)
 
         # Medical history section
         logging.info("Adding medical history section")
@@ -221,15 +229,22 @@ def create_pdf(file_obj, input_data, pdf_type):
         ]
         create_text_section("Family History", family_history_data)
 
-        # Symptoms section
-        logging.info("Adding symtoms section")
-        symptoms_data = [
-            {"label": item}
-            for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
-                "history_of_present_illness"
-            ]
-        ]
-        create_text_section("Symptoms", symptoms_data)
+        # Examination Findings section
+        examination_findings_data = []
+        if input_data["pmr_request"]["summarised_notes"]["objective"][
+            "physical_examination_findings"
+        ]:
+            examination_findings_data.append(
+                {
+                    "label": "Examination Findings",
+                    "value": input_data["pmr_request"]["summarised_notes"]["objective"][
+                        "physical_examination_findings"
+                    ],
+                }
+            )
+        if len(examination_findings_data) > 0:
+            logging.info("Adding Examination Findings section")
+            create_section("Examination Findings", examination_findings_data)
 
         # Diagnosis section
         diagnosis_data = []
@@ -264,22 +279,7 @@ def create_pdf(file_obj, input_data, pdf_type):
         if len(diagnosis_data) > 0:
             logging.info("Adding diagnosis section")
             create_section("Diagnosis", diagnosis_data)
-        # Examination Findings section
-        examination_findings_data = []
-        if input_data["pmr_request"]["summarised_notes"]["objective"][
-            "physical_examination_findings"
-        ]:
-            examination_findings_data.append(
-                {
-                    "label": "Examination Findings",
-                    "value": input_data["pmr_request"]["summarised_notes"]["objective"][
-                        "physical_examination_findings"
-                    ],
-                }
-            )
-        if len(examination_findings_data) > 0:
-            logging.info("Adding Examination Findings section")
-            create_section("Examination Findings", examination_findings_data)
+
         # Lab investigation section
         lab_investigation_data = []
         if input_data["pmr_request"]["summarised_notes"]["tests_to_be_taken"][
@@ -402,13 +402,13 @@ def create_pdf(file_obj, input_data, pdf_type):
             elements.append(Spacer(1, 12))
 
         # Notes section
-        if input_data["pmr_request"]["summarised_notes"]["plan"]["patient_education"]:
+        if input_data["pmr_request"]["summarised_notes"]["additional_notes"]["content"]:
             logging.info("Adding Notes section")
             elements.append(Paragraph("Notes", styles["Bold"]))
             elements.append(
                 Paragraph(
-                    input_data["pmr_request"]["summarised_notes"]["plan"][
-                        "patient_education"
+                    input_data["pmr_request"]["summarised_notes"]["additional_notes"][
+                        "content"
                     ]
                 )
             )
@@ -424,6 +424,23 @@ def create_pdf(file_obj, input_data, pdf_type):
                 elements.append(
                     Paragraph(
                         follow_up,
+                        styles["Normal"],
+                    )
+                )
+            elements.append(Spacer(1, 12))
+
+        # Referral section
+        if input_data["pmr_request"]["summarised_notes"]["other_next_steps"][
+            "referrals"
+        ]:
+            logging.info("Adding referral section")
+            elements.append(Paragraph("Referral", styles["Bold"]))
+            for referral in input_data["pmr_request"]["summarised_notes"][
+                "other_next_steps"
+            ]["referrals"]:
+                elements.append(
+                    Paragraph(
+                        referral,
                         styles["Normal"],
                     )
                 )
