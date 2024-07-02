@@ -15,6 +15,7 @@ async def transcribe_audio(
     pmr_id: str,
     patient_id: str,
     audio_file: UploadFile,
+    regenerate: bool = False,
     translate: bool = True,
     token: str = Depends(oauth2_scheme),
 ):
@@ -31,6 +32,7 @@ async def transcribe_audio(
                 audio_file_data=audio_file_data,
                 audio_file_name=audio_file_name,
                 translate=translate,
+                regenerate=regenerate,
             )
         else:
             raise HTTPException(

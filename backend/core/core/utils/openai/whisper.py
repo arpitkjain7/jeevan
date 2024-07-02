@@ -24,7 +24,6 @@ class WhisperHelper:
     def transcribe(self, file_path: str, prompt: str = None):
         try:
             audio_file = open(file_path, "rb")
-            prompt = "If the audio file conversation is not a medical conversation then return an error stating - 'Invalid file data'"
             transcription = openai.audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file,
