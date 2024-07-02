@@ -117,11 +117,11 @@ export const previewPMRSummary = createAsyncThunk(
 
 export const recorderAnalysis = createAsyncThunk(
   "recorderAnalysis",
-  async ({ pmr_id, patient_id, audio_file }) => {
+  async ({ pmr_id, patient_id, audio_file, regenerate, translate }) => {
     const access_token = sessionStorage.getItem("accesstoken");
     try {
       const response = await axios.post(
-        ` ${BASE_URL}/${apis?.recorderAnalysis}?pmr_id=${pmr_id}&patient_id=${patient_id}&translate=true`,
+        ` ${BASE_URL}/${apis?.recorderAnalysis}?pmr_id=${pmr_id}&patient_id=${patient_id}&regenerate=${regenerate}&translate=true`,
         audio_file,
         {
           headers: {
