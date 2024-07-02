@@ -47,6 +47,7 @@ import {
   TextareaAutosize,
   Tooltip,
   createTheme,
+  InputAdornment,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -1496,14 +1497,15 @@ export default function CustomizedSummaryDialog({
                     onChange={(e) => handleSummaryChange(e, 2)}
                   />
                 </FormControl>
-                <Grid container gap={1}>
-                  <Grid item md={5} sm={12}>
+                <Grid container gap={1} spacing={1}>
+                  <Grid item md={3.8} sm={6}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
                           <strong> Blood Pressure </strong>
                         </Typography>
                       </InputLabel>
+
                       <BootstrapInput
                         disabled={!edit}
                         defaultValue={
@@ -1513,10 +1515,13 @@ export default function CustomizedSummaryDialog({
                         multiline
                         name="blood_pressure"
                         onChange={(e) => handleVitalsChange(e, 2)}
+                        endAdornment={
+                          <InputAdornment position="end">mmHg</InputAdornment>
+                        }
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={5} sm={12}>
+                  <Grid item md={4} sm={6}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1532,10 +1537,13 @@ export default function CustomizedSummaryDialog({
                         multiline
                         name="heart_rate"
                         onChange={(e) => handleVitalsChange(e, 2)}
+                        endAdornment={
+                          <InputAdornment position="end">/min</InputAdornment>
+                        }
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={5} sm={12}>
+                  <Grid item md={4} sm={6}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1551,10 +1559,13 @@ export default function CustomizedSummaryDialog({
                         multiline
                         name="oxygen_saturation"
                         onChange={(e) => handleVitalsChange(e, 2)}
+                        endAdornment={
+                          <InputAdornment position="end">%</InputAdornment>
+                        }
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={5} sm={12}>
+                  <Grid item md={3.8} sm={6}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1570,10 +1581,13 @@ export default function CustomizedSummaryDialog({
                         multiline
                         name="respiratory_rate"
                         onChange={(e) => handleVitalsChange(e, 2)}
+                        endAdornment={
+                          <InputAdornment position="end">/min</InputAdornment>
+                        }
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={5} sm={12}>
+                  <Grid item md={3.8} sm={6}>
                     <FormControl variant="standard" fullWidth>
                       <InputLabel shrink htmlFor="bootstrap-input">
                         <Typography variant="h6">
@@ -1589,6 +1603,9 @@ export default function CustomizedSummaryDialog({
                         multiline
                         name="temperature"
                         onChange={(e) => handleVitalsChange(e, 2)}
+                        endAdornment={
+                          <InputAdornment position="end">°C</InputAdornment>
+                        }
                       />
                     </FormControl>
                   </Grid>
