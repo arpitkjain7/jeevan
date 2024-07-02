@@ -43,7 +43,7 @@ const AudioControlPanel = styled(Card)(({ theme }) => ({
   margin: theme.spacing(2),
   border: "5px solid ",
   borderRadius: "50px",
-  width: "50%",
+  width: "65%",
   animation: "borderAnimation 3s infinite",
 
   [theme.breakpoints.down("md")]: {
@@ -117,6 +117,7 @@ const RecorderComponent = ({ PmrSummary, emrData }) => {
   const [summaryContent, setSummaryContent] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [formData, setFormData] = useState();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -135,18 +136,40 @@ const RecorderComponent = ({ PmrSummary, emrData }) => {
       setShowSkeleton(true);
       const response = await fetch(mediaBlobUrl);
       const audio_file = await response.blob();
-      const formData = new FormData();
-      formData.append("audio_file", audio_file, "recording.mp3");
-
+      const formDataObj = new FormData();
+      formDataObj.append("audio_file", audio_file, "recording.mp3");
+      setFormData(formDataObj);
       const encounterDetails = JSON.parse(
         sessionStorage.getItem("encounterDetail")
       );
       const payload = {
         pmr_id: sessionStorage.getItem("pmrID"),
         patient_id: sessionStorage.getItem("ID"),
-        audio_file: formData,
+        audio_file: formDataObj,
+        regenerate: false,
       };
 
+      dispatch(recorderAnalysis(payload)).then((res) => {
+        const data = res?.payload?.data;
+        setSummaryContent(Object.entries(data));
+        setShowSkeleton(false);
+
+        // console.log("res", summaryContent);
+      });
+    } catch (error) {
+      console.error("Error handling mediaBlobUrl:", error);
+    }
+  };
+
+  const handleRegenerateAudio = () => {
+    try {
+      const payload = {
+        pmr_id: sessionStorage.getItem("pmrID"),
+        patient_id: sessionStorage.getItem("ID"),
+        regenerate: true,
+        translate: true,
+        audio_file: formData,
+      };
       dispatch(recorderAnalysis(payload)).then((res) => {
         const data = res?.payload?.data;
         setSummaryContent(Object.entries(data));
@@ -207,6 +230,17 @@ const RecorderComponent = ({ PmrSummary, emrData }) => {
               ) : (
                 <audio src={mediaBlobUrl} controls muted autoPlay={false} />
               )}
+              {formData &&
+                summaryContent.length > 0 &&
+                summaryContent[0][1]?.summary && (
+                  <Button
+                    sx={{ borderRadius: "15px", marginLeft: "10px" }}
+                    variant="outlined"
+                    onClick={handleRegenerateAudio}
+                  >
+                    Regenerate
+                  </Button>
+                )}
             </AudioControlPanel>
           </>
         )}
