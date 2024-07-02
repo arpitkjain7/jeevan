@@ -2659,28 +2659,17 @@ export default function CustomizedSummaryDialog({
             </Accordion>
           </DialogContent>
           <DialogActions gap={2}>
-            {/* <Button variant="outlined" onClick={() => setOpenCalendar(true)}>
-              Follow Up Date : {selectedDate || "YYYY-MM-DD"}
-            </Button> */}
-            <Button
-              variant="outlined"
-              style={{ marginRight: "10px" }}
-              onClick={handleFollowUp}
-            >
-              Follow Up Date
+            <Button variant="outlined" onClick={handleFollowUp}>
+              Follow Up
             </Button>
-            {/* <TextField
-                sx={{ width: "100%", marginBottom: "20px" }}
-                type="date"
-                inputProps={{
-                  min: format(new Date(), "yyyy-MM-dd"), // Set max date to the current date
-                }}
-                value={selectedDate}
-                onChange={(value) => setSelectedDate(value)}
-              /> */}
             {!edit ? (
               <Button
-                sx={{ width: "50px" }}
+                sx={{
+                  width: "50px",
+                  "@media screen and (min-width: 0px) and (max-width: 600px)": {
+                    paddingY: "17px",
+                  },
+                }}
                 autoFocus
                 variant="outlined"
                 onClick={() => setEdit(!edit)}
@@ -2701,6 +2690,7 @@ export default function CustomizedSummaryDialog({
               onClick={handleReviewPrescription}
               autoFocus
               variant="contained"
+              disabled={edit}
             >
               Review Prescription
             </Button>{" "}
