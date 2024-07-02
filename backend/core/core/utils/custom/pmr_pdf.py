@@ -191,6 +191,16 @@ def create_pdf(file_obj, input_data, pdf_type):
                 )
         create_section("Vitals", vitals_data)
 
+        # Cheif Complaints section
+        logging.info("Adding cheif complaints section")
+        chief_complaint_data = [
+            {"label": item}
+            for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
+                "chief_complaint"
+            ]
+        ]
+        create_text_section("Cheif Complaints", chief_complaint_data)
+
         # Medical history section
         logging.info("Adding medical history section")
         medical_history_data = [
@@ -200,6 +210,16 @@ def create_pdf(file_obj, input_data, pdf_type):
             ]
         ]
         create_text_section("Medical History", medical_history_data)
+
+        # Family history section
+        logging.info("Adding Family history section")
+        family_history_data = [
+            {"label": item}
+            for item in input_data["pmr_request"]["summarised_notes"]["subjective"][
+                "family_history"
+            ]
+        ]
+        create_text_section("Family History", family_history_data)
 
         # Symptoms section
         logging.info("Adding symtoms section")
