@@ -23,6 +23,7 @@ class AIController:
         audio_file_data: bytes,
         audio_file_name: str,
         translate: bool,
+        regenerate: bool,
     ):
         try:
             logging.info("executing AIController.whisper_transcribe function")
@@ -66,17 +67,21 @@ class AIController:
             existing_clinical_transcript = pmr_obj.get("raw_transcripts")
             now = datetime.now()
             timestamp_str = now.strftime("%Y-%m-%d %H:%M:%S")
-            if existing_clinical_notes:
-                consolidated_summary_notes = consolidate_summaries(
-                    dict1=existing_clinical_notes, dict2=new_clinical_notes
-                )
-            else:
+            if regenerate:
                 consolidated_summary_notes = new_clinical_notes
-            if existing_clinical_transcript:
-                existing_clinical_transcript.update({timestamp_str: transcription_str})
-                consolidated_transcripts = existing_clinical_transcript
-            else:
                 consolidated_transcripts = {timestamp_str: transcription_str}
+            else:
+                if existing_clinical_notes:
+                    consolidated_summary_notes = consolidate_summaries(
+                        dict1=existing_clinical_notes, dict2=new_clinical_notes
+                    )
+                else:
+                    consolidated_summary_notes = new_clinical_notes
+                if existing_clinical_transcript:
+                    existing_clinical_transcript.update({timestamp_str: transcription_str})
+                    consolidated_transcripts = existing_clinical_transcript
+                else:
+                    consolidated_transcripts = {timestamp_str: transcription_str}
             self.CRUDPatientMedicalRecord.update(
                 **{
                     "id": pmr_id,
