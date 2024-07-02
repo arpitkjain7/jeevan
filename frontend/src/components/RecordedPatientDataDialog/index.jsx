@@ -1056,25 +1056,55 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.allergy_information || []}
+                      value={content[1][1]?.allergy_information || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Allergies"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]?.allergy_information || []),
+                                  value.trim(),
+                                ],
+                                "allergy_information"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]?.allergy_information ||
+                                      []),
+                                    value.trim(),
+                                  ],
+                                  "allergy_information"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1092,25 +1122,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.family_history || []}
+                      value={content[1][1]?.family_history || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Family History"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]?.family_history || []),
+                                  value.trim(),
+                                ],
+                                "family_history"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]?.family_history || []),
+                                    value.trim(),
+                                  ],
+                                  "family_history"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1135,27 +1194,56 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        content[1][1]?.history_of_present_illness || []
-                      }
+                      value={content[1][1]?.history_of_present_illness || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="History of Illness"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]
+                                    ?.history_of_present_illness || []),
+                                  value.trim(),
+                                ],
+                                "history_of_present_illness"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]
+                                      ?.history_of_present_illness || []),
+                                    value.trim(),
+                                  ],
+                                  "history_of_present_illness"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1173,25 +1261,55 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.medication_history || []}
+                      value={content[1][1]?.medication_history || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Medication History"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]?.medication_history || []),
+                                  value.trim(),
+                                ],
+                                "medication_history"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]?.medication_history ||
+                                      []),
+                                    value.trim(),
+                                  ],
+                                  "medication_history"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1209,25 +1327,56 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.past_medical_history || []}
+                      value={content[1][1]?.past_medical_history || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Past Medical History"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]?.past_medical_history ||
+                                    []),
+                                  value.trim(),
+                                ],
+                                "past_medical_history"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]?.past_medical_history ||
+                                      []),
+                                    value.trim(),
+                                  ],
+                                  "past_medical_history"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1245,25 +1394,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[1][1]?.social_history || []}
+                      value={content[1][1]?.social_history || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Social History"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                1,
+                                [
+                                  ...(content[1][1]?.social_history || []),
+                                  value.trim(),
+                                ],
+                                "social_history"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  1,
+                                  [
+                                    ...(content[1][1]?.social_history || []),
+                                    value.trim(),
+                                  ],
+                                  "social_history"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -1990,25 +2168,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[5][1]?.imaging_tests || []}
+                      value={content[5][1]?.imaging_tests || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Imaging Test"
+                          placeholder="Imaging Tests"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                5,
+                                [
+                                  ...(content[5][1]?.imaging_tests || []),
+                                  value.trim(),
+                                ],
+                                "imaging_tests"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  5,
+                                  [
+                                    ...(content[5][1]?.imaging_tests || []),
+                                    value.trim(),
+                                  ],
+                                  "imaging_tests"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2025,25 +2232,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[5][1]?.laboratory_tests || []}
+                      value={content[5][1]?.laboratory_tests || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder="Laboratory Test"
+                          placeholder="Laboratory Tests"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                5,
+                                [
+                                  ...(content[5][1]?.laboratory_tests || []),
+                                  value.trim(),
+                                ],
+                                "laboratory_tests"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  5,
+                                  [
+                                    ...(content[5][1]?.laboratory_tests || []),
+                                    value.trim(),
+                                  ],
+                                  "laboratory_tests"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2060,25 +2296,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[5][1]?.special_exams || []}
+                      value={content[5][1]?.special_exams || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Special Exam"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                5,
+                                [
+                                  ...(content[5][1]?.special_exams || []),
+                                  value.trim(),
+                                ],
+                                "special_exams"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  5,
+                                  [
+                                    ...(content[5][1]?.special_exams || []),
+                                    value.trim(),
+                                  ],
+                                  "special_exams"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2110,25 +2375,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[6][1]?.consultations || []}
+                      value={content[6][1]?.consultations || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Consultations"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                6,
+                                [
+                                  ...(content[6][1]?.consultations || []),
+                                  value.trim(),
+                                ],
+                                "consultations"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  6,
+                                  [
+                                    ...(content[6][1]?.consultations || []),
+                                    value.trim(),
+                                  ],
+                                  "consultations"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2153,27 +2447,56 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={
-                        content[6][1]?.lifestyle_modifications || []
-                      }
+                      value={content[6][1]?.lifestyle_modifications || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Lifestyle Modifications"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                6,
+                                [
+                                  ...(content[6][1]?.lifestyle_modifications ||
+                                    []),
+                                  value.trim(),
+                                ],
+                                "lifestyle_modifications"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  6,
+                                  [
+                                    ...(content[6][1]
+                                      ?.lifestyle_modifications || []),
+                                    value.trim(),
+                                  ],
+                                  "lifestyle_modifications"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2191,25 +2514,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[6][1]?.precautions || []}
+                      value={content[6][1]?.precautions || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Precautions"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                6,
+                                [
+                                  ...(content[6][1]?.precautions || []),
+                                  value.trim(),
+                                ],
+                                "precautions"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  6,
+                                  [
+                                    ...(content[6][1]?.precautions || []),
+                                    value.trim(),
+                                  ],
+                                  "precautions"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
@@ -2227,25 +2579,54 @@ export default function CustomizedSummaryDialog({
                       }
                       id="tags-filled"
                       options={[]}
-                      defaultValue={content[6][1]?.referrals || []}
+                      value={content[6][1]?.referrals || []}
+                      clearOnBlur={true}
                       renderTags={(value, getTagProps) =>
-                        value.map((item, index) => {
-                          const { key, ...tagProps } = getTagProps({ index });
-                          return (
-                            <Chip
-                              variant="outlined"
-                              label={item}
-                              key={key}
-                              {...tagProps}
-                            />
-                          );
-                        })
+                        value.map((item, index) => (
+                          <Chip
+                            variant="outlined"
+                            label={item}
+                            key={index} // Use index as key if items are unique
+                            {...getTagProps({ index })}
+                          />
+                        ))
                       }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="outlined"
                           placeholder="Referrals"
+                          onBlur={(e) => {
+                            const { value } = e.target;
+                            if (value.trim() !== "") {
+                              handleChipChange(
+                                e,
+                                6,
+                                [
+                                  ...(content[6][1]?.referrals || []),
+                                  value.trim(),
+                                ],
+                                "referrals"
+                              );
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === ",") {
+                              const { value } = e.target;
+                              if (value.trim() !== "") {
+                                handleChipChange(
+                                  e,
+                                  6,
+                                  [
+                                    ...(content[6][1]?.referrals || []),
+                                    value.trim(),
+                                  ],
+                                  "referrals"
+                                );
+                                e.target.value = ""; // Clear input after adding chip
+                              }
+                            }
+                          }}
                         />
                       )}
                     />
