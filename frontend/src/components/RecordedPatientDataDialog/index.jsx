@@ -1424,6 +1424,70 @@ export default function CustomizedSummaryDialog({
               >
                 <PlanIcon sx={{ marginRight: "5px" }} />
                 <Typography variant="h6">
+                  <strong>Assessment</strong>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong> Differential Diagnosis : </strong>
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      content[3][1]?.differential_diagnosis || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="differential_diagnosis"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Preliminary Diagnosis:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      content[3][1]?.preliminary_diagnosis || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="preliminary_diagnosis"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel shrink htmlFor="bootstrap-input">
+                    <Typography variant="h6">
+                      <strong>Risk Factors:</strong>{" "}
+                    </Typography>
+                  </InputLabel>
+                  <BootstrapInput
+                    disabled={!edit}
+                    defaultValue={
+                      content[3][1]?.risk_factors || "Not Available"
+                    }
+                    id="bootstrap-input"
+                    multiline
+                    name="risk_factors"
+                    onChange={(e) => handleSummaryChange(e, 3)}
+                  />
+                </FormControl>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary
+                alignItems={"center"}
+                expandIcon={<ExpandMoreIcon />}
+              >
+                <PlanIcon sx={{ marginRight: "5px" }} />
+                <Typography variant="h6">
                   <strong>Plans</strong>
                 </Typography>
               </AccordionSummary>
