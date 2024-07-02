@@ -23,6 +23,7 @@ import NextStepsIcon from "@mui/icons-material/Forward";
 import NotesIcon from "@mui/icons-material/Notes";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
+import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
 import {
   Autocomplete,
   Box,
@@ -199,15 +200,16 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
 const FieldSpecsContainer = styled("div")(({ theme }) => ({
   "&": {
     display: "flex",
-    marginTop: theme.spacing(4),
+    // marginTop: theme.spacing(4),
+    
     justifyContent: "space-between",
     gap: theme.spacing(4),
     [theme.breakpoints.down("sm")]: {
       gap: theme.spacing(2),
+      padding: "10px 5px",
       alignItems: "center",
       border: "1px solid #ccccccb8",
       flexWrap: "wrap",
-      padding: "2px",
     },
   },
 }));
@@ -236,10 +238,41 @@ const RecordLayout = styled("div")(({ theme }) => ({
 
 const SelectedRecord = styled(Typography)(({ theme }) => ({
   "&": theme.typography.body1,
-  marginBottom: theme.spacing(4),
+  marginBottom: theme.spacing(1),
   // marginBottom: "0",
   [theme.breakpoints.down("sm")]: {
     marginBottom: "0",
+  },
+}));
+
+const VitalsContainer = styled("div")(({ theme }) => ({
+  "&": {
+    backgroundColor: theme.palette.primaryWhite,
+    // marginTop: theme.spacing(4),
+    // padding: theme.spacing(6),
+    borderRadius: theme.spacing(1),
+    // [theme.breakpoints.down("sm")]: {
+    //   padding: theme.spacing(4, 2),
+    // },
+  },
+  "& .notes-field": {
+    "&.MuiFormControl-root": {
+      width: "100%",
+      "& > .MuiInputBase-root ": {
+        minHeight: theme.spacing(43),
+      },
+    },
+  },
+  "& .textareaAutoSizeStyle": {
+    height: "165px",
+    minHeight: "165px",
+    maxHeight: "165px",
+    width: "100%",
+    minWidth: "100%",
+    maxWidth: "100%",
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: "430px",
+    },
   },
 }));
 
@@ -363,11 +396,9 @@ export default function CustomizedSummaryDialog({
   //begins Vitals medication section
   const [medications, setMedications] = useState([]);
   const [medicationsSpecs, setMedicationsSpecs] = useState({});
-  console.log("medicationSpecs", medicationsSpecs);
-  console.log("medications", summaryContent);
   const [medicationsOpts, setMedicationsOpts] = useState([]);
   const [number, setNumber] = useState("");
-  const [dose, setDose] = useState("");
+  const [dosages, setDosages] = useState("");
   const [medicationOptions, setMedicationOptions] = useState("");
   const [openMedicationNotes, setOpenMedicationNotes] = React.useState(false);
   const handleCloseMedicationNotes = () => setOpenMedicationNotes(false);
@@ -398,63 +429,61 @@ export default function CustomizedSummaryDialog({
           {
             label: medication.med_name,
             value: medication.med_name,
-            snowmed_code: "",
-            snowmed_display: "",
+            // snowmed_code: "",
+            // snowmed_display: "",
           },
         ]);
         setMedicationsSpecs((prevState) => ({
           ...prevState,
           [medication.med_name]: {
-            severity: medication?.frequency,
-            dose: medication?.dosages,
-            since: medication?.duration,
-            notes: medication?.instructions,
-            timing: medication?.time_of_day,
+            frequency: medication?.frequency,
+            dosages: medication?.dosages,
+            duration: medication?.duration,
+            instructions: medication?.instructions,
+            time_of_day: medication?.time_of_day,
           },
         }));
       });
     }
-    console.log("medications", medications);
-    console.log("medicationSpecs", medicationsSpecs);
   }, [summaryContent]);
 
-  const addMedicationsToSummary = () => {
-    setSummaryContent((prevContent) => {
-      // Create a shallow copy of the previous state
-      const updatedContent = [...prevContent];
+  // const addMedicationsToSummary = () => {
+  //   setSummaryContent((prevContent) => {
+  //     // Create a shallow copy of the previous state
+  //     const updatedContent = [...prevContent];
 
-      // Ensure the nested structure is properly initialized
-      if (!updatedContent[7]) {
-        updatedContent[7] = [];
-      }
-      if (!updatedContent[7][1]) {
-        updatedContent[7][1] = { medications: [] };
-      } else if (!Array.isArray(updatedContent[7][1].medications)) {
-        updatedContent[7][1].medications = [];
-      }
+  //     // Ensure the nested structure is properly initialized
+  //     if (!updatedContent[7]) {
+  //       updatedContent[7] = [];
+  //     }
+  //     if (!updatedContent[7][1]) {
+  //       updatedContent[7][1] = { medications: [] };
+  //     } else if (!Array.isArray(updatedContent[7][1].medications)) {
+  //       updatedContent[7][1].medications = [];
+  //     }
 
-      // Create a deep copy of the medications array
-      const medicationsArray = Object.keys(medicationsSpecs).map((medName) => {
-        const spec = medicationsSpecs[medName];
-        return {
-          med_name: medName,
-          frequency: spec.severity,
-          dosages: spec.dose,
-          duration: spec.since,
-          instructions: spec.notes,
-          time_of_day: spec.timing,
-        };
-      });
+  //     // Create a deep copy of the medications array
+  //     const medicationsArray = Object.keys(medicationsSpecs).map((medName) => {
+  //       const spec = medicationsSpecs[medName];
+  //       return {
+  //         med_name: medName,
+  //         frequency: spec.severity,
+  //         dosages: spec.dose,
+  //         duration: spec.since,
+  //         instructions: spec.notes,
+  //         time_of_day: spec.timing,
+  //       };
+  //     });
 
-      // Combine the existing medications with the new ones
-      updatedContent[7][1] = {
-        ...updatedContent[7][1],
-        medications: [...updatedContent[7][1].medications, ...medicationsArray],
-      };
+  //     // Combine the existing medications with the new ones
+  //     updatedContent[7][1] = {
+  //       ...updatedContent[7][1],
+  //       medications: [...updatedContent[7][1].medications, ...medicationsArray],
+  //     };
 
-      return updatedContent;
-    });
-  };
+  //     return updatedContent;
+  //   });
+  // };
 
   React.useEffect(() => {
     if (medicationOptions.length >= 2) {
@@ -497,14 +526,52 @@ export default function CustomizedSummaryDialog({
     }
   }, [medicationOptions]);
 
+  const medicationObj = (inputObject) => {
+    const result = [];
+
+    for (const key in inputObject) {
+      const value = inputObject[key];
+      if (
+        JSON.stringify(value) === JSON.stringify({}) ||
+        JSON.stringify(value) === "[object Object]"
+      ) {
+        continue;
+      }
+
+      if (key === "array") {
+        continue;
+      }
+
+      const objectDetails = inputObject[key];
+      console.log(objectDetails);
+      const transformedItem = {
+        med_name: key,
+        frequency: objectDetails.frequency,
+        dosages: objectDetails.dosages,
+        time_of_day: objectDetails.time_of_day,
+        duration: objectDetails.duration,
+        instructions: objectDetails.instructions,
+        // snowmed_code: objectDetails?.snowmed_code,
+        // snowmed_display: objectDetails?.snowmed_display,
+      };
+
+      result.push(transformedItem);
+    }
+
+    const filteredResult = result.filter(
+      (item) => item.medicine_name !== "[object Object]"
+    );
+    return filteredResult;
+  };
+
   const handleMedicationsTextChange = (option, textField, newValue) => {
     let inputValue;
-    if (textField === "severity") {
-      const severityValue = newValue.trim().replace(/[^0-9]/g, "");
-      if (severityValue.length < 3) {
-        inputValue = severityValue.replace(/(\d{1})(\d{1})/, "$1-$2");
-      } else if (severityValue.length < 6) {
-        inputValue = severityValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
+    if (textField === "frequency") {
+      const durationValue = newValue.trim().replace(/[^0-9]/g, "");
+      if (durationValue.length < 3) {
+        inputValue = durationValue.replace(/(\d{1})(\d{1})/, "$1-$2");
+      } else if (durationValue.length < 6) {
+        inputValue = durationValue.replace(/(\d{1})(\d{1})(\d{1})/, "$1-$2-$3");
       } else inputValue = "";
     } else inputValue = newValue;
     setMedicationsSpecs({
@@ -512,8 +579,8 @@ export default function CustomizedSummaryDialog({
       [option?.label]: {
         ...medicationsSpecs[option?.label],
         [textField]: inputValue,
-        snowmed_code: option?.snowmed_code,
-        snowmed_display: option?.snowmed_display,
+        // snowmed_code: option?.snowmed_code,
+        // snowmed_display: option?.snowmed_display,
       },
     });
   };
@@ -525,7 +592,7 @@ export default function CustomizedSummaryDialog({
       return [];
     }
 
-    const sinceValue = medicationsSpecs[item]?.dose || "";
+    const sinceValue = medicationsSpecs[item]?.dosages || "";
 
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return doseOptions?.map((option) => `${parsedNumber}${option}`) || [];
@@ -543,7 +610,7 @@ export default function CustomizedSummaryDialog({
     if (isNaN(parsedNumber) || !item) {
       return [];
     }
-    const sinceValue = medicationsSpecs[item]?.since;
+    const sinceValue = medicationsSpecs[item]?.duration;
     if (sinceValue === "" || !isNaN(parsedNumber)) {
       return timeOptions?.map((option) => `${parsedNumber}${option}`) || [];
     }
@@ -553,7 +620,7 @@ export default function CustomizedSummaryDialog({
   const handleDoseOptions = (event, value) => {
     const isValidInput = /^([1-9]\d{0,2}(Tablet)?)?$/.test(value);
     if (isValidInput) {
-      setDose(value);
+      setDosages(value);
     }
   };
 
@@ -563,6 +630,17 @@ export default function CustomizedSummaryDialog({
       setNumber(value);
     }
   };
+
+  const handleAddNewMedication = () => {
+    const updatedContent = summaryContent;
+    console.log(medicationsSpecs);
+    console.log(updatedContent);
+    updatedContent[7][1] = {
+      ...updatedContent[7][1],
+      medications: medicationsSpecs,
+    };
+    console.log(updatedContent);
+  }
 
   const handleMedicationsSpecsDelete = (optionToRemove) => () => {
     setMedications(
@@ -585,7 +663,7 @@ export default function CustomizedSummaryDialog({
       const fieldValue = value;
       setMedicationsSpecs({
         ...medicationsSpecs,
-        [value?.label || value]: { since: "", severity: "", notes: "" },
+        [value?.label || value]: { duration: "", frequency: "", instructions: "" },
       });
 
       if (value?.label) {
@@ -604,6 +682,19 @@ export default function CustomizedSummaryDialog({
       setMedicationsOpts([]);
     }
   };
+
+  const handleUpdateMedications = () => {
+    const medicationEMR = medicationObj(medicationsSpecs);
+    const updatedContent = summaryContent;
+    console.log(updatedContent);
+    updatedContent[7][1] = {
+      ...updatedContent[7][1],
+      medications: medicationEMR,
+    };
+    console.log(medicationEMR);
+    console.log(updatedContent);
+    setSummaryContent(updatedContent);
+  }
 
   const clearMedicationOptions = (event) => {
     setMedicationsOpts([]);
@@ -735,7 +826,6 @@ export default function CustomizedSummaryDialog({
 
   const handleMedicationInputChange = (e, field) => {
     setNewMedication({ ...newMedication, [field]: e.target.value });
-    console.log(newMedication);
   };
 
   const handleDeleteMedication = (medNameToDelete) => {
@@ -754,47 +844,77 @@ export default function CustomizedSummaryDialog({
     });
   };
 
-  const handleAddMedication = () => {
-    if (
-      newMedication.med_name &&
-      newMedication.frequency &&
-      newMedication.time_of_day &&
-      newMedication.instructions &&
-      newMedication.dosages &&
-      newMedication.duration
-    ) {
-      // Create a new medication object from the input fields
-      const medicationToAdd = { ...newMedication };
+  // const handleAddMedication = () => {
+  //   if (
+  //     newMedication.med_name &&
+  //     newMedication.frequency 
+  //     // &&
+  //     // newMedication.time_of_day &&
+  //     // newMedication.instructions &&
+  //     // newMedication.dosages &&
+  //     // newMedication.duration
+  //   ) {
+  //     // Create a new medication object from the input fields
+  //     const medicationToAdd = { ...newMedication };
+  //     console.log(medicationToAdd);
 
-      // Update the summaryContent state with the new medication
-      setSummaryContent((prevContent) => {
-        const updatedContent = [...prevContent];
+  //     setMedications((medications) => [
+  //       ...medications,
+  //       {
+  //         label: medicationToAdd.med_name,
+  //         value: medicationToAdd.med_name,
+  //         snowmed_code: "",
+  //         snowmed_display: "",
+  //       },
+  //     ]);
+  //     setMedicationsSpecs((prevState) => ({
+  //       ...prevState,
+  //       [medicationToAdd.med_name]: {
+  //         severity: medicationToAdd?.frequency,
+  //         timing: medicationToAdd?.time_of_day,
+  //         dose: medicationToAdd?.dosages,
+  //         since: medicationToAdd?.duration,
+  //         notes: medicationToAdd?.instructions,
+  //       },
+  //     }));
 
-        if (!updatedContent[7][1]?.medications) {
-          updatedContent[7][1] = { medications: [] };
-        }
+  //     // Update the summaryContent state with the new medication
+  //     console.log(medicationsSpecs);
+  //       const updatedContent = summaryContent;
+  //       console.log(updatedContent);
+  //       updatedContent[7][1] = {
+  //         ...updatedContent[7][1],
+  //         medications: [medicationsSpecs],
+  //       };
+  //       // updatedContent[7][1]?.medications = medicationsSpecs;
+       
+  //       // if (!finalMedications) {
+  //       //   updatedContent[7][1].medications(medicationToAdd);
+  //       // }
+  //       // else {
+  //       //   // Add the new medication to the medications array
+  //       //   updatedContent[7][1].medications.push(medicationToAdd);
+  //       // }
+        
+  //       console.log(updatedContent);
+  //       // Return the updated state
+  //       // return updatedContent;
+  //       setSummaryContent(updatedContent);
 
-        // Add the new medication to the medications array
-        updatedContent[7][1].medications.push(medicationToAdd);
-
-        // Return the updated state
-        return updatedContent;
-      });
-
-      // Reset the newMedication input fields
-      setNewMedication({
-        med_name: "",
-        frequency: "",
-        dosages: "",
-        duration: "",
-        instructions: "",
-        time_of_day: "",
-      });
-    } else {
-      // Optionally handle the case where some fields are empty
-      console.log("Please fill in all fields.");
-    }
-  };
+  //     // Reset the newMedication input fields
+  //     // setNewMedication({
+  //     //   med_name: "",
+  //     //   frequency: "",
+  //     //   dosages: "",
+  //     //   duration: "",
+  //     //   instructions: "",
+  //     //   time_of_day: "",
+  //     // });
+  //   } else {
+  //     // Optionally handle the case where some fields are empty
+  //     console.log("Please fill in all fields.");
+  //   }
+  // };
 
   const { width } = useWindowDimensions();
   const [notifyModal, setNotifyModal] = useState(false);
@@ -807,6 +927,7 @@ export default function CustomizedSummaryDialog({
     setIsEditing(true);
     setEditingMedName(medication.med_name);
     setNewMedication(medication);
+
   };
 
   const saveEditedMedication = () => {
@@ -1506,142 +1627,21 @@ export default function CustomizedSummaryDialog({
                   <strong>Prescription</strong>
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant="h7">
-                  <strong>Medications:</strong>{" "}
-                </Typography>
-                <TableContainer>
-                  <Table sx={{ minWidth: 650 }} aria-label="medications table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Medication Name</TableCell>
-                        <TableCell align="right">Frequency</TableCell>
-                        <TableCell align="right">Time of Day</TableCell>
-                        <TableCell align="right">Dosages</TableCell>
-                        <TableCell align="right">Duration</TableCell>
-                        <TableCell align="right">Instruction</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {content[7][1]?.medications?.map((medication) => (
-                        <TableRow
-                          key={medication.med_name}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {medication.med_name}
-                          </TableCell>
-                          <TableCell align="right">
-                            {medication.frequency}
-                          </TableCell>
-                          <TableCell align="right">
-                            {medication.time_of_day}
-                          </TableCell>
-                          <TableCell align="right">
-                            {medication.dosages}
-                          </TableCell>
-                          <TableCell align="right">
-                            {medication.duration}
-                          </TableCell>
-                          <TableCell align="right">
-                            {medication.instructions}
-                          </TableCell>
-                          {edit && (
-                            <TableCell>
-                              <button
-                                onClick={() =>
-                                  handleDeleteMedication(medication.med_name)
-                                }
-                              >
-                                Delete
-                              </button>
-                              <button
-                                onClick={() => startEditMedication(medication)}
-                              >
-                                Edit
-                              </button>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                      {edit && (
-                        <TableRow>
-                          <TableCell component="th" scope="row">
-                            <TextField
-                              value={newMedication.med_name}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "med_name")
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <TextField
-                              value={newMedication.frequency}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "frequency")
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <TextField
-                              value={newMedication.time_of_day}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "time_of_day")
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <TextField
-                              value={newMedication.dosages}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "dosages")
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <TextField
-                              value={newMedication.duration}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "duration")
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <TextField
-                              value={newMedication.instructions}
-                              onChange={(e) =>
-                                handleMedicationInputChange(e, "instructions")
-                              }
-                            />
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                  {edit &&
-                    (!isEditing ? (
-                      <Button onClick={handleAddMedication}>
-                        Add Medication
-                      </Button>
-                    ) : (
-                      <Button onClick={saveEditedMedication}>
-                        Save Edited Medication
-                      </Button>
-                    ))}
-                </TableContainer>
-                {/* {edit && (
-                  <CustomAutoComplete
-                    options={medicationsOpts}
-                    handleInputChange={handleMedicationsChange}
-                    setOptions={setMedicationsOpts}
-                    handleOptionChange={handleMedications}
-                    handleClearOptions={clearMedicationOptions}
-                  />
-                )}
+              <VitalsContainer>
+                {edit && 
+                  <div style={{ padding: "0 20px"}}>
+                    <CustomAutoComplete
+                      placeholder="Enter Medicine"
+                      options={medicationsOpts}
+                      handleInputChange={handleMedicationsChange}
+                      setOptions={setMedicationsOpts}
+                      handleOptionChange={handleMedications}
+                      handleClearOptions={clearMedicationOptions}
+                    />
+                  </div>
+                }
                 {medications?.length > 0 && (
-                  <div>
+                  <div style={{ margin: "25px 5px 0" }}>
                     {medications
                       ?.slice(0)
                       .reverse()
@@ -1657,16 +1657,15 @@ export default function CustomizedSummaryDialog({
                             style={{ minWidth: "90px" }}
                           >
                             <TextField
-                              disabled={!edit}
-                              fullWidth
                               placeholder="Frequency"
                               value={
-                                medicationsSpecs[item?.label]?.severity || ""
+                                medicationsSpecs[item?.label]?.frequency ||
+                                ""
                               }
                               onChange={(e) =>
                                 handleMedicationsTextChange(
                                   item,
-                                  "severity",
+                                  "frequency",
                                   e.target.value
                                 )
                               }
@@ -1674,20 +1673,21 @@ export default function CustomizedSummaryDialog({
                               inputProps={{ maxLength: 5 }}
                               label="Frequency"
                               variant="outlined"
+                              disabled={!edit}
                             />
                           </TextBoxLayout>
                           <TextBoxLayout className="desktopTextBoxLayout">
                             <Autocomplete
-                              disabled={!edit}
                               options={timingOptions} // Replace with your actual timing options
-                              value={medicationsSpecs[item?.label]?.timing}
+                              value={medicationsSpecs[item?.label]?.time_of_day}
                               onChange={(event, newValue) =>
                                 handleMedicationsTextChange(
                                   item,
-                                  "timing",
+                                  "time_of_day",
                                   newValue
                                 )
                               }
+                              disabled={!edit}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
@@ -1699,17 +1699,19 @@ export default function CustomizedSummaryDialog({
                           </TextBoxLayout>
                           <TextBoxLayout className="addMinWidth">
                             <Autocomplete
-                              disabled={!edit}
-                              options={generateDoseOptions(dose, item)}
-                              value={medicationsSpecs[item?.label]?.dose || ""}
+                              options={generateDoseOptions(dosages, item)}
+                              value={
+                                medicationsSpecs[item?.label]?.dosages || ""
+                              }
                               onChange={(e, newValue) =>
                                 handleMedicationOptionsChange(
                                   item,
                                   newValue,
-                                  "dose"
+                                  "dosages"
                                 )
                               }
                               // inputValue={dose}
+                              disabled={!edit}
                               onInputChange={(e, newVal) =>
                                 handleDoseOptions(e, newVal)
                               }
@@ -1725,14 +1727,15 @@ export default function CustomizedSummaryDialog({
                           </TextBoxLayout>
                           <TextBoxLayout className="addMinWidth">
                             <Autocomplete
-                              disabled={!edit}
                               options={generateOptions(number, item)}
-                              value={medicationsSpecs[item?.label]?.since || ""}
+                              value={
+                                medicationsSpecs[item?.label]?.duration || ""
+                              }
                               onChange={(e, newValue) =>
                                 handleMedicationOptionsChange(
                                   item,
                                   newValue,
-                                  "since"
+                                  "duration"
                                 )
                               }
                               // inputValue={number}
@@ -1747,23 +1750,25 @@ export default function CustomizedSummaryDialog({
                                   variant="outlined"
                                 />
                               )}
+                              disabled={!edit}
                             />
                           </TextBoxLayout>
                           <TextBoxLayout className="mobileTextBoxLayout frequencyInput">
                             <TextField
                               placeholder="Frequency"
-                              disabled={!edit}
                               type="tel"
                               value={
-                                medicationsSpecs[item?.label]?.severity || ""
+                                medicationsSpecs[item?.label]?.frequency ||
+                                ""
                               }
                               onChange={(e) =>
                                 handleMedicationsTextChange(
                                   item,
-                                  "severity",
+                                  "frequency",
                                   e.target.value
                                 )
                               }
+                              disabled={!edit}
                               inputProps={{ maxLength: 5 }}
                               label="Frequency"
                               variant="outlined"
@@ -1771,18 +1776,18 @@ export default function CustomizedSummaryDialog({
                           </TextBoxLayout>
                           <TextBoxLayout className="mobileTextBoxLayout addMinWidth">
                             <Autocomplete
-                              disabled={!edit}
                               options={timingOptions} // Replace with your actual timing options
                               value={
-                                medicationsSpecs[item?.label]?.timing || ""
+                                medicationsSpecs[item?.label]?.time_of_day || ""
                               }
                               onChange={(event, newValue) =>
                                 handleMedicationsTextChange(
                                   item,
-                                  "timing",
+                                  "time_of_day",
                                   newValue
                                 )
                               }
+                              disabled={!edit}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
@@ -1795,23 +1800,26 @@ export default function CustomizedSummaryDialog({
                           <NotesWrapper>
                             <TextBoxLayout className="desktop">
                               <TextField
-                                disabled={!edit}
-                                placeholder="Notes"
+                                placeholder="Instructions"
                                 value={
-                                  medicationsSpecs[item?.label]?.notes || ""
+                                  medicationsSpecs[item?.label]?.instructions || ""
                                 }
                                 onChange={(e) =>
                                   handleMedicationsTextChange(
                                     item,
-                                    "notes",
+                                    "instructions",
                                     e.target.value
                                   )
                                 }
-                                label="Notes"
+                                disabled={!edit}
+                                label="Instructions"
                                 variant="outlined"
                               />
                             </TextBoxLayout>
                           </NotesWrapper>
+                          {/* <AddCircleRoundedIcon
+                            onClick={handleAddNewMedication}
+                          /> */}
                           <DeleteWrapper>
                             <p
                               onClick={handleOpenMedicationNotes}
@@ -1825,7 +1833,7 @@ export default function CustomizedSummaryDialog({
                               aria-labelledby="modal-modal-title"
                               aria-describedby="modal-modal-description"
                             >
-                              <Box sx={CustomStyle}>
+                              <Box sx={style}>
                                 <div style={{ position: "relative" }}>
                                   <Toolbar>
                                     <Typography
@@ -1851,18 +1859,17 @@ export default function CustomizedSummaryDialog({
                                 >
                                   <TextBoxLayout>
                                     <TextareaAutosize
-                                      disabled={!edit}
                                       maxRows={3}
                                       className="textareaAutoSizeStyle"
-                                      placeholder="Notes"
+                                      placeholder="Instructions"
                                       value={
-                                        medicationsSpecs[item?.label]?.notes ||
-                                        ""
+                                        medicationsSpecs[item?.label]
+                                          ?.instructions || ""
                                       }
                                       onChange={(e) =>
                                         handleMedicationsTextChange(
                                           item,
-                                          "notes",
+                                          "instructions",
                                           e.target.value
                                         )
                                       }
@@ -1878,29 +1885,20 @@ export default function CustomizedSummaryDialog({
                                 </PrimaryButton>
                               </Box>
                             </Modal>
-                            {edit && (
-                              <DeleteField
-                                onClick={handleMedicationsSpecsDelete(
-                                  item?.label
-                                )}
-                              >
-                                Delete
-                              </DeleteField>
-                            )}
+                            <DeleteField
+                              onClick={handleMedicationsSpecsDelete(
+                                item?.label
+                              )}
+                            >
+                              Delete
+                            </DeleteField>
                           </DeleteWrapper>
                         </FieldSpecsContainer>
                       ))}
-                    {edit && (
-                      <Button
-                        variant="outlined"
-                        onClick={addMedicationsToSummary}
-                      >
-                        Add Medication
-                      </Button>
-                    )}
                   </div>
-                )} */}
-              </AccordionDetails>
+                )}
+                {edit && <Button onClick={handleUpdateMedications}>Save Changes</Button> }
+              </VitalsContainer>
             </Accordion>
             <Accordion>
               <AccordionSummary
