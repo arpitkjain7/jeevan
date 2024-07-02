@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, UploadFile
 from fastapi.security import OAuth2PasswordBearer
 from core.controllers.ai_controller import AIController
+from core.apis.schemas.requests.ai_request import MedicalSummary
 from core import logger
 from commons.auth import decodeJWT
 
@@ -42,6 +43,34 @@ async def transcribe_audio(
         raise httperror
     except Exception as error:
         logging.error(f"Error in /v1/openAI/transcribe endpoint: {error}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@ai_router.post("/v1/openAI/update-summary")
+async def update_summary(
+    request: MedicalSummary,
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        logging.info("Calling /v1/openAI/update-summary endpoint")
+        authenticated_user_details = decodeJWT(token=token)
+        if authenticated_user_details:
+            return AIController().update_summary(request=request)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid access token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except HTTPException as httperror:
+        logging.error(f"Error in /v1/openAI/update-summary endpoint: {httperror}")
+        raise httperror
+    except Exception as error:
+        logging.error(f"Error in /v1/openAI/update-summary endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),

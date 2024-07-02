@@ -157,14 +157,23 @@ def previewPMR(
         )
 
 
-"""@pmr_router.patch("/v1/PMR/updatePMR")
-def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
+@pmr_router.post("/v1/PMR/preview-summary")
+def previewPMR(
+    pmr_metadata: PMRMetadata,
+    pmr_request: PMR = None,
+    appointment_request: FollowUp_ConsultationStatus = None,
+    token: str = Depends(oauth2_scheme),
+):
     try:
-        logging.info("Calling /v1/pmr/updatePMR endpoint")
+        logging.info("Calling /v1/PMR/preview-summary endpoint")
         logging.debug(f"Request: {pmr_request}")
         authenticated_user_details = decodeJWT(token=token)
         if authenticated_user_details:
-            return PMRController().update_pmr(request=pmr_request)
+            return PMRController().preview_summary(
+                pmr_request=pmr_request,
+                appointment_request=appointment_request,
+                pmr_metadata=pmr_metadata,
+            )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -172,16 +181,15 @@ def updatePMR(pmr_request: PMR, token: str = Depends(oauth2_scheme)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except HTTPException as httperror:
-        logging.error(f"Error in /v1/pmr/updatePMR endpoint: {httperror}")
+        logging.error(f"Error in /v1/PMR/preview-summary endpoint: {httperror}")
         raise httperror
     except Exception as error:
-        logging.error(f"Error in /v1/pmr/updatePMR endpoint: {error}")
+        logging.error(f"Error in /v1/PMR/preview-summary endpoint: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-"""
 
 
 @pmr_router.post("/v1/PMR/createVital")

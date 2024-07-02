@@ -27,7 +27,7 @@
     "laboratory_and_diagnostic_test_results": "string"
   },
   "assessment": {
-    "comment": "Doctor's assessment based on subjective and objective information.",
+    "comment": "Doctor's assessment based on subjective and objective information. If not suggested, return None",
     "preliminary_diagnosis": "string",
     "differential_diagnosis": "string",
     "risk_factors": "string"
@@ -39,26 +39,28 @@
     "follow_up": "string"
   },
   "tests_to_be_taken": {
-    "comment": "List of additional diagnostic tests to be conducted for further assessment.",
+    "comment": "List of additional diagnostic tests to be conducted for further assessment. If not suggested, return blank list.",
     "laboratory_tests": ["string"],
     "imaging_tests": ["string"],
     "special_exams": ["string"]
   },
   "other_next_steps": {
-    "comment": "Other necessary actions before finalizing the patient's treatment plan.",
+    "comment": "Other necessary actions before finalizing the patient's treatment plan. If not suggested, return blank list.",
     "consultations": ["string"],
     "referrals": ["string"],
     "precautions": ["string"],
     "lifestyle_modifications": ["string"]
   },
   "prescription": {
-    "comment": " comment on the list Medication details including names, dosages, frequencies, routes, durations, and special instructions.",
+    "comment": "List Medication suggested by doctor including names, dosages, frequencies, routes, durations, and special instructions. If not suggested, return blank list.",
     "medications": [
       {
-        "med_name": "string for scientific name or brand name if mentioned else empty",
-        "instructions": "string for how to take the medication if mentioned else empty",
-        "dosages": "string for dosage if mentioned else empty",
-        "duration_refill": "string for duration and refill if mentioned else empty"
+        "med_name": "string for name or brand of medicine suggested else empty",
+        "frequency": "string for frequency to take the medicine if suggested else empty",
+        "time_of_day": "string for time of the day when to take the medicine if suggested else empty",
+        "dosages": "string for dosage if suggested else empty",
+        "duration": "string for duration and refill if suggested else empty",
+        "instructions": "string for how to take the medication if suggested else empty"
       }
     ]
   },
